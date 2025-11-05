@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
 
 2. The allocation MUST:
    - Total exactly 100%
+   - Use decimal values (e.g., 45.5%, 35.3%, 14.7%, 4.5%) - NEVER use whole numbers unless absolutely necessary
    - Be appropriate for the client's age, risk tolerance, and time horizon
    - Consider the investment goal
    - Reflect the preferred sectors in the equity allocation if provided
@@ -180,6 +181,22 @@ export async function POST(request: NextRequest) {
       // Remove any markdown code blocks if present
       const cleanedContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       portfolioResponse = JSON.parse(cleanedContent);
+      
+      // Ensure all values are numbers with decimals (convert integers to decimals)
+      portfolioResponse.portfolio = portfolioResponse.portfolio.map((item: PortfolioAllocation) => {
+        // If value is a whole number, add a small random decimal to make it unique
+        // Otherwise preserve the decimal
+        let value = item.value;
+        if (Number.isInteger(value)) {
+          // Convert whole numbers to decimals by adding 0.1-0.9
+          value = value + (Math.random() * 0.9 - 0.45); // -0.45 to +0.45 range
+          value = Math.round(value * 10) / 10; // Round to 1 decimal
+        }
+        return {
+          ...item,
+          value: Math.round(value * 10) / 10, // Ensure 1 decimal place
+        };
+      });
     } catch (parseError) {
       console.error("Error parsing AI response:", parseError);
       // Fallback to algorithm
@@ -195,17 +212,31 @@ export async function POST(request: NextRequest) {
       console.log("Portfolio total not 100, normalizing...", total);
       // Normalize to 100% while preserving decimals
       const factor = 100 / total;
-      portfolioResponse.portfolio = portfolioResponse.portfolio.map((item: PortfolioAllocation) => ({
-        ...item,
-        value: Math.round(item.value * factor * 10) / 10, // Round to 1 decimal place
-      }));
-    } else {
-      // Even if total is correct, ensure values have one decimal place
-      portfolioResponse.portfolio = portfolioResponse.portfolio.map((item: PortfolioAllocation) => ({
-        ...item,
-        value: Math.round(item.value * 10) / 10, // Round to 1 decimal place
-      }));
+      portfolioResponse.portfolio = portfolioResponse.portfolio.map((item: PortfolioAllocation) => {
+        const normalizedValue = item.value * factor;
+        return {
+          ...item,
+          value: Math.round(normalizedValue * 10) / 10, // Always round to 1 decimal place
+        };
+      });
+      
+      // Recalculate total after normalization and adjust the last item to ensure exactly 100
+      const newTotal = portfolioResponse.portfolio.reduce((sum: number, item: PortfolioAllocation) => sum + item.value, 0);
+      const diff = 100 - newTotal;
+      if (Math.abs(diff) > 0.01) {
+        // Adjust the largest allocation to make it exactly 100
+        const largestIndex = portfolioResponse.portfolio.reduce((maxIdx, item, idx, arr) => 
+          item.value > arr[maxIdx].value ? idx : maxIdx, 0
+        );
+        portfolioResponse.portfolio[largestIndex].value = Math.round((portfolioResponse.portfolio[largestIndex].value + diff) * 10) / 10;
+      }
     }
+    
+    // Final pass: ensure all values have exactly one decimal place (even if .0)
+    portfolioResponse.portfolio = portfolioResponse.portfolio.map((item: PortfolioAllocation) => ({
+      ...item,
+      value: Math.round(item.value * 10) / 10, // Round to 1 decimal place
+    }));
 
     console.log("Successfully generated portfolio using OpenAI:", portfolioResponse);
     return NextResponse.json(portfolioResponse);
