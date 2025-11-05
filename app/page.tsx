@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 // Diversonal Portfolio Allocation Platform
+// AI-powered portfolio optimization with stress testing
 // Recharts is a composable charting library built on React components
 // It's lightweight, responsive, and works seamlessly with Next.js
 // Documentation: https://recharts.org/
