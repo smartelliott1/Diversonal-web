@@ -3,11 +3,11 @@ import { useState, useEffect, useRef } from "react";
 // Recharts is a composable charting library built on React components
 // It's lightweight, responsive, and works seamlessly with Next.js
 // Documentation: https://recharts.org/
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
 // Toast notifications for user feedback
 import toast, { Toaster } from "react-hot-toast";
 // PDF generation libraries
-import jsPDF from "jspdf";
+// Using dynamic import to avoid SSR issues
 import html2canvas from "html2canvas";
 
 // Type definitions for saved portfolios
@@ -43,6 +43,9 @@ export default function Home() {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [portfolioData, setPortfolioData] = useState<PortfolioItem[]>([]);
   const [portfolioReasoning, setPortfolioReasoning] = useState("");
+  const [stressTestScenario, setStressTestScenario] = useState("");
+  const [stressTestLoading, setStressTestLoading] = useState(false);
+  const [stressTestResult, setStressTestResult] = useState<any>(null);
   const portfolioRef = useRef<HTMLDivElement>(null);
   
   // Available sectors for selection
@@ -147,15 +150,20 @@ export default function Home() {
   const handleExportPDF = async () => {
     if (!portfolioRef.current) return;
     
-    toast.loading("Generating PDF...");
+    const loadingToast = toast.loading("Generating PDF...");
     
     try {
+      // Dynamically import jsPDF to avoid SSR issues
+      const { default: jsPDF } = await import("jspdf");
+      
       const canvas = await html2canvas(portfolioRef.current, {
         backgroundColor: "#ffffff",
         scale: 2,
+        useCORS: true,
+        logging: false,
       });
       
-      const imgData = canvas.toDataURL("image/png");
+      const imgData = canvas.toDataURL("image/png", 1.0);
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -167,12 +175,12 @@ export default function Home() {
       
       pdf.addImage(imgData, "PNG", 0, 0, imgScaledWidth, imgScaledHeight);
       pdf.save(`diversonal-portfolio-${Date.now()}.pdf`);
-      toast.dismiss();
+      toast.dismiss(loadingToast);
       toast.success("PDF downloaded successfully!");
     } catch (error) {
-      toast.dismiss();
-      toast.error("Failed to generate PDF");
-      console.error(error);
+      toast.dismiss(loadingToast);
+      toast.error("Failed to generate PDF. Please try again.");
+      console.error("PDF generation error:", error);
     }
   };
   
@@ -210,6 +218,59 @@ export default function Home() {
     const text = `Diversonal Portfolio Allocation\n\n${dataToUse.map(p => `${p.name}: ${p.value}%${p.breakdown ? ` (${p.breakdown})` : ""}`).join("\n")}${portfolioReasoning ? `\n\nReasoning: ${portfolioReasoning}` : ""}`;
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard!");
+  };
+
+  // Pre-defined stress test scenarios
+  const predefinedScenarios = [
+    "S&P 500 drops 10% in 2026",
+    "Market crash similar to 2008",
+    "Rising interest rates and inflation",
+    "Technology sector downturn",
+    "Global recession scenario",
+  ];
+
+  // Handle stress test
+  const handleStressTest = async (scenario: string) => {
+    if (!scenario.trim()) {
+      toast.error("Please enter a stress test scenario");
+      return;
+    }
+
+    setStressTestLoading(true);
+    setStressTestResult(null);
+
+    try {
+      const capital = parseInt(
+        (document.getElementById("capital") as HTMLInputElement)?.value || "10000"
+      );
+      const horizon = (document.getElementById("horizon") as HTMLSelectElement)?.value || "";
+
+      const response = await fetch("/api/stress-test", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          scenario: scenario.trim(),
+          portfolio: currentPortfolioData,
+          initialCapital: capital,
+          timeHorizon: horizon,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate stress test");
+      }
+
+      const data = await response.json();
+      setStressTestResult(data);
+      toast.success("Stress test completed!");
+    } catch (error) {
+      console.error("Error generating stress test:", error);
+      toast.error("Failed to generate stress test. Please try again.");
+    } finally {
+      setStressTestLoading(false);
+    }
   };
   
   // Handle form submission with AI-powered portfolio generation
@@ -634,6 +695,156 @@ export default function Home() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+          </div>
+
+          {/* Stress Testing Section */}
+          <div className="mt-12 rounded-2xl border-2 border-gray-200 bg-gray-50 p-8">
+            <h3 className="mb-4 text-2xl font-bold text-gray-900">Stress Testing</h3>
+            <p className="mb-6 text-sm text-gray-600">
+              Test how your portfolio would perform under different market scenarios. Enter a custom scenario or choose from common stress tests.
+            </p>
+
+            {/* Pre-defined Scenarios */}
+            <div className="mb-6">
+              <p className="mb-3 text-sm font-semibold text-gray-700">Quick Scenarios:</p>
+              <div className="flex flex-wrap gap-2">
+                {predefinedScenarios.map((scenario, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setStressTestScenario(scenario);
+                      handleStressTest(scenario);
+                    }}
+                    disabled={stressTestLoading}
+                    className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[#00FF99] hover:bg-[#00FF99]/10 hover:text-[#00FF99] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {scenario}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Scenario Input */}
+            <div className="mb-6">
+              <label htmlFor="stress-scenario" className="mb-2 block text-sm font-semibold text-gray-800">
+                Custom Scenario
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="stress-scenario"
+                  type="text"
+                  value={stressTestScenario}
+                  onChange={(e) => setStressTestScenario(e.target.value)}
+                  placeholder="e.g., Oil prices spike 50%, causing energy sector volatility"
+                  className="flex-1 rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm outline-none transition-all focus:border-[#00FF99] focus:ring-4 focus:ring-[#00FF99]/20"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !stressTestLoading) {
+                      handleStressTest(stressTestScenario);
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => handleStressTest(stressTestScenario)}
+                  disabled={stressTestLoading || !stressTestScenario.trim()}
+                  className="rounded-xl bg-[#00FF99] px-6 py-3 font-semibold text-[#171A1F] transition-all hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {stressTestLoading ? (
+                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    "Run Test"
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Stress Test Results */}
+            {stressTestResult && (
+              <div className="mt-8 rounded-xl border border-gray-200 bg-white p-6">
+                <div className="mb-4 flex items-start justify-between">
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-900">Stress Test Results</h4>
+                    <p className="mt-1 text-sm text-gray-600 italic">{stressTestResult.analysis}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-2xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      {stressTestResult.percentageChange > 0 ? '+' : ''}{stressTestResult.percentageChange.toFixed(1)}%
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Final Value: ${stressTestResult.finalValue.toLocaleString()}
+                    </div>
+                    <div className={`mt-1 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+                      stressTestResult.riskLevel === 'Severe' ? 'bg-red-100 text-red-700' :
+                      stressTestResult.riskLevel === 'High' ? 'bg-orange-100 text-orange-700' :
+                      stressTestResult.riskLevel === 'Moderate' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-green-100 text-green-700'
+                    }`}>
+                      {stressTestResult.riskLevel} Risk
+                    </div>
+                  </div>
+                </div>
+
+                {/* Asset Impact Breakdown */}
+                <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  {stressTestResult.impact && Object.entries(stressTestResult.impact).map(([asset, impact]: [string, any]) => (
+                    <div key={asset} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                      <div className="text-xs font-medium text-gray-600">{asset}</div>
+                      <div className={`text-lg font-bold ${impact < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {impact > 0 ? '+' : ''}{impact.toFixed(1)}%
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Portfolio Value Chart */}
+                {stressTestResult.portfolioValue && stressTestResult.portfolioValue.length > 0 && (
+                  <div className="h-64 sm:h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={stressTestResult.months.map((month: string, index: number) => ({
+                          month: month.replace('Month ', 'M'),
+                          value: stressTestResult.portfolioValue[index],
+                        }))}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis 
+                          dataKey="month" 
+                          tick={{ fill: '#6b7280', fontSize: 12 }}
+                        />
+                        <YAxis 
+                          tick={{ fill: '#6b7280', fontSize: 12 }}
+                          label={{ value: 'Portfolio Value ($)', angle: -90, position: 'insideLeft', fill: '#6b7280' }}
+                        />
+                        <Tooltip 
+                          formatter={(value: number) => [`$${value.toLocaleString()}`, 'Portfolio Value']}
+                          contentStyle={{ 
+                            backgroundColor: '#171A1F', 
+                            border: 'none', 
+                            borderRadius: '8px',
+                            color: '#00FF99',
+                            fontSize: '14px',
+                            fontWeight: '500'
+                          }}
+                          labelStyle={{ color: '#00FF99', fontSize: '14px', fontWeight: '600' }}
+                          itemStyle={{ color: '#00FF99' }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="value" 
+                          stroke="#00FF99" 
+                          strokeWidth={3}
+                          dot={{ fill: '#00FF99', r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
       )}
