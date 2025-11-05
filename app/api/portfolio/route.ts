@@ -38,11 +38,15 @@ export async function POST(request: NextRequest) {
     // If no API key, use a sophisticated fallback algorithm
     if (!OPENAI_API_KEY) {
       console.warn("OPENAI_API_KEY not set, using fallback algorithm");
+      console.log("Environment check - NODE_ENV:", process.env.NODE_ENV);
+      console.log("API Key exists:", !!OPENAI_API_KEY);
       return NextResponse.json({
         portfolio: generateFallbackPortfolio(age, riskTolerance, timeHorizon, capital, goal, sectors),
         reasoning: "Generated using Diversonal's proprietary algorithm",
       });
     }
+
+    console.log("OPENAI_API_KEY found, attempting to call OpenAI API");
 
     // Construct the AI prompt for financial advice
     const prompt = `You are a professional financial advisor with expertise in portfolio allocation. Generate a personalized investment portfolio allocation based on the following client profile:
@@ -132,14 +136,35 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error("OpenAI API error:", error);
-      // Fallback to algorithm if API fails
+      const errorText = await response.text();
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { error: { message: errorText } };
+      }
+      
+      console.error("OpenAI API error - Status:", response.status);
+      console.error("OpenAI API error - Response:", errorData);
+      
+      // Check if it's a quota/billing error
+      const errorMessage = errorData?.error?.message || errorText;
+      if (errorMessage.includes("quota") || errorMessage.includes("billing") || errorMessage.includes("exceeded")) {
+        console.warn("OpenAI quota/billing error - using fallback algorithm");
+        return NextResponse.json({
+          portfolio: generateFallbackPortfolio(age, riskTolerance, timeHorizon, capital, goal, sectors),
+          reasoning: "Generated using Diversonal's proprietary algorithm (OpenAI quota/billing issue - please check your OpenAI account)",
+        });
+      }
+      
+      // Fallback to algorithm if API fails for other reasons
       return NextResponse.json({
         portfolio: generateFallbackPortfolio(age, riskTolerance, timeHorizon, capital, goal, sectors),
-        reasoning: "Generated using Diversonal's proprietary algorithm (AI service temporarily unavailable)",
+        reasoning: `Generated using Diversonal's proprietary algorithm (OpenAI error: ${errorMessage.substring(0, 100)})`,
       });
     }
+
+    console.log("OpenAI API call successful, parsing response...");
 
     const data = await response.json();
     const content = data.choices[0]?.message?.content;
@@ -166,6 +191,7 @@ export async function POST(request: NextRequest) {
     // Validate the portfolio sums to 100
     const total = portfolioResponse.portfolio.reduce((sum: number, item: PortfolioAllocation) => sum + item.value, 0);
     if (Math.abs(total - 100) > 0.1) {
+      console.log("Portfolio total not 100, normalizing...", total);
       // Normalize to 100%
       const factor = 100 / total;
       portfolioResponse.portfolio = portfolioResponse.portfolio.map((item: PortfolioAllocation) => ({
@@ -174,6 +200,7 @@ export async function POST(request: NextRequest) {
       }));
     }
 
+    console.log("Successfully generated portfolio using OpenAI:", portfolioResponse);
     return NextResponse.json(portfolioResponse);
   } catch (error) {
     console.error("Error generating portfolio:", error);
