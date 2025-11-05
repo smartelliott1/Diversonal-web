@@ -80,23 +80,23 @@ export async function POST(request: NextRequest) {
   "portfolio": [
     {
       "name": "Equities",
-      "value": 45,
+      "value": 45.5,
       "color": "#00FF99",
-      "breakdown": "S&P 500: 25%, Tech stocks: 10%, International: 10%"
+      "breakdown": "S&P 500: 25.5%, Tech stocks: 10.2%, International: 9.8%"
     },
     {
       "name": "Bonds",
-      "value": 35,
+      "value": 35.3,
       "color": "#4A90E2"
     },
     {
       "name": "Alternatives",
-      "value": 15,
+      "value": 14.7,
       "color": "#FF6B6B"
     },
     {
       "name": "Cash",
-      "value": 5,
+      "value": 4.5,
       "color": "#FFD93D"
     }
   ],
@@ -108,7 +108,8 @@ export async function POST(request: NextRequest) {
 - Use color #4A90E2 for Bonds
 - Use color #FF6B6B for Alternatives  
 - Use color #FFD93D for Cash
-- Ensure all values sum to 100
+- Ensure all values sum to 100 (use decimals for precision, e.g., 45.5, 35.3, 14.7, 4.5)
+- Values should include one decimal place for accuracy
 - Return ONLY valid JSON, no markdown or code blocks`;
 
     // Call OpenAI API
@@ -192,11 +193,17 @@ export async function POST(request: NextRequest) {
     const total = portfolioResponse.portfolio.reduce((sum: number, item: PortfolioAllocation) => sum + item.value, 0);
     if (Math.abs(total - 100) > 0.1) {
       console.log("Portfolio total not 100, normalizing...", total);
-      // Normalize to 100%
+      // Normalize to 100% while preserving decimals
       const factor = 100 / total;
       portfolioResponse.portfolio = portfolioResponse.portfolio.map((item: PortfolioAllocation) => ({
         ...item,
-        value: Math.round(item.value * factor * 10) / 10,
+        value: Math.round(item.value * factor * 10) / 10, // Round to 1 decimal place
+      }));
+    } else {
+      // Even if total is correct, ensure values have one decimal place
+      portfolioResponse.portfolio = portfolioResponse.portfolio.map((item: PortfolioAllocation) => ({
+        ...item,
+        value: Math.round(item.value * 10) / 10, // Round to 1 decimal place
       }));
     }
 
