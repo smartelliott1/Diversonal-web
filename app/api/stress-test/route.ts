@@ -28,9 +28,20 @@ interface StressTestResult {
 }
 
 export async function POST(request: NextRequest) {
+  let body: StressTestRequest;
   try {
-    const body: StressTestRequest = await request.json();
-    const { scenario, portfolio, initialCapital, timeHorizon } = body;
+    body = await request.json();
+  } catch (parseError) {
+    console.error("Error parsing request body:", parseError);
+    return NextResponse.json(
+      { error: "Invalid request format" },
+      { status: 400 }
+    );
+  }
+
+  const { scenario, portfolio, initialCapital, timeHorizon } = body;
+
+  try {
 
     if (!scenario || !portfolio || !initialCapital) {
       return NextResponse.json(
@@ -42,11 +53,14 @@ export async function POST(request: NextRequest) {
     // If no API key, use fallback algorithm
     if (!ANTHROPIC_API_KEY) {
       console.warn("ANTHROPIC_API_KEY not set, using fallback algorithm");
+      console.log("Environment check - NODE_ENV:", process.env.NODE_ENV);
       return NextResponse.json({
         ...generateFallbackStressTest(scenario, portfolio, initialCapital),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm",
       });
     }
+
+    console.log("ANTHROPIC_API_KEY found, attempting to call Claude API");
 
     const anthropic = new Anthropic({
       apiKey: ANTHROPIC_API_KEY,
@@ -104,17 +118,27 @@ ${scenario}
 - Values should reflect realistic market recovery patterns when applicable
 - Consider that different scenarios have different recovery trajectories`;
 
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 2000,
-      temperature: 0.3, // Lower temperature for more consistent, analytical responses
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
+    let response;
+    try {
+      response = await anthropic.messages.create({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 2000,
+        temperature: 0.3, // Lower temperature for more consistent, analytical responses
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
+    } catch (apiError: any) {
+      console.error("Anthropic API error:", apiError);
+      // Fallback to algorithm if API call fails
+      return NextResponse.json({
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital),
+        reasoning: "Generated using Diversonal's proprietary stress testing algorithm (AI service temporarily unavailable)",
+      });
+    }
 
     const content = response.content[0];
     
@@ -173,12 +197,28 @@ ${scenario}
     }
 
     return NextResponse.json(stressTestResult);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating stress test:", error);
-    return NextResponse.json(
-      { error: "Failed to generate stress test. Please try again." },
-      { status: 500 }
-    );
+    
+    // Always try to use fallback algorithm if we have the body
+    console.log("Falling back to algorithm due to error:", error?.message);
+    try {
+      return NextResponse.json({
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital),
+        reasoning: "Generated using Diversonal's proprietary stress testing algorithm (AI service temporarily unavailable)",
+      });
+    } catch (fallbackError) {
+      console.error("Fallback also failed:", fallbackError);
+      // Return detailed error in development, generic in production
+      const errorMessage = process.env.NODE_ENV === 'development' 
+        ? `Failed to generate stress test: ${error?.message || 'Unknown error'}`
+        : "Failed to generate stress test. Please try again.";
+      
+      return NextResponse.json(
+        { error: errorMessage },
+        { status: 500 }
+      );
+    }
   }
 }
 
