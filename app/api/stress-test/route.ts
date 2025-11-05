@@ -121,7 +121,7 @@ ${scenario}
     let response;
     try {
       response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-3-5-sonnet-20240620", // Updated to stable model version
         max_tokens: 2000,
         temperature: 0.3, // Lower temperature for more consistent, analytical responses
         messages: [
