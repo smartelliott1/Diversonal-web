@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
       const diff = 100 - newTotal;
       if (Math.abs(diff) > 0.01) {
         // Adjust the largest allocation to make it exactly 100
-        const largestIndex = portfolioResponse.portfolio.reduce((maxIdx, item, idx, arr) => 
+        const largestIndex = portfolioResponse.portfolio.reduce((maxIdx: number, item: PortfolioAllocation, idx: number, arr: PortfolioAllocation[]) => 
           item.value > arr[maxIdx].value ? idx : maxIdx, 0
         );
         portfolioResponse.portfolio[largestIndex].value = Math.round((portfolioResponse.portfolio[largestIndex].value + diff) * 10) / 10;
