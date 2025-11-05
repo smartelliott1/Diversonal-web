@@ -260,15 +260,25 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to generate stress test");
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        console.error("API error response:", errorData);
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to generate stress test`);
       }
 
       const data = await response.json();
+      
+      // Check if response has an error field
+      if (data.error) {
+        console.error("Error in response:", data.error);
+        throw new Error(data.error);
+      }
+      
       setStressTestResult(data);
       toast.success("Stress test completed!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating stress test:", error);
-      toast.error("Failed to generate stress test. Please try again.");
+      const errorMessage = error?.message || "Failed to generate stress test. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setStressTestLoading(false);
     }
