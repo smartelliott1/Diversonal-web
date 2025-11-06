@@ -120,8 +120,12 @@ ${scenario}
 
     let response;
     try {
+      // Use the latest Claude 3.5 Sonnet model
+      // Model names: claude-3-5-sonnet-20241022 (latest) or claude-3-5-sonnet-20240620
+      let modelName = "claude-3-5-sonnet-20241022";
+      
       response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022", // Latest Claude 3.5 Sonnet model
+        model: modelName,
         max_tokens: 2000,
         temperature: 0.3, // Lower temperature for more consistent, analytical responses
         messages: [
