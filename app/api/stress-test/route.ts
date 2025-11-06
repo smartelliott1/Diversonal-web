@@ -121,12 +121,16 @@ ${scenario}
 
     let response;
     try {
-      // Try Claude 3.5 Sonnet models in order of preference
-      // Try without date suffix first (uses latest), then with specific versions
+      // Try Claude models available in your account
+      // Based on Anthropic console, available models are: Claude Sonnet 4.x, Claude Opus 4.x, Claude Haiku 3.5
+      // Try in order of preference (best for financial analysis first)
       const modelsToTry = [
-        "claude-3-5-sonnet", // Latest version (no date suffix)
-        "claude-3-5-sonnet-20241022", // Specific latest version
-        "claude-3-5-sonnet-20240620", // Older stable version
+        "claude-sonnet-4-20241022", // Claude Sonnet 4.x (best for financial analysis)
+        "claude-sonnet-4", // Claude Sonnet 4.x without date
+        "claude-opus-4-20241022", // Claude Opus 4.x (alternative)
+        "claude-opus-4", // Claude Opus 4.x without date
+        "claude-3-5-haiku-20241022", // Claude Haiku 3.5 (faster but less capable)
+        "claude-3-5-haiku", // Claude Haiku 3.5 without date
       ];
       
       let lastError: any = null;
