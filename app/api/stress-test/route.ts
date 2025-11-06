@@ -121,7 +121,7 @@ ${scenario}
     let response;
     try {
       response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20240620", // Updated to stable model version
+        model: "claude-3-5-sonnet-20241022", // Latest Claude 3.5 Sonnet model
         max_tokens: 2000,
         temperature: 0.3, // Lower temperature for more consistent, analytical responses
         messages: [
@@ -133,6 +133,12 @@ ${scenario}
       });
     } catch (apiError: any) {
       console.error("Anthropic API error:", apiError);
+      console.error("Error details:", {
+        message: apiError?.message,
+        status: apiError?.status,
+        type: apiError?.type,
+        error: apiError?.error
+      });
       // Fallback to algorithm if API call fails
       return NextResponse.json({
         ...generateFallbackStressTest(scenario, portfolio, initialCapital),
