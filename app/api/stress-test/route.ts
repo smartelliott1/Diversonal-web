@@ -121,45 +121,21 @@ ${scenario}
 
     let response;
     try {
-      // Try Claude 3.5 Sonnet - use the latest available version
-      // If 20241022 doesn't work, the error will show and we'll fallback
-      const modelName = "claude-3-5-sonnet-20241022";
-      console.log("Attempting to call Claude with model:", modelName);
+      // Try Claude 3.5 Sonnet models in order of preference
+      // Try without date suffix first (uses latest), then with specific versions
+      const modelsToTry = [
+        "claude-3-5-sonnet", // Latest version (no date suffix)
+        "claude-3-5-sonnet-20241022", // Specific latest version
+        "claude-3-5-sonnet-20240620", // Older stable version
+      ];
       
-      response = await anthropic.messages.create({
-        model: modelName,
-        max_tokens: 2000,
-        temperature: 0.3, // Lower temperature for more consistent, analytical responses
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-      });
+      let lastError: any = null;
       
-      console.log("Claude API call successful");
-    } catch (apiError: any) {
-      console.error("Anthropic API error:", apiError);
-      console.error("Error details:", {
-        message: apiError?.message,
-        status: apiError?.status,
-        statusCode: apiError?.statusCode,
-        type: apiError?.type,
-        error: apiError?.error,
-        fullError: JSON.stringify(apiError, null, 2)
-      });
-      
-      // If it's a model not found error, try the older version
-      const errorMessage = apiError?.message || "";
-      if (errorMessage.includes("not_found") || errorMessage.includes("404") || apiError?.statusCode === 404) {
-        console.log("Model not found, trying older version: claude-3-5-sonnet-20240620");
+      for (const modelName of modelsToTry) {
         try {
-          const anthropicRetry = new Anthropic({
-            apiKey: ANTHROPIC_API_KEY,
-          });
-          response = await anthropicRetry.messages.create({
-            model: "claude-3-5-sonnet-20240620",
+          console.log(`Attempting to call Claude with model: ${modelName}`);
+          response = await anthropic.messages.create({
+            model: modelName,
             max_tokens: 2000,
             temperature: 0.3,
             messages: [
@@ -169,22 +145,35 @@ ${scenario}
               },
             ],
           });
-          console.log("Successfully used fallback model: claude-3-5-sonnet-20240620");
-        } catch (retryError: any) {
-          console.error("Fallback model also failed:", retryError);
-          // Fallback to algorithm
-          return NextResponse.json({
-            ...generateFallbackStressTest(scenario, portfolio, initialCapital),
-            reasoning: "Generated using Diversonal's proprietary stress testing algorithm (Claude API unavailable - please check model access)",
-          });
+          console.log(`Claude API call successful with model: ${modelName}`);
+          break; // Success, exit the loop
+        } catch (modelError: any) {
+          lastError = modelError;
+          console.warn(`Model ${modelName} failed:`, modelError?.message || modelError);
+          // Continue to next model
         }
-      } else {
-        // Fallback to algorithm if API call fails for other reasons
-        return NextResponse.json({
-          ...generateFallbackStressTest(scenario, portfolio, initialCapital),
-          reasoning: "Generated using Diversonal's proprietary stress testing algorithm (AI service temporarily unavailable)",
-        });
       }
+      
+      // If all models failed, throw the last error
+      if (!response) {
+        throw lastError || new Error("All Claude models failed");
+      }
+      
+    } catch (apiError: any) {
+      console.error("All Claude models failed. Final error:", apiError);
+      console.error("Error details:", {
+        message: apiError?.message,
+        status: apiError?.status,
+        statusCode: apiError?.statusCode,
+        type: apiError?.type,
+        error: apiError?.error,
+      });
+      
+      // Fallback to algorithm
+      return NextResponse.json({
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital),
+        reasoning: "Generated using Diversonal's proprietary stress testing algorithm (Claude API unavailable - please verify API key and model access in Anthropic console)",
+      });
     }
 
     const content = response.content[0];
