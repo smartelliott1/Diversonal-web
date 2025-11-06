@@ -121,16 +121,18 @@ ${scenario}
 
     let response;
     try {
-      // Try Claude models available in your account
-      // Based on Anthropic console, available models are: Claude Sonnet 4.x, Claude Opus 4.x, Claude Haiku 3.5
+      // Try Claude models - Anthropic API model identifier format
+      // Based on Anthropic API docs, correct formats are:
+      // - claude-sonnet-4-20250514 (Sonnet 4.x)
+      // - claude-opus-4-20250514 (Opus 4.x)
+      // - claude-3-5-haiku-20241022 (Haiku 3.5)
       // Try in order of preference (best for financial analysis first)
       const modelsToTry = [
-        "claude-sonnet-4-20241022", // Claude Sonnet 4.x (best for financial analysis)
-        "claude-sonnet-4", // Claude Sonnet 4.x without date
-        "claude-opus-4-20241022", // Claude Opus 4.x (alternative)
-        "claude-opus-4", // Claude Opus 4.x without date
-        "claude-3-5-haiku-20241022", // Claude Haiku 3.5 (faster but less capable)
-        "claude-3-5-haiku", // Claude Haiku 3.5 without date
+        "claude-sonnet-4-20250514", // Claude Sonnet 4.x (latest, best for analysis)
+        "claude-opus-4-20250514", // Claude Opus 4.x (alternative, very capable)
+        "claude-3-5-haiku-20241022", // Claude Haiku 3.5 (faster, less capable)
+        "claude-3-5-sonnet-20241022", // Sonnet 3.5 (fallback)
+        "claude-3-opus-20240229", // Opus 3 (fallback)
       ];
       
       let lastError: any = null;
