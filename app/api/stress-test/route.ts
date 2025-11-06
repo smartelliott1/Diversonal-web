@@ -155,7 +155,12 @@ ${scenario}
           break; // Success, exit the loop
         } catch (modelError: any) {
           lastError = modelError;
-          console.warn(`Model ${modelName} failed:`, modelError?.message || modelError);
+          const errorMsg = modelError?.message || JSON.stringify(modelError);
+          console.warn(`Model ${modelName} failed:`, errorMsg);
+          // Log full error details for debugging
+          if (modelError?.error) {
+            console.warn(`Error details for ${modelName}:`, JSON.stringify(modelError.error, null, 2));
+          }
           // Continue to next model
         }
       }
