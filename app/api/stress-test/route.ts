@@ -17,7 +17,9 @@ interface StressTestResult {
   impact: {
     equities: number;
     bonds: number;
-    alternatives: number;
+    commodities?: number;
+    "real estate"?: number;
+    cryptocurrencies?: number;
     cash: number;
   };
   portfolioValue: number[];
@@ -91,7 +93,9 @@ ${scenario}
 **Asset Class Impact Analysis:**
 - Equities: How would stocks react? Consider market sentiment, sector-specific impacts, and historical precedents
 - Bonds: Would bonds act as a hedge or also decline? Consider interest rate changes, credit risk, and flight-to-safety dynamics
-- Alternatives (REITs, commodities, etc.): How would these assets perform?
+- Commodities: How would gold, silver, oil, and other commodities perform? Often act as inflation hedges
+- Real Estate: How would REITs and real estate funds react? Consider interest rate sensitivity and market conditions
+- Cryptocurrencies: How would digital assets like Bitcoin and Ethereum perform? Typically highly volatile
 - Cash: Typically remains stable, but consider inflation impacts
 
 **Response Format (JSON only, no other text):**
@@ -100,7 +104,9 @@ ${scenario}
   "impact": {
     "equities": -15.5,
     "bonds": -3.2,
-    "alternatives": -8.1,
+    "commodities": 5.8,
+    "real estate": -8.1,
+    "cryptocurrencies": -22.3,
     "cash": 0
   },
   "portfolioValue": [100000, 95200, 91800, 89500, 88200, 87500, 86800, 86200, 85800, 85500, 85200, 85000],
@@ -280,7 +286,9 @@ function generateFallbackStressTest(
   // Determine base impact based on scenario keywords
   let equitiesImpact = 0;
   let bondsImpact = 0;
-  let alternativesImpact = 0;
+  let commoditiesImpact = 0;
+  let realEstateImpact = 0;
+  let cryptoImpact = 0;
   let riskLevel = "Moderate";
   let isPositive = false;
 
@@ -300,45 +308,59 @@ function generateFallbackStressTest(
     const percent = match ? parseInt(match[1]) : 10;
     equitiesImpact = percent * 1.2;
     bondsImpact = percent * 0.4;
-    alternativesImpact = percent * 0.8;
+    commoditiesImpact = percent * 0.7;
+    realEstateImpact = percent * 0.9;
+    cryptoImpact = percent * 2.0; // Crypto amplifies movements
     riskLevel = "Low";
   } 
   // Check for negative scenarios
   else if (scenarioLower.includes("market crash") || scenarioLower.includes("recession") || scenarioLower.includes("crisis")) {
     equitiesImpact = -25;
     bondsImpact = -5;
-    alternativesImpact = -15;
+    commoditiesImpact = 8; // Commodities often hedge in crisis
+    realEstateImpact = -18;
+    cryptoImpact = -35; // Crypto highly volatile in crisis
     riskLevel = "High";
   } else if (scenarioLower.includes("drop") || scenarioLower.includes("decline") || scenarioLower.includes("falls") || scenarioLower.includes("drops")) {
     const match = scenario.match(/(\d+)%/);
     const percent = match ? parseInt(match[1]) : 10;
     equitiesImpact = -percent * 1.2;
     bondsImpact = -percent * 0.3;
-    alternativesImpact = -percent * 0.6;
+    commoditiesImpact = percent * 0.4; // Commodities may benefit
+    realEstateImpact = -percent * 0.8;
+    cryptoImpact = -percent * 1.8; // Crypto drops harder
     riskLevel = percent > 15 ? "High" : "Moderate";
   } else if (scenarioLower.includes("inflation") || scenarioLower.includes("rising rates")) {
     equitiesImpact = -8;
-    bondsImpact = -12;
-    alternativesImpact = -5;
+    bondsImpact = -12; // Bonds suffer with rising rates
+    commoditiesImpact = 12; // Commodities hedge inflation
+    realEstateImpact = -10; // Real estate suffers with high rates
+    cryptoImpact = -15; // Crypto typically negative in high rate environment
     riskLevel = "Moderate";
   } else {
     // Default to negative (conservative approach)
     equitiesImpact = -10;
     bondsImpact = -3;
-    alternativesImpact = -7;
+    commoditiesImpact = 2;
+    realEstateImpact = -7;
+    cryptoImpact = -18;
     riskLevel = "Moderate";
   }
 
   // Calculate portfolio impact
   const equities = portfolio.find(p => p.name === "Equities")?.value || 0;
   const bonds = portfolio.find(p => p.name === "Bonds")?.value || 0;
-  const alternatives = portfolio.find(p => p.name === "Alternatives")?.value || 0;
+  const commodities = portfolio.find(p => p.name === "Commodities")?.value || 0;
+  const realEstate = portfolio.find(p => p.name === "Real Estate")?.value || 0;
+  const crypto = portfolio.find(p => p.name === "Cryptocurrencies")?.value || 0;
   const cash = portfolio.find(p => p.name === "Cash")?.value || 0;
 
   const totalImpact = 
     (equities / 100) * equitiesImpact +
     (bonds / 100) * bondsImpact +
-    (alternatives / 100) * alternativesImpact +
+    (commodities / 100) * commoditiesImpact +
+    (realEstate / 100) * realEstateImpact +
+    (crypto / 100) * cryptoImpact +
     (cash / 100) * 0;
 
   const finalValue = initialCapital * (1 + totalImpact / 100);
@@ -376,14 +398,15 @@ function generateFallbackStressTest(
   portfolioValue[12] = finalValue;
 
   const changeDirection = isPositive ? "increase" : "decline";
-  const changeText = isPositive ? "growth" : "decline";
 
   return {
-    analysis: `Based on the scenario "${scenario}", this portfolio would experience a ${Math.abs(percentageChange).toFixed(1)}% ${changeDirection}. The stress test shows how different asset classes would be impacted, with equities typically most affected, bonds providing ${isPositive ? "additional gains" : "some stability"}, and cash remaining relatively stable.`,
+    analysis: `Based on the scenario "${scenario}", this portfolio would experience a ${Math.abs(percentageChange).toFixed(1)}% ${changeDirection}. The stress test shows how different asset classes would be impacted, with ${isPositive ? "equities and cryptocurrencies leading gains" : "cryptocurrencies and equities most affected"}, commodities ${isPositive || scenarioLower.includes("inflation") ? "providing positive returns" : "showing mixed results"}, and cash remaining stable.`,
     impact: {
       equities: equitiesImpact,
       bonds: bondsImpact,
-      alternatives: alternativesImpact,
+      commodities: commoditiesImpact,
+      "real estate": realEstateImpact,
+      cryptocurrencies: cryptoImpact,
       cash: 0,
     },
     portfolioValue,

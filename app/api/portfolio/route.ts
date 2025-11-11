@@ -63,41 +63,58 @@ export async function POST(request: NextRequest) {
 1. Create a balanced portfolio allocation across these asset classes:
    - Equities (stocks) - can include domestic, international, emerging markets
    - Bonds (fixed income) - can include government, corporate, municipal
-   - Alternatives (REITs, commodities, real estate, etc.)
+   - Commodities (gold, silver, oil, etc.)
+   - Real Estate (REITs, etc.)
+   - Cryptocurrencies (Bitcoin, Ethereum, etc.)
    - Cash/Equivalents
 
 2. The allocation MUST:
    - Total exactly 100%
-   - Use decimal values (e.g., 45.5%, 35.3%, 14.7%, 4.5%) - NEVER use whole numbers unless absolutely necessary
+   - Use decimal values (e.g., 45.5%, 35.3%, 14.7%, 4.5%) - NEVER use whole numbers unless absolutely necessary (make it as specific as physically possible to the client's inputs)
    - Be appropriate for the client's age, risk tolerance, and time horizon
    - Consider the investment goal
    - Reflect the preferred sectors in the equity allocation if provided
    - Follow modern portfolio theory principles
+   - Only include asset classes that are relevant to the client's inputs (Typically, all but one or two asset classes)
 
-3. For Equities, provide a breakdown (e.g., "S&P 500: 25%, Tech stocks: 10%, International: 10%")
+3. For Equities (and every other asset class), provide a breakdown (e.g., "S&P 500: 25%, Tech stocks: 10%, International: 10%")
 
 **Response Format (JSON only, no other text):**
 {
   "portfolio": [
     {
       "name": "Equities",
-      "value": 45.5,
+      "value": 38.2,
       "color": "#00FF99",
-      "breakdown": "S&P 500: 25.5%, Tech stocks: 10.2%, International: 9.8%"
+      "breakdown": "S&P 500: 22.1%, Tech stocks: 8.5%, International: 7.6%"
     },
     {
       "name": "Bonds",
-      "value": 35.3,
-      "color": "#4A90E2"
+      "value": 28.5,
+      "color": "#4A90E2",
+      "breakdown": "Government: 16.5%, Corporate: 12.0%"
     },
     {
-      "name": "Alternatives",
-      "value": 14.7,
-      "color": "#FF6B6B"
+      "name": "Commodities",
+      "value": 11.3,
+      "color": "#FFB84D",
+      "breakdown": "Gold: 6.3%, Silver: 3.0%, Energy: 2.0%"
+    },
+    {
+      "name": "Real Estate",
+      "value": 13.7,
+      "color": "#9B59B6",
+      "breakdown": "REITs: 10.2%, Real Estate Funds: 3.5%"
+    },
+    {
+      "name": "Cryptocurrencies",
+      "value": 4.8,
+      "color": "#00D4FF",
+      "breakdown": "Bitcoin: 3.0%, Ethereum: 1.8%"
     },
     {
       "name": "Cash",
-      "value": 4.5,
+      "value": 3.5,
       "color": "#FFD93D"
     }
   ],
@@ -107,10 +124,13 @@ export async function POST(request: NextRequest) {
 **Important:** 
 - Use color #00FF99 for Equities (primary allocation)
 - Use color #4A90E2 for Bonds
-- Use color #FF6B6B for Alternatives  
+- Use color #FFB84D for Commodities (gold/orange - represents precious metals and resources)
+- Use color #9B59B6 for Real Estate (purple - for property/REITs)
+- Use color #00D4FF for Cryptocurrencies (cyan - represents digital assets)
 - Use color #FFD93D for Cash
-- Ensure all values sum to 100 (use decimals for precision, e.g., 45.5, 35.3, 14.7, 4.5)
+- Ensure all values sum to 100 (use decimals for precision)
 - Values should include one decimal place for accuracy
+- Not all asset classes need to be included - only include those relevant to the client's profile
 - Return ONLY valid JSON, no markdown or code blocks`;
 
     // Call OpenAI API
@@ -264,76 +284,132 @@ function generateFallbackPortfolio(
   // Base allocation starts with age-based rule: (100 - age) for equities
   let equitiesBase = Math.max(20, 100 - ageNum);
   let bondsBase = Math.min(60, ageNum - 10);
-  let alternativesBase = 10;
+  let commoditiesBase = 8;
+  let realEstateBase = 10;
+  let cryptoBase = 0; // Start with 0, only allocate for high risk tolerance
   let cashBase = 5;
 
   // Adjust based on risk tolerance
   if (riskTolerance === "Low") {
     equitiesBase = Math.max(20, equitiesBase - 20);
     bondsBase += 15;
-    alternativesBase -= 5;
-    cashBase += 10;
+    commoditiesBase += 3; // Commodities as inflation hedge
+    realEstateBase -= 5;
+    cryptoBase = 0; // No crypto for low risk
+    cashBase += 12;
   } else if (riskTolerance === "High") {
-    equitiesBase = Math.min(80, equitiesBase + 20);
+    equitiesBase = Math.min(75, equitiesBase + 15);
     bondsBase = Math.max(10, bondsBase - 15);
-    alternativesBase += 5;
+    commoditiesBase += 2;
+    realEstateBase += 5;
+    cryptoBase = ageNum < 40 ? 8 : 5; // Crypto for high risk, more if younger
     cashBase = Math.max(2, cashBase - 5);
+  } else {
+    // Moderate risk
+    commoditiesBase += 1;
+    realEstateBase += 2;
+    cryptoBase = ageNum < 35 ? 4 : 2; // Small crypto allocation for moderate risk if young
   }
 
   // Adjust based on time horizon
   if (timeHorizon.includes("15+") || timeHorizon.includes("7+")) {
-    equitiesBase += 10;
+    equitiesBase += 8;
     bondsBase -= 5;
-    alternativesBase -= 3;
+    commoditiesBase -= 2;
+    realEstateBase += 3;
+    cryptoBase = riskTolerance === "High" ? cryptoBase + 2 : cryptoBase;
     cashBase -= 2;
   } else if (timeHorizon.includes("<1") || timeHorizon.includes("1-3")) {
     equitiesBase -= 15;
     bondsBase += 10;
-    alternativesBase -= 3;
-    cashBase += 8;
+    commoditiesBase -= 2;
+    realEstateBase -= 5;
+    cryptoBase = Math.max(0, cryptoBase - 3); // Reduce crypto for short horizon
+    cashBase += 10;
+  }
+
+  // Ensure crypto is 0 for low risk or very old age
+  if (riskTolerance === "Low" || ageNum > 60) {
+    cryptoBase = 0;
   }
 
   // Normalize to ensure total is 100
-  const total = equitiesBase + bondsBase + alternativesBase + cashBase;
+  const total = equitiesBase + bondsBase + commoditiesBase + realEstateBase + cryptoBase + cashBase;
   equitiesBase = (equitiesBase / total) * 100;
   bondsBase = (bondsBase / total) * 100;
-  alternativesBase = (alternativesBase / total) * 100;
+  commoditiesBase = (commoditiesBase / total) * 100;
+  realEstateBase = (realEstateBase / total) * 100;
+  cryptoBase = (cryptoBase / total) * 100;
   cashBase = (cashBase / total) * 100;
 
   // Create breakdown for equities based on sectors
-  let breakdown = "";
+  let equitiesBreakdown = "";
   if (sectors.length > 0) {
     const sectorAllocation = Math.round((equitiesBase * 0.4) / sectors.length * 10) / 10;
     const broadMarket = Math.round(equitiesBase * 0.6 * 10) / 10;
-    breakdown = `S&P 500: ${broadMarket}%, ${sectors.map(s => `${s}: ${sectorAllocation}%`).join(", ")}`;
+    equitiesBreakdown = `S&P 500: ${broadMarket}%, ${sectors.map(s => `${s}: ${sectorAllocation}%`).join(", ")}`;
   } else {
     const domestic = Math.round(equitiesBase * 0.6 * 10) / 10;
     const international = Math.round(equitiesBase * 0.4 * 10) / 10;
-    breakdown = `S&P 500: ${domestic}%, International: ${international}%`;
+    equitiesBreakdown = `S&P 500: ${domestic}%, International: ${international}%`;
   }
 
-  return [
+  const portfolio: PortfolioAllocation[] = [
     {
       name: "Equities",
       value: Math.round(equitiesBase * 10) / 10,
       color: "#00FF99",
-      breakdown,
+      breakdown: equitiesBreakdown,
     },
     {
       name: "Bonds",
       value: Math.round(bondsBase * 10) / 10,
       color: "#4A90E2",
-    },
-    {
-      name: "Alternatives",
-      value: Math.round(alternativesBase * 10) / 10,
-      color: "#FF6B6B",
-    },
-    {
-      name: "Cash",
-      value: Math.round(cashBase * 10) / 10,
-      color: "#FFD93D",
+      breakdown: "Government: " + Math.round(bondsBase * 0.6 * 10) / 10 + "%, Corporate: " + Math.round(bondsBase * 0.4 * 10) / 10 + "%",
     },
   ];
+
+  // Only include asset classes with meaningful allocation
+  if (commoditiesBase > 0.5) {
+    portfolio.push({
+      name: "Commodities",
+      value: Math.round(commoditiesBase * 10) / 10,
+      color: "#FFB84D",
+      breakdown: "Gold: " + Math.round(commoditiesBase * 0.6 * 10) / 10 + "%, Silver: " + Math.round(commoditiesBase * 0.3 * 10) / 10 + "%, Energy: " + Math.round(commoditiesBase * 0.1 * 10) / 10 + "%",
+    });
+  }
+
+  if (realEstateBase > 0.5) {
+    portfolio.push({
+      name: "Real Estate",
+      value: Math.round(realEstateBase * 10) / 10,
+      color: "#9B59B6",
+      breakdown: "REITs: " + Math.round(realEstateBase * 0.7 * 10) / 10 + "%, Real Estate Funds: " + Math.round(realEstateBase * 0.3 * 10) / 10 + "%",
+    });
+  }
+
+  if (cryptoBase > 0.5) {
+    portfolio.push({
+      name: "Cryptocurrencies",
+      value: Math.round(cryptoBase * 10) / 10,
+      color: "#00D4FF",
+      breakdown: "Bitcoin: " + Math.round(cryptoBase * 0.6 * 10) / 10 + "%, Ethereum: " + Math.round(cryptoBase * 0.4 * 10) / 10 + "%",
+    });
+  }
+
+  portfolio.push({
+    name: "Cash",
+    value: Math.round(cashBase * 10) / 10,
+    color: "#FFD93D",
+  });
+
+  // Final normalization to ensure exactly 100%
+  const finalTotal = portfolio.reduce((sum, item) => sum + item.value, 0);
+  if (Math.abs(finalTotal - 100) > 0.1) {
+    const diff = 100 - finalTotal;
+    portfolio[0].value = Math.round((portfolio[0].value + diff) * 10) / 10;
+  }
+
+  return portfolio;
 }
 

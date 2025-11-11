@@ -55,9 +55,11 @@ export default function Home() {
   
   // Default portfolio data (shown before generation)
   const defaultPortfolioData: PortfolioItem[] = [
-    { name: "Equities", value: 45, color: "#00FF99" },
-    { name: "Bonds", value: 35, color: "#4A90E2" },
-    { name: "Alternatives", value: 15, color: "#FF6B6B" },
+    { name: "Equities", value: 40, color: "#00FF99" },
+    { name: "Bonds", value: 25, color: "#4A90E2" },
+    { name: "Commodities", value: 10, color: "#FFB84D" },
+    { name: "Real Estate", value: 12, color: "#9B59B6" },
+    { name: "Cryptocurrencies", value: 8, color: "#00D4FF" },
     { name: "Cash", value: 5, color: "#FFD93D" },
   ];
   
