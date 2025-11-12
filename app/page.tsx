@@ -51,7 +51,7 @@ export default function Home() {
   const portfolioRef = useRef<HTMLDivElement>(null);
   
   // Available sectors for selection
-  const sectors = ["Technology", "Healthcare", "Energy", "Finance"];
+  const sectors = ["Technology", "Energy", "Finance", "Healthcare", "Cryptocurrency", "Blockchain Integration", "Real Estate", "Precious Metals", "Aerospace"];
   
   // Default portfolio data (shown before generation)
   const defaultPortfolioData: PortfolioItem[] = [
@@ -373,7 +373,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#171A1F] px-4 py-8 sm:px-6 sm:py-12 md:py-16">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-5xl">
         <h1 className="mb-4 text-center text-5xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-6xl md:text-7xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
           Diversonal
         </h1>
@@ -528,7 +528,7 @@ export default function Home() {
               Sector convictions
               <InfoIcon tooltip="Industries or sectors you believe in or want to focus on. Select any combination." />
             </label>
-            <div className="space-y-3 rounded-lg border border-gray-600 bg-[#171A1F] p-5 focus-within:border-[#00FF99] focus-within:ring-2 focus-within:ring-[#00FF99]/40">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-gray-600 bg-[#171A1F] p-5 focus-within:border-[#00FF99] focus-within:ring-2 focus-within:ring-[#00FF99]/40">
               {sectors.map((sector) => (
                 <label
                   key={sector}
@@ -553,31 +553,40 @@ export default function Home() {
             <button
               type="submit"
               disabled={isLoading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#00FF99] px-6 py-4 text-lg font-bold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all hover:scale-[1.02] hover:bg-[#00E689] hover:shadow-xl hover:shadow-[#00FF99]/40 focus:outline-none focus:ring-4 focus:ring-[#00FF99]/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative w-full overflow-hidden rounded-xl bg-[#00FF99] px-6 py-4 text-lg font-bold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all hover:scale-[1.02] hover:bg-[#00E689] hover:shadow-xl hover:shadow-[#00FF99]/40 focus:outline-none focus:ring-4 focus:ring-[#00FF99]/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? (
-                <>
-                  <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Generating Portfolio...
-                </>
-              ) : (
-                <>
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  Get Portfolio Recommendation
-                </>
+              {isLoading && (
+                <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
+                  <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]" style={{
+                    animation: 'progressBar 2s ease-in-out infinite',
+                  }}></div>
+                </div>
               )}
+              <span className="inline-flex items-center justify-center gap-2">
+                {isLoading ? (
+                  <>
+                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Generating Portfolio...
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Get Portfolio Recommendation
+                  </>
+                )}
+              </span>
             </button>
           </div>
         </form>
       </div>
 
       {showResult && (
-        <section id="portfolio-result" ref={portfolioRef} className="mx-auto mt-8 border-t border-gray-700 bg-[#1C1F26] p-8 sm:p-10 md:p-12">
+        <section id="portfolio-result" ref={portfolioRef} className="mx-auto max-w-5xl mt-8 border-t border-gray-700 bg-[#1C1F26] p-8 sm:p-10 md:p-12">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-100 sm:text-3xl">Your AI-Optimized Portfolio</h2>
@@ -684,8 +693,6 @@ export default function Home() {
                   <XAxis 
                     dataKey="name" 
                     tick={{ fill: '#9ca3af', fontSize: 11 }}
-                    angle={-15}
-                    textAnchor="end"
                     height={60}
                   />
                   <YAxis 
@@ -764,16 +771,23 @@ export default function Home() {
                 <button
                   onClick={() => handleStressTest(stressTestScenario)}
                   disabled={stressTestLoading || !stressTestScenario.trim()}
-                  className="rounded-xl bg-[#00FF99] px-6 py-3 font-semibold text-[#171A1F] transition-all hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative overflow-hidden rounded-xl bg-[#00FF99] px-6 py-3 font-semibold text-[#171A1F] transition-all hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {stressTestLoading ? (
-                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  ) : (
-                    "Run Test"
+                  {stressTestLoading && (
+                    <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
+                      <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]"></div>
+                    </div>
                   )}
+                  <span className="inline-flex items-center gap-2">
+                    {stressTestLoading ? (
+                      <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      "Run Test"
+                    )}
+                  </span>
                 </button>
               </div>
             </div>
