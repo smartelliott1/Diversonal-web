@@ -229,8 +229,9 @@ export default function Home() {
     "S&P 500 drops 10% in 2026",
     "Market crash similar to 2008",
     "Rising interest rates and inflation",
-    "Technology sector downturn",
-    "Global recession scenario",
+    "S&P 500 rallies 20% over next year",
+    "Strong economic growth drives market gains",
+    "Bull market continues with 15% annual returns",
   ];
 
   // Handle stress test
@@ -373,11 +374,11 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#171A1F] px-4 py-8 sm:px-6 sm:py-12 md:py-16">
       <div className="mx-auto max-w-2xl">
-        <h1 className="mb-4 text-center text-5xl font-bold tracking-tight text-[#00FF99] uppercase sm:text-6xl md:text-7xl" style={{ fontFamily: 'var(--font-lexend), sans-serif' }}>
+        <h1 className="mb-4 text-center text-5xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-6xl md:text-7xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
           Diversonal
         </h1>
         <p className="mb-8 text-center text-lg text-gray-300 sm:text-xl md:mb-12">
-          Fill out the form below to receive your AI-optimized portfolio allocation.
+          Describe yourself and your vision to receive your AI-optimized portfolio allocation
         </p>
 
         {/* Saved Portfolios Toggle */}
@@ -439,13 +440,13 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mx-auto rounded-3xl border border-gray-200 bg-white p-8 shadow-2xl sm:p-10 md:p-12">
+        <div className="mx-auto border-t border-gray-700 bg-[#1C1F26] p-8 sm:p-10 md:p-12">
         <form
           className="space-y-6 sm:space-y-7"
           onSubmit={handleSubmit}
         >
           <div>
-            <label htmlFor="age" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-800 sm:text-lg">
+            <label htmlFor="age" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
               Your age
               <InfoIcon tooltip="Your current age helps determine appropriate investment strategies" />
             </label>
@@ -454,19 +455,19 @@ export default function Home() {
               type="number"
               placeholder="e.g., 32"
               required
-              className="w-full rounded-xl border-2 border-gray-200 bg-white px-5 py-4 text-base text-gray-900 shadow-sm outline-none transition-all focus:border-[#00FF99] focus:ring-4 focus:ring-[#00FF99]/20"
+              className="w-full rounded-lg border border-gray-600 bg-[#171A1F] px-5 py-4 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
             />
           </div>
 
           <div>
-            <label htmlFor="risk" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-800 sm:text-lg">
+            <label htmlFor="risk" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
               Risk tolerance
               <InfoIcon tooltip="How comfortable you are with potential investment losses. Low = conservative, High = aggressive" />
             </label>
             <select
               id="risk"
               required
-              className="w-full appearance-none rounded-xl border-2 border-gray-200 bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat px-5 py-4 text-base text-gray-900 shadow-sm outline-none transition-all focus:border-[#00FF99] focus:ring-4 focus:ring-[#00FF99]/20"
+              className="w-full appearance-none rounded-lg border border-gray-600 bg-[#171A1F] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2300FF99%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat px-5 py-4 text-base text-gray-100 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
             >
               <option value="">Select risk tolerance…</option>
               <option>Low</option>
@@ -476,14 +477,14 @@ export default function Home() {
           </div>
 
           <div>
-            <label htmlFor="horizon" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-800 sm:text-lg">
+            <label htmlFor="horizon" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
               Time horizon
               <InfoIcon tooltip="How long you plan to invest before needing the money. Longer horizons allow for more aggressive strategies" />
             </label>
             <select
               id="horizon"
               required
-              className="w-full appearance-none rounded-xl border-2 border-gray-200 bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat px-5 py-4 text-base text-gray-900 shadow-sm outline-none transition-all focus:border-[#00FF99] focus:ring-4 focus:ring-[#00FF99]/20"
+              className="w-full appearance-none rounded-lg border border-gray-600 bg-[#171A1F] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2300FF99%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat px-5 py-4 text-base text-gray-100 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
             >
               <option value="">Select time horizon…</option>
               <option>&lt;1 year</option>
@@ -495,7 +496,7 @@ export default function Home() {
           </div>
 
           <div>
-            <label htmlFor="capital" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-800 sm:text-lg">
+            <label htmlFor="capital" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
               Available capital ($)
               <InfoIcon tooltip="The total amount of money you have available to invest" />
             </label>
@@ -504,12 +505,12 @@ export default function Home() {
               type="number"
               placeholder="e.g., 25000"
               required
-              className="w-full rounded-xl border-2 border-gray-200 bg-white px-5 py-4 text-base text-gray-900 shadow-sm outline-none transition-all focus:border-[#00FF99] focus:ring-4 focus:ring-[#00FF99]/20"
+              className="w-full rounded-lg border border-gray-600 bg-[#171A1F] px-5 py-4 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
             />
           </div>
 
           <div>
-            <label htmlFor="goal" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-800 sm:text-lg">
+            <label htmlFor="goal" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
               Investment goal
               <InfoIcon tooltip="What you're investing for: retirement, buying a home, education, wealth growth, etc." />
             </label>
@@ -518,20 +519,20 @@ export default function Home() {
               type="text"
               placeholder="e.g., Buy a home, retirement, growth"
               required
-              className="w-full rounded-xl border-2 border-gray-200 bg-white px-5 py-4 text-base text-gray-900 shadow-sm outline-none transition-all focus:border-[#00FF99] focus:ring-4 focus:ring-[#00FF99]/20"
+              className="w-full rounded-lg border border-gray-600 bg-[#171A1F] px-5 py-4 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
             />
           </div>
 
           <div>
-            <label className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-800 sm:text-lg">
+            <label className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
               Sector convictions
               <InfoIcon tooltip="Industries or sectors you believe in or want to focus on. Select any combination." />
             </label>
-            <div className="space-y-3 rounded-xl border-2 border-gray-200 bg-white p-5 shadow-sm focus-within:border-[#00FF99] focus-within:ring-4 focus-within:ring-[#00FF99]/20">
+            <div className="space-y-3 rounded-lg border border-gray-600 bg-[#171A1F] p-5 focus-within:border-[#00FF99] focus-within:ring-2 focus-within:ring-[#00FF99]/40">
               {sectors.map((sector) => (
                 <label
                   key={sector}
-                  className="flex cursor-pointer items-center gap-3 text-base text-gray-900 transition-colors hover:text-gray-700"
+                  className="flex cursor-pointer items-center gap-3 text-base text-gray-200 transition-colors hover:text-[#00FF99]"
                 >
                   <input
                     type="checkbox"
@@ -539,7 +540,7 @@ export default function Home() {
                     value={sector}
                     checked={selectedSectors.includes(sector)}
                     onChange={() => handleSectorChange(sector)}
-                    className="h-5 w-5 cursor-pointer rounded border-2 border-gray-300 transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/20 focus:ring-offset-0 checked:border-[#00FF99] checked:bg-[#00FF99]"
+                    className="h-5 w-5 cursor-pointer rounded border-2 border-gray-600 bg-[#171A1F] transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40 focus:ring-offset-0 checked:border-[#00FF99] checked:bg-[#00FF99]"
                     style={{ accentColor: '#00FF99' }}
                   />
                   <span className="font-medium">{sector}</span>
@@ -576,12 +577,12 @@ export default function Home() {
       </div>
 
       {showResult && (
-        <section id="portfolio-result" ref={portfolioRef} className="mx-auto mt-8 rounded-3xl border border-gray-200 bg-white p-8 shadow-2xl sm:p-10 md:p-12">
+        <section id="portfolio-result" ref={portfolioRef} className="mx-auto mt-8 border-t border-gray-700 bg-[#1C1F26] p-8 sm:p-10 md:p-12">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">Your AI-Optimized Portfolio</h2>
+              <h2 className="text-2xl font-bold text-gray-100 sm:text-3xl">Your AI-Optimized Portfolio</h2>
               {portfolioReasoning && (
-                <p className="mt-2 text-sm text-gray-600 italic">{portfolioReasoning}</p>
+                <p className="mt-2 text-sm text-gray-400 italic">{portfolioReasoning}</p>
               )}
             </div>
             
@@ -625,11 +626,11 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <ul className="mb-8 space-y-2 pl-5 text-base leading-relaxed text-gray-800 sm:text-lg">
+          <ul className="mb-8 space-y-2 pl-5 text-base leading-relaxed text-gray-200 sm:text-lg">
             {currentPortfolioData.map((item, index) => (
               <li key={index}>
                 <strong>{item.name}:</strong> {item.value}%
-                {item.breakdown && <span className="text-gray-600"> ({item.breakdown})</span>}
+                {item.breakdown && <span className="text-gray-400"> ({item.breakdown})</span>}
               </li>
             ))}
           </ul>
@@ -638,7 +639,7 @@ export default function Home() {
           {/* Recharts provides responsive, accessible charts that work well in React/Next.js */}
           {/* The ResponsiveContainer automatically adjusts to parent size for mobile compatibility */}
           <div className="mt-8">
-            <h3 className="mb-4 text-xl font-semibold text-gray-900">Asset Allocation</h3>
+            <h3 className="mb-4 text-xl font-semibold text-gray-100">Asset Allocation</h3>
             
             {/* Pie Chart - Mobile-friendly and visually appealing */}
             <div className="mb-8 h-64 sm:h-80">
@@ -678,15 +679,18 @@ export default function Home() {
             {/* Bar Chart - Alternative visualization */}
             <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis 
                     dataKey="name" 
-                    tick={{ fill: '#6b7280', fontSize: 12 }}
+                    tick={{ fill: '#9ca3af', fontSize: 11 }}
+                    angle={-15}
+                    textAnchor="end"
+                    height={60}
                   />
                   <YAxis 
-                    tick={{ fill: '#6b7280', fontSize: 12 }}
-                    label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft', fill: '#6b7280' }}
+                    tick={{ fill: '#9ca3af', fontSize: 12 }}
+                    label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
                   />
                   <Tooltip 
                     formatter={(value: number) => `${value}%`}
@@ -712,15 +716,15 @@ export default function Home() {
           </div>
 
           {/* Stress Testing Section */}
-          <div className="mt-12 rounded-2xl border-2 border-gray-200 bg-gray-50 p-8">
-            <h3 className="mb-4 text-2xl font-bold text-gray-900">Stress Testing</h3>
-            <p className="mb-6 text-sm text-gray-600">
+          <div className="mt-12 border-t border-gray-700 bg-[#171A1F] p-8">
+            <h3 className="mb-4 text-2xl font-bold text-gray-100">Stress Testing</h3>
+            <p className="mb-6 text-sm text-gray-400">
               Test how your portfolio would perform under different market scenarios. Enter a custom scenario or choose from common stress tests.
             </p>
 
             {/* Pre-defined Scenarios */}
             <div className="mb-6">
-              <p className="mb-3 text-sm font-semibold text-gray-700">Quick Scenarios:</p>
+              <p className="mb-3 text-sm font-semibold text-gray-300">Quick Scenarios:</p>
               <div className="flex flex-wrap gap-2">
                 {predefinedScenarios.map((scenario, index) => (
                   <button
@@ -730,7 +734,7 @@ export default function Home() {
                       handleStressTest(scenario);
                     }}
                     disabled={stressTestLoading}
-                    className="rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[#00FF99] hover:bg-[#00FF99]/10 hover:text-[#00FF99] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-lg border border-gray-600 bg-[#1C1F26] px-4 py-2 text-sm font-medium text-gray-300 transition-all hover:border-[#00FF99] hover:bg-[#00FF99]/10 hover:text-[#00FF99] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {scenario}
                   </button>
@@ -740,7 +744,7 @@ export default function Home() {
 
             {/* Custom Scenario Input */}
             <div className="mb-6">
-              <label htmlFor="stress-scenario" className="mb-2 block text-sm font-semibold text-gray-800">
+              <label htmlFor="stress-scenario" className="mb-2 block text-sm font-semibold text-gray-200">
                 Custom Scenario
               </label>
               <div className="flex gap-2">
@@ -750,7 +754,7 @@ export default function Home() {
                   value={stressTestScenario}
                   onChange={(e) => setStressTestScenario(e.target.value)}
                   placeholder="e.g., Oil prices spike 50%, causing energy sector volatility"
-                  className="flex-1 rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm outline-none transition-all focus:border-[#00FF99] focus:ring-4 focus:ring-[#00FF99]/20"
+                  className="flex-1 rounded-lg border border-gray-600 bg-[#1C1F26] px-4 py-3 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !stressTestLoading) {
                       handleStressTest(stressTestScenario);
@@ -776,17 +780,17 @@ export default function Home() {
 
             {/* Stress Test Results */}
             {stressTestResult && (
-              <div className="mt-8 rounded-xl border border-gray-200 bg-white p-6">
+              <div className="mt-8 border-t border-gray-700 bg-[#1C1F26] p-6">
                 <div className="mb-4 flex items-start justify-between">
                   <div>
-                    <h4 className="text-lg font-bold text-gray-900">Stress Test Results</h4>
-                    <p className="mt-1 text-sm text-gray-600 italic">{stressTestResult.analysis}</p>
+                    <h4 className="text-lg font-bold text-gray-100">Stress Test Results</h4>
+                    <p className="mt-1 text-sm text-gray-400 italic">{stressTestResult.analysis}</p>
                   </div>
                   <div className="text-right">
                     <div className={`text-2xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-600' : 'text-green-600'}`}>
                       {stressTestResult.percentageChange > 0 ? '+' : ''}{stressTestResult.percentageChange.toFixed(1)}%
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-400">
                       Final Value: ${stressTestResult.finalValue.toLocaleString()}
                     </div>
                     <div className={`mt-1 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
@@ -803,9 +807,9 @@ export default function Home() {
                 {/* Asset Impact Breakdown */}
                 <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
                   {stressTestResult.impact && Object.entries(stressTestResult.impact).map(([asset, impact]: [string, any]) => (
-                    <div key={asset} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                      <div className="text-xs font-medium text-gray-600">{asset}</div>
-                      <div className={`text-lg font-bold ${impact < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    <div key={asset} className="rounded-lg border border-gray-700 bg-[#171A1F] p-3">
+                      <div className="text-xs font-medium text-gray-400 capitalize">{asset}</div>
+                      <div className={`text-lg font-bold ${impact < 0 ? 'text-red-500' : 'text-green-500'}`}>
                         {impact > 0 ? '+' : ''}{impact.toFixed(1)}%
                       </div>
                     </div>
@@ -818,19 +822,21 @@ export default function Home() {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
                         data={stressTestResult.months.map((month: string, index: number) => ({
-                          month: month.replace('Month ', 'M'),
+                          month: index,
                           value: stressTestResult.portfolioValue[index],
-                        }))}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          display: index % 3 === 0, // Show quarterly labels
+                        })).filter((item: any) => item.display)}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                         <XAxis 
                           dataKey="month" 
-                          tick={{ fill: '#6b7280', fontSize: 12 }}
+                          tick={{ fill: '#9ca3af', fontSize: 12 }}
+                          label={{ value: 'Months Passed', position: 'insideBottom', offset: -10, fill: '#9ca3af', fontSize: 13 }}
                         />
                         <YAxis 
-                          tick={{ fill: '#6b7280', fontSize: 12 }}
-                          label={{ value: 'Portfolio Value ($)', angle: -90, position: 'insideLeft', fill: '#6b7280' }}
+                          tick={{ fill: '#9ca3af', fontSize: 12 }}
+                          label={{ value: 'Portfolio Value ($)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
                         />
                         <Tooltip 
                           formatter={(value: number) => [`$${value.toLocaleString()}`, 'Portfolio Value']}
@@ -865,15 +871,15 @@ export default function Home() {
 
       {/* Save Dialog */}
       {showSaveDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl">
-            <h3 className="mb-4 text-xl font-bold text-gray-900">Save Portfolio</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-md rounded-xl border border-gray-700 bg-[#1C1F26] p-6 shadow-2xl">
+            <h3 className="mb-4 text-xl font-bold text-gray-100">Save Portfolio</h3>
             <input
               type="text"
               value={saveName}
               onChange={(e) => setSaveName(e.target.value)}
               placeholder="Enter portfolio name..."
-              className="mb-4 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm outline-none transition-all focus:border-[#00FF99] focus:ring-4 focus:ring-[#00FF99]/20"
+              className="mb-4 w-full rounded-lg border border-gray-600 bg-[#171A1F] px-4 py-3 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSavePortfolio();
@@ -883,7 +889,7 @@ export default function Home() {
             <div className="flex gap-3">
               <button
                 onClick={handleSavePortfolio}
-                className="flex-1 rounded-xl bg-[#00FF99] px-4 py-3 font-semibold text-[#171A1F] transition-all hover:bg-[#00E689]"
+                className="flex-1 rounded-lg bg-[#00FF99] px-4 py-3 font-semibold text-[#171A1F] transition-all hover:bg-[#00E689]"
               >
                 Save
               </button>
@@ -892,7 +898,7 @@ export default function Home() {
                   setShowSaveDialog(false);
                   setSaveName("");
                 }}
-                className="flex-1 rounded-xl border-2 border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 transition-all hover:bg-gray-50"
+                className="flex-1 rounded-lg border border-gray-600 bg-[#171A1F] px-4 py-3 font-semibold text-gray-300 transition-all hover:bg-[#171A1F]/80"
               >
                 Cancel
               </button>

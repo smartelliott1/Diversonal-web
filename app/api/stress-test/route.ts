@@ -87,7 +87,7 @@ ${scenario}
 **Your Task:**
 1. Analyze how this scenario would impact each asset class in the portfolio
 2. Consider historical correlations, market behavior, and economic relationships
-3. Calculate monthly portfolio values over a 12-month period
+3. Calculate monthly portfolio values over an 18-month period
 4. Determine the overall impact and risk level
 
 **Asset Class Impact Analysis:**
@@ -109,10 +109,10 @@ ${scenario}
     "cryptocurrencies": -22.3,
     "cash": 0
   },
-  "portfolioValue": [100000, 95200, 91800, 89500, 88200, 87500, 86800, 86200, 85800, 85500, 85200, 85000],
-  "months": ["Month 0", "Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6", "Month 7", "Month 8", "Month 9", "Month 10", "Month 11", "Month 12"],
-  "finalValue": 85000,
-  "percentageChange": -15.0,
+  "portfolioValue": [100000, 95200, 91800, 89500, 88200, 87500, 86800, 86200, 85800, 85500, 85200, 85000, 84800, 84600, 84500, 84400, 84300, 84200, 84000],
+  "months": ["Month 0", "Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6", "Month 7", "Month 8", "Month 9", "Month 10", "Month 11", "Month 12", "Month 13", "Month 14", "Month 15", "Month 16", "Month 17", "Month 18"],
+  "finalValue": 84000,
+  "percentageChange": -16.0,
   "riskLevel": "High"
 }
 
@@ -120,7 +120,7 @@ ${scenario}
 - Impact percentages should be realistic based on historical data and market behavior
 - Portfolio values should show a realistic trajectory (not linear, but market-like fluctuations)
 - Risk levels: "Low", "Moderate", "High", or "Severe"
-- Ensure portfolioValue array has 13 values (Month 0 through Month 12)
+- Ensure portfolioValue array has 19 values (Month 0 through Month 18)
 - First value should be the initial capital
 - Values should reflect realistic market recovery patterns when applicable
 - Consider that different scenarios have different recovery trajectories`;
@@ -224,17 +224,17 @@ ${scenario}
     }
 
     // Validate and normalize the data
-    if (!stressTestResult.portfolioValue || stressTestResult.portfolioValue.length !== 13) {
+    if (!stressTestResult.portfolioValue || stressTestResult.portfolioValue.length !== 19) {
       // Generate missing months if needed
       const values = stressTestResult.portfolioValue || [];
-      while (values.length < 13) {
+      while (values.length < 19) {
         values.push(values[values.length - 1] || initialCapital);
       }
-      stressTestResult.portfolioValue = values.slice(0, 13);
+      stressTestResult.portfolioValue = values.slice(0, 19);
     }
 
-    if (!stressTestResult.months || stressTestResult.months.length !== 13) {
-      stressTestResult.months = Array.from({ length: 13 }, (_, i) => `Month ${i}`);
+    if (!stressTestResult.months || stressTestResult.months.length !== 19) {
+      stressTestResult.months = Array.from({ length: 19 }, (_, i) => `Month ${i}`);
     }
 
     // Ensure first value is initial capital
@@ -242,7 +242,7 @@ ${scenario}
 
     // Calculate final value and percentage change if not provided
     if (!stressTestResult.finalValue) {
-      stressTestResult.finalValue = stressTestResult.portfolioValue[12];
+      stressTestResult.finalValue = stressTestResult.portfolioValue[18];
     }
     if (!stressTestResult.percentageChange) {
       stressTestResult.percentageChange = 
@@ -372,8 +372,8 @@ function generateFallbackStressTest(
   
   if (isPositive) {
     // Positive trajectory: gradual growth with some volatility
-    for (let i = 1; i <= 12; i++) {
-      const progress = i / 12;
+    for (let i = 1; i <= 18; i++) {
+      const progress = i / 18;
       // Non-linear growth with some volatility
       const growthFactor = 1 + (progress * Math.abs(totalImpact) / 100);
       // Add some volatility (small random fluctuations)
@@ -384,8 +384,8 @@ function generateFallbackStressTest(
     }
   } else {
     // Negative trajectory: decline with potential recovery
-    for (let i = 1; i <= 12; i++) {
-      const progress = i / 12;
+    for (let i = 1; i <= 18; i++) {
+      const progress = i / 18;
       // Non-linear decline with some recovery potential
       const declineFactor = 1 - (progress * Math.abs(totalImpact) / 100);
       const recoveryFactor = progress > 0.6 ? 1 + (progress - 0.6) * 0.1 : 1;
@@ -395,7 +395,7 @@ function generateFallbackStressTest(
     }
   }
 
-  portfolioValue[12] = finalValue;
+  portfolioValue[18] = finalValue;
 
   const changeDirection = isPositive ? "increase" : "decline";
 
