@@ -719,28 +719,6 @@ export default function Home() {
                 </svg>
                 Copy
               </button>
-              <button
-                onClick={handleGetDetailedRecommendations}
-                disabled={detailPanelLoading}
-                className="relative inline-flex items-center gap-2 overflow-hidden rounded-lg border-2 border-[#00FF99] bg-[#00FF99] px-4 py-2 text-sm font-semibold text-[#171A1F] transition-all hover:bg-[#00E689] hover:border-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {detailPanelLoading && (
-                  <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
-                    <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]"></div>
-                  </div>
-                )}
-                {detailPanelLoading ? (
-                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                ) : (
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                )}
-                {detailPanelLoading ? "Loading..." : "Detailed Breakdown"}
-              </button>
             </div>
           </div>
           <ul className="mb-8 space-y-2 pl-5 text-base leading-relaxed text-gray-200 sm:text-lg">
@@ -828,6 +806,37 @@ export default function Home() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+          </div>
+
+          {/* Deep Dive Stock Recommendations Button */}
+          <div className="mt-10 flex justify-center">
+            <button
+              onClick={handleGetDetailedRecommendations}
+              disabled={detailPanelLoading}
+              className="relative inline-flex items-center gap-3 overflow-hidden rounded-xl border-2 border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-bold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all hover:scale-[1.02] hover:bg-[#00E689] hover:border-[#00E689] hover:shadow-xl hover:shadow-[#00FF99]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {detailPanelLoading && (
+                <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
+                  <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]"></div>
+                </div>
+              )}
+              {detailPanelLoading ? (
+                <>
+                  <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Analyzing Markets...
+                </>
+              ) : (
+                <>
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Deep Dive Stock Picks with AI Reasoning
+                </>
+              )}
+            </button>
           </div>
 
           {/* Stress Testing Section */}
@@ -1032,12 +1041,6 @@ export default function Home() {
       {/* Detailed Recommendations Slide-Out Panel */}
       {showDetailPanel && detailedRecommendations && (
         <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 z-40 bg-black/50 transition-opacity"
-            onClick={() => setShowDetailPanel(false)}
-          />
-          
           {/* Slide-out Panel */}
           <div className={`fixed top-0 right-0 z-50 h-full w-full sm:w-[600px] transform transition-transform duration-300 ease-in-out ${
             showDetailPanel ? 'translate-x-0' : 'translate-x-full'

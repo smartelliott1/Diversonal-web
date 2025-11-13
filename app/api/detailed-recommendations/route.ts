@@ -91,6 +91,21 @@ ${portfolioSummary}
 **Your Task:**
 For each asset class in the portfolio, provide specific investment recommendations (stocks, ETFs, bonds, REITs, crypto, etc.) with rankings based on comprehensive market analysis.
 
+**CRITICAL - Sector Conviction Prioritization:**
+${formData.sectors.length > 0 ? `
+The user has expressed strong conviction in these sectors: ${formData.sectors.join(", ")}
+
+YOU MUST:
+- Prioritize stocks and assets from these conviction sectors in your recommendations
+- Allocate LARGER position sizes to conviction sector picks (favor "Large" position sizes)
+- Dedicate the majority of Equities recommendations to these sectors
+- Explicitly note when a recommendation aligns with user's sector convictions
+- If a conviction sector doesn't fit naturally in an asset class, explain why
+- Weight conviction sectors more heavily than other opportunities
+
+Example: If user selected "Technology" and "Healthcare", your Equities section should be dominated by tech and healthcare stocks with Large position sizes.
+` : 'No specific sector convictions specified - provide diversified recommendations across sectors.'}
+
 **Analysis Framework - Consider ALL of the following:**
 
 1. **Current Market Demand & Supply Dynamics:**
@@ -199,14 +214,16 @@ For each asset class in the portfolio, provide specific investment recommendatio
 - Provide 3-5 specific recommendations per asset class (more for Equities, fewer for Cash)
 - Each rationale should be 2-4 sentences and cite specific data points
 - Position sizes should reflect conviction: Large (25-35% of category), Medium (15-25%), Small (5-15%)
+${formData.sectors.length > 0 ? `- PRIORITIZE: User's sector convictions (${formData.sectors.join(", ")}) should receive LARGE position sizes` : ''}
 - Risk levels based on volatility, beta, drawdown history
 - Breakdown percentages must sum to 100 for each asset class
 - Use varied colors for breakdown visualization (hex codes)
 - marketContext should be 3-5 sentences summarizing current environment
 - Be specific with current data (don't use placeholder data)
-- Consider the user's sector preferences when selecting stocks
+${formData.sectors.length > 0 ? `- MOST IMPORTANT: Heavily weight recommendations toward user's sector convictions (${formData.sectors.join(", ")})` : ''}
 - For younger users with longer horizons, favor growth; for older users, favor income/stability
-- Match risk levels to user's stated risk tolerance`;
+- Match risk levels to user's stated risk tolerance
+${formData.sectors.length > 0 ? `- Explicitly mention when a stock aligns with the user's ${formData.sectors.join(" / ")} sector conviction(s)` : ''}`;
 
     console.log("Calling GPT-4o for detailed recommendations...");
 
