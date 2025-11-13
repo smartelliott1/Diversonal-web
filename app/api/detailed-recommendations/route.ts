@@ -170,19 +170,6 @@ Example: If user selected "Technology" and "Healthcare", your Equities section s
    - High Risk: Aggressive mix with 60% large-cap, 20% mid-cap, 20% small-cap growth names
    - Conviction sectors should include at least 1-2 small/mid-cap "rising stars" if risk profile allows
 
-**🚨 CRITICAL - Market Context Requirements:**
-
-The "marketContext" field is EXTREMELY important. You MUST:
-- Start with "As of November 2025" as the current date
-- Use your LATEST available market knowledge and data (Fed funds rate, CPI, unemployment, S&P 500 levels, VIX, sector trends)
-- Provide 3-5 sentences covering: Fed policy, inflation trends, employment, S&P 500 valuation, sector leadership, market sentiment/VIX
-- Be SPECIFIC with numbers (e.g., "Fed funds rate at 4.50%", "S&P 500 at 21x forward P/E")
-- DO NOT use placeholder text or generic statements
-- This should read like a professional market commentary from November 2025
-
-Example of good marketContext:
-"As of November 2025, the Federal Reserve maintains rates at 4.50-4.75% after three cuts from the 5.50% peak, with markets pricing one more 25bp cut in December. Core PCE inflation stands at 2.4%, moving toward the 2% target but sticky in services. The S&P 500 trades at 5,800 (22x forward P/E), supported by 12% earnings growth expectations for 2026. Technology leads with +32% YTD on AI infrastructure spending, while energy lags at -8% on oversupply concerns. VIX at 15 suggests complacent positioning heading into year-end."
-
 **Response Format (JSON only, no markdown formatting):**
 {
   "Equities": {
@@ -241,7 +228,7 @@ Example of good marketContext:
       { "name": "Money Market", "value": 40, "color": "#FFB84D" }
     ]
   },
-  "marketContext": "As of November 2025, the Federal Reserve maintains rates at 4.50-4.75%... [3-5 sentences with specific current market data]"
+  "marketContext": "Provide a real-time snapshot of current market conditions as of November 2025 (3-5 sentences with actual Fed rates, inflation, S&P levels, sector performance, VIX)"
 }
 
 **Important Guidelines:**
@@ -253,7 +240,7 @@ ${formData.sectors.length > 0 ? `- PRIORITIZE: User's sector convictions (${form
 - Risk levels based on volatility, beta, drawdown history
 - Breakdown percentages must sum to 100 for each asset class
 - Use varied colors for breakdown visualization (hex codes)
-- Be specific with current data in all recommendations (don't use placeholder or outdated information)
+- **marketContext: Real-time market snapshot as of November 2025 with actual current data**
 ${formData.sectors.length > 0 ? `- MOST IMPORTANT: Heavily weight recommendations toward user's sector convictions (${formData.sectors.join(", ")})` : ''}
 ${formData.sectors.length > 0 ? `- When recommending stocks in user's conviction sectors (${formData.sectors.join(", ")}), naturally weave the sector alignment into the rationale - NO special formatting, NO all caps, NO asterisks - just mention it organically` : ''}
 - For younger users with longer horizons, favor growth; for older users, favor income/stability
