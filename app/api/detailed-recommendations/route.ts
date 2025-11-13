@@ -152,11 +152,11 @@ Example: If user selected "Technology" and "Healthcare", your Equities section s
 8. **Market Cap Diversification & Small/Mid-Cap Opportunities:**
    - **Risk Tolerance Based:** For HIGH risk tolerance, actively seek small-cap and mid-cap growth opportunities
    - **Age Consideration:** Younger investors (under 40) can handle more small/mid-cap exposure for growth potential
-   - **Sector Conviction Alignment:** When user has sector convictions, look for trending small/mid-cap companies in those sectors
+   - **Sector Conviction Alignment:** When user has sector convictions, look for trending mid-cap companies in those sectors
    - **Growth Stage Companies:** Identify emerging leaders with strong fundamentals before they become large-caps
    
    **Criteria for "Trending" Small/Mid-Cap Stocks:**
-   - Recent revenue/earnings growth acceleration (20%+ YoY growth)
+   - Recent revenue/earnings growth acceleration (30%+ YoY growth)
    - Increasing institutional ownership and buying interest
    - Technical momentum indicators showing upward trends (above 50-day and 200-day MAs)
    - Strong sector tailwinds positioning them as beneficiaries of macro trends
@@ -164,9 +164,9 @@ Example: If user selected "Technology" and "Healthcare", your Equities section s
    - Market cap: Small-cap ($300M-$2B), Mid-cap ($2B-$10B)
    
    **Balance Approach:**
-   - Conservative/Low Risk: Stick to large-caps (>$10B) for stability
-   - Moderate Risk: Mix of 70% large-cap, 30% mid-cap
-   - High Risk: Aggressive mix with 50% large-cap, 30% mid-cap, 20% small-cap growth names
+   - Conservative/Low Risk: Stick to bigger companies (>$50B market cap) for stability
+   - Moderate Risk: Mix of 80% large-cap (>$10B), 20% mid-cap (>$2B)
+   - High Risk: Aggressive mix with 60% large-cap, 20% mid-cap, 20% small-cap growth names
    - Conviction sectors should include at least 1-2 small/mid-cap "rising stars" if risk profile allows
 
 **Response Format (JSON only, no markdown formatting):**
