@@ -460,7 +460,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#171A1F] px-4 py-8 sm:px-6 sm:py-12 md:py-16">
       <div className="mx-auto max-w-5xl">
-        <h1 className="mb-4 text-center text-5xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-6xl md:text-7xl" style={{ fontFamily: 'var(--font-manrope), sans-serif', textShadow: '0 0 20px rgba(0, 255, 153, 0.5), 0 0 40px rgba(0, 255, 153, 0.3)' }}>
+        <h1 className="mb-4 text-center text-5xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-6xl md:text-7xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
           Diversonal
         </h1>
         <p className="mb-8 text-center text-lg text-gray-300 sm:text-xl md:mb-12">
