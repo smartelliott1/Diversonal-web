@@ -30,7 +30,7 @@ interface AssetClassRecommendations {
 }
 
 interface DetailedRecommendationsResponse {
-  [assetClass: string]: AssetClassRecommendations;
+  [assetClass: string]: AssetClassRecommendations | string;
   marketContext: string;
 }
 
