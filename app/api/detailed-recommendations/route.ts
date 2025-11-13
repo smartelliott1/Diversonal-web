@@ -228,7 +228,7 @@ Example: If user selected "Technology" and "Healthcare", your Equities section s
       { "name": "Money Market", "value": 40, "color": "#FFB84D" }
     ]
   },
-  "marketContext": "As of January 2025, [use ACTUAL CURRENT market data - Fed rates, inflation, unemployment, S&P valuation, sector performance, VIX, market sentiment]. Provide 3-5 sentences with real current data."
+  "marketContext": "As of November 2025, [use ACTUAL CURRENT market data - Fed rates, inflation, unemployment, S&P valuation, sector performance, VIX, market sentiment]. Provide 3-5 sentences with real current data."
 }
 
 **Important Guidelines:**
@@ -240,7 +240,7 @@ ${formData.sectors.length > 0 ? `- PRIORITIZE: User's sector convictions (${form
 - Risk levels based on volatility, beta, drawdown history
 - Breakdown percentages must sum to 100 for each asset class
 - Use varied colors for breakdown visualization (hex codes)
-- **CRITICAL: marketContext MUST use January 2025 as current date with ACTUAL real-time market data (current Fed rates, latest inflation figures, recent S&P 500 performance, current VIX levels, etc.)**
+- **CRITICAL: marketContext MUST use November 2025 as current date with ACTUAL real-time market data (current Fed rates, latest inflation figures, recent S&P 500 performance, current VIX levels, etc.)**
 - Be specific with current data (don't use placeholder or outdated information)
 ${formData.sectors.length > 0 ? `- MOST IMPORTANT: Heavily weight recommendations toward user's sector convictions (${formData.sectors.join(", ")})` : ''}
 ${formData.sectors.length > 0 ? `- When recommending stocks in user's conviction sectors (${formData.sectors.join(", ")}), naturally weave the sector alignment into the rationale - NO special formatting, NO all caps, NO asterisks - just mention it organically` : ''}
