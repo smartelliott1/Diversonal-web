@@ -231,6 +231,16 @@ Example: If user selected "Technology" and "Healthcare", your Equities section s
 }
 
 **Important Guidelines:**
+
+${formData.risk === 'High' || parseInt(formData.age) < 40 ? `
+🚨 **MANDATORY REQUIREMENT:**
+${formData.risk === 'High' ? `- This user has HIGH risk tolerance - you MUST recommend at least 2 SMALL-CAP stocks (market cap $300M-$2B)` : ''}
+${parseInt(formData.age) < 40 ? `- This user is young (age ${formData.age}) - you MUST include small/mid-cap growth stocks for long-term wealth building` : ''}
+${formData.risk === 'High' && formData.sectors.length > 0 ? `- Look specifically for small-cap companies in ${formData.sectors.join(" and ")} sectors` : ''}
+- Small-caps should have: 20%+ revenue growth, rising institutional ownership, strong technical momentum
+- DO NOT recommend only mega-cap stocks (AAPL, MSFT, GOOGL, etc.) - diversify into smaller companies
+` : ''}
+
 - Provide 3-5 specific recommendations per asset class (more for Equities, fewer for Cash)
 - Each rationale should be 2-4 sentences and cite specific data points
 - Position sizes should reflect conviction: Large (25-35% of category), Medium (15-25%), Small (5-15%)
@@ -242,22 +252,32 @@ ${formData.sectors.length > 0 ? `- PRIORITIZE: User's sector convictions (${form
 - Be specific with current data (don't use placeholder data)
 ${formData.sectors.length > 0 ? `- MOST IMPORTANT: Heavily weight recommendations toward user's sector convictions (${formData.sectors.join(", ")})` : ''}
 - For younger users with longer horizons, favor growth; for older users, favor income/stability
-- Match risk levels to user's stated risk tolerance
-${formData.risk === 'High' ? `- HIGH RISK TOLERANCE: Include small-cap and mid-cap growth stocks with high upside potential (at least 1-2 small/mid-cap recommendations)` : ''}
-${formData.risk === 'High' && formData.sectors.length > 0 ? `- Look for trending small/mid-cap companies in conviction sectors (${formData.sectors.join(", ")}) with strong growth metrics` : ''}
-${parseInt(formData.age) < 40 ? `- Young investor (age ${formData.age}): Allocate meaningful exposure to small/mid-cap growth for long-term wealth building` : ''}
 - Include market cap diversity: Balance large-cap stability with small/mid-cap growth potential based on risk profile
 - For small/mid-caps: cite specific growth metrics (revenue growth %, institutional buying, technical momentum)
 ${formData.sectors.length > 0 ? `- Explicitly mention when a stock aligns with the user's ${formData.sectors.join(" / ")} sector conviction(s)` : ''}`;
 
     console.log("Calling GPT-4o for detailed recommendations...");
 
+    // Build system message with explicit instructions
+    const systemMessage = `You are a professional financial analyst providing investment recommendations. Always respond with valid JSON only, no markdown formatting.
+
+${formData.risk === 'High' || parseInt(formData.age) < 40 ? `
+CRITICAL INSTRUCTION: This user profile requires small-cap and mid-cap stock recommendations.
+- User risk tolerance: ${formData.risk}
+- User age: ${formData.age}
+${formData.risk === 'High' ? '- HIGH RISK TOLERANCE detected: You MUST include at least 2 small-cap stocks (market cap $300M-$2B) with high growth potential' : ''}
+${parseInt(formData.age) < 40 ? `- YOUNG INVESTOR detected: You MUST include small/mid-cap growth stocks for long-term wealth building` : ''}
+${formData.sectors.length > 0 && formData.risk === 'High' ? `- Look for trending small-cap companies in: ${formData.sectors.join(", ")}` : ''}
+
+DO NOT only recommend large-cap stocks. Include meaningful small-cap and mid-cap exposure.
+` : ''}`;
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "You are a professional financial analyst providing investment recommendations. Always respond with valid JSON only, no markdown formatting."
+          content: systemMessage
         },
         {
           role: "user",
