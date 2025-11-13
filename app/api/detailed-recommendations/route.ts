@@ -89,6 +89,15 @@ export async function POST(request: NextRequest) {
 **Portfolio Allocation:**
 ${portfolioSummary}
 
+**CURRENT MARKET DATA (November 2025):**
+- Federal Funds Rate: 3.75-4.00%
+- S&P 500: ~6,700
+- Core PCE Inflation: 2.9%
+- Unemployment Rate: 4.3%
+- VIX (Volatility Index): ~20
+
+Use these exact numbers when generating the marketContext field and when considering current market conditions for your recommendations.
+
 **Your Task:**
 For each asset class in the portfolio, provide specific investment recommendations (stocks, ETFs, bonds, REITs, crypto, etc.) with rankings based on comprehensive market analysis.
 
@@ -228,7 +237,7 @@ Example: If user selected "Technology" and "Healthcare", your Equities section s
       { "name": "Money Market", "value": 40, "color": "#FFB84D" }
     ]
   },
-  "marketContext": "Provide a real-time snapshot of current market conditions as of November 2025 (3-5 sentences with actual Fed rates, inflation, S&P levels, sector performance, VIX)"
+  "marketContext": "As of November 2025, [synthesize the market data provided above into 3-5 sentences describing current economic conditions and market sentiment]"
 }
 
 **Important Guidelines:**
@@ -240,7 +249,7 @@ ${formData.sectors.length > 0 ? `- PRIORITIZE: User's sector convictions (${form
 - Risk levels based on volatility, beta, drawdown history
 - Breakdown percentages must sum to 100 for each asset class
 - Use varied colors for breakdown visualization (hex codes)
-- **marketContext: Real-time market snapshot as of November 2025 with actual current data**
+- **marketContext: Synthesize the CURRENT MARKET DATA provided above into a comprehensive 3-5 sentence summary**
 ${formData.sectors.length > 0 ? `- MOST IMPORTANT: Heavily weight recommendations toward user's sector convictions (${formData.sectors.join(", ")})` : ''}
 ${formData.sectors.length > 0 ? `- When recommending stocks in user's conviction sectors (${formData.sectors.join(", ")}), naturally weave the sector alignment into the rationale - NO special formatting, NO all caps, NO asterisks - just mention it organically` : ''}
 - For younger users with longer horizons, favor growth; for older users, favor income/stability
