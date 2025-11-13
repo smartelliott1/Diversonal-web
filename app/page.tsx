@@ -598,15 +598,25 @@ export default function Home() {
           <div>
             <label htmlFor="goal" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
               Investment goal
+              <span className="text-xs font-normal text-gray-400">(Be specific for better results)</span>
               <InfoIcon tooltip="What you're investing for: retirement, buying a home, education, wealth growth, etc." />
             </label>
             <input
               id="goal"
               type="text"
-              placeholder="e.g., Buy a home, retirement, growth"
+              placeholder="e.g., Save $50k for down payment by 2027, Build $2M retirement fund, Generate $5k monthly income"
               required
               className="w-full rounded-lg border border-gray-600 bg-[#171A1F] px-5 py-4 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
             />
+            <p className="mt-2 flex items-start gap-2 text-sm text-gray-400">
+              <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <span>
+                <strong>Pro tip:</strong> Specific goals with amounts and timelines help our AI optimize better. 
+                &quot;Save $50k for down payment by 2027&quot; beats &quot;buy a home&quot;
+              </span>
+            </p>
           </div>
 
           <div>

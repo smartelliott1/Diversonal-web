@@ -149,6 +149,26 @@ Example: If user selected "Technology" and "Healthcare", your Equities section s
    - Competitive dynamics and market share shifts
    - Seasonal patterns and catalysts
 
+8. **Market Cap Diversification & Small/Mid-Cap Opportunities:**
+   - **Risk Tolerance Based:** For HIGH risk tolerance, actively seek small-cap and mid-cap growth opportunities
+   - **Age Consideration:** Younger investors (under 40) can handle more small/mid-cap exposure for growth potential
+   - **Sector Conviction Alignment:** When user has sector convictions, look for trending small/mid-cap companies in those sectors
+   - **Growth Stage Companies:** Identify emerging leaders with strong fundamentals before they become large-caps
+   
+   **Criteria for "Trending" Small/Mid-Cap Stocks:**
+   - Recent revenue/earnings growth acceleration (20%+ YoY growth)
+   - Increasing institutional ownership and buying interest
+   - Technical momentum indicators showing upward trends (above 50-day and 200-day MAs)
+   - Strong sector tailwinds positioning them as beneficiaries of macro trends
+   - Positive analyst sentiment and earnings revisions
+   - Market cap: Small-cap ($300M-$2B), Mid-cap ($2B-$10B)
+   
+   **Balance Approach:**
+   - Conservative/Low Risk: Stick to large-caps (>$10B) for stability
+   - Moderate Risk: Mix of 70% large-cap, 30% mid-cap
+   - High Risk: Aggressive mix with 50% large-cap, 30% mid-cap, 20% small-cap growth names
+   - Conviction sectors should include at least 1-2 small/mid-cap "rising stars" if risk profile allows
+
 **Response Format (JSON only, no markdown formatting):**
 {
   "Equities": {
@@ -223,6 +243,11 @@ ${formData.sectors.length > 0 ? `- PRIORITIZE: User's sector convictions (${form
 ${formData.sectors.length > 0 ? `- MOST IMPORTANT: Heavily weight recommendations toward user's sector convictions (${formData.sectors.join(", ")})` : ''}
 - For younger users with longer horizons, favor growth; for older users, favor income/stability
 - Match risk levels to user's stated risk tolerance
+${formData.risk === 'High' ? `- HIGH RISK TOLERANCE: Include small-cap and mid-cap growth stocks with high upside potential (at least 1-2 small/mid-cap recommendations)` : ''}
+${formData.risk === 'High' && formData.sectors.length > 0 ? `- Look for trending small/mid-cap companies in conviction sectors (${formData.sectors.join(", ")}) with strong growth metrics` : ''}
+${parseInt(formData.age) < 40 ? `- Young investor (age ${formData.age}): Allocate meaningful exposure to small/mid-cap growth for long-term wealth building` : ''}
+- Include market cap diversity: Balance large-cap stability with small/mid-cap growth potential based on risk profile
+- For small/mid-caps: cite specific growth metrics (revenue growth %, institutional buying, technical momentum)
 ${formData.sectors.length > 0 ? `- Explicitly mention when a stock aligns with the user's ${formData.sectors.join(" / ")} sector conviction(s)` : ''}`;
 
     console.log("Calling GPT-4o for detailed recommendations...");
