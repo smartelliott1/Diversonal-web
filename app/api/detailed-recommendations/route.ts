@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 
-// Using GPT-4o for comprehensive market analysis and stock recommendations
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+// Using Claude Sonnet 4 for comprehensive market analysis and stock recommendations
+// Claude excels at following detailed instructions and structured analysis
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 interface DetailedRecommendationsRequest {
   portfolio: Array<{ name: string; value: number; color: string; breakdown?: string }>;
@@ -57,16 +58,16 @@ export async function POST(request: NextRequest) {
     }
 
     // If no API key, return error (no fallback for this feature)
-    if (!OPENAI_API_KEY) {
-      console.warn("OPENAI_API_KEY not set");
+    if (!ANTHROPIC_API_KEY) {
+      console.warn("ANTHROPIC_API_KEY not set");
       return NextResponse.json(
         { error: "API configuration missing. Please contact support." },
         { status: 503 }
       );
     }
 
-    const openai = new OpenAI({
-      apiKey: OPENAI_API_KEY,
+    const anthropic = new Anthropic({
+      apiKey: ANTHROPIC_API_KEY,
     });
 
     // Construct portfolio summary
@@ -232,15 +233,6 @@ Example: If user selected "Technology" and "Healthcare", your Equities section s
 
 **Important Guidelines:**
 
-${formData.risk === 'High' || parseInt(formData.age) < 40 ? `
-🚨 **MANDATORY REQUIREMENT:**
-${formData.risk === 'High' ? `- This user has HIGH risk tolerance - you MUST recommend at least 2 SMALL-CAP stocks (market cap $300M-$2B)` : ''}
-${parseInt(formData.age) < 40 ? `- This user is young (age ${formData.age}) - you MUST include small/mid-cap growth stocks for long-term wealth building` : ''}
-${formData.risk === 'High' && formData.sectors.length > 0 ? `- Look specifically for small-cap companies in ${formData.sectors.join(" and ")} sectors` : ''}
-- Small-caps should have: 20%+ revenue growth, rising institutional ownership, strong technical momentum
-- DO NOT recommend only mega-cap stocks (AAPL, MSFT, GOOGL, etc.) - diversify into smaller companies
-` : ''}
-
 - Provide 3-5 specific recommendations per asset class (more for Equities, fewer for Cash)
 - Each rationale should be 2-4 sentences and cite specific data points
 - Position sizes should reflect conviction: Large (25-35% of category), Medium (15-25%), Small (5-15%)
@@ -252,56 +244,52 @@ ${formData.sectors.length > 0 ? `- PRIORITIZE: User's sector convictions (${form
 - Be specific with current data (don't use placeholder data)
 ${formData.sectors.length > 0 ? `- MOST IMPORTANT: Heavily weight recommendations toward user's sector convictions (${formData.sectors.join(", ")})` : ''}
 - For younger users with longer horizons, favor growth; for older users, favor income/stability
-- Include market cap diversity: Balance large-cap stability with small/mid-cap growth potential based on risk profile
-- For small/mid-caps: cite specific growth metrics (revenue growth %, institutional buying, technical momentum)
+${formData.risk === 'High' ? `- High risk tolerance: Consider including 1 small or mid-cap growth stock with strong fundamentals for upside potential` : ''}
+${parseInt(formData.age) < 40 ? `- Younger investor (age ${formData.age}): Small/mid-cap exposure can enhance long-term growth` : ''}
+${formData.risk === 'High' && formData.sectors.length > 0 ? `- If suitable, consider emerging companies in ${formData.sectors.join(" or ")} sectors with strong growth metrics` : ''}
+- Include market cap diversity: Balance large-cap stability with growth opportunities
+- For small/mid-caps when included: cite specific growth metrics (revenue growth %, institutional buying, technical momentum)
 ${formData.sectors.length > 0 ? `- Explicitly mention when a stock aligns with the user's ${formData.sectors.join(" / ")} sector conviction(s)` : ''}`;
 
-    console.log("Calling GPT-4o for detailed recommendations...");
+    console.log("Calling Claude Sonnet 4 for detailed recommendations...");
 
-    // Build system message with explicit instructions
-    const systemMessage = `You are a professional financial analyst providing investment recommendations. Always respond with valid JSON only, no markdown formatting.
-
-${formData.risk === 'High' || parseInt(formData.age) < 40 ? `
-CRITICAL INSTRUCTION: This user profile requires small-cap and mid-cap stock recommendations.
-- User risk tolerance: ${formData.risk}
-- User age: ${formData.age}
-${formData.risk === 'High' ? '- HIGH RISK TOLERANCE detected: You MUST include at least 2 small-cap stocks (market cap $300M-$2B) with high growth potential' : ''}
-${parseInt(formData.age) < 40 ? `- YOUNG INVESTOR detected: You MUST include small/mid-cap growth stocks for long-term wealth building` : ''}
-${formData.sectors.length > 0 && formData.risk === 'High' ? `- Look for trending small-cap companies in: ${formData.sectors.join(", ")}` : ''}
-
-DO NOT only recommend large-cap stocks. Include meaningful small-cap and mid-cap exposure.
-` : ''}`;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 4000,
+      temperature: 0.7,
       messages: [
         {
-          role: "system",
-          content: systemMessage
-        },
-        {
           role: "user",
-          content: prompt
-        }
+          content: prompt,
+        },
       ],
-      temperature: 0.7,
-      max_tokens: 4000,
-      response_format: { type: "json_object" }
     });
 
-    console.log("GPT-4o response received");
+    console.log("Claude response received");
 
-    const content = response.choices[0].message.content;
+    const content = response.content[0];
     
-    if (!content) {
-      throw new Error("Empty response from GPT-4o");
+    if (content.type !== "text") {
+      throw new Error("Unexpected response type from Claude");
     }
 
     let recommendations: DetailedRecommendationsResponse;
     try {
-      recommendations = JSON.parse(content);
+      // Extract JSON from response
+      const text = content.text;
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("No JSON found in response");
+      }
+      
+      const cleanedContent = jsonMatch[0]
+        .replace(/```json\n?/g, "")
+        .replace(/```\n?/g, "")
+        .trim();
+      
+      recommendations = JSON.parse(cleanedContent);
     } catch (parseError) {
-      console.error("Error parsing GPT-4o response:", parseError);
+      console.error("Error parsing Claude response:", parseError);
       throw new Error("Invalid JSON response from AI");
     }
 
