@@ -20,6 +20,24 @@ interface PortfolioItem {
   breakdown?: string;
 }
 
+interface StockRecommendation {
+  ticker: string;
+  name: string;
+  rationale: string;
+  positionSize: "Large" | "Medium" | "Small";
+  riskLevel: "Low" | "Moderate" | "High";
+}
+
+interface AssetClassRecommendations {
+  recommendations: StockRecommendation[];
+  breakdown: Array<{ name: string; value: number; color: string }>;
+}
+
+interface DetailedRecommendations {
+  [assetClass: string]: AssetClassRecommendations | string;
+  marketContext: string;
+}
+
 interface SavedPortfolio {
   id: string;
   name: string;
@@ -33,6 +51,7 @@ interface SavedPortfolio {
     goal: string;
     sectors: string[];
   };
+  detailedRecommendations?: DetailedRecommendations;
 }
 
 export default function Home() {
@@ -48,10 +67,14 @@ export default function Home() {
   const [stressTestScenario, setStressTestScenario] = useState("");
   const [stressTestLoading, setStressTestLoading] = useState(false);
   const [stressTestResult, setStressTestResult] = useState<any>(null);
+  const [detailedRecommendations, setDetailedRecommendations] = useState<DetailedRecommendations | null>(null);
+  const [showDetailPanel, setShowDetailPanel] = useState(false);
+  const [detailPanelLoading, setDetailPanelLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("Equities");
   const portfolioRef = useRef<HTMLDivElement>(null);
   
   // Available sectors for selection
-  const sectors = ["Technology", "Energy", "Finance", "Healthcare", "Cryptocurrency", "Blockchain Integration", "Real Estate", "Precious Metals", "Aerospace"];
+  const sectors = ["Technology", "Energy", "Finance", "Healthcare", "Cryptocurrency", "Blockchain Integration", "Real Estate", "Precious Metals", "Aerospace", "Quantum Computing"];
   
   // Default portfolio data (shown before generation)
   const defaultPortfolioData: PortfolioItem[] = [
@@ -109,6 +132,7 @@ export default function Home() {
       date: new Date().toLocaleDateString(),
       portfolioData: dataToSave,
       formData,
+      detailedRecommendations: detailedRecommendations || undefined,
     };
     
     const updated = [...savedPortfolios, newPortfolio];
@@ -146,6 +170,14 @@ export default function Home() {
       (document.getElementById("goal") as HTMLInputElement).value = portfolio.formData.goal;
     }
     setSelectedSectors(portfolio.formData.sectors || []);
+    
+    // Restore detailed recommendations if they exist
+    if (portfolio.detailedRecommendations) {
+      setDetailedRecommendations(portfolio.detailedRecommendations);
+    } else {
+      setDetailedRecommendations(null);
+    }
+    
     setShowSavedPortfolios(false);
     toast.success(`Loaded: ${portfolio.name}`);
   };
@@ -222,6 +254,60 @@ export default function Home() {
     const text = `Diversonal Portfolio Allocation\n\n${dataToUse.map(p => `${p.name}: ${p.value}%${p.breakdown ? ` (${p.breakdown})` : ""}`).join("\n")}${portfolioReasoning ? `\n\nReasoning: ${portfolioReasoning}` : ""}`;
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard!");
+  };
+
+  // Handle detailed recommendations request
+  const handleGetDetailedRecommendations = async () => {
+    setDetailPanelLoading(true);
+
+    try {
+      const formData = {
+        age: (document.getElementById("age") as HTMLInputElement)?.value || "",
+        risk: (document.getElementById("risk") as HTMLSelectElement)?.value || "",
+        horizon: (document.getElementById("horizon") as HTMLSelectElement)?.value || "",
+        capital: (document.getElementById("capital") as HTMLInputElement)?.value || "",
+        goal: (document.getElementById("goal") as HTMLInputElement)?.value || "",
+        sectors: selectedSectors,
+      };
+
+      const response = await fetch("/api/detailed-recommendations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          portfolio: currentPortfolioData,
+          formData,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(errorData.error || "Failed to generate recommendations");
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setDetailedRecommendations(data);
+      setShowDetailPanel(true);
+      
+      // Set first asset class as active tab
+      const firstAssetClass = Object.keys(data).find(key => key !== "marketContext");
+      if (firstAssetClass) {
+        setActiveTab(firstAssetClass);
+      }
+      
+      toast.success("Detailed recommendations generated!");
+    } catch (error: any) {
+      console.error("Error generating detailed recommendations:", error);
+      toast.error(error?.message || "Failed to generate detailed recommendations. Please try again.");
+    } finally {
+      setDetailPanelLoading(false);
+    }
   };
 
   // Pre-defined stress test scenarios
@@ -633,6 +719,28 @@ export default function Home() {
                 </svg>
                 Copy
               </button>
+              <button
+                onClick={handleGetDetailedRecommendations}
+                disabled={detailPanelLoading}
+                className="relative inline-flex items-center gap-2 overflow-hidden rounded-lg border-2 border-[#00FF99] bg-[#00FF99] px-4 py-2 text-sm font-semibold text-[#171A1F] transition-all hover:bg-[#00E689] hover:border-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {detailPanelLoading && (
+                  <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
+                    <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]"></div>
+                  </div>
+                )}
+                {detailPanelLoading ? (
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                )}
+                {detailPanelLoading ? "Loading..." : "Detailed Breakdown"}
+              </button>
             </div>
           </div>
           <ul className="mb-8 space-y-2 pl-5 text-base leading-relaxed text-gray-200 sm:text-lg">
@@ -919,6 +1027,183 @@ export default function Home() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Detailed Recommendations Slide-Out Panel */}
+      {showDetailPanel && detailedRecommendations && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 z-40 bg-black/50 transition-opacity"
+            onClick={() => setShowDetailPanel(false)}
+          />
+          
+          {/* Slide-out Panel */}
+          <div className={`fixed top-0 right-0 z-50 h-full w-full sm:w-[600px] transform transition-transform duration-300 ease-in-out ${
+            showDetailPanel ? 'translate-x-0' : 'translate-x-full'
+          }`}>
+            <div className="h-full overflow-y-auto bg-[#171A1F] shadow-2xl">
+              {/* Header */}
+              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-700 bg-[#1C1F26] p-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-100">Detailed Investment Breakdown</h3>
+                  <p className="mt-1 text-sm text-gray-400">AI-powered stock and asset recommendations</p>
+                </div>
+                <button
+                  onClick={() => setShowDetailPanel(false)}
+                  className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-100"
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Market Context */}
+              {detailedRecommendations.marketContext && (
+                <div className="border-b border-gray-700 bg-[#1C1F26] p-6">
+                  <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#00FF99]">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Market Context
+                  </h4>
+                  <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
+                </div>
+              )}
+
+              {/* Tabs */}
+              <div className="sticky top-[100px] z-10 border-b border-gray-700 bg-[#171A1F]">
+                <div className="flex overflow-x-auto">
+                  {Object.keys(detailedRecommendations)
+                    .filter(key => key !== "marketContext")
+                    .map((assetClass) => (
+                      <button
+                        key={assetClass}
+                        onClick={() => setActiveTab(assetClass)}
+                        className={`flex-shrink-0 px-6 py-4 text-sm font-semibold transition-colors ${
+                          activeTab === assetClass
+                            ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
+                            : 'text-gray-400 hover:text-gray-200'
+                        }`}
+                      >
+                        {assetClass}
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              {/* Tab Content */}
+              <div className="p-6">
+                {Object.keys(detailedRecommendations)
+                  .filter(key => key !== "marketContext")
+                  .map((assetClass) => {
+                    if (activeTab !== assetClass) return null;
+                    
+                    const data = detailedRecommendations[assetClass];
+                    
+                    // Type guard to check if data is AssetClassRecommendations
+                    if (typeof data === 'string') return null;
+                    
+                    return (
+                      <div key={assetClass} className="space-y-6">
+                        {/* Pie Chart Visualization */}
+                        {data.breakdown && data.breakdown.length > 0 && (
+                          <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-6">
+                            <h4 className="mb-4 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={data.breakdown}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={(entry: any) => `${entry.name}: ${entry.value}%`}
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                  >
+                                    {data.breakdown.map((entry: any, index: number) => (
+                                      <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                  </Pie>
+                                  <Tooltip
+                                    formatter={(value: number) => `${value}%`}
+                                    contentStyle={{
+                                      backgroundColor: '#171A1F',
+                                      border: 'none',
+                                      borderRadius: '8px',
+                                      color: '#00FF99'
+                                    }}
+                                    labelStyle={{ color: '#00FF99' }}
+                                    itemStyle={{ color: '#00FF99' }}
+                                  />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Recommendations List */}
+                        {data.recommendations && data.recommendations.length > 0 && (
+                          <div className="space-y-4">
+                            <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
+                            {data.recommendations.map((rec: StockRecommendation, index: number) => (
+                              <div
+                                key={index}
+                                className="rounded-xl border border-gray-700 bg-[#1C1F26] p-5 transition-all hover:border-[#00FF99]/50"
+                              >
+                                {/* Ticker and Name */}
+                                <div className="mb-3 flex items-start justify-between">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <h5 className="text-xl font-bold text-[#00FF99]">{rec.ticker}</h5>
+                                      <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                                        rec.riskLevel === 'Low' ? 'bg-green-100 text-green-700' :
+                                        rec.riskLevel === 'Moderate' ? 'bg-yellow-100 text-yellow-700' :
+                                        'bg-red-100 text-red-700'
+                                      }`}>
+                                        {rec.riskLevel} Risk
+                                      </span>
+                                    </div>
+                                    <p className="mt-1 text-sm text-gray-400">{rec.name}</p>
+                                  </div>
+                                  <div className={`rounded-lg px-3 py-1 text-sm font-semibold ${
+                                    rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99]' :
+                                    rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400' :
+                                    'bg-gray-500/20 text-gray-400'
+                                  }`}>
+                                    {rec.positionSize}
+                                  </div>
+                                </div>
+
+                                {/* Rationale */}
+                                <p className="text-sm leading-relaxed text-gray-300">
+                                  {rec.rationale}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Regenerate Button */}
+                        <div className="mt-6 border-t border-gray-700 pt-6">
+                          <button
+                            onClick={handleGetDetailedRecommendations}
+                            disabled={detailPanelLoading}
+                            className="w-full rounded-lg border-2 border-[#00FF99] bg-transparent px-4 py-3 font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F] disabled:opacity-50"
+                          >
+                            {detailPanelLoading ? 'Regenerating...' : 'Regenerate Recommendations'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        </>
       )}
       </div>
 
