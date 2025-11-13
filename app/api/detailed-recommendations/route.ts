@@ -228,7 +228,7 @@ Example: If user selected "Technology" and "Healthcare", your Equities section s
       { "name": "Money Market", "value": 40, "color": "#FFB84D" }
     ]
   },
-  "marketContext": "As of November 2025, the Fed maintains rates at 4.50% after two 25bp cuts. Inflation has moderated to 2.4% (CPI YoY), approaching the Fed's 2% target. Labor market shows resilience with unemployment at 4.1%. The S&P 500 trades at 21x forward P/E, above historical average of 18x, suggesting selective positioning is prudent. Market cycle indicators suggest late-stage expansion, favoring quality over momentum. Tech sector has outperformed YTD (+28%) on AI enthusiasm, while traditional cyclicals lag. VIX at 14 indicates complacency. Recommended approach: blend growth and quality, increase international exposure, maintain bond duration near neutral."
+  "marketContext": "As of January 2025, [use ACTUAL CURRENT market data - Fed rates, inflation, unemployment, S&P valuation, sector performance, VIX, market sentiment]. Provide 3-5 sentences with real current data."
 }
 
 **Important Guidelines:**
@@ -240,16 +240,16 @@ ${formData.sectors.length > 0 ? `- PRIORITIZE: User's sector convictions (${form
 - Risk levels based on volatility, beta, drawdown history
 - Breakdown percentages must sum to 100 for each asset class
 - Use varied colors for breakdown visualization (hex codes)
-- marketContext should be 3-5 sentences summarizing current environment
-- Be specific with current data (don't use placeholder data)
+- **CRITICAL: marketContext MUST use January 2025 as current date with ACTUAL real-time market data (current Fed rates, latest inflation figures, recent S&P 500 performance, current VIX levels, etc.)**
+- Be specific with current data (don't use placeholder or outdated information)
 ${formData.sectors.length > 0 ? `- MOST IMPORTANT: Heavily weight recommendations toward user's sector convictions (${formData.sectors.join(", ")})` : ''}
+${formData.sectors.length > 0 ? `- When recommending stocks in user's conviction sectors (${formData.sectors.join(", ")}), naturally weave the sector alignment into the rationale - NO special formatting, NO all caps, NO asterisks - just mention it organically` : ''}
 - For younger users with longer horizons, favor growth; for older users, favor income/stability
 ${formData.risk === 'High' ? `- High risk tolerance: Consider including 1 small or mid-cap growth stock with strong fundamentals for upside potential` : ''}
 ${parseInt(formData.age) < 40 ? `- Younger investor (age ${formData.age}): Small/mid-cap exposure can enhance long-term growth` : ''}
 ${formData.risk === 'High' && formData.sectors.length > 0 ? `- If suitable, consider emerging companies in ${formData.sectors.join(" or ")} sectors with strong growth metrics` : ''}
 - Include market cap diversity: Balance large-cap stability with growth opportunities
-- For small/mid-caps when included: cite specific growth metrics (revenue growth %, institutional buying, technical momentum)
-${formData.sectors.length > 0 ? `- Explicitly mention when a stock aligns with the user's ${formData.sectors.join(" / ")} sector conviction(s)` : ''}`;
+- For small/mid-caps when included: cite specific growth metrics (revenue growth %, institutional buying, technical momentum)`;
 
     console.log("Calling Claude Sonnet 4 for detailed recommendations...");
 
