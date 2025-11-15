@@ -911,45 +911,48 @@ export default function Home() {
 
           {/* Deep Dive Stock Recommendations Buttons */}
           <div className="mt-10 flex flex-col items-center gap-4">
-            <button
-              onClick={handleGetDetailedRecommendations}
-              disabled={detailPanelLoading}
-              className="relative inline-flex items-center gap-3 overflow-hidden rounded-xl border-2 border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-bold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all hover:scale-[1.02] hover:bg-[#00E689] hover:border-[#00E689] hover:shadow-xl hover:shadow-[#00FF99]/40 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {detailPanelLoading && (
-                <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
-                  <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]"></div>
-                </div>
-              )}
-              {detailPanelLoading ? (
-                <>
-                  <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Analyzing Markets...
-                </>
-              ) : (
-                <>
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Deep Dive Stock Picks with AI Reasoning
-                </>
-              )}
-            </button>
+            {/* Deep Dive button - only show if no recommendations exist yet */}
+            {!detailedRecommendations && (
+              <button
+                onClick={handleGetDetailedRecommendations}
+                disabled={detailPanelLoading}
+                className="relative inline-flex items-center gap-3 overflow-hidden rounded-xl border-2 border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-bold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all hover:scale-[1.02] hover:bg-[#00E689] hover:border-[#00E689] hover:shadow-xl hover:shadow-[#00FF99]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {detailPanelLoading && (
+                  <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
+                    <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]"></div>
+                  </div>
+                )}
+                {detailPanelLoading ? (
+                  <>
+                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Analyzing Markets...
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Deep Dive Stock Picks with AI Reasoning
+                  </>
+                )}
+              </button>
+            )}
             
-            {/* View Recommendations button - shows when data exists but panel is minimized */}
+            {/* View Recommendations button - shows when data exists and panel is minimized */}
             {detailedRecommendations && isPanelMinimized && !detailPanelLoading && (
               <button
                 onClick={() => setIsPanelMinimized(false)}
-                className="inline-flex items-center gap-2 rounded-lg border-2 border-[#00FF99] bg-transparent px-6 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F]"
+                className="inline-flex items-center gap-3 overflow-hidden rounded-xl border-2 border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-bold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all hover:scale-[1.02] hover:bg-[#00E689] hover:border-[#00E689] hover:shadow-xl hover:shadow-[#00FF99]/40"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
-                View Detailed Recommendations
+                View My Detailed Recommendations
               </button>
             )}
           </div>
@@ -1311,45 +1314,63 @@ export default function Home() {
                         {data.breakdown && data.breakdown.length > 0 && (
                           <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-6">
                             <h4 className="mb-4 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
-                            <div className="h-64" key={`chart-${assetClass}-${data.breakdown.length}-${detailPanelLoading ? 'loading' : 'complete'}`}>
-                              <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                  <Pie
-                                    data={data.breakdown}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    label={(entry: any) => `${entry.name}: ${entry.value}%`}
-                                    outerRadius={80}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                  >
-                                    {data.breakdown.map((entry: any, index: number) => (
-                                      <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                  </Pie>
-                                  <Tooltip
-                                    formatter={(value: number) => `${value}%`}
-                                    contentStyle={{
-                                      backgroundColor: '#171A1F',
-                                      border: 'none',
-                                      borderRadius: '8px',
-                                      color: '#00FF99'
-                                    }}
-                                    labelStyle={{ color: '#00FF99' }}
-                                    itemStyle={{ color: '#00FF99' }}
-                                  />
-                                </PieChart>
-                              </ResponsiveContainer>
-                            </div>
+                            {detailPanelLoading ? (
+                              <div className="h-64 flex items-center justify-center">
+                                <div className="text-center">
+                                  <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
+                                  <p className="text-sm text-gray-400">Generating allocation breakdown...</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="h-64">
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <PieChart>
+                                    <Pie
+                                      data={data.breakdown}
+                                      cx="50%"
+                                      cy="50%"
+                                      labelLine={false}
+                                      label={(entry: any) => `${entry.name}: ${entry.value}%`}
+                                      outerRadius={80}
+                                      fill="#8884d8"
+                                      dataKey="value"
+                                    >
+                                      {data.breakdown.map((entry: any, index: number) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                      ))}
+                                    </Pie>
+                                    <Tooltip
+                                      formatter={(value: number) => `${value}%`}
+                                      contentStyle={{
+                                        backgroundColor: '#171A1F',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        color: '#00FF99'
+                                      }}
+                                      labelStyle={{ color: '#00FF99' }}
+                                      itemStyle={{ color: '#00FF99' }}
+                                    />
+                                  </PieChart>
+                                </ResponsiveContainer>
+                              </div>
+                            )}
                           </div>
                         )}
 
                         {/* Recommendations List */}
                         {data.recommendations && data.recommendations.length > 0 ? (
-                          <div className="space-y-4">
-                            <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
-                            {data.recommendations.map((rec: StockRecommendation, index: number) => (
+                          detailPanelLoading ? (
+                            <div className="space-y-4">
+                              <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
+                              <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
+                                <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
+                                <p className="text-sm text-gray-400">Analyzing positions and generating recommendations...</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
+                              {data.recommendations.map((rec: StockRecommendation, index: number) => (
                               <div
                                 key={index}
                                 className="rounded-xl border border-gray-700 bg-[#1C1F26] p-5 transition-all hover:border-[#00FF99]/50"
@@ -1384,7 +1405,8 @@ export default function Home() {
                                 </p>
                               </div>
                             ))}
-                          </div>
+                            </div>
+                          )
                         ) : (
                           <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
                             <svg className="mx-auto mb-4 h-12 w-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
