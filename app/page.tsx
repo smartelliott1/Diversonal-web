@@ -68,9 +68,10 @@ export default function Home() {
   const [stressTestLoading, setStressTestLoading] = useState(false);
   const [stressTestResult, setStressTestResult] = useState<any>(null);
   const [detailedRecommendations, setDetailedRecommendations] = useState<DetailedRecommendations | null>(null);
-  const [showDetailPanel, setShowDetailPanel] = useState(false);
+  const [isPanelMinimized, setIsPanelMinimized] = useState(true);
   const [detailPanelLoading, setDetailPanelLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("Equities");
+  const [streamingText, setStreamingText] = useState<string>("");
   const portfolioRef = useRef<HTMLDivElement>(null);
   
   // Available sectors for selection
@@ -259,6 +260,8 @@ export default function Home() {
   // Handle detailed recommendations request
   const handleGetDetailedRecommendations = async () => {
     setDetailPanelLoading(true);
+    setIsPanelMinimized(false);
+    setStreamingText("");
 
     try {
       const formData = {
@@ -286,27 +289,69 @@ export default function Home() {
         throw new Error(errorData.error || "Failed to generate recommendations");
       }
 
-      const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      // Check if response is streaming
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("text/event-stream") || contentType?.includes("text/plain")) {
+        // Handle streaming response
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedText = "";
 
-      setDetailedRecommendations(data);
-      setShowDetailPanel(true);
-      
-      // Set first asset class as active tab
-      const firstAssetClass = Object.keys(data).find(key => key !== "marketContext");
-      if (firstAssetClass) {
-        setActiveTab(firstAssetClass);
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value, { stream: true });
+            accumulatedText += chunk;
+            setStreamingText(accumulatedText);
+          }
+
+          // Parse final JSON
+          try {
+            const jsonMatch = accumulatedText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              const data = JSON.parse(jsonMatch[0]);
+              setDetailedRecommendations(data);
+              
+              // Set first asset class as active tab
+              const firstAssetClass = Object.keys(data).find(key => key !== "marketContext");
+              if (firstAssetClass) {
+                setActiveTab(firstAssetClass);
+              }
+              
+              toast.success("Detailed recommendations generated!");
+            }
+          } catch (parseError) {
+            console.error("Error parsing streamed response:", parseError);
+            throw new Error("Invalid response format");
+          }
+        }
+      } else {
+        // Handle regular JSON response (fallback)
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        setDetailedRecommendations(data);
+        
+        // Set first asset class as active tab
+        const firstAssetClass = Object.keys(data).find(key => key !== "marketContext");
+        if (firstAssetClass) {
+          setActiveTab(firstAssetClass);
+        }
+        
+        toast.success("Detailed recommendations generated!");
       }
-      
-      toast.success("Detailed recommendations generated!");
     } catch (error: any) {
       console.error("Error generating detailed recommendations:", error);
       toast.error(error?.message || "Failed to generate detailed recommendations. Please try again.");
+      setIsPanelMinimized(true);
     } finally {
       setDetailPanelLoading(false);
+      setStreamingText("");
     }
   };
 
@@ -818,8 +863,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Deep Dive Stock Recommendations Button */}
-          <div className="mt-10 flex justify-center">
+          {/* Deep Dive Stock Recommendations Buttons */}
+          <div className="mt-10 flex flex-col items-center gap-4">
             <button
               onClick={handleGetDetailedRecommendations}
               disabled={detailPanelLoading}
@@ -847,6 +892,20 @@ export default function Home() {
                 </>
               )}
             </button>
+            
+            {/* View Recommendations button - shows when data exists but panel is minimized */}
+            {detailedRecommendations && isPanelMinimized && !detailPanelLoading && (
+              <button
+                onClick={() => setIsPanelMinimized(false)}
+                className="inline-flex items-center gap-2 rounded-lg border-2 border-[#00FF99] bg-transparent px-6 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F]"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View Detailed Recommendations
+              </button>
+            )}
           </div>
 
           {/* Stress Testing Section */}
@@ -1048,12 +1107,31 @@ export default function Home() {
         </div>
       )}
 
+      {/* Floating Icon - shows when panel is minimized and data exists */}
+      {detailedRecommendations && isPanelMinimized && !detailPanelLoading && (
+        <button
+          onClick={() => setIsPanelMinimized(false)}
+          className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#00FF99] shadow-lg shadow-[#00FF99]/50 transition-all hover:scale-110 hover:shadow-xl hover:shadow-[#00FF99]/60"
+          title="View Detailed Recommendations"
+        >
+          <svg className="h-6 w-6 text-[#171A1F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </button>
+      )}
+
       {/* Detailed Recommendations Slide-Out Panel */}
-      {showDetailPanel && detailedRecommendations && (
+      {!isPanelMinimized && detailedRecommendations && (
         <>
+          {/* Backdrop overlay */}
+          <div 
+            className="fixed inset-0 z-40 bg-black/50 transition-opacity"
+            onClick={() => setIsPanelMinimized(true)}
+          />
+          
           {/* Slide-out Panel */}
           <div className={`fixed top-0 right-0 z-50 h-full w-full sm:w-[600px] transform transition-transform duration-300 ease-in-out ${
-            showDetailPanel ? 'translate-x-0' : 'translate-x-full'
+            !isPanelMinimized ? 'translate-x-0' : 'translate-x-full'
           }`}>
             <div className="h-full overflow-y-auto bg-[#171A1F] shadow-2xl">
               {/* Header */}
@@ -1063,8 +1141,9 @@ export default function Home() {
                   <p className="mt-1 text-sm text-gray-400">AI-powered stock and asset recommendations</p>
                 </div>
                 <button
-                  onClick={() => setShowDetailPanel(false)}
+                  onClick={() => setIsPanelMinimized(true)}
                   className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-100"
+                  title="Minimize panel"
                 >
                   <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1072,8 +1151,32 @@ export default function Home() {
                 </button>
               </div>
 
+              {/* Streaming Text Display */}
+              {detailPanelLoading && streamingText && (
+                <div className="border-b border-gray-700 bg-[#1C1F26] p-6">
+                  <div className="mb-3 flex items-center gap-2">
+                    <svg className="h-5 w-5 animate-spin text-[#00FF99]" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99]">
+                      AI Generation in Progress
+                    </h4>
+                  </div>
+                  <div className="max-h-[400px] overflow-y-auto rounded-lg border border-gray-700 bg-[#171A1F] p-4">
+                    <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-gray-300">
+                      {streamingText}
+                      <span className="inline-block h-4 w-2 animate-pulse bg-[#00FF99] ml-1"></span>
+                    </pre>
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500 italic">
+                    Streaming live from Claude AI...
+                  </p>
+                </div>
+              )}
+
               {/* Market Context */}
-              {detailedRecommendations.marketContext && (
+              {detailedRecommendations.marketContext && !detailPanelLoading && (
                 <div className="border-b border-gray-700 bg-[#1C1F26] p-6">
                   <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#00FF99]">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1085,29 +1188,32 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Tabs */}
-              <div className="sticky top-[100px] z-10 border-b border-gray-700 bg-[#171A1F]">
-                <div className="flex overflow-x-auto">
-                  {Object.keys(detailedRecommendations)
-                    .filter(key => key !== "marketContext")
-                    .map((assetClass) => (
-                      <button
-                        key={assetClass}
-                        onClick={() => setActiveTab(assetClass)}
-                        className={`flex-shrink-0 px-6 py-4 text-sm font-semibold transition-colors ${
-                          activeTab === assetClass
-                            ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
-                            : 'text-gray-400 hover:text-gray-200'
-                        }`}
-                      >
-                        {assetClass}
-                      </button>
-                    ))}
+              {/* Tabs - only show when not loading */}
+              {!detailPanelLoading && (
+                <div className="sticky top-[100px] z-10 border-b border-gray-700 bg-[#171A1F]">
+                  <div className="flex overflow-x-auto">
+                    {Object.keys(detailedRecommendations)
+                      .filter(key => key !== "marketContext")
+                      .map((assetClass) => (
+                        <button
+                          key={assetClass}
+                          onClick={() => setActiveTab(assetClass)}
+                          className={`flex-shrink-0 px-6 py-4 text-sm font-semibold transition-colors ${
+                            activeTab === assetClass
+                              ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
+                              : 'text-gray-400 hover:text-gray-200'
+                          }`}
+                        >
+                          {assetClass}
+                        </button>
+                      ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Tab Content */}
-              <div className="p-6">
+              {/* Tab Content - only show when not loading */}
+              {!detailPanelLoading && (
+                <div className="p-6">
                 {Object.keys(detailedRecommendations)
                   .filter(key => key !== "marketContext")
                   .map((assetClass) => {
@@ -1213,7 +1319,8 @@ export default function Home() {
                       </div>
                     );
                   })}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </>
