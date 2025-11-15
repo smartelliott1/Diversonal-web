@@ -286,13 +286,16 @@ export default function Home() {
         sectors: selectedSectors,
       };
 
+      // Filter out asset classes with 0% allocation to save API costs
+      const filteredPortfolio = currentPortfolioData.filter(item => item.value > 0);
+
       const response = await fetch("/api/detailed-recommendations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          portfolio: currentPortfolioData,
+          portfolio: filteredPortfolio,
           formData,
         }),
       });
@@ -359,10 +362,9 @@ export default function Home() {
               setDetailedRecommendations(data);
               setIsFirstGeneration(false);
               
-              // Set first asset class as active tab
-              const firstAssetClass = Object.keys(data).find(key => key !== "marketContext");
-              if (firstAssetClass) {
-                setActiveTab(firstAssetClass);
+              // Set first asset class from portfolio as active tab
+              if (currentPortfolioData.length > 0) {
+                setActiveTab(currentPortfolioData[0].name);
               }
               
               toast.success("Detailed recommendations generated!");
@@ -383,10 +385,9 @@ export default function Home() {
         setDetailedRecommendations(data);
         setIsFirstGeneration(false);
         
-        // Set first asset class as active tab
-        const firstAssetClass = Object.keys(data).find(key => key !== "marketContext");
-        if (firstAssetClass) {
-          setActiveTab(firstAssetClass);
+        // Set first asset class from portfolio as active tab
+        if (currentPortfolioData.length > 0) {
+          setActiveTab(currentPortfolioData[0].name);
         }
         
         toast.success("Detailed recommendations generated!");
@@ -1237,23 +1238,21 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Tabs - show parsed classes during loading, all classes when complete */}
+              {/* Tabs - show all asset classes from original portfolio */}
               {!detailPanelLoading && detailedRecommendations && (
                 <div className="sticky top-[100px] z-10 border-b border-gray-700 bg-[#171A1F]">
                   <div className="flex overflow-x-auto">
-                    {Object.keys(detailedRecommendations)
-                      .filter(key => key !== "marketContext")
-                      .map((assetClass) => (
+                    {currentPortfolioData.map((item) => (
                         <button
-                          key={assetClass}
-                          onClick={() => setActiveTab(assetClass)}
+                          key={item.name}
+                          onClick={() => setActiveTab(item.name)}
                           className={`flex-shrink-0 px-6 py-4 text-sm font-semibold transition-colors ${
-                            activeTab === assetClass
+                            activeTab === item.name
                               ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
                               : 'text-gray-400 hover:text-gray-200'
                           }`}
                         >
-                          {assetClass}
+                          {item.name}
                         </button>
                       ))}
                   </div>
@@ -1284,10 +1283,23 @@ export default function Home() {
               {/* Tab Content - show partial during loading, full when complete */}
               {((detailPanelLoading && Object.keys(partialRecommendations).length > 0) || (!detailPanelLoading && detailedRecommendations)) && (
                 <div className="p-6">
-                {Object.keys(detailPanelLoading ? partialRecommendations : (detailedRecommendations || {}))
-                  .filter(key => key !== "marketContext")
-                  .map((assetClass) => {
+                {currentPortfolioData.map((portfolioItem) => {
+                    const assetClass = portfolioItem.name;
                     if (activeTab !== assetClass) return null;
+                    
+                    // Check if this asset class has 0% allocation
+                    if (portfolioItem.value === 0) {
+                      return (
+                        <div key={assetClass} className="rounded-xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
+                          <svg className="mx-auto mb-4 h-12 w-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <p className="text-base leading-relaxed text-gray-400">
+                            Due to your age, time horizon, and risk tolerance, you have no recommended investments in {assetClass}. If you&apos;d like to include this asset class, try regenerating with adjusted preferences or a more descriptive investment goal.
+                          </p>
+                        </div>
+                      );
+                    }
                     
                     const data = detailPanelLoading 
                       ? partialRecommendations[assetClass]
