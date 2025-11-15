@@ -74,6 +74,7 @@ export default function Home() {
   const [streamingText, setStreamingText] = useState<string>("");
   const [parsedAssetClasses, setParsedAssetClasses] = useState<string[]>([]);
   const [partialRecommendations, setPartialRecommendations] = useState<DetailedRecommendations>({} as DetailedRecommendations);
+  const [isFirstGeneration, setIsFirstGeneration] = useState(true);
   const portfolioRef = useRef<HTMLDivElement>(null);
   const streamingTextRef = useRef<HTMLDivElement>(null);
   
@@ -356,6 +357,7 @@ export default function Home() {
             if (jsonMatch) {
               const data = JSON.parse(jsonMatch[0]);
               setDetailedRecommendations(data);
+              setIsFirstGeneration(false);
               
               // Set first asset class as active tab
               const firstAssetClass = Object.keys(data).find(key => key !== "marketContext");
@@ -379,6 +381,7 @@ export default function Home() {
         }
 
         setDetailedRecommendations(data);
+        setIsFirstGeneration(false);
         
         // Set first asset class as active tab
         const firstAssetClass = Object.keys(data).find(key => key !== "marketContext");
@@ -1308,7 +1311,7 @@ export default function Home() {
                         {data.breakdown && data.breakdown.length > 0 && (
                           <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-6">
                             <h4 className="mb-4 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
-                            <div className="h-64">
+                            <div className="h-64" key={`chart-${assetClass}-${data.breakdown.length}-${detailPanelLoading ? 'loading' : 'complete'}`}>
                               <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                   <Pie
@@ -1400,7 +1403,10 @@ export default function Home() {
                             disabled={detailPanelLoading}
                             className="w-full rounded-lg border-2 border-[#00FF99] bg-transparent px-4 py-3 font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F] disabled:opacity-50"
                           >
-                            {detailPanelLoading ? 'Regenerating...' : 'Regenerate Recommendations'}
+                            {detailPanelLoading 
+                              ? (isFirstGeneration ? 'Generating...' : 'Regenerating...') 
+                              : 'Regenerate Recommendations'
+                            }
                           </button>
                         </div>
                       </div>
