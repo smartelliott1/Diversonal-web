@@ -73,6 +73,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<string>("Equities");
   const [streamingText, setStreamingText] = useState<string>("");
   const [parsedAssetClasses, setParsedAssetClasses] = useState<string[]>([]);
+  const [partialRecommendations, setPartialRecommendations] = useState<DetailedRecommendations>({} as DetailedRecommendations);
   const portfolioRef = useRef<HTMLDivElement>(null);
   const streamingTextRef = useRef<HTMLDivElement>(null);
   
@@ -272,6 +273,7 @@ export default function Home() {
     setIsPanelMinimized(false);
     setStreamingText("");
     setParsedAssetClasses([]);
+    setPartialRecommendations({} as DetailedRecommendations);
 
     try {
       const formData = {
@@ -316,16 +318,35 @@ export default function Home() {
             accumulatedText += chunk;
             setStreamingText(accumulatedText);
             
-            // Parse and detect completed asset class sections
-            const detectCompleted = (text: string) => {
+            // Parse and extract completed asset class sections with data
+            const detectAndExtractCompleted = (text: string) => {
+              const partial: any = {};
+              
+              // Match complete asset class sections
               const pattern = /"(\w+)":\s*\{[\s\S]*?"recommendations":\s*\[[\s\S]*?\][\s\S]*?"breakdown":\s*\[[\s\S]*?\]\s*\}/g;
               const matches = [...text.matchAll(pattern)];
-              return matches.map(m => m[1]).filter(c => c !== 'marketContext');
+              
+              matches.forEach(match => {
+                const assetClass = match[1];
+                if (assetClass !== 'marketContext') {
+                  try {
+                    // Extract and parse just this section
+                    const sectionText = `{${match[0]}}`;
+                    const parsed = JSON.parse(sectionText);
+                    partial[assetClass] = parsed[assetClass];
+                  } catch (e) {
+                    // Parsing failed, section not complete yet
+                  }
+                }
+              });
+              
+              return partial;
             };
             
-            const completed = detectCompleted(accumulatedText);
-            if (completed.length > 0) {
-              setParsedAssetClasses(completed);
+            const partialData = detectAndExtractCompleted(accumulatedText);
+            if (Object.keys(partialData).length > 0) {
+              setParsedAssetClasses(Object.keys(partialData));
+              setPartialRecommendations(partialData as DetailedRecommendations);
             }
           }
 
@@ -1254,21 +1275,35 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Tab Content - only show when not loading */}
-              {!detailPanelLoading && detailedRecommendations && (
+              {/* Tab Content - show partial during loading, full when complete */}
+              {((detailPanelLoading && Object.keys(partialRecommendations).length > 0) || (!detailPanelLoading && detailedRecommendations)) && (
                 <div className="p-6">
-                {Object.keys(detailedRecommendations)
+                {Object.keys(detailPanelLoading ? partialRecommendations : (detailedRecommendations || {}))
                   .filter(key => key !== "marketContext")
                   .map((assetClass) => {
                     if (activeTab !== assetClass) return null;
                     
-                    const data = detailedRecommendations[assetClass];
+                    const data = detailPanelLoading 
+                      ? partialRecommendations[assetClass]
+                      : (detailedRecommendations ? detailedRecommendations[assetClass] : null);
                     
                     // Type guard to check if data is AssetClassRecommendations
-                    if (typeof data === 'string') return null;
+                    if (typeof data === 'string' || !data) return null;
                     
                     return (
                       <div key={assetClass} className="space-y-6">
+                        {/* Loading indicator for partial data */}
+                        {detailPanelLoading && (
+                          <div className="rounded-lg border border-[#00FF99]/30 bg-[#00FF99]/10 p-3">
+                            <p className="flex items-center gap-2 text-sm text-[#00FF99]">
+                              <svg className="h-4 w-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              ✓ {assetClass} recommendations loaded. Additional analysis may still be generating...
+                            </p>
+                          </div>
+                        )}
+                        
                         {/* Pie Chart Visualization */}
                         {data.breakdown && data.breakdown.length > 0 && (
                           <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-6">
