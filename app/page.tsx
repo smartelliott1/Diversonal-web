@@ -72,7 +72,9 @@ export default function Home() {
   const [detailPanelLoading, setDetailPanelLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("Equities");
   const [streamingText, setStreamingText] = useState<string>("");
+  const [parsedAssetClasses, setParsedAssetClasses] = useState<string[]>([]);
   const portfolioRef = useRef<HTMLDivElement>(null);
+  const streamingTextRef = useRef<HTMLDivElement>(null);
   
   // Available sectors for selection
   const sectors = ["Technology", "Energy", "Finance", "Healthcare", "Cryptocurrency", "Blockchain Integration", "Real Estate", "Precious Metals", "Aerospace", "Quantum Computing"];
@@ -100,6 +102,13 @@ export default function Home() {
       }
     }
   }, []);
+
+  // Auto-scroll streaming text to bottom as it arrives
+  useEffect(() => {
+    if (streamingTextRef.current) {
+      streamingTextRef.current.scrollTop = streamingTextRef.current.scrollHeight;
+    }
+  }, [streamingText]);
   
   const handleSectorChange = (sector: string) => {
     setSelectedSectors((prev) =>
@@ -262,6 +271,7 @@ export default function Home() {
     setDetailPanelLoading(true);
     setIsPanelMinimized(false);
     setStreamingText("");
+    setParsedAssetClasses([]);
 
     try {
       const formData = {
@@ -305,6 +315,18 @@ export default function Home() {
             const chunk = decoder.decode(value, { stream: true });
             accumulatedText += chunk;
             setStreamingText(accumulatedText);
+            
+            // Parse and detect completed asset class sections
+            const detectCompleted = (text: string) => {
+              const pattern = /"(\w+)":\s*\{[\s\S]*?"recommendations":\s*\[[\s\S]*?\][\s\S]*?"breakdown":\s*\[[\s\S]*?\]\s*\}/g;
+              const matches = [...text.matchAll(pattern)];
+              return matches.map(m => m[1]).filter(c => c !== 'marketContext');
+            };
+            
+            const completed = detectCompleted(accumulatedText);
+            if (completed.length > 0) {
+              setParsedAssetClasses(completed);
+            }
           }
 
           // Parse final JSON
@@ -1121,7 +1143,7 @@ export default function Home() {
       )}
 
       {/* Detailed Recommendations Slide-Out Panel */}
-      {!isPanelMinimized && detailedRecommendations && (
+      {!isPanelMinimized && (detailedRecommendations || detailPanelLoading) && (
         <>
           {/* Backdrop overlay */}
           <div 
@@ -1163,7 +1185,7 @@ export default function Home() {
                       AI Generation in Progress
                     </h4>
                   </div>
-                  <div className="max-h-[400px] overflow-y-auto rounded-lg border border-gray-700 bg-[#171A1F] p-4">
+                  <div ref={streamingTextRef} className="max-h-[400px] overflow-y-auto rounded-lg border border-gray-700 bg-[#171A1F] p-4">
                     <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-gray-300">
                       {streamingText}
                       <span className="inline-block h-4 w-2 animate-pulse bg-[#00FF99] ml-1"></span>
@@ -1176,7 +1198,7 @@ export default function Home() {
               )}
 
               {/* Market Context */}
-              {detailedRecommendations.marketContext && !detailPanelLoading && (
+              {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
                 <div className="border-b border-gray-700 bg-[#1C1F26] p-6">
                   <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#00FF99]">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1188,8 +1210,8 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Tabs - only show when not loading */}
-              {!detailPanelLoading && (
+              {/* Tabs - show parsed classes during loading, all classes when complete */}
+              {!detailPanelLoading && detailedRecommendations && (
                 <div className="sticky top-[100px] z-10 border-b border-gray-700 bg-[#171A1F]">
                   <div className="flex overflow-x-auto">
                     {Object.keys(detailedRecommendations)
@@ -1210,9 +1232,30 @@ export default function Home() {
                   </div>
                 </div>
               )}
+              
+              {/* Progressive tabs during loading */}
+              {detailPanelLoading && parsedAssetClasses.length > 0 && (
+                <div className="sticky top-[100px] z-10 border-b border-gray-700 bg-[#171A1F]">
+                  <div className="flex overflow-x-auto">
+                    {parsedAssetClasses.map((assetClass) => (
+                        <button
+                          key={assetClass}
+                          onClick={() => setActiveTab(assetClass)}
+                          className={`flex-shrink-0 px-6 py-4 text-sm font-semibold transition-colors ${
+                            activeTab === assetClass
+                              ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
+                              : 'text-gray-400 hover:text-gray-200'
+                          }`}
+                        >
+                          {assetClass}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              )}
 
               {/* Tab Content - only show when not loading */}
-              {!detailPanelLoading && (
+              {!detailPanelLoading && detailedRecommendations && (
                 <div className="p-6">
                 {Object.keys(detailedRecommendations)
                   .filter(key => key !== "marketContext")
@@ -1265,7 +1308,7 @@ export default function Home() {
                         )}
 
                         {/* Recommendations List */}
-                        {data.recommendations && data.recommendations.length > 0 && (
+                        {data.recommendations && data.recommendations.length > 0 ? (
                           <div className="space-y-4">
                             <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
                             {data.recommendations.map((rec: StockRecommendation, index: number) => (
@@ -1303,6 +1346,15 @@ export default function Home() {
                                 </p>
                               </div>
                             ))}
+                          </div>
+                        ) : (
+                          <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
+                            <svg className="mx-auto mb-4 h-12 w-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-base leading-relaxed text-gray-400">
+                              Based on your risk profile, time horizon, and investment goals, we don't recommend active positions in this asset class at this time.
+                            </p>
                           </div>
                         )}
 
