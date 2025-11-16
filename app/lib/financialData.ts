@@ -191,15 +191,23 @@ export async function getMarketData(): Promise<MarketData> {
       console.warn("[FMP] Economic indicators failed, using defaults");
     }
     
-    // Fetch treasury yields
+    // Fetch treasury yields using modern endpoint
     let treasury2Y = 4.2;
     let treasury10Y = 4.5;
     try {
-      const treasury = await fetchFMP("/v4/treasury");
-      const t2Y = treasury.find((t: any) => t.maturity === "2 Year");
-      const t10Y = treasury.find((t: any) => t.maturity === "10 Year");
-      if (t2Y?.rate) treasury2Y = t2Y.rate;
-      if (t10Y?.rate) treasury10Y = t10Y.rate;
+      const today = new Date();
+      const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const fromDate = thirtyDaysAgo.toISOString().split('T')[0];
+      const toDate = today.toISOString().split('T')[0];
+      
+      const treasury = await fetchFMP(`/stable/treasury-rates?from=${fromDate}&to=${toDate}`);
+      
+      // Get the most recent data point
+      if (Array.isArray(treasury) && treasury.length > 0) {
+        const latestData = treasury[treasury.length - 1]; // Most recent entry
+        if (latestData.month2) treasury2Y = parseFloat(latestData.month2);
+        if (latestData.year10) treasury10Y = parseFloat(latestData.year10);
+      }
     } catch (treasuryError) {
       console.warn("[FMP] Treasury data failed, using defaults");
     }
