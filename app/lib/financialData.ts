@@ -164,8 +164,8 @@ export async function getMarketData(): Promise<MarketData> {
   }
   
   try {
-    // Fetch major indices and VIX in one call (using v3/quote - still works)
-    const quotes = await fetchFMP("/v3/quote/%5EGSPC,%5EIXIC,%5EDJI,%5EVIX");
+    // Fetch major indices and VIX in one call (using stable/quote)
+    const quotes = await fetchFMP("/stable/quote?symbol=^GSPC,^IXIC,^DJI,^VIX");
     
     const sp500 = quotes.find((q: any) => q.symbol === "^GSPC");
     const nasdaq = quotes.find((q: any) => q.symbol === "^IXIC");
@@ -234,13 +234,13 @@ export async function getMarketData(): Promise<MarketData> {
     
     const marketData: MarketData = {
       sp500: sp500?.price || 6000,
-      sp500Change: sp500?.changesPercentage || 0,
+      sp500Change: sp500?.changePercentage || 0,
       nasdaq: nasdaq?.price || 19000,
-      nasdaqChange: nasdaq?.changesPercentage || 0,
+      nasdaqChange: nasdaq?.changePercentage || 0,
       dow: dow?.price || 44000,
-      dowChange: dow?.changesPercentage || 0,
+      dowChange: dow?.changePercentage || 0,
       vix: vix?.price || 15,
-      vixChange: vix?.changesPercentage || 0,
+      vixChange: vix?.changePercentage || 0,
       fedRate: "4.25-4.50", // Fed rate changes infrequently
       inflation,
       unemployment,
@@ -363,7 +363,7 @@ export async function getTechnicalIndicators(): Promise<TechnicalIndicators> {
     let ma50 = 5900;
     let ma200 = 5700;
     try {
-      const spyQuote = await fetchFMP("/v3/quote/SPY");
+      const spyQuote = await fetchFMP("/stable/quote?symbol=SPY");
       if (spyQuote && spyQuote[0]) {
         const currentPrice = spyQuote[0].price;
         // Estimate MAs (they should be close to current price in trending markets)
@@ -428,8 +428,8 @@ export async function getCommodityData(): Promise<CommodityData> {
   }
   
   try {
-    // Fetch Gold, Silver, Oil prices using modern endpoint
-    const commodities = await fetchFMP("/stable/quote-short?symbol=GCUSD,SIUSD,WTICOUSD");
+    // Fetch Gold, Silver, Oil prices using stable/quote endpoint
+    const commodities = await fetchFMP("/stable/quote?symbol=GCUSD,SIUSD,WTICOUSD");
     
     const gold = commodities.find((c: any) => c.symbol === "GCUSD");
     const silver = commodities.find((c: any) => c.symbol === "SIUSD");
@@ -476,8 +476,8 @@ export async function getCryptoData(): Promise<CryptoData> {
   }
   
   try {
-    // Fetch Bitcoin and Ethereum prices using modern endpoint
-    const cryptos = await fetchFMP("/stable/quote-short?symbol=BTCUSD,ETHUSD");
+    // Fetch Bitcoin and Ethereum prices using stable/quote endpoint
+    const cryptos = await fetchFMP("/stable/quote?symbol=BTCUSD,ETHUSD");
     
     const bitcoin = cryptos.find((c: any) => c.symbol === "BTCUSD");
     const ethereum = cryptos.find((c: any) => c.symbol === "ETHUSD");
