@@ -172,17 +172,12 @@ export async function getMarketData(): Promise<MarketData> {
     const dow = quotes.find((q: any) => q.symbol === "^DJI");
     const vix = quotes.find((q: any) => q.symbol === "^VIX");
     
-    // Fetch economic indicators (NEW - using modern endpoint with date range)
+    // Fetch economic indicators (using stable endpoint without date range)
     let gdp = 2.8;
     let inflation = 2.9;
     let unemployment = 4.1;
     try {
-      const today = new Date();
-      const ninetyDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
-      const fromDate = ninetyDaysAgo.toISOString().split('T')[0];
-      const toDate = today.toISOString().split('T')[0];
-      
-      const economicData = await fetchFMP(`/stable/economic-indicators?name=GDP,unemploymentRate,inflationRate&from=${fromDate}&to=${toDate}`);
+      const economicData = await fetchFMP(`/stable/economic-indicators?name=GDP,unemploymentRate,inflationRate`);
       if (Array.isArray(economicData) && economicData.length > 0) {
         // Get the most recent entries for each indicator
         const latestGDP = economicData.filter((e: any) => e.name === "GDP").pop();
@@ -197,16 +192,11 @@ export async function getMarketData(): Promise<MarketData> {
       console.warn("[FMP] Economic indicators failed, using defaults");
     }
     
-    // Fetch treasury yields using modern endpoint
+    // Fetch treasury yields using stable endpoint
     let treasury2Y = 4.2;
     let treasury10Y = 4.5;
     try {
-      const today = new Date();
-      const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-      const fromDate = thirtyDaysAgo.toISOString().split('T')[0];
-      const toDate = today.toISOString().split('T')[0];
-      
-      const treasury = await fetchFMP(`/stable/treasury-rates?from=${fromDate}&to=${toDate}`);
+      const treasury = await fetchFMP(`/stable/treasury-rates`);
       
       // Get the most recent data point
       if (Array.isArray(treasury) && treasury.length > 0) {
