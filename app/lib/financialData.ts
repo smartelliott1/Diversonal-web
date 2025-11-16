@@ -172,16 +172,22 @@ export async function getMarketData(): Promise<MarketData> {
     const dow = quotes.find((q: any) => q.symbol === "^DJI");
     const vix = quotes.find((q: any) => q.symbol === "^VIX");
     
-    // Fetch economic indicators (NEW - using modern endpoint)
+    // Fetch economic indicators (NEW - using modern endpoint with date range)
     let gdp = 2.8;
     let inflation = 2.9;
     let unemployment = 4.1;
     try {
-      const economicData = await fetchFMP("/stable/economic-indicators?name=GDP,unemploymentRate,inflationRate");
+      const today = new Date();
+      const ninetyDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+      const fromDate = ninetyDaysAgo.toISOString().split('T')[0];
+      const toDate = today.toISOString().split('T')[0];
+      
+      const economicData = await fetchFMP(`/stable/economic-indicators?name=GDP,unemploymentRate,inflationRate&from=${fromDate}&to=${toDate}`);
       if (Array.isArray(economicData) && economicData.length > 0) {
-        const latestGDP = economicData.find((e: any) => e.name === "GDP");
-        const latestUnemployment = economicData.find((e: any) => e.name === "unemploymentRate");
-        const latestInflation = economicData.find((e: any) => e.name === "inflationRate");
+        // Get the most recent entries for each indicator
+        const latestGDP = economicData.filter((e: any) => e.name === "GDP").pop();
+        const latestUnemployment = economicData.filter((e: any) => e.name === "unemploymentRate").pop();
+        const latestInflation = economicData.filter((e: any) => e.name === "inflationRate").pop();
         
         if (latestGDP?.value) gdp = parseFloat(latestGDP.value);
         if (latestUnemployment?.value) unemployment = parseFloat(latestUnemployment.value);
