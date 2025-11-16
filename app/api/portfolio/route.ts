@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getComprehensiveMarketContext } from "@/app/lib/financialData";
 
 // Using OpenAI's GPT-4 for financial advice
 // This is one of the most advanced models available for complex reasoning tasks
@@ -48,6 +49,16 @@ export async function POST(request: NextRequest) {
 
     console.log("OPENAI_API_KEY found, attempting to call OpenAI API");
 
+    // Fetch live market data for context
+    let marketContext = "";
+    try {
+      marketContext = await getComprehensiveMarketContext();
+      console.log("Successfully fetched live market data from FMP API");
+    } catch (error) {
+      console.warn("Failed to fetch market data, using fallback");
+      marketContext = "**CURRENT MARKET DATA:** Using baseline estimates (API unavailable)";
+    }
+
     // Construct the AI prompt for financial advice
     const prompt = `You are a professional financial advisor with expertise in portfolio allocation. Generate a personalized investment portfolio allocation based on the following client profile:
 
@@ -58,6 +69,8 @@ export async function POST(request: NextRequest) {
 - Available Capital: $${parseInt(capital).toLocaleString()}
 - Investment Goal: ${goal}
 - Preferred Sectors: ${sectors.length > 0 ? sectors.join(", ") : "None specified"}
+
+${marketContext}
 
 **Requirements:**
 1. Create a balanced portfolio allocation across these asset classes:
@@ -74,6 +87,10 @@ export async function POST(request: NextRequest) {
    - Be appropriate for the client's age, risk tolerance, and time horizon
    - Consider the investment goal
    - Reflect the preferred sectors in the equity allocation if provided
+   - Consider CURRENT MARKET CONDITIONS shown above (sector performance, market cycle, volatility, Fed policy)
+   - If markets are in correction/bear market, increase bonds/cash allocations slightly
+   - If specific sectors are leading, weight those more heavily in preferred sectors
+   - Adjust crypto allocation based on risk appetite and current volatility (VIX)
    - Follow modern portfolio theory principles
    - Only include asset classes that are relevant to the client's inputs (Typically, all but one or two asset classes)
 

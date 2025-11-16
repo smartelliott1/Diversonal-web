@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { getComprehensiveMarketContext } from "@/app/lib/financialData";
 
 // Using Claude Sonnet 4 for comprehensive market analysis and stock recommendations
 // Claude excels at following detailed instructions and structured analysis
@@ -75,6 +76,21 @@ export async function POST(request: NextRequest) {
       .map((item) => `${item.name}: ${item.value}%${item.breakdown ? ` (${item.breakdown})` : ""}`)
       .join("\n");
 
+    // Fetch live market data for comprehensive context
+    let marketContext = "";
+    try {
+      marketContext = await getComprehensiveMarketContext();
+      console.log("Successfully fetched live market data from FMP API for detailed recommendations");
+    } catch (error) {
+      console.warn("Failed to fetch market data, using fallback");
+      marketContext = `**CURRENT MARKET DATA (Fallback):**
+- Federal Funds Rate: 4.25-4.50%
+- S&P 500: ~6,000
+- Core PCE Inflation: 2.9%
+- Unemployment Rate: 4.1%
+- VIX (Volatility Index): ~15`;
+    }
+
     // Build detailed prompt
     const prompt = `You are an expert financial analyst with deep knowledge of global markets, macroeconomics, Federal Reserve policy, technical analysis, and sector rotation strategies. Provide detailed investment recommendations for each asset class in the user's portfolio.
 
@@ -89,18 +105,20 @@ export async function POST(request: NextRequest) {
 **Portfolio Allocation:**
 ${portfolioSummary}
 
-**CURRENT MARKET DATA (November 2025):**
-- Federal Funds Rate: 3.75-4.00%
-- S&P 500: ~6,700
-- Core PCE Inflation: 2.9%
-- Unemployment Rate: 4.3%
-- VIX (Volatility Index): ~20
+${marketContext}
 
 ${formData.sectors.length > 0 ? `**CRITICAL - Sector Conviction Priority:**
 User's conviction sectors are ${formData.sectors.join(", ")}. Prioritize these sectors with LARGER position sizes (favor "Large" sizes) and dedicate the majority of Equities recommendations to them. Include 1-2 small/mid-cap rising stars if risk profile allows.
 ` : ''}
 **Analysis Framework:**
-Consider macroeconomic conditions (GDP, inflation, employment), Fed policy impact on asset classes, technical sentiment (RSI, market breadth, VIX), and valuation metrics (P/E ratios, earnings growth, free cash flow). For high-risk profiles and younger investors, include small/mid-cap opportunities with 30%+ YoY growth and strong institutional buying.
+Consider the LIVE MARKET DATA above - use actual current conditions for your analysis:
+- Use current S&P 500, VIX, and volatility levels to assess market risk
+- Consider actual sector performance (leading/lagging sectors) when making recommendations
+- Factor in current Fed funds rate and yield curve for bond recommendations
+- Use RSI and technical indicators to identify overbought/oversold conditions
+- Adjust for current market cycle stage (bull/bear/correction/consolidation)
+- Consider macroeconomic conditions (GDP, inflation, employment) shown in the data
+- For high-risk profiles and younger investors, include small/mid-cap opportunities with 30%+ YoY growth and strong institutional buying
 
 **Market Cap Approach:**
 - Low Risk: Large-cap (>$50B) for stability

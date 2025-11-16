@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { getComprehensiveMarketContext } from "@/app/lib/financialData";
 
 // Using Claude 3.5 Sonnet for financial stress testing analysis
 // Claude excels at analytical reasoning and understanding complex financial scenarios
@@ -74,6 +75,20 @@ export async function POST(request: NextRequest) {
       .map((item) => `${item.name}: ${item.value}%${item.breakdown ? ` (${item.breakdown})` : ""}`)
       .join(", ");
 
+    // Fetch live market data to establish current baseline
+    let marketContext = "";
+    try {
+      marketContext = await getComprehensiveMarketContext();
+      console.log("Successfully fetched live market data from FMP API for stress testing baseline");
+    } catch (error) {
+      console.warn("Failed to fetch market data for stress test, using fallback");
+      marketContext = `**CURRENT MARKET BASELINE (Fallback):**
+- S&P 500: ~6,000
+- VIX: ~15
+- Fed Funds Rate: 4.25-4.50%
+- Market Cycle: Bull Market`;
+    }
+
     const prompt = `You are a professional financial risk analyst specializing in portfolio stress testing. Analyze the following stress test scenario and provide a detailed assessment.
 
 **Portfolio Allocation:**
@@ -81,14 +96,20 @@ ${portfolioSummary}
 Total Capital: $${initialCapital.toLocaleString()}
 Time Horizon: ${timeHorizon}
 
+${marketContext}
+
+**IMPORTANT:** The market data above represents the CURRENT BASELINE conditions. Your stress test should model how the portfolio would perform FROM THIS BASELINE if the scenario below were to occur.
+
 **Stress Test Scenario:**
 ${scenario}
 
 **Your Task:**
-1. Analyze how this scenario would impact each asset class in the portfolio
-2. Consider historical correlations, market behavior, and economic relationships
-3. Calculate monthly portfolio values over an 18-month period
-4. Determine the overall impact and risk level
+1. Start from the CURRENT MARKET BASELINE shown above
+2. Analyze how this scenario would impact each asset class in the portfolio FROM the current conditions
+3. Consider historical correlations, market behavior, and economic relationships
+4. Factor in current market cycle stage and volatility (VIX) as starting point
+5. Calculate monthly portfolio values over an 18-month period showing realistic progression
+6. Determine the overall impact and risk level
 
 **Asset Class Impact Analysis:**
 - Equities: How would stocks react? Consider market sentiment, sector-specific impacts, and historical precedents
