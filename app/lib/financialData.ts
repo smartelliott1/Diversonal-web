@@ -22,6 +22,10 @@ export interface MarketData {
   inflation: number;
   unemployment: number;
   gdp: number;
+  cpi: number;
+  consumerSentiment: number;
+  retailSales: number;
+  retailMoneyFunds: number;
   treasury2Y: number;
   treasury10Y: number;
   yieldSpread: number;
@@ -181,16 +185,27 @@ export async function getMarketData(): Promise<MarketData> {
     let gdp = 2.8;
     let inflation = 2.9;
     let unemployment = 4.1;
+    let cpi = 2.9;
+    let consumerSentiment = 98.0;
+    let retailSales = 710.0; // billions
+    let retailMoneyFunds = 6200.0; // billions
+    let federalFundsRate = 4.5;
+    
     try {
-      const [gdpData, unemploymentData, inflationData] = await Promise.all([
+      const [gdpData, unemploymentData, inflationData, cpiData, consumerSentimentData, retailSalesData, retailMoneyFundsData, federalFundsData] = await Promise.all([
         fetchFMP(`/stable/economic-indicators?name=GDP`),
         fetchFMP(`/stable/economic-indicators?name=UnemploymentRate`),
         fetchFMP(`/stable/economic-indicators?name=InflationRate`),
+        fetchFMP(`/stable/economic-indicators?name=CPI`),
+        fetchFMP(`/stable/economic-indicators?name=ConsumerSentiment`),
+        fetchFMP(`/stable/economic-indicators?name=RetailSales`),
+        fetchFMP(`/stable/economic-indicators?name=RetailMoneyFunds`),
+        fetchFMP(`/stable/economic-indicators?name=FederalFunds`),
       ]);
       
       // Extract latest values from each response
       if (Array.isArray(gdpData) && gdpData.length > 0) {
-        const latestGDP = gdpData[gdpData.length - 1]; // Most recent entry
+        const latestGDP = gdpData[gdpData.length - 1];
         if (latestGDP?.value) gdp = parseFloat(latestGDP.value);
       }
       
@@ -202,6 +217,31 @@ export async function getMarketData(): Promise<MarketData> {
       if (Array.isArray(inflationData) && inflationData.length > 0) {
         const latestInflation = inflationData[inflationData.length - 1];
         if (latestInflation?.value) inflation = parseFloat(latestInflation.value);
+      }
+      
+      if (Array.isArray(cpiData) && cpiData.length > 0) {
+        const latestCPI = cpiData[cpiData.length - 1];
+        if (latestCPI?.value) cpi = parseFloat(latestCPI.value);
+      }
+      
+      if (Array.isArray(consumerSentimentData) && consumerSentimentData.length > 0) {
+        const latestConsumerSentiment = consumerSentimentData[consumerSentimentData.length - 1];
+        if (latestConsumerSentiment?.value) consumerSentiment = parseFloat(latestConsumerSentiment.value);
+      }
+      
+      if (Array.isArray(retailSalesData) && retailSalesData.length > 0) {
+        const latestRetailSales = retailSalesData[retailSalesData.length - 1];
+        if (latestRetailSales?.value) retailSales = parseFloat(latestRetailSales.value);
+      }
+      
+      if (Array.isArray(retailMoneyFundsData) && retailMoneyFundsData.length > 0) {
+        const latestRetailMoneyFunds = retailMoneyFundsData[retailMoneyFundsData.length - 1];
+        if (latestRetailMoneyFunds?.value) retailMoneyFunds = parseFloat(latestRetailMoneyFunds.value);
+      }
+      
+      if (Array.isArray(federalFundsData) && federalFundsData.length > 0) {
+        const latestFederalFunds = federalFundsData[federalFundsData.length - 1];
+        if (latestFederalFunds?.value) federalFundsRate = parseFloat(latestFederalFunds.value);
       }
     } catch (econError) {
       console.warn("[FMP] Economic indicators failed, using defaults");
@@ -246,10 +286,14 @@ export async function getMarketData(): Promise<MarketData> {
       dowChange: dow?.changePercentage || 0,
       vix: vix?.price || 15,
       vixChange: vix?.changePercentage || 0,
-      fedRate: "4.25-4.50", // Fed rate changes infrequently
+      fedRate: `${federalFundsRate.toFixed(2)}%`,
       inflation,
       unemployment,
       gdp,
+      cpi,
+      consumerSentiment,
+      retailSales,
+      retailMoneyFunds,
       treasury2Y,
       treasury10Y,
       yieldSpread,
@@ -274,10 +318,14 @@ export async function getMarketData(): Promise<MarketData> {
       dowChange: 0,
       vix: 15,
       vixChange: 0,
-      fedRate: "4.25-4.50",
+      fedRate: "4.50%",
       inflation: 2.9,
       unemployment: 4.1,
       gdp: 2.8,
+      cpi: 2.9,
+      consumerSentiment: 98.0,
+      retailSales: 710.0,
+      retailMoneyFunds: 6200.0,
       treasury2Y: 4.2,
       treasury10Y: 4.5,
       yieldSpread: 0.3,
@@ -538,8 +586,12 @@ export async function getComprehensiveMarketContext(): Promise<string> {
 **ECONOMIC INDICATORS:**
 - Federal Funds Rate: ${marketData.fedRate}
 - GDP Growth: ${marketData.gdp.toFixed(1)}%
-- Inflation Rate: ${marketData.inflation.toFixed(1)}%
+- Inflation Rate (YoY): ${marketData.inflation.toFixed(1)}%
+- CPI (Consumer Price Index): ${marketData.cpi.toFixed(1)}
 - Unemployment Rate: ${marketData.unemployment.toFixed(1)}%
+- Consumer Sentiment Index: ${marketData.consumerSentiment.toFixed(1)} ${marketData.consumerSentiment > 100 ? '(High confidence)' : marketData.consumerSentiment < 90 ? '(Low confidence)' : '(Neutral)'}
+- Retail Sales: $${marketData.retailSales.toFixed(1)}B/month
+- Retail Money Funds: $${marketData.retailMoneyFunds.toFixed(1)}B ${marketData.retailMoneyFunds > 6500 ? '(High cash positioning - cautious investors)' : '(Normal cash levels)'}
 - 2-Year Treasury Yield: ${marketData.treasury2Y.toFixed(2)}%
 - 10-Year Treasury Yield: ${marketData.treasury10Y.toFixed(2)}%
 - Yield Curve Spread (10Y-2Y): ${marketData.yieldSpread > 0 ? '+' : ''}${marketData.yieldSpread.toFixed(2)}% ${marketData.yieldSpread < 0 ? '(INVERTED - Recession signal)' : ''}
