@@ -443,9 +443,9 @@ export async function getCommodityData(): Promise<CommodityData> {
     
     const commodityData: CommodityData = {
       gold: gold.price,
-      goldChange: gold.changesPercentage,
+      goldChange: gold.changePercentage,
       silver: silver.price,
-      silverChange: silver.changesPercentage,
+      silverChange: silver.changePercentage,
     };
     
     setCache(cacheKey, commodityData, getCacheTTL("market"));
@@ -492,15 +492,15 @@ export async function getCryptoData(): Promise<CryptoData> {
     
     const cryptoData: CryptoData = {
       bitcoin: bitcoin.price,
-      bitcoinChange: bitcoin.changesPercentage,
+      bitcoinChange: bitcoin.changePercentage,
       ethereum: ethereum.price,
-      ethereumChange: ethereum.changesPercentage,
+      ethereumChange: ethereum.changePercentage,
       solana: solana.price,
-      solanaChange: solana.changesPercentage,
+      solanaChange: solana.changePercentage,
       chainlink: chainlink.price,
-      chainlinkChange: chainlink.changesPercentage,
+      chainlinkChange: chainlink.changePercentage,
       monero: monero.price,
-      moneroChange: monero.changesPercentage,
+      moneroChange: monero.changePercentage,
     };
     
     setCache(cacheKey, cryptoData, getCacheTTL("market"));
