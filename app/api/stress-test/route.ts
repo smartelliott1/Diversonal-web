@@ -81,12 +81,11 @@ export async function POST(request: NextRequest) {
       marketContext = await getComprehensiveMarketContext();
       console.log("Successfully fetched live market data from FMP API for stress testing baseline");
     } catch (error) {
-      console.warn("Failed to fetch market data for stress test, using fallback");
-      marketContext = `**CURRENT MARKET BASELINE (Fallback):**
-- S&P 500: ~6,000
-- VIX: ~15
-- Fed Funds Rate: 4.25-4.50%
-- Market Cycle: Bull Market`;
+      console.error("Failed to fetch market data:", error);
+      return NextResponse.json(
+        { error: "Market data temporarily unavailable. Please try again in a few moments." },
+        { status: 503 }
+      );
     }
 
     const prompt = `You are a professional financial risk analyst specializing in portfolio stress testing. Analyze the following stress test scenario and provide a detailed assessment.

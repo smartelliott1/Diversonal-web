@@ -85,13 +85,11 @@ export async function POST(request: NextRequest) {
       console.log(marketContext);
       console.log("=== END MARKET CONTEXT ===");
     } catch (error) {
-      console.warn("Failed to fetch market data, using fallback");
-      marketContext = `**CURRENT MARKET DATA (Fallback):**
-- Federal Funds Rate: 4.25-4.50%
-- S&P 500: ~6,000
-- Core PCE Inflation: 2.9%
-- Unemployment Rate: 4.1%
-- VIX (Volatility Index): ~15`;
+      console.error("Failed to fetch market data:", error);
+      return NextResponse.json(
+        { error: "Market data temporarily unavailable. Please try again in a few moments." },
+        { status: 503 }
+      );
     }
 
     // Build detailed prompt

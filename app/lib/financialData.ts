@@ -38,8 +38,6 @@ export interface CommodityData {
   goldChange: number;
   silver: number;
   silverChange: number;
-  oil: number;
-  oilChange: number;
 }
 
 export interface CryptoData {
@@ -47,6 +45,12 @@ export interface CryptoData {
   bitcoinChange: number;
   ethereum: number;
   ethereumChange: number;
+  solana: number;
+  solanaChange: number;
+  chainlink: number;
+  chainlinkChange: number;
+  monero: number;
+  moneroChange: number;
 }
 
 export interface EconomicIndicators {
@@ -206,7 +210,7 @@ export async function getMarketData(): Promise<MarketData> {
       // Extract latest values from each response (FMP returns newest data at index 0)
       if (Array.isArray(gdpData) && gdpData.length > 0) {
         const latestGDP = gdpData[0];
-        if (latestGDP?.value) gdp = parseFloat(latestGDP.value);
+        if (latestGDP?.value) gdp = parseFloat(latestGDP.value) / 10000; // FMP returns GDP as basis points
       }
       
       if (Array.isArray(unemploymentData) && unemploymentData.length > 0) {
@@ -231,7 +235,7 @@ export async function getMarketData(): Promise<MarketData> {
       
       if (Array.isArray(retailSalesData) && retailSalesData.length > 0) {
         const latestRetailSales = retailSalesData[0];
-        if (latestRetailSales?.value) retailSales = parseFloat(latestRetailSales.value);
+        if (latestRetailSales?.value) retailSales = parseFloat(latestRetailSales.value) / 1000; // FMP returns in millions, convert to billions
       }
       
       if (Array.isArray(retailMoneyFundsData) && retailMoneyFundsData.length > 0) {
@@ -278,14 +282,14 @@ export async function getMarketData(): Promise<MarketData> {
     }
     
     const marketData: MarketData = {
-      sp500: sp500?.price || 6000,
-      sp500Change: sp500?.changePercentage || 0,
-      nasdaq: nasdaq?.price || 19000,
-      nasdaqChange: nasdaq?.changePercentage || 0,
-      dow: dow?.price || 44000,
-      dowChange: dow?.changePercentage || 0,
-      vix: vix?.price || 15,
-      vixChange: vix?.changePercentage || 0,
+      sp500: sp500.price,
+      sp500Change: sp500.changePercentage,
+      nasdaq: nasdaq.price,
+      nasdaqChange: nasdaq.changePercentage,
+      dow: dow.price,
+      dowChange: dow.changePercentage,
+      vix: vix.price,
+      vixChange: vix.changePercentage,
       fedRate: `${federalFundsRate.toFixed(2)}%`,
       inflation,
       unemployment,
@@ -307,33 +311,7 @@ export async function getMarketData(): Promise<MarketData> {
     
   } catch (error: any) {
     console.error("[FMP] Error fetching market data:", error?.message);
-    
-    // Return fallback data with current realistic values
-    const fallbackData: MarketData = {
-      sp500: 6000,
-      sp500Change: 0,
-      nasdaq: 19000,
-      nasdaqChange: 0,
-      dow: 44000,
-      dowChange: 0,
-      vix: 15,
-      vixChange: 0,
-      fedRate: "4.50%",
-      inflation: 2.9,
-      unemployment: 4.1,
-      gdp: 2.8,
-      cpi: 2.9,
-      consumerSentiment: 98.0,
-      retailSales: 710.0,
-      retailMoneyFunds: 6200.0,
-      treasury2Y: 4.2,
-      treasury10Y: 4.5,
-      yieldSpread: 0.3,
-      sentiment: "Neutral - Using fallback data (API unavailable)",
-      timestamp: new Date(),
-    };
-    
-    return fallbackData;
+    throw error;
   }
 }
 
@@ -355,14 +333,14 @@ export async function getSectorPerformance(): Promise<SectorPerformance[]> {
     const sectorData = await fetchFMP(`/stable/sector-performance-snapshot?date=${today}`);
     
     const sectors: SectorPerformance[] = sectorData.map((sector: any) => {
-      const change = parseFloat(sector.averageChange) || 0;
+      const change = parseFloat(sector.averageChange);
       let performance: "Leading" | "Lagging" | "Neutral" = "Neutral";
       
       if (change > 1) performance = "Leading";
       else if (change < -1) performance = "Lagging";
       
       return {
-        sector: sector.sector || "Unknown",
+        sector: sector.sector,
         change: change,
         performance,
       };
@@ -377,21 +355,7 @@ export async function getSectorPerformance(): Promise<SectorPerformance[]> {
     
   } catch (error: any) {
     console.error("[FMP] Error fetching sector performance:", error?.message);
-    
-    // Return fallback sector data
-    return [
-      { sector: "Technology", change: 1.5, performance: "Leading" },
-      { sector: "Communication Services", change: 1.2, performance: "Leading" },
-      { sector: "Consumer Discretionary", change: 0.8, performance: "Neutral" },
-      { sector: "Financials", change: 0.5, performance: "Neutral" },
-      { sector: "Industrials", change: 0.3, performance: "Neutral" },
-      { sector: "Health Care", change: 0.1, performance: "Neutral" },
-      { sector: "Materials", change: -0.2, performance: "Neutral" },
-      { sector: "Consumer Staples", change: -0.4, performance: "Lagging" },
-      { sector: "Energy", change: -0.8, performance: "Lagging" },
-      { sector: "Utilities", change: -1.0, performance: "Lagging" },
-      { sector: "Real Estate", change: -1.2, performance: "Lagging" },
-    ];
+    throw error;
   }
 }
 
@@ -410,22 +374,14 @@ export async function getTechnicalIndicators(): Promise<TechnicalIndicators> {
   try {
     // Fetch RSI for SPY using modern endpoint
     const rsiData = await fetchFMP("/stable/technical-indicators/rsi?symbol=SPY&periodLength=14&timeframe=1day");
-    const latestRSI = Array.isArray(rsiData) && rsiData.length > 0 ? rsiData[0]?.rsi : 50;
+    const latestRSI = rsiData[0].rsi;
     
     // Fetch current SPY price to estimate moving averages
-    let ma50 = 5900;
-    let ma200 = 5700;
-    try {
-      const spyQuote = await fetchFMP("/stable/quote?symbol=SPY");
-      if (spyQuote && spyQuote[0]) {
-        const currentPrice = spyQuote[0].price;
-        // Estimate MAs (they should be close to current price in trending markets)
-        ma50 = currentPrice * 0.98; // Approximate 50-day MA
-        ma200 = currentPrice * 0.95; // Approximate 200-day MA
-      }
-    } catch (maError) {
-      console.warn("[FMP] Could not fetch MA estimates");
-    }
+    const spyQuote = await fetchFMP("/stable/quote?symbol=SPY");
+    const currentPrice = spyQuote[0].price;
+    // Estimate MAs (they should be close to current price in trending markets)
+    const ma50 = currentPrice * 0.98; // Approximate 50-day MA
+    const ma200 = currentPrice * 0.95; // Approximate 200-day MA
     
     // Determine market conditions
     const overboughtCondition = latestRSI > 70;
@@ -455,16 +411,7 @@ export async function getTechnicalIndicators(): Promise<TechnicalIndicators> {
     
   } catch (error: any) {
     console.error("[FMP] Error fetching technical indicators:", error?.message);
-    
-    // Return fallback technical data
-    return {
-      sp500RSI: 55,
-      sp500MA50: 5900,
-      sp500MA200: 5700,
-      overboughtCondition: false,
-      oversoldCondition: false,
-      marketCycle: "Bull Market",
-    };
+    throw error;
   }
 }
 
@@ -481,24 +428,24 @@ export async function getCommodityData(): Promise<CommodityData> {
   }
   
   try {
-    // Fetch Gold, Silver, Oil prices using stable/quote endpoint
-    const commodities = await fetchFMP("/stable/quote?symbol=GCUSD,SIUSD,WTICOUSD");
+    // Fetch commodities individually (batching not supported on Starter plan)
+    const [goldData, silverData] = await Promise.all([
+      fetchFMP("/stable/quote?symbol=GCUSD"),
+      fetchFMP("/stable/quote?symbol=SIUSD"),
+    ]);
     
-    console.log("[FMP] Raw commodity response:", JSON.stringify(commodities));
+    console.log("[FMP] Raw commodity responses - Gold:", JSON.stringify(goldData), "Silver:", JSON.stringify(silverData));
     
-    const gold = commodities.find((c: any) => c.symbol === "GCUSD");
-    const silver = commodities.find((c: any) => c.symbol === "SIUSD");
-    const oil = commodities.find((c: any) => c.symbol === "WTICOUSD");
+    const gold = goldData[0];
+    const silver = silverData[0];
     
-    console.log("[FMP] Parsed commodity data - Gold:", gold, "Silver:", silver, "Oil:", oil);
+    console.log("[FMP] Parsed commodity data - Gold:", gold, "Silver:", silver);
     
     const commodityData: CommodityData = {
-      gold: gold?.price || 2650,
-      goldChange: gold?.change || 0,
-      silver: silver?.price || 31,
-      silverChange: silver?.change || 0,
-      oil: oil?.price || 72,
-      oilChange: oil?.change || 0,
+      gold: gold.price,
+      goldChange: gold.changesPercentage,
+      silver: silver.price,
+      silverChange: silver.changesPercentage,
     };
     
     setCache(cacheKey, commodityData, getCacheTTL("market"));
@@ -507,16 +454,7 @@ export async function getCommodityData(): Promise<CommodityData> {
     
   } catch (error: any) {
     console.error("[FMP] Error fetching commodity data:", error?.message);
-    
-    // Return fallback commodity data
-    return {
-      gold: 2650,
-      goldChange: 0,
-      silver: 31,
-      silverChange: 0,
-      oil: 72,
-      oilChange: 0,
-    };
+    throw error;
   }
 }
 
@@ -533,21 +471,36 @@ export async function getCryptoData(): Promise<CryptoData> {
   }
   
   try {
-    // Fetch Bitcoin and Ethereum prices using stable/quote endpoint
-    const cryptos = await fetchFMP("/stable/quote?symbol=BTCUSD,ETHUSD");
+    // Fetch cryptocurrencies individually (batching not supported on Starter plan)
+    const [bitcoinData, ethereumData, solanaData, chainlinkData, moneroData] = await Promise.all([
+      fetchFMP("/stable/quote?symbol=BTCUSD"),
+      fetchFMP("/stable/quote?symbol=ETHUSD"),
+      fetchFMP("/stable/quote?symbol=SOLUSD"),
+      fetchFMP("/stable/quote?symbol=LINKUSD"),
+      fetchFMP("/stable/quote?symbol=XMRUSD"),
+    ]);
     
-    console.log("[FMP] Raw crypto response:", JSON.stringify(cryptos));
+    console.log("[FMP] Raw crypto responses - BTC:", JSON.stringify(bitcoinData), "ETH:", JSON.stringify(ethereumData), "SOL:", JSON.stringify(solanaData), "LINK:", JSON.stringify(chainlinkData), "XMR:", JSON.stringify(moneroData));
     
-    const bitcoin = cryptos.find((c: any) => c.symbol === "BTCUSD");
-    const ethereum = cryptos.find((c: any) => c.symbol === "ETHUSD");
+    const bitcoin = bitcoinData[0];
+    const ethereum = ethereumData[0];
+    const solana = solanaData[0];
+    const chainlink = chainlinkData[0];
+    const monero = moneroData[0];
     
-    console.log("[FMP] Parsed crypto data - Bitcoin:", bitcoin, "Ethereum:", ethereum);
+    console.log("[FMP] Parsed crypto data - Bitcoin:", bitcoin, "Ethereum:", ethereum, "Solana:", solana, "Chainlink:", chainlink, "Monero:", monero);
     
     const cryptoData: CryptoData = {
-      bitcoin: bitcoin?.price || 95000,
-      bitcoinChange: bitcoin?.change || 0,
-      ethereum: ethereum?.price || 3400,
-      ethereumChange: ethereum?.change || 0,
+      bitcoin: bitcoin.price,
+      bitcoinChange: bitcoin.changesPercentage,
+      ethereum: ethereum.price,
+      ethereumChange: ethereum.changesPercentage,
+      solana: solana.price,
+      solanaChange: solana.changesPercentage,
+      chainlink: chainlink.price,
+      chainlinkChange: chainlink.changesPercentage,
+      monero: monero.price,
+      moneroChange: monero.changesPercentage,
     };
     
     setCache(cacheKey, cryptoData, getCacheTTL("market"));
@@ -556,14 +509,7 @@ export async function getCryptoData(): Promise<CryptoData> {
     
   } catch (error: any) {
     console.error("[FMP] Error fetching crypto data:", error?.message);
-    
-    // Return fallback crypto data
-    return {
-      bitcoin: 95000,
-      bitcoinChange: 0,
-      ethereum: 3400,
-      ethereumChange: 0,
-    };
+    throw error;
   }
 }
 
@@ -621,34 +567,23 @@ ${bottomSectors.map(s => `- ${s.sector}: ${s.change > 0 ? '+' : ''}${s.change.to
 **COMMODITIES (Inflation & Safe Haven Indicators):**
 - Gold: $${commodities.gold.toFixed(2)} (${commodities.goldChange > 0 ? '+' : ''}${commodities.goldChange.toFixed(2)}%)
 - Silver: $${commodities.silver.toFixed(2)} (${commodities.silverChange > 0 ? '+' : ''}${commodities.silverChange.toFixed(2)}%)
-- WTI Crude Oil: $${commodities.oil.toFixed(2)} (${commodities.oilChange > 0 ? '+' : ''}${commodities.oilChange.toFixed(2)}%)
 
 **CRYPTOCURRENCIES (Risk Appetite Gauge):**
 - Bitcoin (BTC): $${crypto.bitcoin.toLocaleString('en-US', { maximumFractionDigits: 0 })} (${crypto.bitcoinChange > 0 ? '+' : ''}${crypto.bitcoinChange.toFixed(2)}%)
 - Ethereum (ETH): $${crypto.ethereum.toLocaleString('en-US', { maximumFractionDigits: 0 })} (${crypto.ethereumChange > 0 ? '+' : ''}${crypto.ethereumChange.toFixed(2)}%)
+- Solana (SOL): $${crypto.solana.toFixed(2)} (${crypto.solanaChange > 0 ? '+' : ''}${crypto.solanaChange.toFixed(2)}%)
+- Chainlink (LINK): $${crypto.chainlink.toFixed(2)} (${crypto.chainlinkChange > 0 ? '+' : ''}${crypto.chainlinkChange.toFixed(2)}%)
+- Monero (XMR): $${crypto.monero.toFixed(2)} (${crypto.moneroChange > 0 ? '+' : ''}${crypto.moneroChange.toFixed(2)}%)
 
 **MARKET CONTEXT SUMMARY:**
-Use the above live data to inform your recommendations. Consider sector rotation (leading vs lagging sectors), technical conditions (RSI overbought/oversold), economic cycle (GDP, inflation, Fed policy), yield curve signals, commodity trends (gold as safe haven, oil for energy costs), and crypto sentiment (high risk appetite indicator).
+Use the above live data to inform your recommendations. Consider sector rotation (leading vs lagging sectors), technical conditions (RSI overbought/oversold), economic cycle (GDP, inflation, Fed policy), yield curve signals, commodity trends (gold as safe haven), and crypto sentiment (high risk appetite indicator).
     `.trim();
     
     return context;
     
   } catch (error: any) {
     console.error("[FMP] Error generating comprehensive market context:", error?.message);
-    
-    // Return basic fallback context
-    return `
-**CURRENT MARKET DATA (Fallback - API unavailable):**
-- S&P 500: ~6,000
-- VIX: ~15
-- Federal Funds Rate: 4.25-4.50%
-- GDP Growth: 2.8%
-- Inflation Rate: 2.9%
-- Unemployment Rate: 4.1%
-- Market Sentiment: Neutral
-- Gold: ~$2,650
-- Bitcoin: ~$95,000
-    `.trim();
+    throw error;
   }
 }
 

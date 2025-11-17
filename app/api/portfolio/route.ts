@@ -55,8 +55,11 @@ export async function POST(request: NextRequest) {
       marketContext = await getComprehensiveMarketContext();
       console.log("Successfully fetched live market data from FMP API");
     } catch (error) {
-      console.warn("Failed to fetch market data, using fallback");
-      marketContext = "**CURRENT MARKET DATA:** Using baseline estimates (API unavailable)";
+      console.error("Failed to fetch market data:", error);
+      return NextResponse.json(
+        { error: "Market data temporarily unavailable. Please try again in a few moments." },
+        { status: 503 }
+      );
     }
 
     // Construct the AI prompt for financial advice
