@@ -98,13 +98,21 @@ Time Horizon: ${timeHorizon}
 
 ${marketContext}
 
+**⚠️ CRITICAL - DATA SOURCE REQUIREMENTS:**
+The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as of today. You MUST:
+- Use ONLY the prices, indicators, and data shown in the LIVE MARKET DATA section as your baseline
+- COMPLETELY IGNORE all prices and market data from your training cutoff - they are outdated and incorrect
+- The stress test must model changes FROM the current live baseline, NOT from training data prices
+- Example: If live data shows "Gold: $4,125.50", model gold's stress response from $4,125.50, NOT any training data price
+- Use the actual current VIX, RSI, and market cycle stage as the starting point for stress modeling
+
 **IMPORTANT:** The market data above represents the CURRENT BASELINE conditions. Your stress test should model how the portfolio would perform FROM THIS BASELINE if the scenario below were to occur.
 
 **Stress Test Scenario:**
 ${scenario}
 
 **Your Task:**
-1. Start from the CURRENT MARKET BASELINE shown above
+1. Start from the CURRENT MARKET BASELINE shown in the live data above
 2. Analyze how this scenario would impact each asset class in the portfolio FROM the current conditions
 3. Consider historical correlations, market behavior, and economic relationships
 4. Factor in current market cycle stage and volatility (VIX) as starting point

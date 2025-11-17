@@ -72,6 +72,15 @@ export async function POST(request: NextRequest) {
 
 ${marketContext}
 
+**⚠️ CRITICAL - DATA SOURCE REQUIREMENTS:**
+The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as of today. You MUST:
+- Use ONLY the prices, indicators, and data shown in the LIVE MARKET DATA section above
+- COMPLETELY IGNORE all prices and market data from your training cutoff - they are outdated and incorrect
+- When analyzing market conditions or asset classes, reference the EXACT current data from the live market data
+- Example: If live data shows "Gold: $4,125.50 (+2.3%)", use $4,125.50 in your reasoning, NOT any training data price
+- Base allocation decisions on the actual current market cycle, RSI, VIX, and sector performance shown in the live data
+- Use the actual Fed funds rate and treasury yields shown for bond allocation decisions
+
 **Requirements:**
 1. Create a balanced portfolio allocation across these asset classes:
    - Equities (stocks) - can include domestic, international, emerging markets

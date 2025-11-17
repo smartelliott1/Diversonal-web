@@ -110,8 +110,17 @@ ${marketContext}
 ${formData.sectors.length > 0 ? `**CRITICAL - Sector Conviction Priority:**
 User's conviction sectors are ${formData.sectors.join(", ")}. Prioritize these sectors with LARGER position sizes (favor "Large" sizes) and dedicate the majority of Equities recommendations to them. Include 1-2 small/mid-cap rising stars if risk profile allows.
 ` : ''}
+**⚠️ CRITICAL - DATA SOURCE REQUIREMENTS:**
+The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as of today. You MUST:
+- Use ONLY the prices, indicators, and data shown in the LIVE MARKET DATA section above
+- COMPLETELY IGNORE all prices and market data from your training cutoff - they are outdated and incorrect
+- When recommending ANY asset (stocks, commodities, bonds, crypto, etc.), reference the EXACT current price from the live data
+- Example: If live data shows "Gold: $4,125.50 (+2.3%)", you must use $4,125.50 in your analysis, NOT any training data price
+- If recommending based on overbought/oversold conditions, use the actual RSI values shown in the live data
+- Base sector recommendations on the actual leading/lagging sectors shown in the live performance data
+
 **Analysis Framework:**
-Consider the LIVE MARKET DATA above - use actual current conditions for your analysis:
+Use the actual current market conditions from the LIVE MARKET DATA above:
 - Use current S&P 500, VIX, and volatility levels to assess market risk
 - Consider actual sector performance (leading/lagging sectors) when making recommendations
 - Factor in current Fed funds rate and yield curve for bond recommendations
