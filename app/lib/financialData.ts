@@ -177,12 +177,17 @@ export async function getMarketData(): Promise<MarketData> {
     const dow = dowData[0];
     const vix = vixData[0];
     
-    // Fetch economic indicators (using stable endpoint without date range)
+    // Fetch economic indicators (using stable endpoint with 60-day date range)
     let gdp = 2.8;
     let inflation = 2.9;
     let unemployment = 4.1;
     try {
-      const economicData = await fetchFMP(`/stable/economic-indicators?name=GDP,unemploymentRate,inflationRate`);
+      const today = new Date();
+      const sixtyDaysAgo = new Date(today.getTime() - 60 * 24 * 60 * 60 * 1000);
+      const fromDate = sixtyDaysAgo.toISOString().split('T')[0];
+      const toDate = today.toISOString().split('T')[0];
+      
+      const economicData = await fetchFMP(`/stable/economic-indicators?name=GDP,unemploymentRate,inflationRate&from=${fromDate}&to=${toDate}`);
       if (Array.isArray(economicData) && economicData.length > 0) {
         // Get the most recent entries for each indicator
         const latestGDP = economicData.filter((e: any) => e.name === "GDP").pop();
