@@ -177,25 +177,30 @@ export async function getMarketData(): Promise<MarketData> {
     const dow = dowData[0];
     const vix = vixData[0];
     
-    // Fetch economic indicators (using stable endpoint with 60-day date range)
+    // Fetch economic indicators individually (batching and date ranges not supported on Starter plan)
     let gdp = 2.8;
     let inflation = 2.9;
     let unemployment = 4.1;
     try {
-      const today = new Date();
-      const sixtyDaysAgo = new Date(today.getTime() - 60 * 24 * 60 * 60 * 1000);
-      const fromDate = sixtyDaysAgo.toISOString().split('T')[0];
-      const toDate = today.toISOString().split('T')[0];
+      const [gdpData, unemploymentData, inflationData] = await Promise.all([
+        fetchFMP(`/stable/economic-indicators?name=GDP`),
+        fetchFMP(`/stable/economic-indicators?name=UnemploymentRate`),
+        fetchFMP(`/stable/economic-indicators?name=InflationRate`),
+      ]);
       
-      const economicData = await fetchFMP(`/stable/economic-indicators?name=GDP,UnemploymentRate,InflationRate&from=${fromDate}&to=${toDate}`);
-      if (Array.isArray(economicData) && economicData.length > 0) {
-        // Get the most recent entries for each indicator
-        const latestGDP = economicData.filter((e: any) => e.name === "GDP").pop();
-        const latestUnemployment = economicData.filter((e: any) => e.name === "UnemploymentRate").pop();
-        const latestInflation = economicData.filter((e: any) => e.name === "InflationRate").pop();
-        
+      // Extract latest values from each response
+      if (Array.isArray(gdpData) && gdpData.length > 0) {
+        const latestGDP = gdpData[gdpData.length - 1]; // Most recent entry
         if (latestGDP?.value) gdp = parseFloat(latestGDP.value);
+      }
+      
+      if (Array.isArray(unemploymentData) && unemploymentData.length > 0) {
+        const latestUnemployment = unemploymentData[unemploymentData.length - 1];
         if (latestUnemployment?.value) unemployment = parseFloat(latestUnemployment.value);
+      }
+      
+      if (Array.isArray(inflationData) && inflationData.length > 0) {
+        const latestInflation = inflationData[inflationData.length - 1];
         if (latestInflation?.value) inflation = parseFloat(latestInflation.value);
       }
     } catch (econError) {
