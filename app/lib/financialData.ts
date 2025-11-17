@@ -203,44 +203,44 @@ export async function getMarketData(): Promise<MarketData> {
         fetchFMP(`/stable/economic-indicators?name=federalFunds`),
       ]);
       
-      // Extract latest values from each response
+      // Extract latest values from each response (FMP returns newest data at index 0)
       if (Array.isArray(gdpData) && gdpData.length > 0) {
-        const latestGDP = gdpData[gdpData.length - 1];
+        const latestGDP = gdpData[0];
         if (latestGDP?.value) gdp = parseFloat(latestGDP.value);
       }
       
       if (Array.isArray(unemploymentData) && unemploymentData.length > 0) {
-        const latestUnemployment = unemploymentData[unemploymentData.length - 1];
+        const latestUnemployment = unemploymentData[0];
         if (latestUnemployment?.value) unemployment = parseFloat(latestUnemployment.value);
       }
       
       if (Array.isArray(inflationData) && inflationData.length > 0) {
-        const latestInflation = inflationData[inflationData.length - 1];
+        const latestInflation = inflationData[0];
         if (latestInflation?.value) inflation = parseFloat(latestInflation.value);
       }
       
       if (Array.isArray(cpiData) && cpiData.length > 0) {
-        const latestCPI = cpiData[cpiData.length - 1];
+        const latestCPI = cpiData[0];
         if (latestCPI?.value) cpi = parseFloat(latestCPI.value);
       }
       
       if (Array.isArray(consumerSentimentData) && consumerSentimentData.length > 0) {
-        const latestConsumerSentiment = consumerSentimentData[consumerSentimentData.length - 1];
+        const latestConsumerSentiment = consumerSentimentData[0];
         if (latestConsumerSentiment?.value) consumerSentiment = parseFloat(latestConsumerSentiment.value);
       }
       
       if (Array.isArray(retailSalesData) && retailSalesData.length > 0) {
-        const latestRetailSales = retailSalesData[retailSalesData.length - 1];
+        const latestRetailSales = retailSalesData[0];
         if (latestRetailSales?.value) retailSales = parseFloat(latestRetailSales.value);
       }
       
       if (Array.isArray(retailMoneyFundsData) && retailMoneyFundsData.length > 0) {
-        const latestRetailMoneyFunds = retailMoneyFundsData[retailMoneyFundsData.length - 1];
+        const latestRetailMoneyFunds = retailMoneyFundsData[0];
         if (latestRetailMoneyFunds?.value) retailMoneyFunds = parseFloat(latestRetailMoneyFunds.value);
       }
       
       if (Array.isArray(federalFundsData) && federalFundsData.length > 0) {
-        const latestFederalFunds = federalFundsData[federalFundsData.length - 1];
+        const latestFederalFunds = federalFundsData[0];
         if (latestFederalFunds?.value) federalFundsRate = parseFloat(latestFederalFunds.value);
       }
     } catch (econError) {
