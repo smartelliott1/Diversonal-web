@@ -194,13 +194,13 @@ export async function getMarketData(): Promise<MarketData> {
     try {
       const [gdpData, unemploymentData, inflationData, cpiData, consumerSentimentData, retailSalesData, retailMoneyFundsData, federalFundsData] = await Promise.all([
         fetchFMP(`/stable/economic-indicators?name=GDP`),
-        fetchFMP(`/stable/economic-indicators?name=UnemploymentRate`),
-        fetchFMP(`/stable/economic-indicators?name=InflationRate`),
+        fetchFMP(`/stable/economic-indicators?name=unemploymentRate`),
+        fetchFMP(`/stable/economic-indicators?name=inflationRate`),
         fetchFMP(`/stable/economic-indicators?name=CPI`),
-        fetchFMP(`/stable/economic-indicators?name=ConsumerSentiment`),
-        fetchFMP(`/stable/economic-indicators?name=RetailSales`),
-        fetchFMP(`/stable/economic-indicators?name=RetailMoneyFunds`),
-        fetchFMP(`/stable/economic-indicators?name=FederalFunds`),
+        fetchFMP(`/stable/economic-indicators?name=consumerSentiment`),
+        fetchFMP(`/stable/economic-indicators?name=retailSales`),
+        fetchFMP(`/stable/economic-indicators?name=retailMoneyFunds`),
+        fetchFMP(`/stable/economic-indicators?name=federalFunds`),
       ]);
       
       // Extract latest values from each response
