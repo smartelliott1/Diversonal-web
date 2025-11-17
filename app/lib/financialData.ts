@@ -164,13 +164,18 @@ export async function getMarketData(): Promise<MarketData> {
   }
   
   try {
-    // Fetch major indices and VIX in one call (using stable/quote)
-    const quotes = await fetchFMP("/stable/quote?symbol=^GSPC,^IXIC,^DJI,^VIX");
+    // Fetch major indices individually (batching not supported for indices on Starter plan)
+    const [sp500Data, nasdaqData, dowData, vixData] = await Promise.all([
+      fetchFMP("/stable/quote?symbol=^GSPC"),
+      fetchFMP("/stable/quote?symbol=^IXIC"),
+      fetchFMP("/stable/quote?symbol=^DJI"),
+      fetchFMP("/stable/quote?symbol=^VIX"),
+    ]);
     
-    const sp500 = quotes.find((q: any) => q.symbol === "^GSPC");
-    const nasdaq = quotes.find((q: any) => q.symbol === "^IXIC");
-    const dow = quotes.find((q: any) => q.symbol === "^DJI");
-    const vix = quotes.find((q: any) => q.symbol === "^VIX");
+    const sp500 = sp500Data[0];
+    const nasdaq = nasdaqData[0];
+    const dow = dowData[0];
+    const vix = vixData[0];
     
     // Fetch economic indicators (using stable endpoint without date range)
     let gdp = 2.8;
