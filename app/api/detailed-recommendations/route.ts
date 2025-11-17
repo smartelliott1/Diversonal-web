@@ -81,6 +81,9 @@ export async function POST(request: NextRequest) {
     try {
       marketContext = await getComprehensiveMarketContext();
       console.log("Successfully fetched live market data from FMP API for detailed recommendations");
+      console.log("=== MARKET CONTEXT BEING SENT TO CLAUDE ===");
+      console.log(marketContext);
+      console.log("=== END MARKET CONTEXT ===");
     } catch (error) {
       console.warn("Failed to fetch market data, using fallback");
       marketContext = `**CURRENT MARKET DATA (Fallback):**

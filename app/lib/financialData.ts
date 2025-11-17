@@ -484,9 +484,13 @@ export async function getCommodityData(): Promise<CommodityData> {
     // Fetch Gold, Silver, Oil prices using stable/quote endpoint
     const commodities = await fetchFMP("/stable/quote?symbol=GCUSD,SIUSD,WTICOUSD");
     
+    console.log("[FMP] Raw commodity response:", JSON.stringify(commodities));
+    
     const gold = commodities.find((c: any) => c.symbol === "GCUSD");
     const silver = commodities.find((c: any) => c.symbol === "SIUSD");
     const oil = commodities.find((c: any) => c.symbol === "WTICOUSD");
+    
+    console.log("[FMP] Parsed commodity data - Gold:", gold, "Silver:", silver, "Oil:", oil);
     
     const commodityData: CommodityData = {
       gold: gold?.price || 2650,
@@ -532,8 +536,12 @@ export async function getCryptoData(): Promise<CryptoData> {
     // Fetch Bitcoin and Ethereum prices using stable/quote endpoint
     const cryptos = await fetchFMP("/stable/quote?symbol=BTCUSD,ETHUSD");
     
+    console.log("[FMP] Raw crypto response:", JSON.stringify(cryptos));
+    
     const bitcoin = cryptos.find((c: any) => c.symbol === "BTCUSD");
     const ethereum = cryptos.find((c: any) => c.symbol === "ETHUSD");
+    
+    console.log("[FMP] Parsed crypto data - Bitcoin:", bitcoin, "Ethereum:", ethereum);
     
     const cryptoData: CryptoData = {
       bitcoin: bitcoin?.price || 95000,
