@@ -187,12 +187,12 @@ export async function getMarketData(): Promise<MarketData> {
       const fromDate = sixtyDaysAgo.toISOString().split('T')[0];
       const toDate = today.toISOString().split('T')[0];
       
-      const economicData = await fetchFMP(`/stable/economic-indicators?name=GDP,unemploymentRate,inflationRate&from=${fromDate}&to=${toDate}`);
+      const economicData = await fetchFMP(`/stable/economic-indicators?name=GDP,UnemploymentRate,InflationRate&from=${fromDate}&to=${toDate}`);
       if (Array.isArray(economicData) && economicData.length > 0) {
         // Get the most recent entries for each indicator
         const latestGDP = economicData.filter((e: any) => e.name === "GDP").pop();
-        const latestUnemployment = economicData.filter((e: any) => e.name === "unemploymentRate").pop();
-        const latestInflation = economicData.filter((e: any) => e.name === "inflationRate").pop();
+        const latestUnemployment = economicData.filter((e: any) => e.name === "UnemploymentRate").pop();
+        const latestInflation = economicData.filter((e: any) => e.name === "InflationRate").pop();
         
         if (latestGDP?.value) gdp = parseFloat(latestGDP.value);
         if (latestUnemployment?.value) unemployment = parseFloat(latestUnemployment.value);
