@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { getComprehensiveMarketContext } from "@/app/lib/financialData";
+import { 
+  getComprehensiveMarketContext,
+  getEconomicCalendar,
+  getInsiderTradingSignals,
+  getGeneralMarketNews,
+  getEarningsCalendar
+} from "@/app/lib/financialData";
 
 // Using Claude Sonnet 4 for comprehensive market analysis and stock recommendations
 // Claude excels at following detailed instructions and structured analysis
@@ -76,13 +82,89 @@ export async function POST(request: NextRequest) {
       .map((item) => `${item.name}: ${item.value}%${item.breakdown ? ` (${item.breakdown})` : ""}`)
       .join("\n");
 
-    // Fetch live market data for comprehensive context
+    // Fetch live market data and intelligence for comprehensive context
     let marketContext = "";
+    let economicCalendar = "";
+    let insiderSignals = "";
+    let marketNews = "";
+    let earningsCalendar = "";
+    
     try {
-      marketContext = await getComprehensiveMarketContext();
-      console.log("Successfully fetched live market data from FMP API for detailed recommendations");
+      const [
+        baseMarketContext,
+        economicEvents,
+        insiderTrades,
+        news,
+        earnings
+      ] = await Promise.all([
+        getComprehensiveMarketContext(),
+        getEconomicCalendar(),
+        getInsiderTradingSignals(),
+        getGeneralMarketNews(10), // Limit to 10 top stories
+        getEarningsCalendar()
+      ]);
+      
+      marketContext = baseMarketContext;
+      
+      // Format economic calendar
+      if (economicEvents.length > 0) {
+        economicCalendar = `\n**UPCOMING ECONOMIC EVENTS (Next 7 Days):**\n`;
+        economicCalendar += economicEvents.slice(0, 5).map(event => 
+          `- ${new Date(event.date).toLocaleDateString()}: ${event.event} (${event.country}) - ${event.impact} Impact${event.estimate ? ` | Est: ${event.estimate}` : ''}`
+        ).join('\n');
+      }
+      
+      // Format insider trading signals (focus on significant buys)
+      if (insiderTrades.length > 0) {
+        const significantBuys = insiderTrades
+          .filter(trade => 
+            trade.acquistionOrDisposition === 'A' && // Acquisition (buy)
+            trade.securitiesTransacted > 10000 && // Significant amount
+            trade.price > 0
+          )
+          .slice(0, 10);
+        
+        if (significantBuys.length > 0) {
+          insiderSignals = `\n**RECENT INSIDER BUYING SIGNALS (Bullish):**\n`;
+          insiderSignals += significantBuys.map(trade => {
+            const value = (trade.securitiesTransacted * trade.price / 1000000).toFixed(2);
+            return `- ${trade.symbol}: ${trade.reportingName} bought ${trade.securitiesTransacted.toLocaleString()} shares @ $${trade.price.toFixed(2)} (~$${value}M) on ${new Date(trade.transactionDate).toLocaleDateString()}`;
+          }).join('\n');
+        }
+      }
+      
+      // Format market news (top headlines only)
+      if (news.length > 0) {
+        marketNews = `\n**RECENT MARKET NEWS (Last 24 Hours):**\n`;
+        marketNews += news.slice(0, 5).map(article => 
+          `- ${article.title} (${article.site})`
+        ).join('\n');
+      }
+      
+      // Format upcoming earnings (next week)
+      if (earnings.length > 0) {
+        const nextWeekEarnings = earnings.filter(e => {
+          const earningsDate = new Date(e.date);
+          const weekFromNow = new Date();
+          weekFromNow.setDate(weekFromNow.getDate() + 7);
+          return earningsDate <= weekFromNow;
+        }).slice(0, 15);
+        
+        if (nextWeekEarnings.length > 0) {
+          earningsCalendar = `\n**UPCOMING EARNINGS (Next 7 Days - Potential Volatility):**\n`;
+          earningsCalendar += nextWeekEarnings.map(e => 
+            `- ${e.symbol}: ${new Date(e.date).toLocaleDateString()} ${e.time}${e.epsEstimated ? ` | EPS Est: $${e.epsEstimated}` : ''}`
+          ).join('\n');
+        }
+      }
+      
+      console.log("Successfully fetched comprehensive market intelligence from FMP API");
       console.log("=== MARKET CONTEXT BEING SENT TO CLAUDE ===");
       console.log(marketContext);
+      console.log(economicCalendar);
+      console.log(insiderSignals);
+      console.log(marketNews);
+      console.log(earningsCalendar);
       console.log("=== END MARKET CONTEXT ===");
     } catch (error) {
       console.error("Failed to fetch market data:", error);
@@ -107,6 +189,10 @@ export async function POST(request: NextRequest) {
 ${portfolioSummary}
 
 ${marketContext}
+${economicCalendar}
+${insiderSignals}
+${marketNews}
+${earningsCalendar}
 
 ${formData.sectors.length > 0 ? `**CRITICAL - Sector Conviction Priority:**
 User's conviction sectors are ${formData.sectors.join(", ")}. Prioritize these sectors with LARGER position sizes (favor "Large" sizes) and dedicate the majority of Equities recommendations to them. Include 1-2 small/mid-cap rising stars if risk profile allows.
@@ -121,14 +207,18 @@ The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as o
 - Base sector recommendations on the actual leading/lagging sectors shown in the live performance data
 
 **Analysis Framework:**
-Use the actual current market conditions from the LIVE MARKET DATA above:
+Use the actual current market conditions and intelligence from ALL sections above:
 - Use current S&P 500, VIX, and volatility levels to assess market risk
 - Consider actual sector performance (leading/lagging sectors) when making recommendations
 - Factor in current Fed funds rate and yield curve for bond recommendations
 - Use RSI and technical indicators to identify overbought/oversold conditions
 - Adjust for current market cycle stage (bull/bear/correction/consolidation)
 - Consider macroeconomic conditions (GDP, inflation, employment) shown in the data
+- **LEVERAGE INSIDER SIGNALS:** Stocks with significant insider buying (>$1M purchases) indicate strong management confidence - favor these in your recommendations
+- **CONSIDER UPCOMING CATALYSTS:** Reference the economic calendar and earnings schedule - avoid recommending stocks with earnings THIS WEEK (high volatility risk), but favor stocks reporting next week (potential catalyst)
+- **INCORPORATE MARKET NEWS:** Use recent news headlines to identify trending themes, sectors getting attention, and potential risks
 - For high-risk profiles and younger investors, include small/mid-cap opportunities with 30%+ YoY growth and strong institutional buying
+- **CITE SPECIFIC SIGNALS:** When recommending a stock, mention if insiders are buying, if there's positive news momentum, or if it's in a leading sector
 
 **Market Cap Approach:**
 - Low Risk: Large-cap (>$50B) for stability
@@ -142,7 +232,7 @@ Use the actual current market conditions from the LIVE MARKET DATA above:
       {
         "ticker": "AAPL",
         "name": "Apple Inc.",
-        "rationale": "Leading services ecosystem with 2B+ devices. Strong FCF ($100B+ annually). Trading at forward P/E 28x. AI integration catalyst. RSI neutral (50-60).",
+        "rationale": "Trading at $268.12 (+0.25% today). P/E 34.1x, below tech sector avg. Strong FCF $7.5/share. In leading Technology sector (+2.3% this week). Insiders bought $2.1M worth last week (bullish signal). Recent news: AI features driving services revenue. No earnings this week (low volatility risk).",
         "positionSize": "Large",
         "riskLevel": "Moderate"
       }
@@ -157,19 +247,21 @@ Use the actual current market conditions from the LIVE MARKET DATA above:
   "Real Estate": { "recommendations": [...], "breakdown": [...] },
   "Cryptocurrencies": { "recommendations": [...], "breakdown": [...] },
   "Cash": { "recommendations": [...], "breakdown": [...] },
-  "marketContext": "Synthesize the market data above into 3-5 sentences describing current economic conditions and market sentiment"
+  "marketContext": "Synthesize ALL the market data, news, insider signals, and upcoming events above into 3-5 sentences describing current conditions, sentiment, and key catalysts/risks to watch"
 }
 
 **Guidelines:**
 - Provide 3-5 recommendations per asset class (more for Equities)
-- Each rationale: 2-4 sentences with specific data points
+- Each rationale: 2-4 sentences with specific data points from the intelligence provided
+- **REQUIRED CITATIONS:** For each stock, mention at least 2 of: current price, P/E ratio, sector performance, insider activity, recent news, or upcoming earnings
 - Position sizes: Large (25-35%), Medium (15-25%), Small (5-15%)
-- Risk levels: Based on volatility, beta, drawdown history
+- Risk levels: Based on volatility, beta, drawdown history, and upcoming catalysts
 - Breakdown percentages must sum to 100 per asset class
 - Use varied hex colors for visualization
-- marketContext: Synthesize current market data into 3-5 sentences
+- marketContext: Synthesize ALL intelligence (market data, news, insiders, economic/earnings calendars) into 3-5 sentences
 - Match investment style to age/horizon (growth for young, income for older)
-- Cite growth metrics for small/mid-caps (revenue %, institutional buying, momentum)`;
+- Cite growth metrics for small/mid-caps (revenue %, institutional buying, momentum)
+- **SIGNAL INTEGRATION:** Stocks with insider buying + positive news + strong sector = highest conviction recommendations`;
 
     console.log("Calling Claude Sonnet 4 for detailed recommendations with streaming...");
 

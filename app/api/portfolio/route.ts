@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getComprehensiveMarketContext } from "@/app/lib/financialData";
+import { 
+  getComprehensiveMarketContext,
+  getEconomicCalendar,
+  getGeneralMarketNews
+} from "@/app/lib/financialData";
 
 // Using OpenAI's GPT-4 for financial advice
 // This is one of the most advanced models available for complex reasoning tasks
@@ -49,11 +53,41 @@ export async function POST(request: NextRequest) {
 
     console.log("OPENAI_API_KEY found, attempting to call OpenAI API");
 
-    // Fetch live market data for context
+    // Fetch live market data and intelligence for context
     let marketContext = "";
+    let economicCalendar = "";
+    let marketNews = "";
+    
     try {
-      marketContext = await getComprehensiveMarketContext();
-      console.log("Successfully fetched live market data from FMP API");
+      const [
+        baseMarketContext,
+        economicEvents,
+        news
+      ] = await Promise.all([
+        getComprehensiveMarketContext(),
+        getEconomicCalendar(),
+        getGeneralMarketNews(5) // Limit to 5 for portfolio-level analysis
+      ]);
+      
+      marketContext = baseMarketContext;
+      
+      // Format economic calendar (key upcoming events)
+      if (economicEvents.length > 0) {
+        economicCalendar = `\n**UPCOMING ECONOMIC EVENTS (This Week):**\n`;
+        economicCalendar += economicEvents.slice(0, 3).map(event => 
+          `- ${new Date(event.date).toLocaleDateString()}: ${event.event} (${event.country}) - ${event.impact} Impact`
+        ).join('\n');
+      }
+      
+      // Format market news (top headlines)
+      if (news.length > 0) {
+        marketNews = `\n**LATEST MARKET NEWS:**\n`;
+        marketNews += news.slice(0, 3).map(article => 
+          `- ${article.title}`
+        ).join('\n');
+      }
+      
+      console.log("Successfully fetched market intelligence from FMP API");
     } catch (error) {
       console.error("Failed to fetch market data:", error);
       return NextResponse.json(
@@ -74,6 +108,8 @@ export async function POST(request: NextRequest) {
 - Preferred Sectors: ${sectors.length > 0 ? sectors.join(", ") : "None specified"}
 
 ${marketContext}
+${economicCalendar}
+${marketNews}
 
 **⚠️ CRITICAL - DATA SOURCE REQUIREMENTS:**
 The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as of today. You MUST:
@@ -100,6 +136,8 @@ The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as o
    - Consider the investment goal
    - Reflect the preferred sectors in the equity allocation if provided
    - Consider CURRENT MARKET CONDITIONS shown above (sector performance, market cycle, volatility, Fed policy)
+   - **INCORPORATE MARKET NEWS:** Use recent headlines to identify trending themes and adjust sector weights
+   - **CONSIDER UPCOMING CATALYSTS:** If major economic events (Fed meetings, CPI reports) are imminent, slightly increase cash/bonds for short-term horizons
    - If markets are in correction/bear market, increase bonds/cash allocations slightly
    - If specific sectors are leading, weight those more heavily in preferred sectors
    - Adjust crypto allocation based on risk appetite and current volatility (VIX)

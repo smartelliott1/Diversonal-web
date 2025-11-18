@@ -81,6 +81,232 @@ interface CacheEntry<T> {
   expiresAt: number;
 }
 
+// Stock-specific data types
+export interface StockProfile {
+  symbol: string;
+  companyName: string;
+  price: number;
+  marketCap: number;
+  beta: number;
+  sector: string;
+  industry: string;
+  description: string;
+  ceo: string;
+  website: string;
+  ipoDate: string;
+  exchange: string;
+  country: string;
+  employees: number;
+  isActivelyTrading: boolean;
+}
+
+export interface StockRatios {
+  symbol: string;
+  priceToEarningsRatio: number;
+  priceToBookRatio: number;
+  priceToSalesRatio: number;
+  priceToFreeCashFlowRatio: number;
+  debtToEquityRatio: number;
+  currentRatio: number;
+  grossProfitMargin: number;
+  operatingProfitMargin: number;
+  netProfitMargin: number;
+  returnOnEquity: number;
+  returnOnAssets: number;
+  dividendYield: number;
+  dividendYieldPercentage: number;
+  payoutRatio: number;
+}
+
+export interface StockKeyMetrics {
+  symbol: string;
+  revenuePerShare: number;
+  netIncomePerShare: number;
+  operatingCashFlowPerShare: number;
+  freeCashFlowPerShare: number;
+  bookValuePerShare: number;
+  tangibleBookValuePerShare: number;
+  enterpriseValue: number;
+  peRatio: number;
+  priceToSalesRatio: number;
+  pocfratio: number;
+  pfcfRatio: number;
+  pbRatio: number;
+  evToSales: number;
+  evToOperatingCashFlow: number;
+  evToFreeCashFlow: number;
+  earningsYield: number;
+  freeCashFlowYield: number;
+  debtToEquity: number;
+  debtToAssets: number;
+  netDebtToEBITDA: number;
+  currentRatio: number;
+  interestCoverage: number;
+  incomeQuality: number;
+  dividendYield: number;
+  payoutRatio: number;
+  salesGeneralAndAdministrativeToRevenue: number;
+  researchAndDevelopmentToRevenue: number;
+  intangiblesToTotalAssets: number;
+  capexToOperatingCashFlow: number;
+  capexToRevenue: number;
+  capexToDepreciation: number;
+  stockBasedCompensationToRevenue: number;
+  grahamNumber: number;
+  roic: number;
+  returnOnTangibleAssets: number;
+  grahamNetNet: number;
+  workingCapital: number;
+  tangibleAssetValue: number;
+  netCurrentAssetValue: number;
+  investedCapital: number;
+  averageReceivables: number;
+  averagePayables: number;
+  averageInventory: number;
+  daysSalesOutstanding: number;
+  daysPayablesOutstanding: number;
+  daysOfInventoryOnHand: number;
+  receivablesTurnover: number;
+  payablesTurnover: number;
+  inventoryTurnover: number;
+  roe: number;
+  capexPerShare: number;
+}
+
+export interface IncomeStatement {
+  symbol: string;
+  date: string;
+  revenue: number;
+  grossProfit: number;
+  grossProfitRatio: number;
+  operatingIncome: number;
+  operatingIncomeRatio: number;
+  netIncome: number;
+  netIncomeRatio: number;
+  eps: number;
+  epsdiluted: number;
+  weightedAverageShsOut: number;
+  weightedAverageShsOutDil: number;
+}
+
+export interface AnalystEstimates {
+  symbol: string;
+  date: string;
+  estimatedRevenueLow: number;
+  estimatedRevenueHigh: number;
+  estimatedRevenueAvg: number;
+  estimatedEbitdaLow: number;
+  estimatedEbitdaHigh: number;
+  estimatedEbitdaAvg: number;
+  estimatedEbitLow: number;
+  estimatedEbitHigh: number;
+  estimatedEbitAvg: number;
+  estimatedNetIncomeLow: number;
+  estimatedNetIncomeHigh: number;
+  estimatedNetIncomeAvg: number;
+  estimatedSgaExpenseLow: number;
+  estimatedSgaExpenseHigh: number;
+  estimatedSgaExpenseAvg: number;
+  estimatedEpsAvg: number;
+  estimatedEpsHigh: number;
+  estimatedEpsLow: number;
+  numberAnalystEstimatedRevenue: number;
+  numberAnalystsEstimatedEps: number;
+}
+
+export interface ESGRating {
+  symbol: string;
+  cik: string;
+  companyName: string;
+  industry: string;
+  year: number;
+  environmentalScore: number;
+  socialScore: number;
+  governanceScore: number;
+  ESGScore: number;
+  environmentalGrade: string;
+  socialGrade: string;
+  governanceGrade: string;
+  ESGGrade: string;
+}
+
+export interface ExecutiveCompensation {
+  cik: string;
+  symbol: string;
+  companyName: string;
+  industryTitle: string;
+  filingDate: string;
+  acceptedDate: string;
+  nameAndPosition: string;
+  year: number;
+  salary: number;
+  bonus: number;
+  stockAward: number;
+  incentivePlanCompensation: number;
+  allOtherCompensation: number;
+  total: number;
+  url: string;
+}
+
+export interface EconomicEvent {
+  event: string;
+  date: string;
+  country: string;
+  actual: number | null;
+  previous: number | null;
+  change: number | null;
+  changePercentage: number | null;
+  estimate: number | null;
+  impact: string;
+}
+
+export interface InsiderTrade {
+  symbol: string;
+  filingDate: string;
+  transactionDate: string;
+  reportingName: string;
+  typeOfOwner: string;
+  acquistionOrDisposition: string;
+  formType: string;
+  securitiesOwned: number;
+  securitiesTransacted: number;
+  price: number;
+  securityName: string;
+  link: string;
+}
+
+export interface NewsArticle {
+  symbol: string;
+  publishedDate: string;
+  title: string;
+  image: string;
+  site: string;
+  text: string;
+  url: string;
+}
+
+export interface EarningsEvent {
+  date: string;
+  symbol: string;
+  eps: number | null;
+  epsEstimated: number | null;
+  time: string;
+  revenue: number | null;
+  revenueEstimated: number | null;
+  fiscalDateEnding: string;
+  updatedFromDate: string;
+}
+
+export interface StockFundamentals {
+  profile: StockProfile;
+  ratios: StockRatios;
+  keyMetrics: StockKeyMetrics;
+  incomeStatement: IncomeStatement;
+  analystEstimates: AnalystEstimates | null;
+  esgRating: ESGRating | null;
+  compensation: ExecutiveCompensation[];
+}
+
 // ============================================================================
 // IN-MEMORY CACHE
 // ============================================================================
@@ -510,6 +736,611 @@ export async function getCryptoData(): Promise<CryptoData> {
   } catch (error: any) {
     console.error("[FMP] Error fetching crypto data:", error?.message);
     throw error;
+  }
+}
+
+// ============================================================================
+// STOCK FUNDAMENTALS FUNCTIONS
+// ============================================================================
+
+export async function getStockProfile(ticker: string): Promise<StockProfile | null> {
+  const cacheKey = `stock-profile-${ticker}`;
+  const cached = getCached<StockProfile>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached stock profile for ${ticker}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/profile?symbol=${ticker}`);
+    if (!data || data.length === 0) return null;
+    
+    const raw = data[0];
+    const profile: StockProfile = {
+      symbol: raw.symbol,
+      companyName: raw.companyName,
+      price: raw.price,
+      marketCap: raw.marketCap,
+      beta: raw.beta,
+      sector: raw.sector,
+      industry: raw.industry,
+      description: raw.description,
+      ceo: raw.ceo,
+      website: raw.website,
+      ipoDate: raw.ipoDate,
+      exchange: raw.exchange,
+      country: raw.country,
+      employees: parseInt(raw.fullTimeEmployees) || 0,
+      isActivelyTrading: raw.isActivelyTrading,
+    };
+    
+    setCache(cacheKey, profile, 1440); // Cache 24 hours
+    return profile;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching stock profile for ${ticker}:`, error?.message);
+    return null;
+  }
+}
+
+export async function getStockRatios(ticker: string): Promise<StockRatios | null> {
+  const cacheKey = `stock-ratios-${ticker}`;
+  const cached = getCached<StockRatios>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached stock ratios for ${ticker}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/ratios?symbol=${ticker}`);
+    if (!data || data.length === 0) return null;
+    
+    const raw = data[0]; // Most recent fiscal year
+    const ratios: StockRatios = {
+      symbol: raw.symbol,
+      priceToEarningsRatio: raw.priceToEarningsRatio || 0,
+      priceToBookRatio: raw.priceToBookRatio || 0,
+      priceToSalesRatio: raw.priceToSalesRatio || 0,
+      priceToFreeCashFlowRatio: raw.priceToFreeCashFlowRatio || 0,
+      debtToEquityRatio: raw.debtToEquityRatio || 0,
+      currentRatio: raw.currentRatio || 0,
+      grossProfitMargin: raw.grossProfitMargin || 0,
+      operatingProfitMargin: raw.operatingProfitMargin || 0,
+      netProfitMargin: raw.netProfitMargin || 0,
+      returnOnEquity: raw.returnOnEquity || 0,
+      returnOnAssets: raw.returnOnAssets || 0,
+      dividendYield: raw.dividendYield || 0,
+      dividendYieldPercentage: raw.dividendYieldPercentage || 0,
+      payoutRatio: raw.dividendPayoutRatio || 0,
+    };
+    
+    setCache(cacheKey, ratios, 1440); // Cache 24 hours
+    return ratios;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching stock ratios for ${ticker}:`, error?.message);
+    return null;
+  }
+}
+
+export async function getStockKeyMetrics(ticker: string): Promise<StockKeyMetrics | null> {
+  const cacheKey = `stock-key-metrics-${ticker}`;
+  const cached = getCached<StockKeyMetrics>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached key metrics for ${ticker}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/key-metrics?symbol=${ticker}`);
+    if (!data || data.length === 0) return null;
+    
+    const raw = data[0]; // Most recent
+    const metrics: StockKeyMetrics = {
+      symbol: raw.symbol,
+      revenuePerShare: raw.revenuePerShare || 0,
+      netIncomePerShare: raw.netIncomePerShare || 0,
+      operatingCashFlowPerShare: raw.operatingCashFlowPerShare || 0,
+      freeCashFlowPerShare: raw.freeCashFlowPerShare || 0,
+      bookValuePerShare: raw.bookValuePerShare || 0,
+      tangibleBookValuePerShare: raw.tangibleBookValuePerShare || 0,
+      enterpriseValue: raw.enterpriseValue || 0,
+      peRatio: raw.peRatio || 0,
+      priceToSalesRatio: raw.priceToSalesRatio || 0,
+      pocfratio: raw.pocfratio || 0,
+      pfcfRatio: raw.pfcfRatio || 0,
+      pbRatio: raw.pbRatio || 0,
+      evToSales: raw.evToSales || 0,
+      evToOperatingCashFlow: raw.evToOperatingCashFlow || 0,
+      evToFreeCashFlow: raw.evToFreeCashFlow || 0,
+      earningsYield: raw.earningsYield || 0,
+      freeCashFlowYield: raw.freeCashFlowYield || 0,
+      debtToEquity: raw.debtToEquity || 0,
+      debtToAssets: raw.debtToAssets || 0,
+      netDebtToEBITDA: raw.netDebtToEBITDA || 0,
+      currentRatio: raw.currentRatio || 0,
+      interestCoverage: raw.interestCoverage || 0,
+      incomeQuality: raw.incomeQuality || 0,
+      dividendYield: raw.dividendYield || 0,
+      payoutRatio: raw.payoutRatio || 0,
+      salesGeneralAndAdministrativeToRevenue: raw.salesGeneralAndAdministrativeToRevenue || 0,
+      researchAndDevelopmentToRevenue: raw.researchAndDevelopementToRevenue || 0,
+      intangiblesToTotalAssets: raw.intangiblesToTotalAssets || 0,
+      capexToOperatingCashFlow: raw.capexToOperatingCashFlow || 0,
+      capexToRevenue: raw.capexToRevenue || 0,
+      capexToDepreciation: raw.capexToDepreciation || 0,
+      stockBasedCompensationToRevenue: raw.stockBasedCompensationToRevenue || 0,
+      grahamNumber: raw.grahamNumber || 0,
+      roic: raw.roic || 0,
+      returnOnTangibleAssets: raw.returnOnTangibleAssets || 0,
+      grahamNetNet: raw.grahamNetNet || 0,
+      workingCapital: raw.workingCapital || 0,
+      tangibleAssetValue: raw.tangibleAssetValue || 0,
+      netCurrentAssetValue: raw.netCurrentAssetValue || 0,
+      investedCapital: raw.investedCapital || 0,
+      averageReceivables: raw.averageReceivables || 0,
+      averagePayables: raw.averagePayables || 0,
+      averageInventory: raw.averageInventory || 0,
+      daysSalesOutstanding: raw.daysSalesOutstanding || 0,
+      daysPayablesOutstanding: raw.daysPayablesOutstanding || 0,
+      daysOfInventoryOnHand: raw.daysOfInventoryOnHand || 0,
+      receivablesTurnover: raw.receivablesTurnover || 0,
+      payablesTurnover: raw.payablesTurnover || 0,
+      inventoryTurnover: raw.inventoryTurnover || 0,
+      roe: raw.roe || 0,
+      capexPerShare: raw.capexPerShare || 0,
+    };
+    
+    setCache(cacheKey, metrics, 1440); // Cache 24 hours
+    return metrics;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching key metrics for ${ticker}:`, error?.message);
+    return null;
+  }
+}
+
+export async function getStockIncomeStatement(ticker: string): Promise<IncomeStatement | null> {
+  const cacheKey = `stock-income-${ticker}`;
+  const cached = getCached<IncomeStatement>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached income statement for ${ticker}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/income-statement?symbol=${ticker}`);
+    if (!data || data.length === 0) return null;
+    
+    const raw = data[0]; // Most recent
+    const income: IncomeStatement = {
+      symbol: raw.symbol,
+      date: raw.date,
+      revenue: raw.revenue || 0,
+      grossProfit: raw.grossProfit || 0,
+      grossProfitRatio: raw.grossProfitRatio || 0,
+      operatingIncome: raw.operatingIncome || 0,
+      operatingIncomeRatio: raw.operatingIncomeRatio || 0,
+      netIncome: raw.netIncome || 0,
+      netIncomeRatio: raw.netIncomeRatio || 0,
+      eps: raw.eps || 0,
+      epsdiluted: raw.epsdiluted || 0,
+      weightedAverageShsOut: raw.weightedAverageShsOut || 0,
+      weightedAverageShsOutDil: raw.weightedAverageShsOutDil || 0,
+    };
+    
+    setCache(cacheKey, income, 1440); // Cache 24 hours
+    return income;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching income statement for ${ticker}:`, error?.message);
+    return null;
+  }
+}
+
+export async function getAnalystEstimates(ticker: string): Promise<AnalystEstimates | null> {
+  const cacheKey = `analyst-estimates-${ticker}`;
+  const cached = getCached<AnalystEstimates>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached analyst estimates for ${ticker}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/analyst-estimates?symbol=${ticker}&period=annual&page=0&limit=10`);
+    if (!data || data.length === 0) return null;
+    
+    const raw = data[0]; // Most recent
+    const estimates: AnalystEstimates = {
+      symbol: raw.symbol,
+      date: raw.date,
+      estimatedRevenueLow: raw.estimatedRevenueLow || 0,
+      estimatedRevenueHigh: raw.estimatedRevenueHigh || 0,
+      estimatedRevenueAvg: raw.estimatedRevenueAvg || 0,
+      estimatedEbitdaLow: raw.estimatedEbitdaLow || 0,
+      estimatedEbitdaHigh: raw.estimatedEbitdaHigh || 0,
+      estimatedEbitdaAvg: raw.estimatedEbitdaAvg || 0,
+      estimatedEbitLow: raw.estimatedEbitLow || 0,
+      estimatedEbitHigh: raw.estimatedEbitHigh || 0,
+      estimatedEbitAvg: raw.estimatedEbitAvg || 0,
+      estimatedNetIncomeLow: raw.estimatedNetIncomeLow || 0,
+      estimatedNetIncomeHigh: raw.estimatedNetIncomeHigh || 0,
+      estimatedNetIncomeAvg: raw.estimatedNetIncomeAvg || 0,
+      estimatedSgaExpenseLow: raw.estimatedSgaExpenseLow || 0,
+      estimatedSgaExpenseHigh: raw.estimatedSgaExpenseHigh || 0,
+      estimatedSgaExpenseAvg: raw.estimatedSgaExpenseAvg || 0,
+      estimatedEpsAvg: raw.estimatedEpsAvg || 0,
+      estimatedEpsHigh: raw.estimatedEpsHigh || 0,
+      estimatedEpsLow: raw.estimatedEpsLow || 0,
+      numberAnalystEstimatedRevenue: raw.numberAnalystEstimatedRevenue || 0,
+      numberAnalystsEstimatedEps: raw.numberAnalystsEstimatedEps || 0,
+    };
+    
+    setCache(cacheKey, estimates, 1440); // Cache 24 hours
+    return estimates;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching analyst estimates for ${ticker}:`, error?.message);
+    return null;
+  }
+}
+
+export async function getESGRating(ticker: string): Promise<ESGRating | null> {
+  const cacheKey = `esg-rating-${ticker}`;
+  const cached = getCached<ESGRating>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached ESG rating for ${ticker}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/esg-ratings?symbol=${ticker}`);
+    if (!data || data.length === 0) return null;
+    
+    const raw = data[0]; // Most recent
+    const esg: ESGRating = {
+      symbol: raw.symbol,
+      cik: raw.cik,
+      companyName: raw.companyName,
+      industry: raw.industry,
+      year: raw.year,
+      environmentalScore: raw.environmentalScore || 0,
+      socialScore: raw.socialScore || 0,
+      governanceScore: raw.governanceScore || 0,
+      ESGScore: raw.ESGScore || 0,
+      environmentalGrade: raw.environmentalGrade || 'N/A',
+      socialGrade: raw.socialGrade || 'N/A',
+      governanceGrade: raw.governanceGrade || 'N/A',
+      ESGGrade: raw.ESGGrade || 'N/A',
+    };
+    
+    setCache(cacheKey, esg, 10080); // Cache 7 days
+    return esg;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching ESG rating for ${ticker}:`, error?.message);
+    return null;
+  }
+}
+
+export async function getExecutiveCompensation(ticker: string): Promise<ExecutiveCompensation[]> {
+  const cacheKey = `exec-comp-${ticker}`;
+  const cached = getCached<ExecutiveCompensation[]>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached executive compensation for ${ticker}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/governance-executive-compensation?symbol=${ticker}`);
+    if (!data || data.length === 0) return [];
+    
+    const compensation: ExecutiveCompensation[] = data.slice(0, 5).map((raw: any) => ({
+      cik: raw.cik,
+      symbol: raw.symbol,
+      companyName: raw.companyName,
+      industryTitle: raw.industryTitle,
+      filingDate: raw.filingDate,
+      acceptedDate: raw.acceptedDate,
+      nameAndPosition: raw.nameAndPosition,
+      year: raw.year,
+      salary: raw.salary || 0,
+      bonus: raw.bonus || 0,
+      stockAward: raw.stockAward || 0,
+      incentivePlanCompensation: raw.incentivePlanCompensation || 0,
+      allOtherCompensation: raw.allOtherCompensation || 0,
+      total: raw.total || 0,
+      url: raw.url,
+    }));
+    
+    setCache(cacheKey, compensation, 1440); // Cache 24 hours
+    return compensation;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching executive compensation for ${ticker}:`, error?.message);
+    return [];
+  }
+}
+
+// Batch fetch fundamentals for multiple stocks
+export async function getStocksFundamentals(tickers: string[]): Promise<Map<string, StockFundamentals>> {
+  const results = new Map<string, StockFundamentals>();
+  
+  console.log(`[FMP] Fetching fundamentals for ${tickers.length} stocks`);
+  
+  // Fetch all data in parallel for speed
+  const promises = tickers.map(async (ticker) => {
+    try {
+      const [profile, ratios, keyMetrics, incomeStatement, analystEstimates, esgRating, compensation] = await Promise.all([
+        getStockProfile(ticker),
+        getStockRatios(ticker),
+        getStockKeyMetrics(ticker),
+        getStockIncomeStatement(ticker),
+        getAnalystEstimates(ticker),
+        getESGRating(ticker),
+        getExecutiveCompensation(ticker),
+      ]);
+      
+      if (profile && ratios && keyMetrics && incomeStatement) {
+        results.set(ticker, {
+          profile,
+          ratios,
+          keyMetrics,
+          incomeStatement,
+          analystEstimates,
+          esgRating,
+          compensation,
+        });
+      }
+    } catch (error) {
+      console.error(`[FMP] Failed to fetch fundamentals for ${ticker}:`, error);
+    }
+  });
+  
+  await Promise.all(promises);
+  console.log(`[FMP] Successfully fetched fundamentals for ${results.size}/${tickers.length} stocks`);
+  
+  return results;
+}
+
+// ============================================================================
+// MARKET INTELLIGENCE FUNCTIONS
+// ============================================================================
+
+export async function getEconomicCalendar(): Promise<EconomicEvent[]> {
+  const cacheKey = "economic-calendar";
+  const cached = getCached<EconomicEvent[]>(cacheKey);
+  if (cached) {
+    console.log("[FMP] Using cached economic calendar");
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/economic-calendar`);
+    if (!data || data.length === 0) return [];
+    
+    // Filter to upcoming events and high-impact events
+    const now = new Date();
+    const events: EconomicEvent[] = data
+      .filter((raw: any) => {
+        const eventDate = new Date(raw.date);
+        return eventDate >= now && (raw.impact === 'High' || raw.impact === 'Medium');
+      })
+      .slice(0, 10) // Limit to next 10 events
+      .map((raw: any) => ({
+        event: raw.event,
+        date: raw.date,
+        country: raw.country,
+        actual: raw.actual,
+        previous: raw.previous,
+        change: raw.change,
+        changePercentage: raw.changePercentage,
+        estimate: raw.estimate,
+        impact: raw.impact,
+      }));
+    
+    setCache(cacheKey, events, 1440); // Cache 24 hours
+    console.log(`[FMP] Fetched ${events.length} upcoming economic events`);
+    return events;
+  } catch (error: any) {
+    console.error("[FMP] Error fetching economic calendar:", error?.message);
+    return [];
+  }
+}
+
+export async function getInsiderTradingSignals(): Promise<InsiderTrade[]> {
+  const cacheKey = "insider-trading";
+  const cached = getCached<InsiderTrade[]>(cacheKey);
+  if (cached) {
+    console.log("[FMP] Using cached insider trading data");
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/insider-trading/latest?page=0&limit=100`);
+    if (!data || data.length === 0) return [];
+    
+    const trades: InsiderTrade[] = data.map((raw: any) => ({
+      symbol: raw.symbol,
+      filingDate: raw.filingDate,
+      transactionDate: raw.transactionDate,
+      reportingName: raw.reportingCikName,
+      typeOfOwner: raw.typeOfOwner,
+      acquistionOrDisposition: raw.acquistionOrDisposition,
+      formType: raw.formType,
+      securitiesOwned: raw.securitiesOwned || 0,
+      securitiesTransacted: raw.securitiesTransacted || 0,
+      price: raw.price || 0,
+      securityName: raw.securityName,
+      link: raw.link,
+    }));
+    
+    setCache(cacheKey, trades, 360); // Cache 6 hours
+    console.log(`[FMP] Fetched ${trades.length} insider trades`);
+    return trades;
+  } catch (error: any) {
+    console.error("[FMP] Error fetching insider trading:", error?.message);
+    return [];
+  }
+}
+
+export async function getGeneralMarketNews(limit: number = 20): Promise<NewsArticle[]> {
+  const cacheKey = "market-news-general";
+  const cached = getCached<NewsArticle[]>(cacheKey);
+  if (cached) {
+    console.log("[FMP] Using cached general market news");
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/news/general-latest?page=0&limit=${limit}`);
+    if (!data || data.length === 0) return [];
+    
+    const news: NewsArticle[] = data.map((raw: any) => ({
+      symbol: raw.symbol || 'MARKET',
+      publishedDate: raw.publishedDate,
+      title: raw.title,
+      image: raw.image,
+      site: raw.site,
+      text: raw.text,
+      url: raw.url,
+    }));
+    
+    setCache(cacheKey, news, 30); // Cache 30 minutes
+    console.log(`[FMP] Fetched ${news.length} general market news articles`);
+    return news;
+  } catch (error: any) {
+    console.error("[FMP] Error fetching general market news:", error?.message);
+    return [];
+  }
+}
+
+export async function getStockNews(ticker: string, limit: number = 20): Promise<NewsArticle[]> {
+  const cacheKey = `stock-news-${ticker}`;
+  const cached = getCached<NewsArticle[]>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached news for ${ticker}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/news/stock?symbols=${ticker}&limit=${limit}`);
+    if (!data || data.length === 0) return [];
+    
+    const news: NewsArticle[] = data.map((raw: any) => ({
+      symbol: raw.symbol,
+      publishedDate: raw.publishedDate,
+      title: raw.title,
+      image: raw.image,
+      site: raw.site,
+      text: raw.text,
+      url: raw.url,
+    }));
+    
+    setCache(cacheKey, news, 30); // Cache 30 minutes
+    console.log(`[FMP] Fetched ${news.length} news articles for ${ticker}`);
+    return news;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching stock news for ${ticker}:`, error?.message);
+    return [];
+  }
+}
+
+export async function getCryptoNews(symbol: string, limit: number = 20): Promise<NewsArticle[]> {
+  const cacheKey = `crypto-news-${symbol}`;
+  const cached = getCached<NewsArticle[]>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached crypto news for ${symbol}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/news/crypto?symbols=${symbol}&limit=${limit}`);
+    if (!data || data.length === 0) return [];
+    
+    const news: NewsArticle[] = data.map((raw: any) => ({
+      symbol: raw.symbol,
+      publishedDate: raw.publishedDate,
+      title: raw.title,
+      image: raw.image,
+      site: raw.site,
+      text: raw.text,
+      url: raw.url,
+    }));
+    
+    setCache(cacheKey, news, 30); // Cache 30 minutes
+    console.log(`[FMP] Fetched ${news.length} crypto news articles for ${symbol}`);
+    return news;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching crypto news for ${symbol}:`, error?.message);
+    return [];
+  }
+}
+
+export async function getEarningsCalendar(): Promise<EarningsEvent[]> {
+  const cacheKey = "earnings-calendar";
+  const cached = getCached<EarningsEvent[]>(cacheKey);
+  if (cached) {
+    console.log("[FMP] Using cached earnings calendar");
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/earnings-calendar`);
+    if (!data || data.length === 0) return [];
+    
+    // Filter to upcoming earnings
+    const now = new Date();
+    const events: EarningsEvent[] = data
+      .filter((raw: any) => {
+        const eventDate = new Date(raw.date);
+        return eventDate >= now;
+      })
+      .slice(0, 50) // Limit to next 50 earnings
+      .map((raw: any) => ({
+        date: raw.date,
+        symbol: raw.symbol,
+        eps: raw.eps,
+        epsEstimated: raw.epsEstimated,
+        time: raw.time,
+        revenue: raw.revenue,
+        revenueEstimated: raw.revenueEstimated,
+        fiscalDateEnding: raw.fiscalDateEnding,
+        updatedFromDate: raw.updatedFromDate,
+      }));
+    
+    setCache(cacheKey, events, 1440); // Cache 24 hours
+    console.log(`[FMP] Fetched ${events.length} upcoming earnings events`);
+    return events;
+  } catch (error: any) {
+    console.error("[FMP] Error fetching earnings calendar:", error?.message);
+    return [];
+  }
+}
+
+export async function getStockEarnings(ticker: string): Promise<EarningsEvent[]> {
+  const cacheKey = `stock-earnings-${ticker}`;
+  const cached = getCached<EarningsEvent[]>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached earnings for ${ticker}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/earnings?symbol=${ticker}`);
+    if (!data || data.length === 0) return [];
+    
+    const earnings: EarningsEvent[] = data.slice(0, 8).map((raw: any) => ({
+      date: raw.date,
+      symbol: raw.symbol,
+      eps: raw.eps,
+      epsEstimated: raw.epsEstimated,
+      time: raw.time,
+      revenue: raw.revenue,
+      revenueEstimated: raw.revenueEstimated,
+      fiscalDateEnding: raw.fiscalDateEnding,
+      updatedFromDate: raw.updatedFromDate,
+    }));
+    
+    setCache(cacheKey, earnings, 1440); // Cache 24 hours
+    console.log(`[FMP] Fetched ${earnings.length} historical earnings for ${ticker}`);
+    return earnings;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching earnings for ${ticker}:`, error?.message);
+    return [];
   }
 }
 
