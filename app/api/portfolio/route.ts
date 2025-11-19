@@ -132,17 +132,18 @@ The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as o
 2. The allocation MUST:
    - Total exactly 100%
    - Use decimal values (e.g., 45.5%, 35.3%, 14.7%, 4.5%) - NEVER use whole numbers unless absolutely necessary (make it as specific as physically possible to the client's inputs)
-   - Be appropriate for the client's age, risk tolerance, and time horizon
+   - Be weighted appropriately for the client's age, risk tolerance, and time horizon
    - Consider the investment goal
    - Reflect the preferred sectors in the equity allocation if provided
-   - Consider CURRENT MARKET CONDITIONS shown above (sector performance, market cycle, volatility, Fed policy)
+   - Consider CURRENT MARKET CONDITIONS shown above (sector performance, market cycle, volatility, Fed policy, etc.)
    - **INCORPORATE MARKET NEWS:** Use recent headlines to identify trending themes and adjust sector weights
-   - **CONSIDER UPCOMING CATALYSTS:** If major economic events (Fed meetings, CPI reports) are imminent, slightly increase cash/bonds for short-term horizons
-   - If markets are in correction/bear market, increase bonds/cash allocations slightly
+   - **CONSIDER UPCOMING CATALYSTS:** If major economic events (Fed meetings, CPI reports) are imminent, slightly increase cash allocations in short-term horizon clients
+   - If markets are in extremely uncertain conditions, increase bonds/cash allocations slightly
    - If specific sectors are leading, weight those more heavily in preferred sectors
-   - Adjust crypto allocation based on risk appetite and current volatility (VIX)
+   - Adjust crypto allocation based on risk appetite, age, and current volatility (VIX)
    - Follow modern portfolio theory principles
    - Only include asset classes that are relevant to the client's inputs (Typically, all but one or two asset classes)
+   - If risk tolerance is high + age is below 40, there is no reason to ever have bonds, a cash allocation is sufficient to a young, high risk tolerance client.
 
 3. For Equities (and every other asset class), provide a breakdown (e.g., "S&P 500: 25%, Tech stocks: 10%, International: 10%")
 

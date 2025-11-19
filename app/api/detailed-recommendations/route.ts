@@ -215,10 +215,10 @@ Use the actual current market conditions and intelligence from ALL sections abov
 - Adjust for current market cycle stage (bull/bear/correction/consolidation)
 - Consider macroeconomic conditions (GDP, inflation, employment) shown in the data
 - **LEVERAGE INSIDER SIGNALS:** Stocks with significant insider buying (>$1M purchases) indicate strong management confidence - favor these in your recommendations
-- **CONSIDER UPCOMING CATALYSTS:** Reference the economic calendar and earnings schedule - avoid recommending stocks with earnings THIS WEEK (high volatility risk), but favor stocks reporting next week (potential catalyst)
+- **CONSIDER UPCOMING CATALYSTS:** Reference the economic calendar and earnings schedule
 - **INCORPORATE MARKET NEWS:** Use recent news headlines to identify trending themes, sectors getting attention, and potential risks
 - For high-risk profiles and younger investors, include small/mid-cap opportunities with 30%+ YoY growth and strong institutional buying
-- **CITE SPECIFIC SIGNALS:** When recommending a stock, mention if insiders are buying, if there's positive news momentum, or if it's in a leading sector
+- **CITE SPECIFIC SIGNALS:** When recommending a stock, note ONLY significant/relevant factors/data, mention if insiders are buying, if there's positive news momentum, or if it's in a leading sector
 
 **Market Cap Approach:**
 - Low Risk: Large-cap (>$50B) for stability
