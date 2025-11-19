@@ -53,12 +53,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Extract asset classes that are actually in the portfolio (non-zero allocation)
+    const portfolioAssetClasses = portfolio
+      .filter((item) => item.value > 0)
+      .map((item) => item.name);
+
     // If no API key, use fallback algorithm
     if (!ANTHROPIC_API_KEY) {
       console.warn("ANTHROPIC_API_KEY not set, using fallback algorithm");
       console.log("Environment check - NODE_ENV:", process.env.NODE_ENV);
       return NextResponse.json({
-        ...generateFallbackStressTest(scenario, portfolio, initialCapital),
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm",
       });
     }
@@ -119,23 +124,23 @@ ${scenario}
 6. Determine the overall impact and risk level
 
 **Asset Class Impact Analysis:**
-- Equities: How would stocks react? Consider market sentiment, sector-specific impacts, and historical precedents
-- Bonds: Would bonds act as a hedge or also decline? Consider interest rate changes, credit risk, and flight-to-safety dynamics
-- Commodities: How would gold, silver, oil, and other commodities perform? Often act as inflation hedges
-- Real Estate: How would REITs and real estate funds react? Consider interest rate sensitivity and market conditions
-- Cryptocurrencies: How would digital assets like Bitcoin and Ethereum perform? Typically highly volatile
-- Cash: Typically remains stable, but consider inflation impacts
+IMPORTANT: Only analyze the following asset classes that are present in this portfolio: ${portfolioAssetClasses.join(", ")}
+
+${portfolioAssetClasses.includes("Equities") ? "- Equities: How would stocks react? Consider market sentiment, sector-specific impacts, and historical precedents" : ""}
+${portfolioAssetClasses.includes("Bonds") ? "- Bonds: Would bonds act as a hedge or also decline? Consider interest rate changes, credit risk, and flight-to-safety dynamics" : ""}
+${portfolioAssetClasses.includes("Commodities") ? "- Commodities: How would gold, silver, oil, and other commodities perform? Often act as inflation hedges" : ""}
+${portfolioAssetClasses.includes("Real Estate") ? "- Real Estate: How would REITs and real estate funds react? Consider interest rate sensitivity and market conditions" : ""}
+${portfolioAssetClasses.includes("Cryptocurrencies") ? "- Cryptocurrencies: How would digital assets like Bitcoin and Ethereum perform? Typically highly volatile" : ""}
+${portfolioAssetClasses.includes("Cash") ? "- Cash: Typically remains stable, but consider inflation impacts" : ""}
 
 **Response Format (JSON only, no other text):**
+CRITICAL: The "impact" object must ONLY contain the asset classes present in this portfolio: ${portfolioAssetClasses.join(", ")}. Do NOT include any other asset classes.
+
+Example format:
 {
   "analysis": "2-3 sentence explanation of the scenario's impact on the portfolio",
   "impact": {
-    "equities": -15.5,
-    "bonds": -3.2,
-    "commodities": 5.8,
-    "real estate": -8.1,
-    "cryptocurrencies": -22.3,
-    "cash": 0
+    ${portfolioAssetClasses.map(ac => `"${ac.toLowerCase()}": -10.5`).join(",\n    ")}
   },
   "portfolioValue": [100000, 95200, 91800, 89500, 88200, 87500, 86800, 86200, 85800, 85500, 85200, 85000, 84800, 84600, 84500, 84400, 84300, 84200, 84000],
   "months": ["Month 0", "Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6", "Month 7", "Month 8", "Month 9", "Month 10", "Month 11", "Month 12", "Month 13", "Month 14", "Month 15", "Month 16", "Month 17", "Month 18"],
@@ -216,7 +221,7 @@ ${scenario}
       
       // Fallback to algorithm
       return NextResponse.json({
-        ...generateFallbackStressTest(scenario, portfolio, initialCapital),
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm (Claude API unavailable - please verify API key and model access in Anthropic console)",
       });
     }
@@ -246,7 +251,7 @@ ${scenario}
       console.error("Error parsing Claude response:", parseError);
       // Fallback to algorithm
       return NextResponse.json({
-        ...generateFallbackStressTest(scenario, portfolio, initialCapital),
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm",
       });
     }
@@ -277,6 +282,18 @@ ${scenario}
         ((stressTestResult.finalValue - initialCapital) / initialCapital) * 100;
     }
 
+    // Filter impact object to only include asset classes in the portfolio
+    if (stressTestResult.impact) {
+      const filteredImpact: any = {};
+      portfolioAssetClasses.forEach(assetClass => {
+        const key = assetClass.toLowerCase();
+        if (stressTestResult.impact[key] !== undefined) {
+          filteredImpact[key] = stressTestResult.impact[key];
+        }
+      });
+      stressTestResult.impact = filteredImpact;
+    }
+
     return NextResponse.json(stressTestResult);
   } catch (error: any) {
     console.error("Error generating stress test:", error);
@@ -284,8 +301,13 @@ ${scenario}
     // Always try to use fallback algorithm if we have the body
     console.log("Falling back to algorithm due to error:", error?.message);
     try {
+      // Extract asset classes if not already done
+      const portfolioAssetClasses = portfolio
+        .filter((item) => item.value > 0)
+        .map((item) => item.name);
+      
       return NextResponse.json({
-        ...generateFallbackStressTest(scenario, portfolio, initialCapital),
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm (AI service temporarily unavailable)",
       });
     } catch (fallbackError) {
@@ -307,7 +329,8 @@ ${scenario}
 function generateFallbackStressTest(
   scenario: string,
   portfolio: Array<{ name: string; value: number }>,
-  initialCapital: number
+  initialCapital: number,
+  portfolioAssetClasses: string[]
 ): StressTestResult {
   const scenarioLower = scenario.toLowerCase();
   
@@ -427,16 +450,21 @@ function generateFallbackStressTest(
 
   const changeDirection = isPositive ? "increase" : "decline";
 
+  // Build impact object with only asset classes present in portfolio
+  const impact: any = {};
+  portfolioAssetClasses.forEach(assetClass => {
+    const lowerName = assetClass.toLowerCase();
+    if (assetClass === "Equities") impact.equities = equitiesImpact;
+    else if (assetClass === "Bonds") impact.bonds = bondsImpact;
+    else if (assetClass === "Commodities") impact.commodities = commoditiesImpact;
+    else if (assetClass === "Real Estate") impact["real estate"] = realEstateImpact;
+    else if (assetClass === "Cryptocurrencies") impact.cryptocurrencies = cryptoImpact;
+    else if (assetClass === "Cash") impact.cash = 0;
+  });
+
   return {
     analysis: `Based on the scenario "${scenario}", this portfolio would experience a ${Math.abs(percentageChange).toFixed(1)}% ${changeDirection}. The stress test shows how different asset classes would be impacted, with ${isPositive ? "equities and cryptocurrencies leading gains" : "cryptocurrencies and equities most affected"}, commodities ${isPositive || scenarioLower.includes("inflation") ? "providing positive returns" : "showing mixed results"}, and cash remaining stable.`,
-    impact: {
-      equities: equitiesImpact,
-      bonds: bondsImpact,
-      commodities: commoditiesImpact,
-      "real estate": realEstateImpact,
-      cryptocurrencies: cryptoImpact,
-      cash: 0,
-    },
+    impact,
     portfolioValue,
     months,
     finalValue,

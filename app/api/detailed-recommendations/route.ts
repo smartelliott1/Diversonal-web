@@ -234,7 +234,7 @@ ${earningsCalendar}
 ${fundamentalsData}
 
 ${formData.sectors.length > 0 ? `**CRITICAL - Sector Conviction Priority:**
-User's conviction sectors are ${formData.sectors.join(", ")}. Prioritize these sectors with LARGER position sizes (favor "Large" sizes) and dedicate the majority of Equities recommendations to them. Include 1-2 small/mid-cap rising stars if risk profile allows.
+User's conviction sectors are ${formData.sectors.join(", ")}. Prioritize these sectors with LARGER position sizes (favor "Large" sizes) and dedicate the majority of Equities recommendations to them. Include 2-3 small/mid-cap rising stars if risk profile allows.
 ` : ''}
 **⚠️ CRITICAL - DATA SOURCE REQUIREMENTS:**
 The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as of today. You MUST:
@@ -256,13 +256,13 @@ Use the actual current market conditions and intelligence from ALL sections abov
 - **LEVERAGE INSIDER SIGNALS:** Stocks with significant insider buying (>$1M purchases) indicate strong management confidence - favor these in your recommendations
 - **CONSIDER UPCOMING CATALYSTS:** Reference the economic calendar and earnings schedule
 - **INCORPORATE MARKET NEWS:** Use recent news headlines to identify trending themes, sectors getting attention, and potential risks
-- For high-risk profiles and younger investors, include small/mid-cap opportunities with 30%+ YoY growth and strong institutional buying
+- For high-risk profiles and younger investors, include smaller market cap opportunities with 30%+ YoY growth and strong institutional buying
 - **CITE SPECIFIC SIGNALS:** When recommending a stock, note ONLY significant/relevant factors/data, mention if insiders are buying, if there's positive news momentum, or if it's in a leading sector
 
 **Market Cap Approach:**
-- Low Risk: Large-cap (>$50B) for stability
-- Moderate Risk: 80% large-cap, 20% mid-cap
-- High Risk: 60% large-cap, 20% mid-cap, 20% small-cap growth
+- Low Risk: Large-cap (>$100B) for stability
+- Moderate Risk: 80% large-cap, 20% smaller than large-cap
+- High Risk: 50% large-cap, 50% smaller than large-cap (must consider smaller companies growth and recommend them if they have strong growth)
 
 **Response Format (JSON only, no markdown formatting):**
 {
@@ -290,7 +290,7 @@ Use the actual current market conditions and intelligence from ALL sections abov
 }
 
 **Guidelines:**
-- Provide 3-5 recommendations per asset class (more for Equities)
+- Provide 3-5 recommendations per asset class (5-7 for Equities)
 - Each rationale: 2-4 sentences with specific data points from the intelligence provided
 - **REQUIRED CITATIONS:** For each stock, mention at least 2 of: current price, P/E ratio, sector performance, insider activity, recent news, or upcoming earnings
 - Position sizes: Large (25-35%), Medium (15-25%), Small (5-15%)

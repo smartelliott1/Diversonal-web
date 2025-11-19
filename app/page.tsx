@@ -542,7 +542,7 @@ export default function Home() {
   const InfoIcon = ({ tooltip }: { tooltip: string }) => (
     <div className="group relative inline-flex items-center">
       <svg
-        className="h-4 w-4 text-[#00FF99] cursor-help transition-colors hover:opacity-80"
+        className="h-3.5 w-3.5 cursor-help text-[#00FF99] transition-all duration-200 hover:scale-110 hover:drop-shadow-[0_0_6px_rgba(0,255,153,0.8)]"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -555,30 +555,46 @@ export default function Home() {
           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
-      <span className="pointer-events-none absolute left-1/2 top-6 z-10 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:block group-hover:opacity-100">
-        {tooltip}
-      </span>
+      {/* Tooltip with glassmorphism and arrow */}
+      <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-all duration-200 group-hover:opacity-100">
+        <div className="glass relative min-w-[250px] max-w-md rounded-xl border border-[#00FF99]/30 bg-[#1C1F26]/95 px-3 py-2 shadow-2xl shadow-[#00FF99]/20 backdrop-blur-md">
+          <p className="whitespace-normal text-xs leading-relaxed text-gray-100">{tooltip}</p>
+          {/* Arrow pointing down */}
+          <div className="absolute left-1/2 top-full -translate-x-1/2">
+            <div className="border-4 border-transparent border-t-[#1C1F26]/95"></div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
   return (
-    <main className="min-h-screen bg-[#171A1F] px-4 py-8 sm:px-6 sm:py-12 md:py-16">
-      <div className="mx-auto max-w-5xl">
-        <h1 className="mb-4 text-center text-5xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-6xl md:text-7xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
-          Diversonal
-        </h1>
-        <p className="mb-8 text-center text-lg text-gray-300 sm:text-xl md:mb-12">
-          Describe yourself and your vision to receive your AI-optimized portfolio allocation
-        </p>
+    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#0F1216] via-[#171A1F] to-[#1C1F26] px-4 py-8 sm:px-6 sm:py-12 md:py-16">
+      {/* Animated Background Gradient Orbs */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-1/4 top-0 h-[600px] w-[600px] animate-float rounded-full bg-gradient-to-br from-[#00FF99]/10 to-transparent blur-3xl"></div>
+        <div className="absolute -right-1/4 top-1/4 h-[500px] w-[500px] animate-float rounded-full bg-gradient-to-br from-[#00D4FF]/10 to-transparent blur-3xl" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-0 left-1/3 h-[400px] w-[400px] animate-float rounded-full bg-gradient-to-br from-[#9B59B6]/10 to-transparent blur-3xl" style={{ animationDelay: '2s' }}></div>
+      </div>
+      
+      <div className="relative z-10 mx-auto max-w-5xl">
+        <div className="animate-fade-in">
+          <h1 className="mb-3 animate-glow text-center text-4xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-5xl md:text-6xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+            Diversonal
+          </h1>
+          <p className="mb-6 text-center text-base text-gray-300 sm:text-lg md:mb-8">
+            Describe yourself and your vision to receive your <span className="text-gradient font-semibold">AI-optimized</span> portfolio allocation
+          </p>
+        </div>
 
         {/* Saved Portfolios Toggle */}
         {savedPortfolios.length > 0 && (
-          <div className="mb-6 text-center">
+          <div className="mb-4 animate-slide-in-up text-center">
             <button
               onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#00FF99]/30 bg-[#00FF99]/10 px-4 py-2 text-sm font-medium text-[#00FF99] transition-all hover:bg-[#00FF99]/20"
+              className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00FF99]/30 bg-gradient-to-r from-[#00FF99]/10 to-[#00D4FF]/10 px-4 py-2 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/10 transition-all duration-300 hover:scale-105 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20 hover:shadow-xl hover:shadow-[#00FF99]/20"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
               Saved Portfolios ({savedPortfolios.length})
@@ -588,38 +604,39 @@ export default function Home() {
 
         {/* Saved Portfolios List */}
         {showSavedPortfolios && savedPortfolios.length > 0 && (
-          <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Saved Portfolios</h2>
+          <div className="glass mb-6 animate-slide-in-up rounded-2xl p-5 shadow-2xl shadow-black/20">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-gradient text-lg font-bold">Saved Portfolios</h2>
               <button
                 onClick={() => setShowSavedPortfolios(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="rounded-lg p-1 text-gray-400 transition-all duration-300 hover:rotate-90 hover:bg-white/10 hover:text-[#00FF99]"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="space-y-3">
-              {savedPortfolios.map((portfolio) => (
+            <div className="space-y-2">
+              {savedPortfolios.map((portfolio, index) => (
                 <div
                   key={portfolio.id}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 transition-all hover:border-[#00FF99] hover:shadow-md"
+                  className="group flex items-center justify-between rounded-xl border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-3 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#00FF99]/50 hover:shadow-xl hover:shadow-[#00FF99]/10"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{portfolio.name}</h3>
-                    <p className="text-sm text-gray-500">Saved on {portfolio.date}</p>
+                    <h3 className="text-sm font-semibold text-gray-100 transition-colors duration-300 group-hover:text-[#00FF99]">{portfolio.name}</h3>
+                    <p className="text-xs text-gray-400">Saved on {portfolio.date}</p>
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleLoadPortfolio(portfolio)}
-                      className="rounded-lg bg-[#00FF99] px-3 py-1.5 text-sm font-medium text-[#171A1F] transition-all hover:bg-[#00E689]"
+                      className="btn-ripple rounded-lg bg-gradient-to-r from-[#00FF99] to-[#00E689] px-3 py-1.5 text-xs font-semibold text-[#171A1F] shadow-lg shadow-[#00FF99]/20 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#00FF99]/30"
                     >
                       Load
                     </button>
                     <button
                       onClick={() => handleDeletePortfolio(portfolio.id)}
-                      className="rounded-lg bg-red-100 px-3 py-1.5 text-sm font-medium text-red-700 transition-all hover:bg-red-200"
+                      className="btn-ripple rounded-lg bg-gradient-to-r from-red-500 to-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-red-500/20 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-red-500/30"
                     >
                       Delete
                     </button>
@@ -630,13 +647,13 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mx-auto border-t border-gray-700 bg-[#1C1F26] p-8 sm:p-10 md:p-12">
+        <div className="glass-light animate-slide-in-up mx-auto rounded-3xl border-t border-white/10 p-6 shadow-2xl sm:p-7 md:p-8">
         <form
-          className="space-y-6 sm:space-y-7"
+          className="space-y-4 sm:space-y-5"
           onSubmit={handleSubmit}
         >
-          <div>
-            <label htmlFor="age" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
+          <div className="group">
+            <label htmlFor="age" className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99]">
               Your age
               <InfoIcon tooltip="Your current age helps determine appropriate investment strategies" />
             </label>
@@ -645,19 +662,19 @@ export default function Home() {
               type="number"
               placeholder="e.g., 32"
               required
-              className="w-full rounded-lg border border-gray-600 bg-[#171A1F] px-5 py-4 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
+              className="w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-4 py-3 text-sm text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
             />
           </div>
 
-          <div>
-            <label htmlFor="risk" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
+          <div className="group">
+            <label htmlFor="risk" className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99]">
               Risk tolerance
               <InfoIcon tooltip="How comfortable you are with potential investment losses. Low = conservative, High = aggressive" />
             </label>
             <select
               id="risk"
               required
-              className="w-full appearance-none rounded-lg border border-gray-600 bg-[#171A1F] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2300FF99%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat px-5 py-4 text-base text-gray-100 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
+              className="w-full appearance-none rounded-xl border border-gray-600 bg-[#171A1F]/80 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2300FF99%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat px-4 py-3 text-sm text-gray-100 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
             >
               <option value="">Select risk tolerance…</option>
               <option>Low</option>
@@ -666,15 +683,15 @@ export default function Home() {
             </select>
           </div>
 
-          <div>
-            <label htmlFor="horizon" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
+          <div className="group">
+            <label htmlFor="horizon" className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99]">
               Time horizon
               <InfoIcon tooltip="How long you plan to invest before needing the money. Longer horizons allow for more aggressive strategies" />
             </label>
             <select
               id="horizon"
               required
-              className="w-full appearance-none rounded-lg border border-gray-600 bg-[#171A1F] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2300FF99%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat px-5 py-4 text-base text-gray-100 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
+              className="w-full appearance-none rounded-xl border border-gray-600 bg-[#171A1F]/80 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2300FF99%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat px-4 py-3 text-sm text-gray-100 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
             >
               <option value="">Select time horizon…</option>
               <option>&lt;1 year</option>
@@ -685,8 +702,8 @@ export default function Home() {
             </select>
           </div>
 
-          <div>
-            <label htmlFor="capital" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
+          <div className="group">
+            <label htmlFor="capital" className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99]">
               Available capital ($)
               <InfoIcon tooltip="The total amount of money you have available to invest" />
             </label>
@@ -695,12 +712,12 @@ export default function Home() {
               type="number"
               placeholder="e.g., 25000"
               required
-              className="w-full rounded-lg border border-gray-600 bg-[#171A1F] px-5 py-4 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
+              className="w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-4 py-3 text-sm text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
             />
           </div>
 
-          <div>
-            <label htmlFor="goal" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
+          <div className="group">
+            <label htmlFor="goal" className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99]">
               Investment goal
               <span className="text-xs font-normal text-gray-400">(Be specific for better results)</span>
               <InfoIcon tooltip="What you're investing for: retirement, buying a home, education, wealth growth, etc." />
@@ -710,29 +727,29 @@ export default function Home() {
               type="text"
               placeholder="e.g., Save $50k for down payment by 2027, Build $2M retirement fund, Generate $5k monthly income"
               required
-              className="w-full rounded-lg border border-gray-600 bg-[#171A1F] px-5 py-4 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
+              className="w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-4 py-3 text-sm text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
             />
-            <p className="mt-2 flex items-start gap-2 text-sm text-gray-400">
-              <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+            <p className="mt-2 flex items-start gap-2 rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-2.5 text-xs text-gray-300 backdrop-blur-sm">
+              <svg className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 animate-pulse text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
               <span>
-                <strong>Pro tip:</strong> Specific goals with amounts and timelines help our AI optimize better. 
+                <strong className="text-[#00FF99]">Pro tip:</strong> Specific goals with amounts and timelines help our AI optimize better. 
                 &quot;Save $50k for down payment by 2027&quot; beats &quot;buy a home&quot;
               </span>
             </p>
           </div>
 
           <div>
-            <label className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
+            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-200">
               Sector convictions
               <InfoIcon tooltip="Industries or sectors you believe in or want to focus on. Select any combination." />
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-gray-600 bg-[#171A1F] p-5 focus-within:border-[#00FF99] focus-within:ring-2 focus-within:ring-[#00FF99]/40">
+            <div className="grid grid-cols-1 gap-x-4 gap-y-2 rounded-xl border border-gray-600 bg-[#171A1F]/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 focus-within:border-[#00FF99] focus-within:shadow-xl focus-within:shadow-[#00FF99]/20 focus-within:ring-2 focus-within:ring-[#00FF99]/40 sm:grid-cols-2">
               {sectors.map((sector) => (
                 <label
                   key={sector}
-                  className="flex cursor-pointer items-center gap-3 text-base text-gray-200 transition-colors hover:text-[#00FF99]"
+                  className="group flex cursor-pointer items-center gap-2 rounded-lg p-1.5 text-sm text-gray-200 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#00FF99]/10 hover:text-[#00FF99]"
                 >
                   <input
                     type="checkbox"
@@ -740,29 +757,29 @@ export default function Home() {
                     value={sector}
                     checked={selectedSectors.includes(sector)}
                     onChange={() => handleSectorChange(sector)}
-                    className="h-5 w-5 cursor-pointer rounded border-2 border-gray-600 bg-[#171A1F] transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40 focus:ring-offset-0 checked:border-[#00FF99] checked:bg-[#00FF99]"
+                    className="h-4 w-4 cursor-pointer rounded border-2 border-gray-600 bg-[#171A1F] transition-all duration-200 focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40 focus:ring-offset-0 checked:border-[#00FF99] checked:bg-[#00FF99] checked:shadow-lg checked:shadow-[#00FF99]/30"
                     style={{ accentColor: '#00FF99' }}
                   />
-                  <span className="font-medium">{sector}</span>
+                  <span className="font-medium transition-all duration-200 group-hover:translate-x-1">{sector}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-3">
             <button
               type="submit"
               disabled={isLoading}
-              className="relative w-full overflow-hidden rounded-xl bg-[#00FF99] px-6 py-4 text-lg font-bold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all hover:scale-[1.02] hover:bg-[#00E689] hover:shadow-xl hover:shadow-[#00FF99]/40 focus:outline-none focus:ring-4 focus:ring-[#00FF99]/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-ripple group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-[#00FF99] via-[#00E689] to-[#00FF99] bg-[length:200%_100%] px-6 py-3.5 text-base font-bold text-[#171A1F] shadow-2xl shadow-[#00FF99]/40 transition-all duration-500 hover:scale-[1.02] hover:bg-[position:100%_0] hover:shadow-[0_20px_60px_rgba(0,255,153,0.5)] focus:outline-none focus:ring-4 focus:ring-[#00FF99]/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading && (
                 <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
-                  <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]" style={{
+                  <div className="h-full animate-[progressBar_2s_ease-in-out_infinite] bg-[#171A1F]/60" style={{
                     animation: 'progressBar 2s ease-in-out infinite',
                   }}></div>
                 </div>
               )}
-              <span className="inline-flex items-center justify-center gap-2">
+              <span className="inline-flex items-center justify-center gap-2 transition-all duration-300 group-hover:gap-3">
                 {isLoading ? (
                   <>
                     <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -786,12 +803,12 @@ export default function Home() {
       </div>
 
       {showResult && (
-        <section id="portfolio-result" ref={portfolioRef} className="mx-auto max-w-5xl mt-8 border-t border-gray-700 bg-[#1C1F26] p-8 sm:p-10 md:p-12">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <section id="portfolio-result" ref={portfolioRef} className="glass-light animate-slide-in-up mx-auto mt-8 max-w-5xl rounded-3xl border-t border-white/10 p-6 shadow-2xl sm:p-7 md:p-8">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-100 sm:text-3xl">Your AI-Optimized Portfolio</h2>
+              <h2 className="text-gradient animate-fade-in text-2xl font-bold sm:text-3xl">Your AI-Optimized Portfolio</h2>
               {portfolioReasoning && (
-                <p className="mt-2 text-sm text-gray-400 italic">{portfolioReasoning}</p>
+                <p className="mt-2 rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-2.5 text-xs italic text-gray-300 backdrop-blur-sm">{portfolioReasoning}</p>
               )}
             </div>
             
@@ -799,47 +816,60 @@ export default function Home() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setShowSaveDialog(true)}
-                className="inline-flex items-center gap-2 rounded-lg border-2 border-[#00FF99] bg-white px-4 py-2 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F]"
+                className="btn-ripple group inline-flex items-center gap-1.5 rounded-xl border-2 border-[#00FF99]/50 bg-gradient-to-br from-[#00FF99]/10 to-[#00D4FF]/10 px-3 py-2 text-xs font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/20 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-[#00FF99] hover:bg-[#00FF99] hover:text-[#171A1F] hover:shadow-xl hover:shadow-[#00FF99]/30"
               >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                 </svg>
                 Save
               </button>
               <button
                 onClick={handleExportPDF}
-                className="inline-flex items-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
+                className="btn-ripple group inline-flex items-center gap-1.5 rounded-xl border-2 border-gray-500/50 bg-gradient-to-br from-gray-700/30 to-gray-800/30 px-3 py-2 text-xs font-semibold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gray-700 hover:text-white hover:shadow-xl"
               >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
                 PDF
               </button>
               <button
                 onClick={handleExportJSON}
-                className="inline-flex items-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
+                className="btn-ripple group inline-flex items-center gap-1.5 rounded-xl border-2 border-gray-500/50 bg-gradient-to-br from-gray-700/30 to-gray-800/30 px-3 py-2 text-xs font-semibold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gray-700 hover:text-white hover:shadow-xl"
               >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 JSON
               </button>
               <button
                 onClick={handleCopyToClipboard}
-                className="inline-flex items-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
+                className="btn-ripple group inline-flex items-center gap-1.5 rounded-xl border-2 border-gray-500/50 bg-gradient-to-br from-gray-700/30 to-gray-800/30 px-3 py-2 text-xs font-semibold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gray-700 hover:text-white hover:shadow-xl"
               >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
                 Copy
               </button>
             </div>
           </div>
-          <ul className="mb-8 space-y-2 pl-5 text-base leading-relaxed text-gray-200 sm:text-lg">
+          <ul className="mb-6 space-y-2">
             {currentPortfolioData.map((item, index) => (
-              <li key={index}>
-                <strong>{item.name}:</strong> {item.value}%
-                {item.breakdown && <span className="text-gray-400"> ({item.breakdown})</span>}
+              <li 
+                key={index}
+                className="group flex items-center justify-between rounded-xl border border-white/10 bg-gradient-to-r from-[#1C1F26]/80 to-[#171A1F]/80 p-3 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#00FF99]/30 hover:shadow-xl hover:shadow-[#00FF99]/10"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div 
+                    className="h-3 w-3 rounded-full shadow-lg transition-all duration-300 group-hover:scale-125 group-hover:shadow-xl" 
+                    style={{ backgroundColor: item.color, boxShadow: `0 0 12px ${item.color}80` }}
+                  ></div>
+                  <div>
+                    <strong className="text-sm text-gray-100 transition-colors duration-300 group-hover:text-[#00FF99]">{item.name}</strong>
+                    {item.breakdown && <span className="ml-1.5 text-xs text-gray-400"> ({item.breakdown})</span>}
+                  </div>
+                </div>
+                <span className="text-base font-bold text-[#00FF99]">{item.value}%</span>
               </li>
             ))}
           </ul>
@@ -847,11 +877,11 @@ export default function Home() {
           {/* Asset Allocation Chart */}
           {/* Recharts provides responsive, accessible charts that work well in React/Next.js */}
           {/* The ResponsiveContainer automatically adjusts to parent size for mobile compatibility */}
-          <div className="mt-8">
-            <h3 className="mb-4 text-xl font-semibold text-gray-100">Asset Allocation</h3>
+          <div className="mt-6">
+            <h3 className="text-gradient mb-4 text-xl font-bold">Asset Allocation</h3>
             
             {/* Pie Chart - Mobile-friendly and visually appealing */}
-            <div className="mb-8 h-64 sm:h-80">
+            <div className="glass mb-6 h-56 rounded-2xl p-5 shadow-2xl sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -863,22 +893,26 @@ export default function Home() {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
+                    animationBegin={0}
+                    animationDuration={800}
                   >
                     {/* Customize colors here - each Cell represents a slice */}
                     {/* TODO: Adjust colors to match your brand guidelines if needed */}
                     {currentPortfolioData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} strokeWidth={2} />
                     ))}
                   </Pie>
                   <Tooltip 
                     formatter={(value: number) => `${value}%`}
                     contentStyle={{ 
-                      backgroundColor: '#171A1F', 
-                      border: 'none', 
-                      borderRadius: '8px',
-                      color: '#00FF99'
+                      backgroundColor: 'rgba(23, 26, 31, 0.95)', 
+                      border: '1px solid rgba(0, 255, 153, 0.3)', 
+                      borderRadius: '12px',
+                      color: '#00FF99',
+                      backdropFilter: 'blur(8px)',
+                      boxShadow: '0 8px 32px rgba(0, 255, 153, 0.2)'
                     }}
-                    labelStyle={{ color: '#00FF99' }}
+                    labelStyle={{ color: '#00FF99', fontWeight: 'bold' }}
                     itemStyle={{ color: '#00FF99' }}
                   />
                 </PieChart>
@@ -886,7 +920,7 @@ export default function Home() {
             </div>
 
             {/* Bar Chart - Alternative visualization */}
-            <div className="h-64 sm:h-80">
+            <div className="glass h-56 rounded-2xl p-5 shadow-2xl sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -902,19 +936,21 @@ export default function Home() {
                   <Tooltip 
                     formatter={(value: number) => `${value}%`}
                     contentStyle={{ 
-                      backgroundColor: '#171A1F', 
-                      border: 'none', 
-                      borderRadius: '8px',
-                      color: '#00FF99'
+                      backgroundColor: 'rgba(23, 26, 31, 0.95)', 
+                      border: '1px solid rgba(0, 255, 153, 0.3)', 
+                      borderRadius: '12px',
+                      color: '#00FF99',
+                      backdropFilter: 'blur(8px)',
+                      boxShadow: '0 8px 32px rgba(0, 255, 153, 0.2)'
                     }}
-                    labelStyle={{ color: '#00FF99' }}
+                    labelStyle={{ color: '#00FF99', fontWeight: 'bold' }}
                     itemStyle={{ color: '#00FF99' }}
                   />
-                  <Bar dataKey="percentage" radius={[8, 8, 0, 0]}>
+                  <Bar dataKey="percentage" radius={[8, 8, 0, 0]} animationBegin={0} animationDuration={800}>
                     {/* Customize bar colors - using Diversonal green for highest value */}
                     {/* TODO: Adjust bar colors based on your brand palette */}
                     {barChartData.map((entry, index) => (
-                      <Cell key={`bar-cell-${index}`} fill={currentPortfolioData[index].color} />
+                      <Cell key={`bar-cell-${index}`} fill={currentPortfolioData[index].color} stroke={currentPortfolioData[index].color} strokeWidth={2} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -923,17 +959,17 @@ export default function Home() {
           </div>
 
           {/* Deep Dive Stock Recommendations Buttons */}
-          <div className="mt-10 flex flex-col items-center gap-4">
+          <div className="mt-6 flex flex-col items-center gap-3">
             {/* Deep Dive button - only show if no recommendations exist yet */}
             {!detailedRecommendations && (
               <button
                 onClick={handleGetDetailedRecommendations}
                 disabled={detailPanelLoading}
-                className="relative inline-flex items-center gap-3 overflow-hidden rounded-xl border-2 border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-bold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all hover:scale-[1.02] hover:bg-[#00E689] hover:border-[#00E689] hover:shadow-xl hover:shadow-[#00FF99]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-ripple group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl border-2 border-[#00FF99] bg-gradient-to-r from-[#00FF99] via-[#00E689] to-[#00FF99] bg-[length:200%_100%] px-6 py-3 text-base font-bold text-[#171A1F] shadow-2xl shadow-[#00FF99]/40 transition-all duration-500 hover:scale-105 hover:bg-[position:100%_0] hover:shadow-[0_20px_60px_rgba(0,255,153,0.5)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {detailPanelLoading && (
                   <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
-                    <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]"></div>
+                    <div className="h-full animate-[progressBar_2s_ease-in-out_infinite] bg-[#171A1F]/60"></div>
                   </div>
                 )}
                 {detailPanelLoading ? (
@@ -946,7 +982,7 @@ export default function Home() {
                   </>
                 ) : (
                   <>
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                     Deep Dive Stock Picks with AI Reasoning
@@ -959,9 +995,9 @@ export default function Home() {
             {detailedRecommendations && isPanelMinimized && !detailPanelLoading && (
               <button
                 onClick={() => setIsPanelMinimized(false)}
-                className="inline-flex items-center gap-3 overflow-hidden rounded-xl border-2 border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-bold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all hover:scale-[1.02] hover:bg-[#00E689] hover:border-[#00E689] hover:shadow-xl hover:shadow-[#00FF99]/40"
+                className="btn-ripple group inline-flex items-center gap-2 overflow-hidden rounded-2xl border-2 border-[#00FF99] bg-gradient-to-r from-[#00FF99] via-[#00E689] to-[#00FF99] bg-[length:200%_100%] px-6 py-3 text-base font-bold text-[#171A1F] shadow-2xl shadow-[#00FF99]/40 transition-all duration-500 hover:scale-105 hover:bg-[position:100%_0] hover:shadow-[0_20px_60px_rgba(0,255,153,0.5)]"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
@@ -971,15 +1007,15 @@ export default function Home() {
           </div>
 
           {/* Stress Testing Section */}
-          <div className="mt-12 border-t border-gray-700 bg-[#171A1F] p-8">
-            <h3 className="mb-4 text-2xl font-bold text-gray-100">Stress Testing</h3>
-            <p className="mb-6 text-sm text-gray-400">
+          <div className="glass-light mt-8 animate-slide-in-up rounded-3xl border-t border-white/10 p-6 shadow-2xl">
+            <h3 className="text-gradient mb-3 text-2xl font-bold">Stress Testing</h3>
+            <p className="mb-4 text-sm text-gray-300">
               Test how your portfolio would perform under different market scenarios. Enter a custom scenario or choose from common stress tests.
             </p>
 
             {/* Pre-defined Scenarios */}
-            <div className="mb-6">
-              <p className="mb-3 text-sm font-semibold text-gray-300">Quick Scenarios:</p>
+            <div className="mb-4">
+              <p className="mb-2 text-sm font-semibold text-gray-200">Quick Scenarios:</p>
               <div className="flex flex-wrap gap-2">
                 {predefinedScenarios.map((scenario, index) => (
                   <button
@@ -989,7 +1025,7 @@ export default function Home() {
                       handleStressTest(scenario);
                     }}
                     disabled={stressTestLoading}
-                    className="rounded-lg border border-gray-600 bg-[#1C1F26] px-4 py-2 text-sm font-medium text-gray-300 transition-all hover:border-[#00FF99] hover:bg-[#00FF99]/10 hover:text-[#00FF99] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-ripple group rounded-xl border border-white/20 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 px-3 py-2 text-xs font-semibold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] hover:shadow-xl hover:shadow-[#00FF99]/20 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {scenario}
                   </button>
@@ -998,8 +1034,8 @@ export default function Home() {
             </div>
 
             {/* Custom Scenario Input */}
-            <div className="mb-6">
-              <label htmlFor="stress-scenario" className="mb-2 block text-sm font-semibold text-gray-200">
+            <div className="group mb-4">
+              <label htmlFor="stress-scenario" className="mb-2 block text-sm font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99]">
                 Custom Scenario
               </label>
               <div className="flex gap-2">
@@ -1009,7 +1045,7 @@ export default function Home() {
                   value={stressTestScenario}
                   onChange={(e) => setStressTestScenario(e.target.value)}
                   placeholder="e.g., Oil prices spike 50%, causing energy sector volatility"
-                  className="flex-1 rounded-lg border border-gray-600 bg-[#1C1F26] px-4 py-3 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
+                  className="flex-1 rounded-xl border border-gray-600 bg-[#171A1F]/80 px-4 py-3 text-sm text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !stressTestLoading) {
                       handleStressTest(stressTestScenario);
@@ -1019,21 +1055,21 @@ export default function Home() {
                 <button
                   onClick={() => handleStressTest(stressTestScenario)}
                   disabled={stressTestLoading || !stressTestScenario.trim()}
-                  className="relative overflow-hidden rounded-xl bg-[#00FF99] px-6 py-3 font-semibold text-[#171A1F] transition-all hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-ripple group relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#00FF99] to-[#00E689] px-5 py-3 text-sm font-bold text-[#171A1F] shadow-xl shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00FF99]/40 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {stressTestLoading && (
                     <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
-                      <div className="h-full bg-[#171A1F]/60 animate-[progressBar_2s_ease-in-out_infinite]"></div>
+                      <div className="h-full animate-[progressBar_2s_ease-in-out_infinite] bg-[#171A1F]/60"></div>
                     </div>
                   )}
-                  <span className="inline-flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5">
                     {stressTestLoading ? (
-                      <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                     ) : (
-                      "Run Test"
+                      <span className="transition-transform duration-300 group-hover:scale-110">Run Test</span>
                     )}
                   </span>
                 </button>
@@ -1042,24 +1078,26 @@ export default function Home() {
 
             {/* Stress Test Results */}
             {stressTestResult && (
-              <div className="mt-8 border-t border-gray-700 bg-[#1C1F26] p-6">
-                <div className="mb-4 flex items-start justify-between">
-                  <div>
-                    <h4 className="text-lg font-bold text-gray-100">Stress Test Results</h4>
-                    <p className="mt-1 text-sm text-gray-400 italic">{stressTestResult.analysis}</p>
+              <div className="glass mt-6 animate-slide-in-up rounded-2xl border border-white/10 p-5 shadow-2xl">
+                <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex-1">
+                    <h4 className="text-gradient mb-2 text-xl font-bold">Stress Test Results</h4>
+                    <p className="rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-3 text-xs italic leading-relaxed text-gray-300 backdrop-blur-sm">{stressTestResult.analysis}</p>
                   </div>
-                  <div className="text-right">
-                    <div className={`text-2xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                      {stressTestResult.percentageChange > 0 ? '+' : ''}{stressTestResult.percentageChange.toFixed(1)}%
+                  <div className="flex flex-col items-end gap-2">
+                    <div className={`rounded-xl border-2 px-4 py-3 text-center shadow-2xl ${stressTestResult.percentageChange < 0 ? 'border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 shadow-red-500/20' : 'border-green-500/50 bg-gradient-to-br from-green-500/20 to-green-600/10 shadow-green-500/20'}`}>
+                      <div className={`text-2xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                        {stressTestResult.percentageChange > 0 ? '+' : ''}{stressTestResult.percentageChange.toFixed(1)}%
+                      </div>
+                      <div className="mt-1 text-xs font-medium text-gray-300">
+                        Final: ${stressTestResult.finalValue.toLocaleString()}
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-400">
-                      Final Value: ${stressTestResult.finalValue.toLocaleString()}
-                    </div>
-                    <div className={`mt-1 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-                      stressTestResult.riskLevel === 'Severe' ? 'bg-red-100 text-red-700' :
-                      stressTestResult.riskLevel === 'High' ? 'bg-orange-100 text-orange-700' :
-                      stressTestResult.riskLevel === 'Moderate' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-green-100 text-green-700'
+                    <div className={`inline-block rounded-full px-3 py-1.5 text-xs font-bold shadow-lg ${
+                      stressTestResult.riskLevel === 'Severe' ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-red-500/40' :
+                      stressTestResult.riskLevel === 'High' ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-orange-500/40' :
+                      stressTestResult.riskLevel === 'Moderate' ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 shadow-yellow-500/40' :
+                      'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-green-500/40'
                     }`}>
                       {stressTestResult.riskLevel} Risk
                     </div>
@@ -1067,11 +1105,15 @@ export default function Home() {
                 </div>
 
                 {/* Asset Impact Breakdown */}
-                <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  {stressTestResult.impact && Object.entries(stressTestResult.impact).map(([asset, impact]: [string, any]) => (
-                    <div key={asset} className="rounded-lg border border-gray-700 bg-[#171A1F] p-3">
-                      <div className="text-xs font-medium text-gray-400 capitalize">{asset}</div>
-                      <div className={`text-lg font-bold ${impact < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {stressTestResult.impact && Object.entries(stressTestResult.impact).map(([asset, impact]: [string, any], index: number) => (
+                    <div 
+                      key={asset} 
+                      className="group rounded-xl border border-white/20 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-3 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#00FF99]/50 hover:shadow-xl hover:shadow-[#00FF99]/20"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="mb-1 text-xs font-semibold capitalize text-gray-300 transition-colors duration-300 group-hover:text-[#00FF99]">{asset}</div>
+                      <div className={`text-lg font-bold transition-all duration-300 ${impact < 0 ? 'text-red-500 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'text-green-500 group-hover:drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]'}`}>
                         {impact > 0 ? '+' : ''}{impact.toFixed(1)}%
                       </div>
                     </div>
@@ -1080,7 +1122,7 @@ export default function Home() {
 
                 {/* Portfolio Value Chart */}
                 {stressTestResult.portfolioValue && stressTestResult.portfolioValue.length > 0 && (
-                  <div className="h-64 sm:h-80">
+                  <div className="glass h-56 rounded-2xl p-5 shadow-2xl sm:h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
                         data={stressTestResult.months.map((month: string, index: number) => ({
@@ -1103,12 +1145,14 @@ export default function Home() {
                         <Tooltip 
                           formatter={(value: number) => [`$${value.toLocaleString()}`, 'Portfolio Value']}
                           contentStyle={{ 
-                            backgroundColor: '#171A1F', 
-                            border: 'none', 
-                            borderRadius: '8px',
+                            backgroundColor: 'rgba(23, 26, 31, 0.95)', 
+                            border: '1px solid rgba(0, 255, 153, 0.3)', 
+                            borderRadius: '12px',
                             color: '#00FF99',
                             fontSize: '14px',
-                            fontWeight: '500'
+                            fontWeight: '500',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '0 8px 32px rgba(0, 255, 153, 0.2)'
                           }}
                           labelStyle={{ color: '#00FF99', fontSize: '14px', fontWeight: '600' }}
                           itemStyle={{ color: '#00FF99' }}
@@ -1118,8 +1162,10 @@ export default function Home() {
                           dataKey="value" 
                           stroke="#00FF99" 
                           strokeWidth={3}
-                          dot={{ fill: '#00FF99', r: 4 }}
-                          activeDot={{ r: 6 }}
+                          dot={{ fill: '#00FF99', r: 4, strokeWidth: 2, stroke: '#00FF99' }}
+                          activeDot={{ r: 7, fill: '#00FF99', stroke: '#00FF99', strokeWidth: 3, filter: 'drop-shadow(0 0 8px rgba(0, 255, 153, 0.8))' }}
+                          animationBegin={0}
+                          animationDuration={800}
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -1133,25 +1179,25 @@ export default function Home() {
 
       {/* Save Dialog */}
       {showSaveDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md rounded-xl border border-gray-700 bg-[#1C1F26] p-6 shadow-2xl">
-            <h3 className="mb-4 text-xl font-bold text-gray-100">Save Portfolio</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+          <div className="glass w-full max-w-md animate-slide-in-up rounded-2xl border border-white/20 p-6 shadow-2xl">
+            <h3 className="text-gradient mb-4 text-xl font-bold">Save Portfolio</h3>
             <input
               type="text"
               value={saveName}
               onChange={(e) => setSaveName(e.target.value)}
               placeholder="Enter portfolio name..."
-              className="mb-4 w-full rounded-lg border border-gray-600 bg-[#171A1F] px-4 py-3 text-base text-gray-100 placeholder-gray-500 outline-none transition-all focus:border-[#00FF99] focus:ring-2 focus:ring-[#00FF99]/40"
+              className="mb-4 w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-4 py-3 text-sm text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSavePortfolio();
                 if (e.key === "Escape") setShowSaveDialog(false);
               }}
             />
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={handleSavePortfolio}
-                className="flex-1 rounded-lg bg-[#00FF99] px-4 py-3 font-semibold text-[#171A1F] transition-all hover:bg-[#00E689]"
+                className="btn-ripple flex-1 rounded-xl bg-gradient-to-r from-[#00FF99] to-[#00E689] px-4 py-3 text-sm font-bold text-[#171A1F] shadow-xl shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00FF99]/40"
               >
                 Save
               </button>
@@ -1160,7 +1206,7 @@ export default function Home() {
                   setShowSaveDialog(false);
                   setSaveName("");
                 }}
-                className="flex-1 rounded-lg border border-gray-600 bg-[#171A1F] px-4 py-3 font-semibold text-gray-300 transition-all hover:bg-[#171A1F]/80"
+                className="btn-ripple flex-1 rounded-xl border-2 border-gray-500 bg-gradient-to-br from-gray-700/50 to-gray-800/50 px-4 py-3 text-sm font-bold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:text-white hover:shadow-xl"
               >
                 Cancel
               </button>
