@@ -7,6 +7,9 @@ import {
   getGeneralMarketNews,
   getEarningsCalendar
 } from "@/app/lib/financialData";
+import { requestQueue } from "@/app/lib/requestQueue";
+import { getSectorFilesToLoad, formatSectorDataForClaude } from "@/app/lib/sectorMapper";
+import { loadMultipleSectors } from "@/app/lib/fundamentalsStorage";
 
 // Using Claude Sonnet 4 for comprehensive market analysis and stock recommendations
 // Claude excels at following detailed instructions and structured analysis
@@ -56,8 +59,24 @@ export async function POST(request: NextRequest) {
 
   const { portfolio, formData } = body;
 
+  // Check queue status and add to queue if needed
+  const queueResponse = await requestQueue.addToQueue();
+  
+  if (queueResponse.status === 'queued') {
+    console.log(`[Recommendations] Request queued - ${queueResponse.message}`);
+    return NextResponse.json({
+      queued: true,
+      position: queueResponse.position,
+      estimatedWait: queueResponse.estimatedWait,
+      message: queueResponse.message,
+    });
+  }
+
+  console.log('[Recommendations] Processing request immediately');
+
   try {
     if (!portfolio || !formData) {
+      requestQueue.releaseSlot();
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -168,10 +187,29 @@ export async function POST(request: NextRequest) {
       console.log("=== END MARKET CONTEXT ===");
     } catch (error) {
       console.error("Failed to fetch market data:", error);
+      requestQueue.releaseSlot();
       return NextResponse.json(
         { error: "Market data temporarily unavailable. Please try again in a few moments." },
         { status: 503 }
       );
+    }
+
+    // Load fundamentals data for relevant sectors
+    let fundamentalsData = "";
+    try {
+      console.log('[Recommendations] Loading fundamentals data for portfolio sectors...');
+      const sectorFiles = getSectorFilesToLoad(portfolio);
+      const sectorsData = loadMultipleSectors(sectorFiles);
+      
+      if (Object.keys(sectorsData).length > 0) {
+        fundamentalsData = '\n' + formatSectorDataForClaude(sectorsData);
+        console.log(`[Recommendations] Loaded fundamentals for ${Object.keys(sectorsData).length} sectors`);
+      } else {
+        console.warn('[Recommendations] No fundamentals data available');
+      }
+    } catch (error) {
+      console.error('[Recommendations] Error loading fundamentals:', error);
+      // Continue without fundamentals data - Claude will work with market data only
     }
 
     // Build detailed prompt
@@ -193,6 +231,7 @@ ${economicCalendar}
 ${insiderSignals}
 ${marketNews}
 ${earningsCalendar}
+${fundamentalsData}
 
 ${formData.sectors.length > 0 ? `**CRITICAL - Sector Conviction Priority:**
 User's conviction sectors are ${formData.sectors.join(", ")}. Prioritize these sectors with LARGER position sizes (favor "Large" sizes) and dedicate the majority of Equities recommendations to them. Include 1-2 small/mid-cap rising stars if risk profile allows.
@@ -290,8 +329,12 @@ Use the actual current market conditions and intelligence from ALL sections abov
             }
           }
           controller.close();
+          // Release queue slot after successful completion
+          requestQueue.releaseSlot();
         } catch (error) {
           console.error("Streaming error:", error);
+          // Release queue slot on error
+          requestQueue.releaseSlot();
           controller.error(error);
         }
       },
@@ -309,6 +352,9 @@ Use the actual current market conditions and intelligence from ALL sections abov
 
   } catch (error: any) {
     console.error("Error generating detailed recommendations:", error);
+    
+    // Release queue slot on error
+    requestQueue.releaseSlot();
     
     const errorMessage = process.env.NODE_ENV === 'development' 
       ? `Failed to generate recommendations: ${error?.message || 'Unknown error'}`

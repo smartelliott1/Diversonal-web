@@ -305,9 +305,38 @@ export default function Home() {
         throw new Error(errorData.error || "Failed to generate recommendations");
       }
 
-      // Check if response is streaming
+      // Check if response is streaming or JSON (queue status)
       const contentType = response.headers.get("content-type");
-      if (contentType?.includes("text/event-stream") || contentType?.includes("text/plain")) {
+      
+      // Check for queue response first
+      if (contentType?.includes("application/json")) {
+        const data = await response.json();
+        
+        // Handle queue response
+        if (data.queued) {
+          toast.loading(data.message || `You're in position ${data.position}. Please wait...`, {
+            duration: 5000,
+          });
+          setDetailPanelLoading(false);
+          setIsPanelMinimized(true);
+          return;
+        }
+        
+        // Handle error
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        // Handle regular JSON response (fallback)
+        setDetailedRecommendations(data);
+        setIsFirstGeneration(false);
+        
+        if (currentPortfolioData.length > 0) {
+          setActiveTab(currentPortfolioData[0].name);
+        }
+        
+        toast.success("Detailed recommendations generated!");
+      } else if (contentType?.includes("text/event-stream") || contentType?.includes("text/plain")) {
         // Handle streaming response
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
@@ -374,23 +403,6 @@ export default function Home() {
             throw new Error("Invalid response format");
           }
         }
-      } else {
-        // Handle regular JSON response (fallback)
-        const data = await response.json();
-        
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        setDetailedRecommendations(data);
-        setIsFirstGeneration(false);
-        
-        // Set first asset class from portfolio as active tab
-        if (currentPortfolioData.length > 0) {
-          setActiveTab(currentPortfolioData[0].name);
-        }
-        
-        toast.success("Detailed recommendations generated!");
       }
     } catch (error: any) {
       console.error("Error generating detailed recommendations:", error);

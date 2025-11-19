@@ -214,22 +214,6 @@ export interface AnalystEstimates {
   numberAnalystsEstimatedEps: number;
 }
 
-export interface ESGRating {
-  symbol: string;
-  cik: string;
-  companyName: string;
-  industry: string;
-  year: number;
-  environmentalScore: number;
-  socialScore: number;
-  governanceScore: number;
-  ESGScore: number;
-  environmentalGrade: string;
-  socialGrade: string;
-  governanceGrade: string;
-  ESGGrade: string;
-}
-
 export interface ExecutiveCompensation {
   cik: string;
   symbol: string;
@@ -303,7 +287,6 @@ export interface StockFundamentals {
   keyMetrics: StockKeyMetrics;
   incomeStatement: IncomeStatement;
   analystEstimates: AnalystEstimates | null;
-  esgRating: ESGRating | null;
   compensation: ExecutiveCompensation[];
 }
 
@@ -980,43 +963,6 @@ export async function getAnalystEstimates(ticker: string): Promise<AnalystEstima
   }
 }
 
-export async function getESGRating(ticker: string): Promise<ESGRating | null> {
-  const cacheKey = `esg-rating-${ticker}`;
-  const cached = getCached<ESGRating>(cacheKey);
-  if (cached) {
-    console.log(`[FMP] Using cached ESG rating for ${ticker}`);
-    return cached;
-  }
-  
-  try {
-    const data = await fetchFMP(`/stable/esg-ratings?symbol=${ticker}`);
-    if (!data || data.length === 0) return null;
-    
-    const raw = data[0]; // Most recent
-    const esg: ESGRating = {
-      symbol: raw.symbol,
-      cik: raw.cik,
-      companyName: raw.companyName,
-      industry: raw.industry,
-      year: raw.year,
-      environmentalScore: raw.environmentalScore || 0,
-      socialScore: raw.socialScore || 0,
-      governanceScore: raw.governanceScore || 0,
-      ESGScore: raw.ESGScore || 0,
-      environmentalGrade: raw.environmentalGrade || 'N/A',
-      socialGrade: raw.socialGrade || 'N/A',
-      governanceGrade: raw.governanceGrade || 'N/A',
-      ESGGrade: raw.ESGGrade || 'N/A',
-    };
-    
-    setCache(cacheKey, esg, 10080); // Cache 7 days
-    return esg;
-  } catch (error: any) {
-    console.error(`[FMP] Error fetching ESG rating for ${ticker}:`, error?.message);
-    return null;
-  }
-}
-
 export async function getExecutiveCompensation(ticker: string): Promise<ExecutiveCompensation[]> {
   const cacheKey = `exec-comp-${ticker}`;
   const cached = getCached<ExecutiveCompensation[]>(cacheKey);
@@ -1064,13 +1010,12 @@ export async function getStocksFundamentals(tickers: string[]): Promise<Map<stri
   // Fetch all data in parallel for speed
   const promises = tickers.map(async (ticker) => {
     try {
-      const [profile, ratios, keyMetrics, incomeStatement, analystEstimates, esgRating, compensation] = await Promise.all([
+      const [profile, ratios, keyMetrics, incomeStatement, analystEstimates, compensation] = await Promise.all([
         getStockProfile(ticker),
         getStockRatios(ticker),
         getStockKeyMetrics(ticker),
         getStockIncomeStatement(ticker),
         getAnalystEstimates(ticker),
-        getESGRating(ticker),
         getExecutiveCompensation(ticker),
       ]);
       
@@ -1081,7 +1026,6 @@ export async function getStocksFundamentals(tickers: string[]): Promise<Map<stri
           keyMetrics,
           incomeStatement,
           analystEstimates,
-          esgRating,
           compensation,
         });
       }

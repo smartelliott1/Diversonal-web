@@ -15,7 +15,6 @@ getStockRatios(ticker)          // P/E, P/B, P/S, margins, ROE, dividend yield
 getStockKeyMetrics(ticker)      // Revenue/share, FCF, EPS, Graham number, ROIC
 getStockIncomeStatement(ticker) // Revenue, gross profit, net income, EPS
 getAnalystEstimates(ticker)     // Consensus EPS/revenue forecasts (10 analysts)
-getESGRating(ticker)            // Environmental, Social, Governance scores
 getExecutiveCompensation(ticker)// CEO/exec pay data (governance signal)
 ```
 
@@ -40,7 +39,6 @@ getStockEarnings(ticker)        // Historical earnings performance
 - **Economic calendar:** 24 hours
 - **Insider trading:** 6 hours
 - **News:** 30 minutes (time-sensitive)
-- **ESG ratings:** 7 days (rarely changes)
 
 ---
 
@@ -117,7 +115,6 @@ Enhanced Recommendations
 /stable/key-metrics?symbol={ticker}
 /stable/income-statement?symbol={ticker}
 /stable/analyst-estimates?symbol={ticker}&period=annual&page=0&limit=10
-/stable/esg-ratings?symbol={ticker}
 /stable/governance-executive-compensation?symbol={ticker}
 ```
 
@@ -143,7 +140,7 @@ When ready, implement **2-phase recommendation flow:**
 **Phase 3:** LLM generates detailed rationale with actual P/E, margins, analyst estimates
 
 Example enhanced rationale:
-> "Apple Inc. (AAPL) - $3.96T market cap, trading at P/E 34.1x (below sector average 42x). Gross margin 46.9%, net margin 26.9%, FCF $6.61/share. Analysts expect 12% EPS growth next year (consensus of 42 analysts). ESG score 85/100 (sustainable investing). CEO Tim Cook compensation aligned with shareholders. Recent insider buying: $2.1M purchased last week. Upcoming catalyst: WWDC in June."
+> "Apple Inc. (AAPL) - $3.96T market cap, trading at P/E 34.1x (below sector average 42x). Gross margin 46.9%, net margin 26.9%, FCF $6.61/share. Analysts expect 12% EPS growth next year (consensus of 42 analysts). CEO Tim Cook compensation aligned with shareholders. Recent insider buying: $2.1M purchased last week. Upcoming catalyst: WWDC in June."
 
 ---
 
