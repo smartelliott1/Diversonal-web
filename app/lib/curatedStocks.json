@@ -5,6 +5,7 @@
   {"ticker": "GOOGL", "sector": "Technology"},
   {"ticker": "MSFT", "sector": "Technology"},
   {"ticker": "AMZN", "sector": "Technology"},
+  {"ticker": "TSLA", "sector": "Technology"},
   {"ticker": "AMD", "sector": "Technology"},
   {"ticker": "CRWD", "sector": "Technology"},
   {"ticker": "MU", "sector": "Technology"},

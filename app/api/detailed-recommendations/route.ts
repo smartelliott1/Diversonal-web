@@ -259,10 +259,16 @@ Use the actual current market conditions and intelligence from ALL sections abov
 - For high-risk profiles and younger investors, include smaller market cap opportunities with 30%+ YoY growth and strong institutional buying
 - **CITE SPECIFIC SIGNALS:** When recommending a stock, note ONLY significant/relevant factors/data, mention if insiders are buying, if there's positive news momentum, or if it's in a leading sector
 
-**Market Cap Approach:**
-- Low Risk: Large-cap (>$100B) for stability
-- Moderate Risk: 80% large-cap, 20% smaller than large-cap
-- High Risk: 50% large-cap, 50% smaller than large-cap (must consider smaller companies growth and recommend them if they have strong growth)
+**Beta-Based Stock Selection (CRITICAL):**
+Based on risk tolerance, prioritize stocks with appropriate beta levels:
+
+- **Low Risk**: Focus on defensive stocks with beta <0.8 (e.g., ORCL 0.77, XOM 0.38, LLY 0.39, CME 0.30). These provide stability and lower volatility.
+
+- **Moderate Risk**: Favor balanced stocks with beta 0.8-1.5 (e.g., GOOGL 1.08, MSFT 1.1, JPM 1.1). These track the market with moderate amplification.
+
+- **High Risk**: Prioritize high-beta stocks with beta >1.5 (e.g., TSLA 1.87, SHOP 2.8, SOFI 1.94, MARA 5.4). These amplify market movements for aggressive growth.
+
+Include beta values in your rationales and ensure stock selections align with the user's risk profile. Beta is available in the fundamentals data for each stock.
 
 **Response Format (JSON only, no markdown formatting):**
 {
@@ -292,7 +298,7 @@ Use the actual current market conditions and intelligence from ALL sections abov
 **Guidelines:**
 - Provide 3-5 recommendations per asset class (5-7 for Equities)
 - Each rationale: 2-4 sentences with specific data points from the intelligence provided
-- **REQUIRED CITATIONS:** For each stock, mention at least 2 of: current price, P/E ratio, sector performance, insider activity, recent news, or upcoming earnings
+- **REQUIRED CITATIONS IF RELEVANT:** For each stock, mention 1-2 of: current price, P/E ratio, sector performance, insider activity, recent news, or upcoming earnings
 - Position sizes: Large (25-35%), Medium (15-25%), Small (5-15%)
 - Risk levels: Based on volatility, beta, drawdown history, and upcoming catalysts
 - Breakdown percentages must sum to 100 per asset class

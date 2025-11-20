@@ -1,16 +1,7 @@
 {
-  "lastUpdated": "2025-11-19T20:20:54.445Z",
-  "totalStocks": 60,
+  "lastUpdated": "2025-11-20T23:21:35.003Z",
+  "totalStocks": 1,
   "sectors": {
-    "Technology": 17,
-    "Healthcare": 9,
-    "Finance": 9,
-    "Quantum Computing": 5,
-    "Energy": 5,
-    "Blockchain Integration": 4,
-    "Cryptocurrency": 4,
-    "Precious Metals": 2,
-    "Real Estate": 2,
-    "Aerospace": 3
+    "Technology": 1
   }
 }

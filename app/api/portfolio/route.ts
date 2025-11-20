@@ -154,7 +154,7 @@ The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as o
       "name": "Equities",
       "value": 38.2,
       "color": "#00FF99",
-      "breakdown": "S&P 500: 22.1%, Tech stocks: 8.5%, International: 7.6%"
+      "breakdown": "S&P 500: 22.1%, Tech Stocks: 8.5%, Energy Stocks: 7.6%"
     },
     {
       "name": "Bonds",
