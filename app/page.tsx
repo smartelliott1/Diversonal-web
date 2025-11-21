@@ -111,7 +111,6 @@ export default function Home() {
   const [stressTestLoading, setStressTestLoading] = useState(false);
   const [stressTestResult, setStressTestResult] = useState<any>(null);
   const [detailedRecommendations, setDetailedRecommendations] = useState<DetailedRecommendations | null>(null);
-  const [isPanelMinimized, setIsPanelMinimized] = useState(true);
   const [detailPanelLoading, setDetailPanelLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("Equities");
   const [streamingText, setStreamingText] = useState<string>("");
@@ -309,7 +308,6 @@ export default function Home() {
   // Handle detailed recommendations request
   const handleGetDetailedRecommendations = async () => {
     setDetailPanelLoading(true);
-    setIsPanelMinimized(false);
     setStreamingText("");
     setParsedAssetClasses([]);
     setPartialRecommendations({} as DetailedRecommendations);
@@ -357,7 +355,6 @@ export default function Home() {
             duration: 5000,
           });
           setDetailPanelLoading(false);
-          setIsPanelMinimized(true);
           return;
         }
         
@@ -446,7 +443,6 @@ export default function Home() {
     } catch (error: any) {
       console.error("Error generating detailed recommendations:", error);
       toast.error(error?.message || "Failed to generate detailed recommendations. Please try again.");
-      setIsPanelMinimized(true);
     } finally {
       setDetailPanelLoading(false);
       setStreamingText("");
@@ -590,10 +586,18 @@ export default function Home() {
   }));
   
   // Landing Page Component
-  const LandingSection = () => (
+  const LandingSection = () => {
+    const scrollToSection = (sectionId: string) => {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    return (
     <div className="snap-container">
       {/* Hero Section */}
-      <section className="snap-section">
+      <section id="hero-section" className="snap-section">
         <div className="container mx-auto max-w-6xl px-4 text-center">
           <h1 className="mb-8 animate-glow text-7xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-8xl md:text-9xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
             Diversonal
@@ -604,16 +608,20 @@ export default function Home() {
           <p className="mx-auto max-w-3xl text-xl text-gray-300 sm:text-2xl animate-fade-in">
             Professional-grade portfolio allocation powered by advanced AI. Get personalized recommendations, stress test scenarios, and detailed stock picks.
           </p>
-          <div className="mt-12 animate-bounce">
+          <button 
+            onClick={() => scrollToSection('portfolio-generation-section')}
+            className="mt-12 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
+            aria-label="Scroll to next section"
+          >
             <svg className="mx-auto h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
-          </div>
+          </button>
         </div>
       </section>
 
       {/* Portfolio Generation Feature Section */}
-      <section className="snap-section bg-gradient-to-b from-[#0F1216] to-[#171A1F]">
+      <section id="portfolio-generation-section" className="snap-section bg-gradient-to-b from-[#0F1216] to-[#171A1F]">
         <div className="container mx-auto max-w-6xl px-4">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             <div className="animate-slide-in-up">
@@ -692,11 +700,20 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <button 
+            onClick={() => scrollToSection('stock-picks-section')}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
+            aria-label="Scroll to next section"
+          >
+            <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
         </div>
       </section>
 
       {/* Stock Picks Feature Section */}
-      <section className="snap-section bg-gradient-to-b from-[#171A1F] to-[#1C1F26]">
+      <section id="stock-picks-section" className="snap-section bg-gradient-to-b from-[#171A1F] to-[#1C1F26]">
         <div className="container mx-auto max-w-6xl px-4">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             <div className="order-2 lg:order-1 glass-light rounded-2xl border border-white/10 p-6 shadow-2xl animate-fade-in">
@@ -764,11 +781,20 @@ export default function Home() {
               </ul>
             </div>
           </div>
+          <button 
+            onClick={() => scrollToSection('stress-testing-section')}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
+            aria-label="Scroll to next section"
+          >
+            <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
         </div>
       </section>
 
       {/* Stress Testing Feature Section */}
-      <section className="snap-section bg-gradient-to-b from-[#1C1F26] to-[#171A1F]">
+      <section id="stress-testing-section" className="snap-section bg-gradient-to-b from-[#1C1F26] to-[#171A1F]">
         <div className="container mx-auto max-w-6xl px-4">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             <div className="animate-slide-in-up">
@@ -844,11 +870,20 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <button 
+            onClick={() => scrollToSection('save-export-section')}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
+            aria-label="Scroll to next section"
+          >
+            <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
         </div>
       </section>
 
       {/* Save & Export Feature Section */}
-      <section className="snap-section bg-gradient-to-b from-[#171A1F] to-[#0F1216]">
+      <section id="save-export-section" className="snap-section bg-gradient-to-b from-[#171A1F] to-[#0F1216]">
         <div className="container mx-auto max-w-6xl px-4">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             <div className="order-2 lg:order-1 glass-light rounded-2xl border border-white/10 p-6 shadow-2xl animate-fade-in">
@@ -945,6 +980,7 @@ export default function Home() {
       </section>
     </div>
   );
+  };
 
   const InfoIcon = ({ tooltip }: { tooltip: string }) => (
     <div className="group relative inline-flex items-center">
@@ -1019,11 +1055,14 @@ export default function Home() {
               </div>
             )}
 
-        <div className="glass-light animate-slide-in-up mx-auto rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
         <form
-          className="space-y-6 sm:space-y-7"
+          className="animate-slide-in-up space-y-8"
           onSubmit={handleSubmit}
         >
+          {/* Personal Info Section */}
+          <div className="rounded-3xl bg-gradient-to-br from-[#00FF99]/10 via-[#00D4FF]/10 to-[#00FF99]/5 p-8 backdrop-blur-sm shadow-2xl border border-[#00FF99]/20 sm:p-10 md:p-12">
+            <h3 className="mb-6 text-2xl font-bold text-[#00FF99] sm:text-3xl">Personal Information</h3>
+            <div className="space-y-6 sm:space-y-7">
           <div className="group">
             <label htmlFor="age" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99] sm:text-lg">
               Your age
@@ -1073,7 +1112,13 @@ export default function Home() {
               <option>15+ years</option>
             </select>
           </div>
+            </div>
+          </div>
 
+          {/* Investment Details Section */}
+          <div className="rounded-3xl bg-gradient-to-br from-[#00D4FF]/10 via-[#9B59B6]/10 to-[#00D4FF]/5 p-8 backdrop-blur-sm shadow-2xl border border-[#00D4FF]/20 sm:p-10 md:p-12">
+            <h3 className="mb-6 text-2xl font-bold text-[#00D4FF] sm:text-3xl">Investment Details</h3>
+            <div className="space-y-6 sm:space-y-7">
           <div className="group">
             <label htmlFor="capital" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99] sm:text-lg">
               Available capital ($)
@@ -1111,7 +1156,13 @@ export default function Home() {
               </span>
             </p>
           </div>
+            </div>
+          </div>
 
+          {/* Sector Preferences Section */}
+          <div className="rounded-3xl bg-gradient-to-br from-[#9B59B6]/10 via-[#00FF99]/10 to-[#9B59B6]/5 p-8 backdrop-blur-sm shadow-2xl border border-[#9B59B6]/20 sm:p-10 md:p-12">
+            <h3 className="mb-6 text-2xl font-bold text-[#9B59B6] sm:text-3xl">Sector Preferences</h3>
+            <div className="space-y-6 sm:space-y-7">
           <div>
             <label className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
               Sector convictions
@@ -1137,7 +1188,10 @@ export default function Home() {
               ))}
             </div>
           </div>
+            </div>
+          </div>
 
+          {/* Submit Button */}
           <div className="pt-4">
             <button
               type="submit"
@@ -1172,75 +1226,177 @@ export default function Home() {
             </button>
           </div>
         </form>
-        </div>
           </div>
         )}
 
         {/* Results View with Tabs */}
         {viewMode === 'results' && (
         <>
-          {/* Tab Navigation */}
-          <div className="mb-8 flex items-center justify-between border-b border-gray-700">
-            <div className="flex gap-2">
+          {/* Tab Navigation - Enhanced with Incentives */}
+          <div className="mb-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-200">Explore Your Investment Strategy</h3>
+              {savedPortfolios.length > 0 && (
+                <button
+                  onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
+                  className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00FF99]/30 bg-gradient-to-r from-[#00FF99]/10 to-[#00D4FF]/10 px-4 py-2 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/10 transition-all duration-300 hover:scale-105 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                  Saved ({savedPortfolios.length})
+                </button>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {/* Portfolio Tab */}
               <button
                 onClick={() => setActiveResultTab('portfolio')}
-                className={`px-6 py-4 text-base font-semibold transition-all duration-300 ${
+                className={`group relative overflow-hidden rounded-2xl border-2 p-6 text-left transition-all duration-300 ${
                   activeResultTab === 'portfolio'
-                    ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
-                    : 'text-gray-400 hover:text-gray-200'
+                    ? 'border-[#00FF99] bg-gradient-to-br from-[#00FF99]/20 to-[#00FF99]/5 shadow-xl shadow-[#00FF99]/20'
+                    : 'border-gray-700 bg-[#1C1F26]/50 hover:border-[#00FF99]/50 hover:bg-[#1C1F26]'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                  </svg>
-                  Portfolio
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`rounded-xl p-3 transition-all ${
+                    activeResultTab === 'portfolio' 
+                      ? 'bg-[#00FF99]/20' 
+                      : 'bg-gray-800 group-hover:bg-[#00FF99]/10'
+                  }`}>
+                    <svg className={`h-6 w-6 transition-colors ${
+                      activeResultTab === 'portfolio' ? 'text-[#00FF99]' : 'text-gray-400 group-hover:text-[#00FF99]'
+                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                    </svg>
+                  </div>
+                  {activeResultTab === 'portfolio' && (
+                    <div className="rounded-full bg-[#00FF99] p-1">
+                      <svg className="h-4 w-4 text-[#171A1F]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
+                <h4 className={`text-lg font-bold mb-2 transition-colors ${
+                  activeResultTab === 'portfolio' ? 'text-[#00FF99]' : 'text-gray-200 group-hover:text-[#00FF99]'
+                }`}>
+                  Your Allocation
+                </h4>
+                <p className="text-sm text-gray-400 mb-3">
+                  View your optimized portfolio breakdown across asset classes
+                </p>
+                {activeResultTab !== 'portfolio' && (
+                  <div className="text-xs text-[#00FF99] font-semibold animate-pulse">
+                    Click to view →
+                  </div>
+                )}
               </button>
+
+              {/* Stock Picks Tab */}
               <button
                 onClick={() => setActiveResultTab('stockPicks')}
-                className={`px-6 py-4 text-base font-semibold transition-all duration-300 ${
+                className={`group relative overflow-hidden rounded-2xl border-2 p-6 text-left transition-all duration-300 ${
                   activeResultTab === 'stockPicks'
-                    ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
-                    : 'text-gray-400 hover:text-gray-200'
+                    ? 'border-[#00D4FF] bg-gradient-to-br from-[#00D4FF]/20 to-[#00D4FF]/5 shadow-xl shadow-[#00D4FF]/20'
+                    : detailedRecommendations 
+                      ? 'border-gray-700 bg-[#1C1F26]/50 hover:border-[#00D4FF]/50 hover:bg-[#1C1F26]'
+                      : 'border-gray-700 bg-[#1C1F26]/50 hover:border-[#00D4FF]/50 hover:bg-[#1C1F26] animate-pulse'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Stock Picks
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`rounded-xl p-3 transition-all ${
+                    activeResultTab === 'stockPicks' 
+                      ? 'bg-[#00D4FF]/20' 
+                      : 'bg-gray-800 group-hover:bg-[#00D4FF]/10'
+                  }`}>
+                    <svg className={`h-6 w-6 transition-colors ${
+                      activeResultTab === 'stockPicks' ? 'text-[#00D4FF]' : 'text-gray-400 group-hover:text-[#00D4FF]'
+                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  {activeResultTab === 'stockPicks' && (
+                    <div className="rounded-full bg-[#00D4FF] p-1">
+                      <svg className="h-4 w-4 text-[#171A1F]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
+                  {!detailedRecommendations && activeResultTab !== 'stockPicks' && (
+                    <span className="rounded-full bg-gradient-to-r from-[#00FF99] to-[#00D4FF] px-2 py-1 text-xs font-bold text-[#171A1F] animate-pulse">
+                      AI
+                    </span>
+                  )}
                 </div>
+                <h4 className={`text-lg font-bold mb-2 transition-colors ${
+                  activeResultTab === 'stockPicks' ? 'text-[#00D4FF]' : 'text-gray-200 group-hover:text-[#00D4FF]'
+                }`}>
+                  Discover Stock Picks
+                </h4>
+                <p className="text-sm text-gray-400 mb-3">
+                  Get AI-powered specific ticker recommendations with analysis
+                </p>
+                {activeResultTab !== 'stockPicks' && !detailedRecommendations && (
+                  <div className="text-xs text-[#00D4FF] font-semibold animate-pulse">
+                    Generate detailed picks →
+                  </div>
+                )}
+                {activeResultTab !== 'stockPicks' && detailedRecommendations && (
+                  <div className="text-xs text-[#00D4FF] font-semibold">
+                    View stock picks →
+                  </div>
+                )}
               </button>
+
+              {/* Stress Test Tab */}
               <button
                 onClick={() => setActiveResultTab('stressTest')}
-                className={`px-6 py-4 text-base font-semibold transition-all duration-300 ${
+                className={`group relative overflow-hidden rounded-2xl border-2 p-6 text-left transition-all duration-300 ${
                   activeResultTab === 'stressTest'
-                    ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
-                    : 'text-gray-400 hover:text-gray-200'
+                    ? 'border-[#9B59B6] bg-gradient-to-br from-[#9B59B6]/20 to-[#9B59B6]/5 shadow-xl shadow-[#9B59B6]/20'
+                    : stressTestResult
+                      ? 'border-gray-700 bg-[#1C1F26]/50 hover:border-[#9B59B6]/50 hover:bg-[#1C1F26]'
+                      : 'border-gray-700 bg-[#1C1F26]/50 hover:border-[#9B59B6]/50 hover:bg-[#1C1F26]'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  Stress Test
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`rounded-xl p-3 transition-all ${
+                    activeResultTab === 'stressTest' 
+                      ? 'bg-[#9B59B6]/20' 
+                      : 'bg-gray-800 group-hover:bg-[#9B59B6]/10'
+                  }`}>
+                    <svg className={`h-6 w-6 transition-colors ${
+                      activeResultTab === 'stressTest' ? 'text-[#9B59B6]' : 'text-gray-400 group-hover:text-[#9B59B6]'
+                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                  {activeResultTab === 'stressTest' && (
+                    <div className="rounded-full bg-[#9B59B6] p-1">
+                      <svg className="h-4 w-4 text-[#171A1F]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
+                <h4 className={`text-lg font-bold mb-2 transition-colors ${
+                  activeResultTab === 'stressTest' ? 'text-[#9B59B6]' : 'text-gray-200 group-hover:text-[#9B59B6]'
+                }`}>
+                  Test Resilience
+                </h4>
+                <p className="text-sm text-gray-400 mb-3">
+                  See how your portfolio performs in market crisis scenarios
+                </p>
+                {activeResultTab !== 'stressTest' && (
+                  <div className="text-xs text-[#9B59B6] font-semibold">
+                    Run stress test →
+                  </div>
+                )}
               </button>
             </div>
-            {/* Saved Portfolios Button - Floating on the right */}
-            {savedPortfolios.length > 0 && (
-              <button
-                onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
-                className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00FF99]/30 bg-gradient-to-r from-[#00FF99]/10 to-[#00D4FF]/10 px-4 py-2 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/10 transition-all duration-300 hover:scale-105 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                </svg>
-                Saved ({savedPortfolios.length})
-              </button>
-            )}
           </div>
 
           {/* Portfolio Tab */}
@@ -1407,10 +1563,9 @@ export default function Home() {
         <section className="glass-light animate-slide-in-up mx-auto max-w-5xl rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
           <h2 className="text-gradient mb-8 animate-fade-in text-3xl font-bold sm:text-4xl">AI Stock Picks & Analysis</h2>
           
-          {/* Deep Dive Stock Recommendations Buttons */}
-          <div className="mt-10 flex flex-col items-center gap-4">
-            {/* Deep Dive button - only show if no recommendations exist yet */}
-            {!detailedRecommendations && (
+          {/* Generate/Regenerate Button */}
+          {!detailedRecommendations && (
+            <div className="mb-10 flex flex-col items-center gap-4">
               <button
                 onClick={handleGetDetailedRecommendations}
                 disabled={detailPanelLoading}
@@ -1438,22 +1593,239 @@ export default function Home() {
                   </>
                 )}
               </button>
-            )}
-            
-            {/* View Recommendations button - shows when data exists and panel is minimized */}
-            {detailedRecommendations && isPanelMinimized && !detailPanelLoading && (
-              <button
-                onClick={() => setIsPanelMinimized(false)}
-                className="btn-ripple group inline-flex items-center gap-3 overflow-hidden rounded-2xl border-2 border-[#00FF99] bg-gradient-to-r from-[#00FF99] via-[#00E689] to-[#00FF99] bg-[length:200%_100%] px-10 py-5 text-lg font-bold text-[#171A1F] shadow-2xl shadow-[#00FF99]/40 transition-all duration-500 hover:scale-105 hover:bg-[position:100%_0] hover:shadow-[0_20px_60px_rgba(0,255,153,0.5)]"
-              >
-                <svg className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </div>
+          )}
+
+          {/* Streaming Text Display - shown during generation */}
+          {detailPanelLoading && streamingText && (
+            <div className="mb-8 animate-fade-in rounded-2xl border-2 border-[#00FF99]/30 bg-[#1C1F26] p-6 shadow-xl">
+              <div className="mb-4 flex items-center gap-3">
+                <svg className="h-6 w-6 animate-spin text-[#00FF99]" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                View My Detailed Recommendations
-              </button>
-            )}
-          </div>
+                <h4 className="text-lg font-semibold uppercase tracking-wide text-[#00FF99]">
+                  AI Generation in Progress
+                </h4>
+              </div>
+              <div ref={streamingTextRef} className="max-h-[400px] overflow-y-auto rounded-xl border border-gray-700 bg-[#171A1F] p-5">
+                <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-300">
+                  {streamingText}
+                  <span className="ml-1 inline-block h-5 w-2 animate-pulse bg-[#00FF99]"></span>
+                </pre>
+              </div>
+              <p className="mt-3 text-xs italic text-gray-500">
+                Streaming live from Claude AI...
+              </p>
+            </div>
+          )}
+
+          {/* Market Context Banner */}
+          {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
+            <div className="mb-8 animate-slide-in-up rounded-2xl border border-[#00FF99]/30 bg-gradient-to-br from-[#00FF99]/10 to-[#00FF99]/5 p-6 shadow-xl">
+              <h4 className="mb-3 flex items-center gap-2 text-base font-semibold uppercase tracking-wide text-[#00FF99]">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Market Context
+              </h4>
+              <p className="text-base leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
+            </div>
+          )}
+
+          {/* Asset Class Tabs */}
+          {(detailedRecommendations || (detailPanelLoading && parsedAssetClasses.length > 0)) && (
+            <div className="mb-8">
+              <div className="overflow-x-auto">
+                <div className="inline-flex gap-2 rounded-xl border border-gray-700 bg-[#171A1F] p-2">
+                  {(detailPanelLoading ? parsedAssetClasses : currentPortfolioData.map(item => item.name)).map((assetClass) => (
+                    <button
+                      key={assetClass}
+                      onClick={() => setActiveTab(assetClass)}
+                      className={`flex-shrink-0 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-300 ${
+                        activeTab === assetClass
+                          ? 'bg-[#00FF99] text-[#171A1F] shadow-lg shadow-[#00FF99]/30'
+                          : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                      }`}
+                    >
+                      {assetClass}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Recommendations Content */}
+          {((detailPanelLoading && Object.keys(partialRecommendations).length > 0) || (!detailPanelLoading && detailedRecommendations)) && (
+            <div className="animate-slide-in-up space-y-8">
+              {currentPortfolioData.map((portfolioItem) => {
+                const assetClass = portfolioItem.name;
+                if (activeTab !== assetClass) return null;
+                
+                // Check if this asset class has 0% allocation
+                if (portfolioItem.value === 0) {
+                  return (
+                    <div key={assetClass} className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
+                      <svg className="mx-auto mb-4 h-16 w-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-base leading-relaxed text-gray-400">
+                        Due to your age, time horizon, and risk tolerance, you have no recommended investments in {assetClass}. If you&apos;d like to include this asset class, try regenerating with adjusted preferences or a more descriptive investment goal.
+                      </p>
+                    </div>
+                  );
+                }
+                
+                const data = detailPanelLoading 
+                  ? partialRecommendations[assetClass]
+                  : (detailedRecommendations ? detailedRecommendations[assetClass] : null);
+                
+                // Type guard to check if data is AssetClassRecommendations
+                if (typeof data === 'string' || !data) return null;
+                
+                return (
+                  <div key={assetClass} className="space-y-6">
+                    {/* Loading indicator for partial data */}
+                    {detailPanelLoading && (
+                      <div className="rounded-xl border border-[#00FF99]/30 bg-[#00FF99]/10 p-4">
+                        <p className="flex items-center gap-2 text-sm text-[#00FF99]">
+                          <svg className="h-5 w-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          ✓ {assetClass} recommendations loaded. Additional analysis may still be generating...
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Pie Chart Visualization */}
+                    {data.breakdown && data.breakdown.length > 0 && (
+                      <div className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-6">
+                        <h4 className="mb-6 text-xl font-semibold text-gray-100">Allocation Breakdown</h4>
+                        {detailPanelLoading ? (
+                          <div className="flex h-64 items-center justify-center">
+                            <div className="text-center">
+                              <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
+                              <p className="text-sm text-gray-400">Generating allocation breakdown...</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="h-80">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie
+                                  data={data.breakdown}
+                                  cx="50%"
+                                  cy="50%"
+                                  labelLine={false}
+                                  label={(entry: any) => `${entry.name}: ${entry.value}%`}
+                                  outerRadius={100}
+                                  fill="#8884d8"
+                                  dataKey="value"
+                                >
+                                  {data.breakdown.map((entry: any, index: number) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                  ))}
+                                </Pie>
+                                <Tooltip
+                                  formatter={(value: number) => `${value}%`}
+                                  contentStyle={{
+                                    backgroundColor: '#171A1F',
+                                    border: 'none',
+                                    borderRadius: '12px',
+                                    color: '#00FF99',
+                                    padding: '12px'
+                                  }}
+                                  labelStyle={{ color: '#00FF99' }}
+                                  itemStyle={{ color: '#00FF99' }}
+                                />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Recommendations List */}
+                    {data.recommendations && data.recommendations.length > 0 ? (
+                      detailPanelLoading ? (
+                        <div className="space-y-4">
+                          <h4 className="text-xl font-semibold text-gray-100">Recommended Positions</h4>
+                          <div className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
+                            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
+                            <p className="text-sm text-gray-400">Analyzing positions and generating recommendations...</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <h4 className="text-xl font-semibold text-gray-100">Recommended Positions</h4>
+                          <div className="grid gap-4">
+                            {data.recommendations.map((rec: StockRecommendation, index: number) => (
+                            <div
+                              key={index}
+                              className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-6 transition-all hover:border-[#00FF99]/50 hover:shadow-lg hover:shadow-[#00FF99]/10"
+                            >
+                              {/* Ticker and Name */}
+                              <div className="mb-4 flex items-start justify-between">
+                                <div>
+                                  <div className="mb-2 flex items-center gap-3">
+                                    <h5 className="text-2xl font-bold text-[#00FF99]">{rec.ticker}</h5>
+                                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                      rec.riskLevel === 'Low' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                      rec.riskLevel === 'Moderate' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                                      'bg-red-500/20 text-red-400 border border-red-500/30'
+                                    }`}>
+                                      {rec.riskLevel} Risk
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-400">{rec.name}</p>
+                                </div>
+                                <div className={`rounded-xl px-4 py-2 text-sm font-semibold ${
+                                  rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :
+                                  rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                  'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                                }`}>
+                                  {rec.positionSize}
+                                </div>
+                              </div>
+
+                              {/* Rationale */}
+                              <p className="text-base leading-relaxed text-gray-300">
+                                {rec.rationale}
+                              </p>
+                            </div>
+                          ))}
+                          </div>
+                        </div>
+                      )
+                    ) : (
+                      <div className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
+                        <svg className="mx-auto mb-4 h-16 w-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-base leading-relaxed text-gray-400">
+                          Based on your risk profile, time horizon, and investment goals, we don't recommend active positions in this asset class at this time.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Regenerate Button */}
+                    {!detailPanelLoading && (
+                      <div className="mt-8 border-t border-gray-700 pt-8">
+                        <button
+                          onClick={handleGetDetailedRecommendations}
+                          disabled={detailPanelLoading}
+                          className="w-full rounded-xl border-2 border-[#00FF99] bg-transparent px-6 py-4 text-base font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F] disabled:opacity-50"
+                        >
+                          Regenerate Recommendations
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
           )}
 
@@ -1719,302 +2091,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Floating Icon - shows when panel is minimized and data exists */}
-      {detailedRecommendations && isPanelMinimized && !detailPanelLoading && (
-        <button
-          onClick={() => setIsPanelMinimized(false)}
-          className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#00FF99] shadow-lg shadow-[#00FF99]/50 transition-all hover:scale-110 hover:shadow-xl hover:shadow-[#00FF99]/60"
-          title="View Detailed Recommendations"
-        >
-          <svg className="h-6 w-6 text-[#171A1F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        </button>
-      )}
-
-      {/* Detailed Recommendations Slide-Out Panel */}
-      {!isPanelMinimized && (detailedRecommendations || detailPanelLoading) && (
-        <>
-          {/* Backdrop overlay */}
-          <div 
-            className="fixed inset-0 z-40 bg-black/50 transition-opacity"
-            onClick={() => setIsPanelMinimized(true)}
-          />
-          
-          {/* Slide-out Panel */}
-          <div className={`fixed top-0 right-0 z-50 h-full w-full sm:w-[600px] transform transition-transform duration-300 ease-in-out ${
-            !isPanelMinimized ? 'translate-x-0' : 'translate-x-full'
-          }`}>
-            <div className="h-full overflow-y-auto bg-[#171A1F] shadow-2xl">
-              {/* Header */}
-              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-700 bg-[#1C1F26] p-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-100">Detailed Investment Breakdown</h3>
-                  <p className="mt-1 text-sm text-gray-400">AI-powered stock and asset recommendations</p>
-                </div>
-                <button
-                  onClick={() => setIsPanelMinimized(true)}
-                  className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-100"
-                  title="Minimize panel"
-                >
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Streaming Text Display */}
-              {detailPanelLoading && streamingText && (
-                <div className="border-b border-gray-700 bg-[#1C1F26] p-6">
-                  <div className="mb-3 flex items-center gap-2">
-                    <svg className="h-5 w-5 animate-spin text-[#00FF99]" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99]">
-                      AI Generation in Progress
-                    </h4>
-                  </div>
-                  <div ref={streamingTextRef} className="max-h-[400px] overflow-y-auto rounded-lg border border-gray-700 bg-[#171A1F] p-4">
-                    <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-gray-300">
-                      {streamingText}
-                      <span className="inline-block h-4 w-2 animate-pulse bg-[#00FF99] ml-1"></span>
-                    </pre>
-                  </div>
-                  <p className="mt-2 text-xs text-gray-500 italic">
-                    Streaming live from Claude AI...
-                  </p>
-                </div>
-              )}
-
-              {/* Market Context */}
-              {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
-                <div className="border-b border-gray-700 bg-[#1C1F26] p-6">
-                  <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#00FF99]">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    Market Context
-                  </h4>
-                  <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
-                </div>
-              )}
-
-              {/* Tabs - show all asset classes from original portfolio */}
-              {!detailPanelLoading && detailedRecommendations && (
-                <div className="sticky top-[100px] z-10 border-b border-gray-700 bg-[#171A1F]">
-                  <div className="flex overflow-x-auto">
-                    {currentPortfolioData.map((item) => (
-                        <button
-                          key={item.name}
-                          onClick={() => setActiveTab(item.name)}
-                          className={`flex-shrink-0 px-6 py-4 text-sm font-semibold transition-colors ${
-                            activeTab === item.name
-                              ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
-                              : 'text-gray-400 hover:text-gray-200'
-                          }`}
-                        >
-                          {item.name}
-                        </button>
-                      ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Progressive tabs during loading */}
-              {detailPanelLoading && parsedAssetClasses.length > 0 && (
-                <div className="sticky top-[100px] z-10 border-b border-gray-700 bg-[#171A1F]">
-                  <div className="flex overflow-x-auto">
-                    {parsedAssetClasses.map((assetClass) => (
-                        <button
-                          key={assetClass}
-                          onClick={() => setActiveTab(assetClass)}
-                          className={`flex-shrink-0 px-6 py-4 text-sm font-semibold transition-colors ${
-                            activeTab === assetClass
-                              ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
-                              : 'text-gray-400 hover:text-gray-200'
-                          }`}
-                        >
-                          {assetClass}
-                        </button>
-                      ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Tab Content - show partial during loading, full when complete */}
-              {((detailPanelLoading && Object.keys(partialRecommendations).length > 0) || (!detailPanelLoading && detailedRecommendations)) && (
-                <div className="p-6">
-                {currentPortfolioData.map((portfolioItem) => {
-                    const assetClass = portfolioItem.name;
-                    if (activeTab !== assetClass) return null;
-                    
-                    // Check if this asset class has 0% allocation
-                    if (portfolioItem.value === 0) {
-                      return (
-                        <div key={assetClass} className="rounded-xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
-                          <svg className="mx-auto mb-4 h-12 w-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <p className="text-base leading-relaxed text-gray-400">
-                            Due to your age, time horizon, and risk tolerance, you have no recommended investments in {assetClass}. If you&apos;d like to include this asset class, try regenerating with adjusted preferences or a more descriptive investment goal.
-                          </p>
-                        </div>
-                      );
-                    }
-                    
-                    const data = detailPanelLoading 
-                      ? partialRecommendations[assetClass]
-                      : (detailedRecommendations ? detailedRecommendations[assetClass] : null);
-                    
-                    // Type guard to check if data is AssetClassRecommendations
-                    if (typeof data === 'string' || !data) return null;
-                    
-                    return (
-                      <div key={assetClass} className="space-y-6">
-                        {/* Loading indicator for partial data */}
-                        {detailPanelLoading && (
-                          <div className="rounded-lg border border-[#00FF99]/30 bg-[#00FF99]/10 p-3">
-                            <p className="flex items-center gap-2 text-sm text-[#00FF99]">
-                              <svg className="h-4 w-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                              ✓ {assetClass} recommendations loaded. Additional analysis may still be generating...
-                            </p>
-                          </div>
-                        )}
-                        
-                        {/* Pie Chart Visualization */}
-                        {data.breakdown && data.breakdown.length > 0 && (
-                          <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-6">
-                            <h4 className="mb-4 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
-                            {detailPanelLoading ? (
-                              <div className="h-64 flex items-center justify-center">
-                                <div className="text-center">
-                                  <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
-                                  <p className="text-sm text-gray-400">Generating allocation breakdown...</p>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="h-64">
-                                <ResponsiveContainer width="100%" height="100%">
-                                  <PieChart>
-                                    <Pie
-                                      data={data.breakdown}
-                                      cx="50%"
-                                      cy="50%"
-                                      labelLine={false}
-                                      label={(entry: any) => `${entry.name}: ${entry.value}%`}
-                                      outerRadius={80}
-                                      fill="#8884d8"
-                                      dataKey="value"
-                                    >
-                                      {data.breakdown.map((entry: any, index: number) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                      ))}
-                                    </Pie>
-                                    <Tooltip
-                                      formatter={(value: number) => `${value}%`}
-                                      contentStyle={{
-                                        backgroundColor: '#171A1F',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        color: '#00FF99'
-                                      }}
-                                      labelStyle={{ color: '#00FF99' }}
-                                      itemStyle={{ color: '#00FF99' }}
-                                    />
-                                  </PieChart>
-                                </ResponsiveContainer>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Recommendations List */}
-                        {data.recommendations && data.recommendations.length > 0 ? (
-                          detailPanelLoading ? (
-                            <div className="space-y-4">
-                              <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
-                              <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
-                                <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
-                                <p className="text-sm text-gray-400">Analyzing positions and generating recommendations...</p>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="space-y-4">
-                              <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
-                              {data.recommendations.map((rec: StockRecommendation, index: number) => (
-                              <div
-                                key={index}
-                                className="rounded-xl border border-gray-700 bg-[#1C1F26] p-5 transition-all hover:border-[#00FF99]/50"
-                              >
-                                {/* Ticker and Name */}
-                                <div className="mb-3 flex items-start justify-between">
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <h5 className="text-xl font-bold text-[#00FF99]">{rec.ticker}</h5>
-                                      <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                                        rec.riskLevel === 'Low' ? 'bg-green-100 text-green-700' :
-                                        rec.riskLevel === 'Moderate' ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-red-100 text-red-700'
-                                      }`}>
-                                        {rec.riskLevel} Risk
-                                      </span>
-                                    </div>
-                                    <p className="mt-1 text-sm text-gray-400">{rec.name}</p>
-                                  </div>
-                                  <div className={`rounded-lg px-3 py-1 text-sm font-semibold ${
-                                    rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99]' :
-                                    rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400' :
-                                    'bg-gray-500/20 text-gray-400'
-                                  }`}>
-                                    {rec.positionSize}
-                                  </div>
-                                </div>
-
-                                {/* Rationale */}
-                                <p className="text-sm leading-relaxed text-gray-300">
-                                  {rec.rationale}
-                                </p>
-                              </div>
-                            ))}
-                            </div>
-                          )
-                        ) : (
-                          <div className="rounded-xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
-                            <svg className="mx-auto mb-4 h-12 w-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p className="text-base leading-relaxed text-gray-400">
-                              Based on your risk profile, time horizon, and investment goals, we don't recommend active positions in this asset class at this time.
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Regenerate Button */}
-                        <div className="mt-6 border-t border-gray-700 pt-6">
-                          <button
-                            onClick={handleGetDetailedRecommendations}
-                            disabled={detailPanelLoading}
-                            className="w-full rounded-lg border-2 border-[#00FF99] bg-transparent px-4 py-3 font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F] disabled:opacity-50"
-                          >
-                            {detailPanelLoading 
-                              ? (isFirstGeneration ? 'Generating...' : 'Regenerating...') 
-                              : 'Regenerate Recommendations'
-                            }
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </>
       )}
       </div>
 
