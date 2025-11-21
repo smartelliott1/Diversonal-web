@@ -562,79 +562,358 @@ export default function Home() {
   
   // Landing Page Component
   const LandingSection = () => (
-    <div className="animate-fade-in space-y-16">
-      {/* Hero */}
-      <div className="text-center">
-        <h2 className="mb-6 text-4xl font-bold text-gray-100 sm:text-5xl">
-          AI-Powered Portfolio Optimization
-        </h2>
-        <p className="mx-auto mb-8 max-w-2xl text-lg text-gray-300">
-          Professional-grade portfolio allocation powered by advanced AI. Get personalized recommendations, stress test scenarios, and detailed stock picks.
-        </p>
-      </div>
-
-      {/* Feature Cards */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Portfolio Generation */}
-        <div className="glass-light group cursor-default rounded-2xl border border-white/10 p-6 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-[#00FF99]/30 hover:shadow-2xl hover:shadow-[#00FF99]/20">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/20">
-            <svg className="h-6 w-6 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+    <div className="snap-container absolute inset-0">
+      {/* Hero Section */}
+      <section className="snap-section">
+        <div className="container mx-auto max-w-6xl px-4 text-center">
+          <h1 className="mb-8 animate-glow text-7xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-8xl md:text-9xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+            Diversonal
+          </h1>
+          <h2 className="mb-8 text-6xl font-bold text-gray-100 sm:text-7xl lg:text-8xl animate-fade-in">
+            AI-Powered Portfolio Optimization
+          </h2>
+          <p className="mx-auto max-w-3xl text-xl text-gray-300 sm:text-2xl animate-fade-in">
+            Professional-grade portfolio allocation powered by advanced AI. Get personalized recommendations, stress test scenarios, and detailed stock picks.
+          </p>
+          <div className="mt-12 animate-bounce">
+            <svg className="mx-auto h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
           </div>
-          <h3 className="mb-2 text-lg font-bold text-gray-100">AI Portfolio Generation</h3>
-          <p className="text-sm text-gray-400">Get personalized asset allocation across equities, bonds, commodities, crypto, and more based on your profile.</p>
         </div>
+      </section>
 
-        {/* Stock Picks */}
-        <div className="glass-light group cursor-default rounded-2xl border border-white/10 p-6 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-[#00FF99]/30 hover:shadow-2xl hover:shadow-[#00FF99]/20">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/20">
-            <svg className="h-6 w-6 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+      {/* Portfolio Generation Feature Section */}
+      <section className="snap-section bg-gradient-to-b from-[#0F1216] to-[#171A1F]">
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            <div className="animate-slide-in-up">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/30">
+                <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="mb-6 text-4xl font-bold text-gray-100 sm:text-5xl">AI Portfolio Generation</h3>
+              <p className="mb-6 text-lg leading-relaxed text-gray-300">
+                Get personalized asset allocation across equities, bonds, commodities, cryptocurrencies, real estate, and more—all optimized by AI based on your age, risk tolerance, time horizon, and investment goals.
+              </p>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Diversified across 6+ asset classes</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Sector-specific weighting based on your convictions</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Visual breakdowns with pie and bar charts</span>
+                </li>
+              </ul>
+            </div>
+            <div className="glass-light rounded-2xl border border-white/10 p-6 shadow-2xl animate-fade-in">
+              <div className="mb-4 rounded-lg bg-[#171A1F] p-3">
+                <div className="mb-4 flex items-center justify-between">
+                  <h4 className="text-gradient text-xl font-bold">Your Portfolio</h4>
+                  <div className="flex gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-[#00FF99]/20"></div>
+                    <div className="h-8 w-8 rounded-lg bg-[#00FF99]/20"></div>
+                  </div>
+                </div>
+                {/* Mock pie chart */}
+                <div className="relative mx-auto h-48 w-48">
+                  <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90 transform">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#00FF99" strokeWidth="20" strokeDasharray="75.4 251.2" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#4A90E2" strokeWidth="20" strokeDasharray="62.8 251.2" strokeDashoffset="-75.4" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#FFB84D" strokeWidth="20" strokeDasharray="37.7 251.2" strokeDashoffset="-138.2" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#9B59B6" strokeWidth="20" strokeDasharray="50.2 251.2" strokeDashoffset="-175.9" />
+                  </svg>
+                </div>
+                {/* Mock allocation list */}
+                <div className="mt-6 space-y-2">
+                  <div className="flex items-center justify-between rounded-lg bg-[#1C1F26]/80 p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-full bg-[#00FF99]"></div>
+                      <span className="text-sm text-gray-300">Equities</span>
+                    </div>
+                    <span className="font-semibold text-[#00FF99]">40%</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg bg-[#1C1F26]/80 p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-full bg-[#4A90E2]"></div>
+                      <span className="text-sm text-gray-300">Bonds</span>
+                    </div>
+                    <span className="font-semibold text-[#00FF99]">25%</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg bg-[#1C1F26]/80 p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-full bg-[#FFB84D]"></div>
+                      <span className="text-sm text-gray-300">Commodities</span>
+                    </div>
+                    <span className="font-semibold text-[#00FF99]">15%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 className="mb-2 text-lg font-bold text-gray-100">Deep Dive Stock Picks</h3>
-          <p className="text-sm text-gray-400">AI-powered stock recommendations with real-time market data, insider signals, and detailed rationales.</p>
         </div>
+      </section>
 
-        {/* Stress Testing */}
-        <div className="glass-light group cursor-default rounded-2xl border border-white/10 p-6 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-[#00FF99]/30 hover:shadow-2xl hover:shadow-[#00FF99]/20">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/20">
-            <svg className="h-6 w-6 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+      {/* Stock Picks Feature Section */}
+      <section className="snap-section bg-gradient-to-b from-[#171A1F] to-[#1C1F26]">
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            <div className="order-2 lg:order-1 glass-light rounded-2xl border border-white/10 p-6 shadow-2xl animate-fade-in">
+              <div className="rounded-lg bg-[#171A1F] p-4">
+                <div className="mb-4 flex items-center justify-between border-b border-gray-700 pb-3">
+                  <h4 className="text-lg font-semibold text-gray-100">Detailed Recommendations</h4>
+                  <div className="rounded-full bg-[#00FF99]/20 px-3 py-1 text-xs font-semibold text-[#00FF99]">Live Data</div>
+                </div>
+                {/* Mock stock recommendations */}
+                <div className="space-y-3">
+                  <div className="rounded-lg border border-gray-700 bg-[#1C1F26] p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-[#00FF99]">AAPL</span>
+                        <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-semibold text-green-400">Low Risk</span>
+                      </div>
+                      <span className="rounded-lg bg-[#00FF99]/20 px-2 py-1 text-xs font-semibold text-[#00FF99]">Large</span>
+                    </div>
+                    <p className="text-xs text-gray-400">Apple Inc.</p>
+                    <p className="mt-2 text-sm text-gray-300">Strong fundamentals with consistent growth...</p>
+                  </div>
+                  <div className="rounded-lg border border-gray-700 bg-[#1C1F26] p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-[#00FF99]">MSFT</span>
+                        <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-semibold text-green-400">Low Risk</span>
+                      </div>
+                      <span className="rounded-lg bg-blue-500/20 px-2 py-1 text-xs font-semibold text-blue-400">Medium</span>
+                    </div>
+                    <p className="text-xs text-gray-400">Microsoft Corporation</p>
+                    <p className="mt-2 text-sm text-gray-300">Cloud computing dominance and AI integration...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="order-1 lg:order-2 animate-slide-in-up">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/30">
+                <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="mb-6 text-4xl font-bold text-gray-100 sm:text-5xl">Deep Dive Stock Picks</h3>
+              <p className="mb-6 text-lg leading-relaxed text-gray-300">
+                Get AI-powered stock recommendations for each asset class in your portfolio. Our system analyzes real-time market data, fundamentals, and insider signals to deliver actionable investment ideas.
+              </p>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Specific ticker recommendations with position sizing</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Real-time fundamentals and insider trading signals</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Detailed rationales for every recommendation</span>
+                </li>
+              </ul>
+            </div>
           </div>
-          <h3 className="mb-2 text-lg font-bold text-gray-100">Stress Testing</h3>
-          <p className="text-sm text-gray-400">Test how your portfolio performs under market crashes, sector volatility, and custom scenarios.</p>
         </div>
+      </section>
 
-        {/* Save & Export */}
-        <div className="glass-light group cursor-default rounded-2xl border border-white/10 p-6 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-[#00FF99]/30 hover:shadow-2xl hover:shadow-[#00FF99]/20">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/20">
-            <svg className="h-6 w-6 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-            </svg>
+      {/* Stress Testing Feature Section */}
+      <section className="snap-section bg-gradient-to-b from-[#1C1F26] to-[#171A1F]">
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            <div className="animate-slide-in-up">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/30">
+                <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="mb-6 text-4xl font-bold text-gray-100 sm:text-5xl">Stress Testing</h3>
+              <p className="mb-6 text-lg leading-relaxed text-gray-300">
+                Test your portfolio under extreme market conditions. See how it would perform during crashes, rallies, sector volatility, or custom scenarios you define.
+              </p>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Pre-built scenarios: market crashes, bull runs, inflation spikes</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Custom scenario builder with AI analysis</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Visual timeline showing portfolio value over time</span>
+                </li>
+              </ul>
+            </div>
+            <div className="glass-light rounded-2xl border border-white/10 p-6 shadow-2xl animate-fade-in">
+              <div className="rounded-lg bg-[#171A1F] p-4">
+                <div className="mb-4">
+                  <h4 className="mb-2 text-lg font-semibold text-gray-100">Stress Test Results</h4>
+                  <div className="rounded-lg border border-gray-700 bg-[#1C1F26] p-3">
+                    <p className="text-xs italic text-gray-400">Scenario: S&P 500 drops 10% in 2026</p>
+                  </div>
+                </div>
+                {/* Mock chart */}
+                <div className="mb-4 h-32 rounded-lg border border-gray-700 bg-[#1C1F26] p-3">
+                  <svg viewBox="0 0 200 80" className="h-full w-full">
+                    <polyline
+                      points="0,40 40,35 80,30 120,45 160,55 200,50"
+                      fill="none"
+                      stroke="#00FF99"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </div>
+                {/* Mock results */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between rounded-lg border-2 border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 p-3">
+                    <span className="text-sm text-gray-300">Expected Change</span>
+                    <span className="text-xl font-bold text-red-500">-8.3%</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg bg-[#1C1F26] p-2 text-center">
+                      <p className="text-xs text-gray-400">Equities</p>
+                      <p className="font-semibold text-red-500">-12%</p>
+                    </div>
+                    <div className="rounded-lg bg-[#1C1F26] p-2 text-center">
+                      <p className="text-xs text-gray-400">Bonds</p>
+                      <p className="font-semibold text-green-500">+2%</p>
+                    </div>
+                  </div>
+                  <div className="rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2 text-center text-xs font-bold text-white">
+                    Moderate Risk
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 className="mb-2 text-lg font-bold text-gray-100">Save & Export</h3>
-          <p className="text-sm text-gray-400">Save unlimited portfolios and export to PDF, JSON, or copy to clipboard for easy sharing.</p>
         </div>
-      </div>
+      </section>
 
-      {/* CTA Button */}
-      <div className="text-center">
-        <button
-          onClick={() => setViewMode('form')}
-          className="btn-ripple group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-[#00FF99] via-[#00E689] to-[#00FF99] bg-[length:200%_100%] px-12 py-6 text-xl font-bold text-[#171A1F] shadow-2xl shadow-[#00FF99]/40 transition-all duration-500 hover:scale-105 hover:bg-[position:100%_0] hover:shadow-[0_20px_60px_rgba(0,255,153,0.5)]"
-        >
-          <svg className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          Get Started
-          <svg className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
+      {/* Save & Export Feature Section */}
+      <section className="snap-section bg-gradient-to-b from-[#171A1F] to-[#0F1216]">
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            <div className="order-2 lg:order-1 glass-light rounded-2xl border border-white/10 p-6 shadow-2xl animate-fade-in">
+              <div className="rounded-lg bg-[#171A1F] p-4">
+                <div className="mb-4 rounded-lg border border-gray-700 bg-[#1C1F26] p-4">
+                  <h4 className="text-gradient mb-3 text-lg font-bold">Save Portfolio</h4>
+                  <div className="mb-3 rounded-lg border border-gray-600 bg-[#171A1F]/80 px-4 py-3">
+                    <p className="text-sm text-gray-400">My Retirement Portfolio 2025</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 rounded-lg bg-gradient-to-r from-[#00FF99] to-[#00E689] px-4 py-2 text-center text-sm font-bold text-[#171A1F]">
+                      Save
+                    </div>
+                    <div className="flex-1 rounded-lg border-2 border-gray-500 bg-gray-700/50 px-4 py-2 text-center text-sm font-bold text-gray-300">
+                      Cancel
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="mb-2 text-xs font-semibold uppercase text-gray-400">Export Options</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="rounded-lg border-2 border-gray-500/50 bg-gray-700/30 p-3 text-center">
+                      <svg className="mx-auto mb-1 h-6 w-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      <p className="text-xs font-semibold text-gray-300">PDF</p>
+                    </div>
+                    <div className="rounded-lg border-2 border-gray-500/50 bg-gray-700/30 p-3 text-center">
+                      <svg className="mx-auto mb-1 h-6 w-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <p className="text-xs font-semibold text-gray-300">JSON</p>
+                    </div>
+                    <div className="rounded-lg border-2 border-gray-500/50 bg-gray-700/30 p-3 text-center">
+                      <svg className="mx-auto mb-1 h-6 w-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      <p className="text-xs font-semibold text-gray-300">Copy</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="order-1 lg:order-2 animate-slide-in-up">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/30">
+                <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+              </div>
+              <h3 className="mb-6 text-4xl font-bold text-gray-100 sm:text-5xl">Save & Export</h3>
+              <p className="mb-6 text-lg leading-relaxed text-gray-300">
+                Never lose your work. Save unlimited portfolios locally, compare different strategies, and export your allocations in multiple formats for easy sharing and record-keeping.
+              </p>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Unlimited saved portfolios in local storage</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Export to PDF for professional presentations</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>JSON format for data integration and backups</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          {/* CTA Button */}
+          <div className="mt-16 text-center animate-fade-in">
+            <button
+              onClick={() => setViewMode('form')}
+              className="btn-ripple group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-[#00FF99] via-[#00E689] to-[#00FF99] bg-[length:200%_100%] px-16 py-8 text-2xl font-bold text-[#171A1F] shadow-2xl shadow-[#00FF99]/40 transition-all duration-500 hover:scale-105 hover:bg-[position:100%_0] hover:shadow-[0_20px_60px_rgba(0,255,153,0.5)]"
+            >
+              <svg className="h-7 w-7 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Get Started
+              <svg className="h-6 w-6 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            <p className="mt-4 text-sm text-gray-400">Free to use • No sign-up required • AI-powered</p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 
@@ -668,7 +947,7 @@ export default function Home() {
   );
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#0F1216] via-[#171A1F] to-[#1C1F26] px-4 py-8 sm:px-6 sm:py-12 md:py-16">
+    <main className={`relative bg-gradient-to-br from-[#0F1216] via-[#171A1F] to-[#1C1F26] ${viewMode === 'landing' ? 'h-screen overflow-hidden' : 'min-h-screen overflow-hidden px-4 py-8 sm:px-6 sm:py-12 md:py-16'}`}>
       {/* Animated Background Gradient Orbs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -left-1/4 top-0 h-[600px] w-[600px] animate-float rounded-full bg-gradient-to-br from-[#00FF99]/10 to-transparent blur-3xl"></div>
@@ -676,22 +955,19 @@ export default function Home() {
         <div className="absolute bottom-0 left-1/3 h-[400px] w-[400px] animate-float rounded-full bg-gradient-to-br from-[#9B59B6]/10 to-transparent blur-3xl" style={{ animationDelay: '2s' }}></div>
       </div>
       
-      <div className="relative z-10 mx-auto max-w-5xl">
-        <div className="animate-fade-in">
-          <h1 className="mb-4 animate-glow text-center text-5xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-6xl md:text-7xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
-            Diversonal
-          </h1>
-          {viewMode === 'form' && (
-            <p className="mb-8 text-center text-lg text-gray-300 sm:text-xl md:mb-12">
-              Describe yourself and your vision to receive your <span className="text-gradient font-semibold">AI-optimized</span> portfolio allocation
-            </p>
-          )}
-          {viewMode === 'landing' && (
-            <p className="mb-8 text-center text-lg text-gray-300 sm:text-xl md:mb-12">
-              Professional portfolio optimization powered by artificial intelligence
-            </p>
-          )}
-        </div>
+      <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : 'mx-auto max-w-5xl'}`}>
+        {viewMode !== 'landing' && (
+          <div className="animate-fade-in">
+            <h1 className="mb-4 animate-glow text-center text-7xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-8xl md:text-9xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+              Diversonal
+            </h1>
+            {viewMode === 'form' && (
+              <p className="mb-8 text-center text-xl text-gray-300 sm:text-2xl md:mb-12">
+                Describe yourself and your vision to receive your <span className="text-gradient font-semibold">AI-optimized</span> portfolio allocation
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Landing Page */}
         {viewMode === 'landing' && <LandingSection />}

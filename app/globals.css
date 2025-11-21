@@ -206,3 +206,19 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* Scroll-snap container for landing page sections */
+.snap-container {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  height: 100vh;
+}
+
+.snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
