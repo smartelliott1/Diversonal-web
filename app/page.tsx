@@ -562,7 +562,7 @@ export default function Home() {
   
   // Landing Page Component
   const LandingSection = () => (
-    <div className="snap-container absolute inset-0">
+    <div className="snap-container">
       {/* Hero Section */}
       <section className="snap-section">
         <div className="container mx-auto max-w-6xl px-4 text-center">
