@@ -59,6 +59,35 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<'landing' | 'form' | 'results'>('landing');
   const [activeResultTab, setActiveResultTab] = useState<'portfolio' | 'stockPicks' | 'stressTest'>('portfolio');
   
+  // Update browser history when view mode changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (viewMode !== 'landing') {
+        url.searchParams.set('view', viewMode);
+      } else {
+        url.searchParams.delete('view');
+      }
+      window.history.pushState({ viewMode }, '', url.toString());
+    }
+  }, [viewMode]);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handlePopState = (event: PopStateEvent) => {
+        if (event.state?.viewMode) {
+          setViewMode(event.state.viewMode);
+        } else {
+          setViewMode('landing');
+        }
+      };
+      
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, []);
+  
   // Store form data to use across tabs
   const [savedFormData, setSavedFormData] = useState<{
     age: string;
