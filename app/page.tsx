@@ -55,6 +55,10 @@ interface SavedPortfolio {
 }
 
 export default function Home() {
+  // View mode state: landing -> form -> results
+  const [viewMode, setViewMode] = useState<'landing' | 'form' | 'results'>('landing');
+  const [activeResultTab, setActiveResultTab] = useState<'portfolio' | 'stockPicks' | 'stressTest'>('portfolio');
+  
   const [showResult, setShowResult] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
@@ -513,12 +517,14 @@ export default function Home() {
       setPortfolioData(data.portfolio || defaultPortfolioData);
       setPortfolioReasoning(data.reasoning || "");
       setShowResult(true);
+      setViewMode('results');
+      setActiveResultTab('portfolio');
       
       toast.success("AI-optimized portfolio generated successfully!");
       
-      // Scroll to result
+      // Scroll to top of results
       setTimeout(() => {
-        document.getElementById("portfolio-result")?.scrollIntoView({ behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }, 100);
     } catch (error) {
       console.error("Error generating portfolio:", error);
@@ -539,6 +545,84 @@ export default function Home() {
     percentage: item.value,
   }));
   
+  // Landing Page Component
+  const LandingSection = () => (
+    <div className="animate-fade-in space-y-16">
+      {/* Hero */}
+      <div className="text-center">
+        <h2 className="mb-6 text-4xl font-bold text-gray-100 sm:text-5xl">
+          AI-Powered Portfolio Optimization
+        </h2>
+        <p className="mx-auto mb-8 max-w-2xl text-lg text-gray-300">
+          Professional-grade portfolio allocation powered by advanced AI. Get personalized recommendations, stress test scenarios, and detailed stock picks.
+        </p>
+      </div>
+
+      {/* Feature Cards */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Portfolio Generation */}
+        <div className="glass-light group cursor-default rounded-2xl border border-white/10 p-6 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-[#00FF99]/30 hover:shadow-2xl hover:shadow-[#00FF99]/20">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/20">
+            <svg className="h-6 w-6 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <h3 className="mb-2 text-lg font-bold text-gray-100">AI Portfolio Generation</h3>
+          <p className="text-sm text-gray-400">Get personalized asset allocation across equities, bonds, commodities, crypto, and more based on your profile.</p>
+        </div>
+
+        {/* Stock Picks */}
+        <div className="glass-light group cursor-default rounded-2xl border border-white/10 p-6 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-[#00FF99]/30 hover:shadow-2xl hover:shadow-[#00FF99]/20">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/20">
+            <svg className="h-6 w-6 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h3 className="mb-2 text-lg font-bold text-gray-100">Deep Dive Stock Picks</h3>
+          <p className="text-sm text-gray-400">AI-powered stock recommendations with real-time market data, insider signals, and detailed rationales.</p>
+        </div>
+
+        {/* Stress Testing */}
+        <div className="glass-light group cursor-default rounded-2xl border border-white/10 p-6 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-[#00FF99]/30 hover:shadow-2xl hover:shadow-[#00FF99]/20">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/20">
+            <svg className="h-6 w-6 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 className="mb-2 text-lg font-bold text-gray-100">Stress Testing</h3>
+          <p className="text-sm text-gray-400">Test how your portfolio performs under market crashes, sector volatility, and custom scenarios.</p>
+        </div>
+
+        {/* Save & Export */}
+        <div className="glass-light group cursor-default rounded-2xl border border-white/10 p-6 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-[#00FF99]/30 hover:shadow-2xl hover:shadow-[#00FF99]/20">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00FF99]/20 to-[#00E689]/10 shadow-lg shadow-[#00FF99]/20">
+            <svg className="h-6 w-6 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
+          </div>
+          <h3 className="mb-2 text-lg font-bold text-gray-100">Save & Export</h3>
+          <p className="text-sm text-gray-400">Save unlimited portfolios and export to PDF, JSON, or copy to clipboard for easy sharing.</p>
+        </div>
+      </div>
+
+      {/* CTA Button */}
+      <div className="text-center">
+        <button
+          onClick={() => setViewMode('form')}
+          className="btn-ripple group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-[#00FF99] via-[#00E689] to-[#00FF99] bg-[length:200%_100%] px-12 py-6 text-xl font-bold text-[#171A1F] shadow-2xl shadow-[#00FF99]/40 transition-all duration-500 hover:scale-105 hover:bg-[position:100%_0] hover:shadow-[0_20px_60px_rgba(0,255,153,0.5)]"
+        >
+          <svg className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Get Started
+          <svg className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+
   const InfoIcon = ({ tooltip }: { tooltip: string }) => (
     <div className="group relative inline-flex items-center">
       <svg
@@ -582,70 +666,38 @@ export default function Home() {
           <h1 className="mb-4 animate-glow text-center text-5xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-6xl md:text-7xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
             Diversonal
           </h1>
-          <p className="mb-8 text-center text-lg text-gray-300 sm:text-xl md:mb-12">
-            Describe yourself and your vision to receive your <span className="text-gradient font-semibold">AI-optimized</span> portfolio allocation
-          </p>
+          {viewMode === 'form' && (
+            <p className="mb-8 text-center text-lg text-gray-300 sm:text-xl md:mb-12">
+              Describe yourself and your vision to receive your <span className="text-gradient font-semibold">AI-optimized</span> portfolio allocation
+            </p>
+          )}
+          {viewMode === 'landing' && (
+            <p className="mb-8 text-center text-lg text-gray-300 sm:text-xl md:mb-12">
+              Professional portfolio optimization powered by artificial intelligence
+            </p>
+          )}
         </div>
 
-        {/* Saved Portfolios Toggle */}
-        {savedPortfolios.length > 0 && (
-          <div className="mb-6 animate-slide-in-up text-center">
-            <button
-              onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
-              className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00FF99]/30 bg-gradient-to-r from-[#00FF99]/10 to-[#00D4FF]/10 px-5 py-2.5 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/10 transition-all duration-300 hover:scale-105 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20 hover:shadow-xl hover:shadow-[#00FF99]/20"
-            >
-              <svg className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-              Saved Portfolios ({savedPortfolios.length})
-            </button>
-          </div>
-        )}
+        {/* Landing Page */}
+        {viewMode === 'landing' && <LandingSection />}
 
-        {/* Saved Portfolios List */}
-        {showSavedPortfolios && savedPortfolios.length > 0 && (
-          <div className="glass mb-8 animate-slide-in-up rounded-2xl p-6 shadow-2xl shadow-black/20">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-gradient text-xl font-bold">Saved Portfolios</h2>
-              <button
-                onClick={() => setShowSavedPortfolios(false)}
-                className="rounded-lg p-1 text-gray-400 transition-all duration-300 hover:rotate-90 hover:bg-white/10 hover:text-[#00FF99]"
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-3">
-              {savedPortfolios.map((portfolio, index) => (
-                <div
-                  key={portfolio.id}
-                  className="group flex items-center justify-between rounded-xl border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#00FF99]/50 hover:shadow-xl hover:shadow-[#00FF99]/10"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+        {/* Form View */}
+        {viewMode === 'form' && (
+          <div>
+            {/* Saved Portfolios Toggle */}
+            {savedPortfolios.length > 0 && (
+              <div className="mb-6 animate-slide-in-up text-center">
+                <button
+                  onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
+                  className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00FF99]/30 bg-gradient-to-r from-[#00FF99]/10 to-[#00D4FF]/10 px-5 py-2.5 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/10 transition-all duration-300 hover:scale-105 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20 hover:shadow-xl hover:shadow-[#00FF99]/20"
                 >
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-100 transition-colors duration-300 group-hover:text-[#00FF99]">{portfolio.name}</h3>
-                    <p className="text-sm text-gray-400">Saved on {portfolio.date}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleLoadPortfolio(portfolio)}
-                      className="btn-ripple rounded-lg bg-gradient-to-r from-[#00FF99] to-[#00E689] px-4 py-2 text-sm font-semibold text-[#171A1F] shadow-lg shadow-[#00FF99]/20 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#00FF99]/30"
-                    >
-                      Load
-                    </button>
-                    <button
-                      onClick={() => handleDeletePortfolio(portfolio.id)}
-                      className="btn-ripple rounded-lg bg-gradient-to-r from-red-500 to-red-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-red-500/20 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-red-500/30"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                  <svg className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                  Saved Portfolios ({savedPortfolios.length})
+                </button>
+              </div>
+            )}
 
         <div className="glass-light animate-slide-in-up mx-auto rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
         <form
@@ -800,10 +852,80 @@ export default function Home() {
             </button>
           </div>
         </form>
-      </div>
+        </div>
+          </div>
+        )}
 
-      {showResult && (
-        <section id="portfolio-result" ref={portfolioRef} className="glass-light animate-slide-in-up mx-auto mt-12 max-w-5xl rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
+        {/* Results View with Tabs */}
+        {viewMode === 'results' && (
+        <>
+          {/* Tab Navigation */}
+          <div className="mb-8 flex items-center justify-between border-b border-gray-700">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveResultTab('portfolio')}
+                className={`px-6 py-4 text-base font-semibold transition-all duration-300 ${
+                  activeResultTab === 'portfolio'
+                    ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
+                    : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                  </svg>
+                  Portfolio
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveResultTab('stockPicks')}
+                className={`px-6 py-4 text-base font-semibold transition-all duration-300 ${
+                  activeResultTab === 'stockPicks'
+                    ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
+                    : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Stock Picks
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveResultTab('stressTest')}
+                className={`px-6 py-4 text-base font-semibold transition-all duration-300 ${
+                  activeResultTab === 'stressTest'
+                    ? 'border-b-2 border-[#00FF99] text-[#00FF99]'
+                    : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Stress Test
+                </div>
+              </button>
+            </div>
+            {/* Saved Portfolios Button - Floating on the right */}
+            {savedPortfolios.length > 0 && (
+              <button
+                onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
+                className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00FF99]/30 bg-gradient-to-r from-[#00FF99]/10 to-[#00D4FF]/10 px-4 py-2 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/10 transition-all duration-300 hover:scale-105 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+                Saved ({savedPortfolios.length})
+              </button>
+            )}
+          </div>
+
+          {/* Portfolio Tab */}
+          {activeResultTab === 'portfolio' && (
+        <section id="portfolio-result" ref={portfolioRef} className="glass-light animate-slide-in-up mx-auto max-w-5xl rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-gradient animate-fade-in text-3xl font-bold sm:text-4xl">Your AI-Optimized Portfolio</h2>
@@ -957,7 +1079,14 @@ export default function Home() {
               </ResponsiveContainer>
             </div>
           </div>
+        </section>
+          )}
 
+          {/* Stock Picks Tab */}
+          {activeResultTab === 'stockPicks' && (
+        <section className="glass-light animate-slide-in-up mx-auto max-w-5xl rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
+          <h2 className="text-gradient mb-8 animate-fade-in text-3xl font-bold sm:text-4xl">AI Stock Picks & Analysis</h2>
+          
           {/* Deep Dive Stock Recommendations Buttons */}
           <div className="mt-10 flex flex-col items-center gap-4">
             {/* Deep Dive button - only show if no recommendations exist yet */}
@@ -1005,9 +1134,14 @@ export default function Home() {
               </button>
             )}
           </div>
+        </section>
+          )}
 
+          {/* Stress Test Tab */}
+          {activeResultTab === 'stressTest' && (
+        <section className="glass-light animate-slide-in-up mx-auto max-w-5xl rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
           {/* Stress Testing Section */}
-          <div className="glass-light mt-12 animate-slide-in-up rounded-3xl border-t border-white/10 p-8 shadow-2xl">
+          <div>
             <h3 className="text-gradient mb-4 text-3xl font-bold">Stress Testing</h3>
             <p className="mb-6 text-base text-gray-300">
               Test how your portfolio would perform under different market scenarios. Enter a custom scenario or choose from common stress tests.
@@ -1175,6 +1309,58 @@ export default function Home() {
             )}
           </div>
         </section>
+        )}
+        </>
+      )}
+
+      {/* Saved Portfolios Modal - Outside main views */}
+      {showSavedPortfolios && savedPortfolios.length > 0 && (
+        <div className="glass fixed inset-0 z-50 overflow-auto bg-black/80 p-4 backdrop-blur-md">
+          <div className="mx-auto max-w-4xl animate-slide-in-up">
+            <div className="glass mb-8 rounded-2xl border border-white/20 p-6 shadow-2xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-gradient text-2xl font-bold">Saved Portfolios</h2>
+                <button
+                  onClick={() => setShowSavedPortfolios(false)}
+                  className="rounded-lg p-2 text-gray-400 transition-all duration-300 hover:rotate-90 hover:bg-white/10 hover:text-[#00FF99]"
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="space-y-4">
+                {savedPortfolios.map((portfolio) => (
+                  <div
+                    key={portfolio.id}
+                    className="group rounded-xl border border-gray-700 bg-[#1C1F26] p-5 transition-all hover:border-[#00FF99]/50"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-100">{portfolio.name}</h3>
+                        <p className="text-sm text-gray-400">{portfolio.date}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleLoadPortfolio(portfolio)}
+                          className="btn-ripple rounded-lg bg-[#00FF99] px-4 py-2 text-sm font-semibold text-[#171A1F] transition-all hover:scale-105"
+                        >
+                          Load
+                        </button>
+                        <button
+                          onClick={() => handleDeletePortfolio(portfolio.id)}
+                          className="btn-ripple rounded-lg border border-red-500 px-4 py-2 text-sm font-semibold text-red-500 transition-all hover:bg-red-500 hover:text-white"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Save Dialog */}
