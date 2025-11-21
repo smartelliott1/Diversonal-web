@@ -117,6 +117,7 @@ export default function Home() {
   const [parsedAssetClasses, setParsedAssetClasses] = useState<string[]>([]);
   const [partialRecommendations, setPartialRecommendations] = useState<DetailedRecommendations>({} as DetailedRecommendations);
   const [isFirstGeneration, setIsFirstGeneration] = useState(true);
+  const [goalLength, setGoalLength] = useState(0);
   const portfolioRef = useRef<HTMLDivElement>(null);
   const streamingTextRef = useRef<HTMLDivElement>(null);
   
@@ -1023,7 +1024,7 @@ export default function Home() {
       <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : 'mx-auto max-w-5xl'}`}>
         {viewMode !== 'landing' && (
           <div className="animate-fade-in">
-            <h1 className="mb-4 animate-glow text-center text-7xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-8xl md:text-9xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+            <h1 className="mb-4 animate-glow text-center text-7xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-8xl md:text-9xl" style={{ fontFamily: 'var(--font-manrope), sans-serif', paddingLeft: '0.15em' }}>
               Diversonal
             </h1>
             {viewMode === 'form' && (
@@ -1059,9 +1060,9 @@ export default function Home() {
           className="animate-slide-in-up space-y-8"
           onSubmit={handleSubmit}
         >
-          {/* Personal Info Section */}
+          {/* Investment Profile Section */}
           <div className="rounded-3xl bg-gradient-to-br from-[#00FF99]/10 via-[#00D4FF]/10 to-[#00FF99]/5 p-8 backdrop-blur-sm shadow-2xl border border-[#00FF99]/20 sm:p-10 md:p-12">
-            <h3 className="mb-6 text-2xl font-bold text-[#00FF99] sm:text-3xl">Personal Information</h3>
+            <h3 className="mb-6 text-center text-2xl font-bold text-[#00FF99] sm:text-3xl">Investment Profile</h3>
             <div className="space-y-6 sm:space-y-7">
           <div className="group">
             <label htmlFor="age" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99] sm:text-lg">
@@ -1112,13 +1113,7 @@ export default function Home() {
               <option>15+ years</option>
             </select>
           </div>
-            </div>
-          </div>
 
-          {/* Investment Details Section */}
-          <div className="rounded-3xl bg-gradient-to-br from-[#00D4FF]/10 via-[#9B59B6]/10 to-[#00D4FF]/5 p-8 backdrop-blur-sm shadow-2xl border border-[#00D4FF]/20 sm:p-10 md:p-12">
-            <h3 className="mb-6 text-2xl font-bold text-[#00D4FF] sm:text-3xl">Investment Details</h3>
-            <div className="space-y-6 sm:space-y-7">
           <div className="group">
             <label htmlFor="capital" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99] sm:text-lg">
               Available capital ($)
@@ -1132,36 +1127,61 @@ export default function Home() {
               className="w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-5 py-4 text-base text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
             />
           </div>
-
-          <div className="group">
-            <label htmlFor="goal" className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99] sm:text-lg">
-              Investment goal
-              <span className="text-xs font-normal text-gray-400">(Be specific for better results)</span>
-              <InfoIcon tooltip="What you're investing for: retirement, buying a home, education, wealth growth, etc." />
-            </label>
-            <input
-              id="goal"
-              type="text"
-              placeholder="e.g., Save $50k for down payment by 2027, Build $2M retirement fund, Generate $5k monthly income"
-              required
-              className="w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-5 py-4 text-base text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
-            />
-            <p className="mt-3 flex items-start gap-2 rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-3 text-sm text-gray-300 backdrop-blur-sm">
-              <svg className="mt-0.5 h-4 w-4 flex-shrink-0 animate-pulse text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-              <span>
-                <strong className="text-[#00FF99]">Pro tip:</strong> Specific goals with amounts and timelines help our AI optimize better. 
-                &quot;Save $50k for down payment by 2027&quot; beats &quot;buy a home&quot;
-              </span>
-            </p>
+            </div>
           </div>
+
+          {/* Your Investment Vision Section */}
+          <div className="rounded-3xl bg-gradient-to-br from-[#9B59B6]/10 via-[#00D4FF]/10 to-[#9B59B6]/5 p-8 backdrop-blur-sm shadow-2xl border border-[#9B59B6]/20 sm:p-10 md:p-12">
+            <div className="mb-6 text-center">
+              <div className="mb-3 flex items-center justify-center gap-2">
+                <svg className="h-6 w-6 text-[#00FF99] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+                <h3 className="text-2xl font-bold text-[#00FF99] sm:text-3xl">Your Investment Vision</h3>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="group">
+                <label htmlFor="goal" className="mb-3 flex items-center justify-center gap-2 text-base font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99] sm:text-lg">
+                  <span className="text-xs font-normal text-gray-400">(Be specific for better results)</span>
+                  <InfoIcon tooltip="What you're investing for: retirement, buying a home, education, wealth growth, etc." />
+                </label>
+                <textarea
+                  id="goal"
+                  rows={5}
+                  placeholder="Tell our AI anything and everything"
+                  required
+                  onChange={(e) => setGoalLength(e.target.value.length)}
+                  className="w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-5 py-4 text-center text-base text-gray-100 placeholder-gray-500 placeholder:text-center shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40 resize-none"
+                />
+                <div className="mt-2 flex items-center justify-between">
+                  <span className={`text-sm transition-colors duration-300 ${goalLength >= 50 ? 'text-[#00FF99] font-semibold' : 'text-gray-400'}`}>
+                    {goalLength} characters
+                  </span>
+                  {goalLength >= 50 && (
+                    <span className="flex items-center gap-1 text-sm text-[#00FF99]">
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Great detail!
+                    </span>
+                  )}
+                </div>
+                <p className="mt-3 flex items-start gap-2 rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-3 text-sm text-gray-300 backdrop-blur-sm">
+                  <svg className="mt-0.5 h-4 w-4 flex-shrink-0 animate-pulse text-[#00FF99]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <span>
+                    <strong className="text-[#00FF99]">💡 Pro Tip:</strong> Specific goals with amounts, timelines, and desired outcomes help our AI create a truly personalized strategy for you.
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Sector Preferences Section */}
-          <div className="rounded-3xl bg-gradient-to-br from-[#9B59B6]/10 via-[#00FF99]/10 to-[#9B59B6]/5 p-8 backdrop-blur-sm shadow-2xl border border-[#9B59B6]/20 sm:p-10 md:p-12">
-            <h3 className="mb-6 text-2xl font-bold text-[#9B59B6] sm:text-3xl">Sector Preferences</h3>
+          <div className="rounded-3xl bg-gradient-to-br from-[#00D4FF]/10 via-[#00FF99]/10 to-[#00D4FF]/5 p-8 backdrop-blur-sm shadow-2xl border border-[#00D4FF]/20 sm:p-10 md:p-12">
+            <h3 className="mb-6 text-center text-2xl font-bold text-[#00FF99] sm:text-3xl">Sector Preferences</h3>
             <div className="space-y-6 sm:space-y-7">
           <div>
             <label className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-200 sm:text-lg">
