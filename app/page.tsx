@@ -59,6 +59,16 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<'landing' | 'form' | 'results'>('landing');
   const [activeResultTab, setActiveResultTab] = useState<'portfolio' | 'stockPicks' | 'stressTest'>('portfolio');
   
+  // Store form data to use across tabs
+  const [savedFormData, setSavedFormData] = useState<{
+    age: string;
+    risk: string;
+    horizon: string;
+    capital: string;
+    goal: string;
+    sectors: string[];
+  } | null>(null);
+  
   const [showResult, setShowResult] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
@@ -131,13 +141,14 @@ export default function Home() {
       return;
     }
     
-    const formData = {
-      age: (document.getElementById("age") as HTMLInputElement)?.value || "",
-      risk: (document.getElementById("risk") as HTMLSelectElement)?.value || "",
-      horizon: (document.getElementById("horizon") as HTMLSelectElement)?.value || "",
-      capital: (document.getElementById("capital") as HTMLInputElement)?.value || "",
-      goal: (document.getElementById("goal") as HTMLInputElement)?.value || "",
-      sectors: selectedSectors,
+    // Use saved form data instead of reading from DOM
+    const formData = savedFormData || {
+      age: "",
+      risk: "",
+      horizon: "",
+      capital: "",
+      goal: "",
+      sectors: [],
     };
     
     const dataToSave = currentPortfolioData;
@@ -169,23 +180,12 @@ export default function Home() {
   
   // Load saved portfolio
   const handleLoadPortfolio = (portfolio: SavedPortfolio) => {
-    // Populate form fields
-    if (portfolio.formData.age) {
-      (document.getElementById("age") as HTMLInputElement).value = portfolio.formData.age;
-    }
-    if (portfolio.formData.risk) {
-      (document.getElementById("risk") as HTMLSelectElement).value = portfolio.formData.risk;
-    }
-    if (portfolio.formData.horizon) {
-      (document.getElementById("horizon") as HTMLSelectElement).value = portfolio.formData.horizon;
-    }
-    if (portfolio.formData.capital) {
-      (document.getElementById("capital") as HTMLInputElement).value = portfolio.formData.capital;
-    }
-    if (portfolio.formData.goal) {
-      (document.getElementById("goal") as HTMLInputElement).value = portfolio.formData.goal;
-    }
+    // Save form data to state
+    setSavedFormData(portfolio.formData);
     setSelectedSectors(portfolio.formData.sectors || []);
+    
+    // Restore portfolio data
+    setPortfolioData(portfolio.portfolioData);
     
     // Restore detailed recommendations if they exist
     if (portfolio.detailedRecommendations) {
@@ -193,6 +193,11 @@ export default function Home() {
     } else {
       setDetailedRecommendations(null);
     }
+    
+    // Switch to results view
+    setViewMode('results');
+    setActiveResultTab('portfolio');
+    setShowResult(true);
     
     setShowSavedPortfolios(false);
     toast.success(`Loaded: ${portfolio.name}`);
@@ -281,13 +286,14 @@ export default function Home() {
     setPartialRecommendations({} as DetailedRecommendations);
 
     try {
-      const formData = {
-        age: (document.getElementById("age") as HTMLInputElement)?.value || "",
-        risk: (document.getElementById("risk") as HTMLSelectElement)?.value || "",
-        horizon: (document.getElementById("horizon") as HTMLSelectElement)?.value || "",
-        capital: (document.getElementById("capital") as HTMLInputElement)?.value || "",
-        goal: (document.getElementById("goal") as HTMLInputElement)?.value || "",
-        sectors: selectedSectors,
+      // Use saved form data instead of reading from DOM
+      const formData = savedFormData || {
+        age: "",
+        risk: "",
+        horizon: "",
+        capital: "",
+        goal: "",
+        sectors: [],
       };
 
       // Filter out asset classes with 0% allocation to save API costs
@@ -439,10 +445,9 @@ export default function Home() {
     setStressTestResult(null);
 
     try {
-      const capital = parseInt(
-        (document.getElementById("capital") as HTMLInputElement)?.value || "10000"
-      );
-      const horizon = (document.getElementById("horizon") as HTMLSelectElement)?.value || "";
+      // Use saved form data instead of reading from DOM
+      const capital = parseInt(savedFormData?.capital || "10000");
+      const horizon = savedFormData?.horizon || "";
 
       const response = await fetch("/api/stress-test", {
         method: "POST",
@@ -512,6 +517,16 @@ export default function Home() {
       }
 
       const data = await response.json();
+      
+      // Save form data for use in other tabs (map API property names to our state)
+      setSavedFormData({
+        age: formData.age,
+        risk: formData.riskTolerance,
+        horizon: formData.timeHorizon,
+        capital: formData.capital,
+        goal: formData.goal,
+        sectors: formData.sectors,
+      });
       
       // Update portfolio data with AI-generated results
       setPortfolioData(data.portfolio || defaultPortfolioData);
