@@ -1024,7 +1024,7 @@ export default function Home() {
       <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : 'mx-auto max-w-5xl'}`}>
         {viewMode !== 'landing' && (
           <div className="animate-fade-in">
-            <h1 className="mb-4 animate-glow text-center text-6xl font-normal tracking-[0.5em] text-[#00FF99] uppercase sm:text-7xl md:text-8xl" style={{ fontFamily: 'var(--font-manrope), sans-serif', paddingLeft: '0.25em' }}>
+            <h1 className="mb-4 animate-glow text-center text-6xl font-normal tracking-[0.5em] text-[#00FF99] uppercase sm:text-7xl md:text-8xl" style={{ fontFamily: 'var(--font-manrope), sans-serif', marginRight: '0.5em' }}>
               Diversonal
             </h1>
             {viewMode === 'form' && (
