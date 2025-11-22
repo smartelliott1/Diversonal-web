@@ -609,16 +609,16 @@ export default function Home() {
           <p className="mx-auto max-w-3xl text-xl text-gray-300 sm:text-2xl animate-fade-in">
             Professional-grade portfolio allocation powered by advanced AI. Get personalized recommendations, stress test scenarios, and detailed stock picks.
           </p>
-          <button 
-            onClick={() => scrollToSection('portfolio-generation-section')}
-            className="mt-12 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
-            aria-label="Scroll to next section"
-          >
-            <svg className="mx-auto h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
         </div>
+        <button 
+          onClick={() => scrollToSection('portfolio-generation-section')}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
+          aria-label="Scroll to next section"
+        >
+          <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
       </section>
 
       {/* Portfolio Generation Feature Section */}
@@ -1024,7 +1024,7 @@ export default function Home() {
       <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : 'mx-auto max-w-5xl'}`}>
         {viewMode !== 'landing' && (
           <div className="animate-fade-in">
-            <h1 className="mb-4 animate-glow text-center text-7xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-8xl md:text-9xl" style={{ fontFamily: 'var(--font-manrope), sans-serif', paddingLeft: '0.15em' }}>
+            <h1 className="mb-4 animate-glow text-center text-6xl font-normal tracking-[0.5em] text-[#00FF99] uppercase sm:text-7xl md:text-8xl" style={{ fontFamily: 'var(--font-manrope), sans-serif', paddingLeft: '0.25em' }}>
               Diversonal
             </h1>
             {viewMode === 'form' && (
@@ -1132,14 +1132,7 @@ export default function Home() {
 
           {/* Your Investment Vision Section */}
           <div className="rounded-3xl bg-gradient-to-br from-[#9B59B6]/10 via-[#00D4FF]/10 to-[#9B59B6]/5 p-8 backdrop-blur-sm shadow-2xl border border-[#9B59B6]/20 sm:p-10 md:p-12">
-            <div className="mb-6 text-center">
-              <div className="mb-3 flex items-center justify-center gap-2">
-                <svg className="h-6 w-6 text-[#00FF99] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-                <h3 className="text-2xl font-bold text-[#00FF99] sm:text-3xl">Your Investment Vision</h3>
-              </div>
-            </div>
+            <h3 className="mb-6 text-center text-2xl font-bold text-[#00FF99] sm:text-3xl">Your Investment Vision</h3>
             <div className="space-y-4">
               <div className="group">
                 <label htmlFor="goal" className="mb-3 flex items-center justify-center gap-2 text-base font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99] sm:text-lg">
@@ -1148,11 +1141,17 @@ export default function Home() {
                 </label>
                 <textarea
                   id="goal"
-                  rows={5}
+                  name="goal"
+                  rows={1}
                   placeholder="Tell our AI anything and everything"
                   required
+                  onInput={(e) => {
+                    const target = e.target as HTMLTextAreaElement;
+                    target.style.height = 'auto';
+                    target.style.height = target.scrollHeight + 'px';
+                  }}
                   onChange={(e) => setGoalLength(e.target.value.length)}
-                  className="w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-5 py-4 text-center text-base text-gray-100 placeholder-gray-500 placeholder:text-center shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40 resize-none"
+                  className="w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-5 py-4 text-center text-lg text-gray-100 placeholder-gray-500 placeholder:text-center shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40 resize-none"
                 />
                 <div className="mt-2 flex items-center justify-between">
                   <span className={`text-sm transition-colors duration-300 ${goalLength >= 50 ? 'text-[#00FF99] font-semibold' : 'text-gray-400'}`}>
