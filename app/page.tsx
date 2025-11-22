@@ -232,6 +232,22 @@ export default function Home() {
     toast.success(`Loaded: ${portfolio.name}`);
   };
   
+  // Navigation handlers
+  const handleGoHome = () => {
+    setViewMode('landing');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleNewPortfolio = () => {
+    setViewMode('form');
+    setShowResult(false);
+    setPortfolioData(defaultPortfolioData);
+    setDetailedRecommendations(null);
+    setStressTestResult(null);
+  };
+
   // Export to PDF
   const handleExportPDF = async () => {
     if (!portfolioRef.current) return;
@@ -586,6 +602,58 @@ export default function Home() {
     percentage: item.value,
   }));
   
+  // Navigation Component for Form and Results Views
+  const Navigation = () => {
+    return (
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0F1216]/80 backdrop-blur-xl border-b border-[#00FF99]/10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-20 items-center justify-between">
+            {/* Logo/Brand - Left Side */}
+            <button
+              onClick={handleGoHome}
+              className="group flex items-center gap-2 transition-all duration-300 hover:scale-105"
+            >
+              <h1 className="animate-glow text-3xl font-normal tracking-[0.3em] text-[#00FF99] uppercase transition-all duration-300 group-hover:text-[#00E689]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+                Diversonal
+              </h1>
+            </button>
+            
+            {/* Navigation Items - Right Side */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              {/* New Portfolio Button */}
+              <button
+                onClick={handleNewPortfolio}
+                className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00D4FF]/30 bg-gradient-to-r from-[#00D4FF]/10 to-[#00D4FF]/5 px-4 py-2.5 text-sm font-semibold text-[#00D4FF] shadow-lg shadow-[#00D4FF]/10 transition-all duration-300 hover:scale-105 hover:border-[#00D4FF]/50 hover:bg-[#00D4FF]/20 hover:shadow-xl hover:shadow-[#00D4FF]/20"
+              >
+                <svg className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="hidden sm:inline">New Portfolio</span>
+                <span className="sm:hidden">New</span>
+              </button>
+              
+              {/* Saved Portfolios Button */}
+              {savedPortfolios.length > 0 && (
+                <button
+                  onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
+                  className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00FF99]/30 bg-gradient-to-r from-[#00FF99]/10 to-[#00D4FF]/10 px-4 py-2.5 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/10 transition-all duration-300 hover:scale-105 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20 hover:shadow-xl hover:shadow-[#00FF99]/20"
+                >
+                  <svg className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                  <span className="hidden sm:inline">Saved</span>
+                  <span className="rounded-full bg-[#00FF99]/20 px-2 py-0.5 text-xs font-bold">
+                    {savedPortfolios.length}
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  };
+  
   // Landing Page Component
   const LandingSection = () => {
     const scrollToSection = (sectionId: string) => {
@@ -627,12 +695,37 @@ export default function Home() {
 
     return (
     <div className="snap-container">
+      {/* Fixed Navigation Bar for Landing Page */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0F1216]/80 backdrop-blur-xl border-b border-[#00FF99]/10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-20 items-center justify-between">
+            {/* Logo/Brand - Left Side */}
+            <button
+              onClick={handleGoHome}
+              className="group flex items-center gap-2 transition-all duration-300 hover:scale-105"
+            >
+              <h1 className="animate-glow text-3xl font-normal tracking-[0.3em] text-[#00FF99] uppercase transition-all duration-300 group-hover:text-[#00E689]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+                Diversonal
+              </h1>
+            </button>
+            
+            {/* Get Started Button - Right Side */}
+            <button
+              onClick={() => setViewMode('form')}
+              className="btn-ripple group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#00FF99] via-[#00E689] to-[#00FF99] bg-[length:200%_100%] px-6 py-3 text-base font-bold text-[#171A1F] shadow-xl shadow-[#00FF99]/30 transition-all duration-500 hover:scale-105 hover:bg-[position:100%_0] hover:shadow-[0_10px_30px_rgba(0,255,153,0.4)]"
+            >
+              <span>Get Started</span>
+              <svg className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <section id="hero-section" className="snap-section">
+      <section id="hero-section" className="snap-section pt-20">
         <div className="container mx-auto max-w-6xl px-4 text-center">
-          <h1 className="mb-8 animate-glow text-7xl font-normal tracking-[0.3em] text-[#00FF99] uppercase sm:text-8xl md:text-9xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
-            Diversonal
-          </h1>
           <h2 className="mb-8 text-6xl font-bold text-gray-100 sm:text-7xl lg:text-8xl animate-fade-in">
             AI-Powered Portfolio Optimization
           </h2>
@@ -1051,17 +1144,15 @@ export default function Home() {
         <div className="absolute bottom-0 left-1/3 h-[400px] w-[400px] animate-float rounded-full bg-gradient-to-br from-[#9B59B6]/10 to-transparent blur-3xl" style={{ animationDelay: '2s' }}></div>
       </div>
       
-      <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : 'mx-auto max-w-5xl'}`}>
-        {viewMode !== 'landing' && (
-          <div className="animate-fade-in">
-            <h1 className="mb-4 animate-glow text-center text-6xl font-normal tracking-[0.5em] text-[#00FF99] uppercase sm:text-7xl md:text-8xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
-              Diversonal
-            </h1>
-            {viewMode === 'form' && (
-              <p className="mb-8 text-center text-xl text-gray-300 sm:text-2xl md:mb-12">
-                Describe yourself and your vision to receive your <span className="text-gradient font-semibold">AI-optimized</span> portfolio allocation
-              </p>
-            )}
+      {/* Navigation for Form and Results Views */}
+      {viewMode !== 'landing' && <Navigation />}
+      
+      <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : 'mx-auto max-w-5xl pt-24'}`}>
+        {viewMode === 'form' && (
+          <div className="animate-fade-in mb-8">
+            <p className="text-center text-xl text-gray-300 sm:text-2xl">
+              Describe yourself and your vision to receive your <span className="text-gradient font-semibold">AI-optimized</span> portfolio allocation
+            </p>
           </div>
         )}
 
@@ -1071,21 +1162,6 @@ export default function Home() {
         {/* Form View */}
         {viewMode === 'form' && (
           <div>
-            {/* Saved Portfolios Toggle */}
-            {savedPortfolios.length > 0 && (
-              <div className="mb-6 animate-slide-in-up text-center">
-                <button
-                  onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
-                  className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00FF99]/30 bg-gradient-to-r from-[#00FF99]/10 to-[#00D4FF]/10 px-5 py-2.5 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/10 transition-all duration-300 hover:scale-105 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20 hover:shadow-xl hover:shadow-[#00FF99]/20"
-                >
-                  <svg className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                  </svg>
-                  Saved Portfolios ({savedPortfolios.length})
-                </button>
-              </div>
-            )}
-
         <form
           className="animate-slide-in-up space-y-8"
           onSubmit={handleSubmit}
@@ -1285,17 +1361,6 @@ export default function Home() {
           <div className="mb-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
               <h3 className="text-xl font-semibold text-gray-200">Explore Your Investment Strategy</h3>
-              {savedPortfolios.length > 0 && (
-                <button
-                  onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
-                  className="btn-ripple group inline-flex items-center gap-2 rounded-xl border border-[#00FF99]/30 bg-gradient-to-r from-[#00FF99]/10 to-[#00D4FF]/10 px-4 py-2 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/10 transition-all duration-300 hover:scale-105 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20"
-                >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                  </svg>
-                  Saved ({savedPortfolios.length})
-                </button>
-              )}
             </div>
             
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
