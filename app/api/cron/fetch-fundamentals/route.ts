@@ -9,6 +9,7 @@ export const maxDuration = 300; // 5 minutes (Vercel Hobby with Fluid Compute)
 export async function GET(request: NextRequest) {
   console.log('[Cron] Fundamentals fetch job started');
   const startTime = Date.now();
+  // CRON_SECRET environment variable configured - Nov 22, 2025
 
   try {
     // Verify cron secret
