@@ -595,6 +595,36 @@ export default function Home() {
       }
     };
 
+    const scrollToNextSection = () => {
+      const sections = [
+        'hero-section',
+        'portfolio-generation-section',
+        'stock-picks-section',
+        'stress-testing-section',
+        'save-export-section'
+      ];
+      
+      // Find the current section
+      let currentIndex = 0;
+      for (let i = 0; i < sections.length; i++) {
+        const section = document.getElementById(sections[i]);
+        if (section) {
+          const rect = section.getBoundingClientRect();
+          // Check if this section is currently visible (top is within viewport)
+          if (rect.top >= -100 && rect.top <= 100) {
+            currentIndex = i;
+            break;
+          }
+        }
+      }
+      
+      // Scroll to the next section if available
+      const nextIndex = currentIndex + 1;
+      if (nextIndex < sections.length) {
+        scrollToSection(sections[nextIndex]);
+      }
+    };
+
     return (
     <div className="snap-container">
       {/* Hero Section */}
@@ -611,7 +641,7 @@ export default function Home() {
           </p>
         </div>
         <button 
-          onClick={() => scrollToSection('portfolio-generation-section')}
+          onClick={scrollToNextSection}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
           aria-label="Scroll to next section"
         >
@@ -701,15 +731,15 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <button 
-            onClick={() => scrollToSection('stock-picks-section')}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
-            aria-label="Scroll to next section"
-          >
-            <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
+        <button 
+          onClick={scrollToNextSection}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
+          aria-label="Scroll to next section"
+        >
+          <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
         </div>
       </section>
 
@@ -782,15 +812,15 @@ export default function Home() {
               </ul>
             </div>
           </div>
-          <button 
-            onClick={() => scrollToSection('stress-testing-section')}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
-            aria-label="Scroll to next section"
-          >
-            <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
+        <button 
+          onClick={scrollToNextSection}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
+          aria-label="Scroll to next section"
+        >
+          <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
         </div>
       </section>
 
@@ -871,15 +901,15 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <button 
-            onClick={() => scrollToSection('save-export-section')}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
-            aria-label="Scroll to next section"
-          >
-            <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
+        <button 
+          onClick={scrollToNextSection}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer transition-transform duration-300 hover:scale-110"
+          aria-label="Scroll to next section"
+        >
+          <svg className="h-8 w-8 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
         </div>
       </section>
 
@@ -1024,7 +1054,7 @@ export default function Home() {
       <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : 'mx-auto max-w-5xl'}`}>
         {viewMode !== 'landing' && (
           <div className="animate-fade-in">
-            <h1 className="mb-4 animate-glow text-center text-6xl font-normal tracking-[0.5em] text-[#00FF99] uppercase sm:text-7xl md:text-8xl" style={{ fontFamily: 'var(--font-manrope), sans-serif', marginRight: '0.5em' }}>
+            <h1 className="mb-4 animate-glow text-center text-6xl font-normal tracking-[0.5em] text-[#00FF99] uppercase sm:text-7xl md:text-8xl" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
               Diversonal
             </h1>
             {viewMode === 'form' && (
