@@ -110,6 +110,20 @@ export default function Home() {
   const [stressTestScenario, setStressTestScenario] = useState("");
   const [stressTestLoading, setStressTestLoading] = useState(false);
   const [stressTestResult, setStressTestResult] = useState<any>(null);
+  
+  // Interactive stress test enhancements
+  const [stressTestHistory, setStressTestHistory] = useState<any[]>([]);
+  const [activeHistoryIndex, setActiveHistoryIndex] = useState<number>(0);
+  const [visibleAssetClasses, setVisibleAssetClasses] = useState<string[]>([]);
+  const [stressTestTimeHorizon, setStressTestTimeHorizon] = useState<number>(18);
+  const [scenarioBuilderParams, setScenarioBuilderParams] = useState({
+    marketMovement: 0,
+    inflation: 2,
+    volatility: 5,
+  });
+  const [tempPortfolioAllocation, setTempPortfolioAllocation] = useState<PortfolioItem[]>([]);
+  const [recoveryPath, setRecoveryPath] = useState<'v' | 'u' | 'l' | 'w' | null>(null);
+  const [showScenarioBuilder, setShowScenarioBuilder] = useState(false);
   const [detailedRecommendations, setDetailedRecommendations] = useState<DetailedRecommendations | null>(null);
   const [detailPanelLoading, setDetailPanelLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("Equities");
@@ -466,18 +480,133 @@ export default function Home() {
     }
   };
 
-  // Pre-defined stress test scenarios
-  const predefinedScenarios = [
-    "S&P 500 drops 10% in 2026",
-    "Market crash similar to 2008",
-    "Rising interest rates and inflation",
-    "S&P 500 rallies 20% over next year",
-    "Strong economic growth drives market gains",
-    "Bull market continues with 15% annual returns",
+  // Historical event templates with real data
+  const historicalScenarios = [
+    {
+      name: "2008 Financial Crisis",
+      description: "Market drops 37%, credit markets freeze, housing collapse",
+      year: "2008",
+      icon: "📉"
+    },
+    {
+      name: "2020 COVID-19 Crash",
+      description: "S&P 500 drops 34% in 33 days, then V-shaped recovery",
+      year: "2020",
+      icon: "🦠"
+    },
+    {
+      name: "2022 Inflation Surge",
+      description: "Rising rates, 8.5% inflation peak, bond market sell-off",
+      year: "2022",
+      icon: "📈"
+    },
+    {
+      name: "Dot-com Bubble Burst",
+      description: "Tech stocks crash 78%, recession follows",
+      year: "2000-2002",
+      icon: "💻"
+    },
+    {
+      name: "1987 Black Monday",
+      description: "Dow Jones drops 22.6% in single day",
+      year: "1987",
+      icon: "⚫"
+    },
+    {
+      name: "Bull Market 2010s",
+      description: "10-year rally, S&P 500 gains 250%+",
+      year: "2010-2019",
+      icon: "🐂"
+    }
   ];
 
-  // Handle stress test
-  const handleStressTest = async (scenario: string) => {
+  // Pre-defined quick scenarios
+  const quickScenarios = [
+    "S&P 500 drops 10% over next year",
+    "Strong bull market with 20% gains",
+    "Rising interest rates and inflation",
+  ];
+
+  // Generate scenario description from slider params
+  const generateScenarioFromSliders = () => {
+    const { marketMovement, inflation, volatility } = scenarioBuilderParams;
+    
+    let scenarioText = "";
+    
+    // Market movement
+    if (marketMovement > 0) {
+      scenarioText += `Market rallies ${Math.abs(marketMovement)}%`;
+    } else if (marketMovement < 0) {
+      scenarioText += `Market drops ${Math.abs(marketMovement)}%`;
+    } else {
+      scenarioText += "Market remains flat";
+    }
+    
+    // Inflation
+    if (inflation > 5) {
+      scenarioText += `, high inflation at ${inflation}%`;
+    } else if (inflation > 2) {
+      scenarioText += `, moderate inflation at ${inflation}%`;
+    } else {
+      scenarioText += `, low inflation at ${inflation}%`;
+    }
+    
+    // Volatility
+    if (volatility > 7) {
+      scenarioText += ", with extreme volatility";
+    } else if (volatility > 4) {
+      scenarioText += ", with elevated volatility";
+    } else {
+      scenarioText += ", with low volatility";
+    }
+    
+    return scenarioText;
+  };
+  
+  // Calculate recovery path overlay
+  const calculateRecoveryPath = (baseValues: number[], pathType: 'v' | 'u' | 'l' | 'w') => {
+    if (!baseValues || baseValues.length === 0) return baseValues;
+    
+    const initial = baseValues[0];
+    const lowest = Math.min(...baseValues);
+    const lowestIndex = baseValues.indexOf(lowest);
+    const recoveryLength = baseValues.length - lowestIndex;
+    
+    return baseValues.map((value, index) => {
+      if (index <= lowestIndex) return value; // Keep decline phase
+      
+      const progress = (index - lowestIndex) / recoveryLength;
+      const decline = initial - lowest;
+      
+      switch (pathType) {
+        case 'v': // Fast V-shaped recovery
+          return lowest + (decline * Math.pow(progress, 0.5));
+        case 'u': // Gradual U-shaped recovery
+          return lowest + (decline * Math.pow(progress, 1.5));
+        case 'l': // Prolonged L-shaped (minimal recovery)
+          return lowest + (decline * 0.3 * progress);
+        case 'w': // W-shaped (double dip)
+          const waveFactor = Math.sin(progress * Math.PI * 2) * 0.2;
+          return lowest + (decline * progress) + (decline * waveFactor);
+        default:
+          return value;
+      }
+    });
+  };
+  
+  // Load stress test from history
+  const loadHistoricalTest = (index: number) => {
+    if (index >= 0 && index < stressTestHistory.length) {
+      setActiveHistoryIndex(index);
+      setStressTestResult(stressTestHistory[index]);
+      setStressTestScenario(stressTestHistory[index].scenarioName || "");
+      setRecoveryPath(null); // Reset recovery path when switching
+    }
+  };
+  
+
+  // Handle stress test with history and custom portfolio support
+  const handleStressTest = async (scenario: string, customPortfolio?: PortfolioItem[]) => {
     if (!scenario.trim()) {
       toast.error("Please enter a stress test scenario");
       return;
@@ -485,11 +614,15 @@ export default function Home() {
 
     setStressTestLoading(true);
     setStressTestResult(null);
+    setRecoveryPath(null); // Reset recovery path
 
     try {
       // Use saved form data instead of reading from DOM
       const capital = parseInt(savedFormData?.capital || "10000");
       const horizon = savedFormData?.horizon || "";
+      
+      // Use custom portfolio if provided (for live rebalancing), otherwise use current
+      const portfolioToTest = customPortfolio || currentPortfolioData;
 
       const response = await fetch("/api/stress-test", {
         method: "POST",
@@ -498,9 +631,10 @@ export default function Home() {
         },
         body: JSON.stringify({
           scenario: scenario.trim(),
-          portfolio: currentPortfolioData,
+          portfolio: portfolioToTest,
           initialCapital: capital,
           timeHorizon: horizon,
+          customTimeHorizon: stressTestTimeHorizon, // Use custom time horizon
         }),
       });
 
@@ -518,7 +652,28 @@ export default function Home() {
         throw new Error(data.error);
       }
       
-      setStressTestResult(data);
+      // Add scenario name and timestamp to result
+      const resultWithMeta = {
+        ...data,
+        scenarioName: scenario,
+        timestamp: Date.now(),
+        portfolioSnapshot: portfolioToTest,
+      };
+      
+      setStressTestResult(resultWithMeta);
+      
+      // Add to history (keep last 5)
+      setStressTestHistory(prev => {
+        const newHistory = [resultWithMeta, ...prev].slice(0, 5);
+        return newHistory;
+      });
+      setActiveHistoryIndex(0);
+      
+      // Initialize visible asset classes if first time
+      if (visibleAssetClasses.length === 0 && data.impact) {
+        setVisibleAssetClasses(Object.keys(data.impact));
+      }
+      
       toast.success("Stress test completed!");
     } catch (error: any) {
       console.error("Error generating stress test:", error);
@@ -601,6 +756,41 @@ export default function Home() {
     name: item.name,
     percentage: item.value,
   }));
+  
+  // Initialize temp portfolio allocation when entering stress test tab
+  useEffect(() => {
+    if (activeResultTab === 'stressTest' && tempPortfolioAllocation.length === 0) {
+      setTempPortfolioAllocation(JSON.parse(JSON.stringify(currentPortfolioData)));
+    }
+  }, [activeResultTab, currentPortfolioData, tempPortfolioAllocation.length]);
+  
+  // Update temp portfolio allocation value
+  const updateTempAllocation = (index: number, newValue: number) => {
+    const updated = [...tempPortfolioAllocation];
+    updated[index] = { ...updated[index], value: newValue };
+    setTempPortfolioAllocation(updated);
+  };
+  
+  // Calculate total allocation
+  const getTotalAllocation = () => {
+    return tempPortfolioAllocation.reduce((sum, item) => sum + item.value, 0);
+  };
+  
+  // Test rebalanced portfolio
+  const testRebalancedPortfolio = () => {
+    const total = getTotalAllocation();
+    if (Math.abs(total - 100) > 0.1) {
+      toast.error(`Portfolio must total 100% (currently ${total.toFixed(1)}%)`);
+      return;
+    }
+    
+    if (!stressTestScenario.trim()) {
+      toast.error("Please select or enter a stress test scenario first");
+      return;
+    }
+    
+    handleStressTest(stressTestScenario, tempPortfolioAllocation);
+  };
   
   // Navigation Component for Form and Results Views
   const Navigation = () => {
@@ -1945,175 +2135,514 @@ export default function Home() {
 
           {/* Stress Test Tab */}
           {activeResultTab === 'stressTest' && (
-        <section className="glass-light animate-slide-in-up mx-auto max-w-5xl rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
-          {/* Stress Testing Section */}
-          <div>
-            <h3 className="text-gradient mb-4 text-3xl font-bold">Stress Testing</h3>
-            <p className="mb-6 text-base text-gray-300">
-              Test how your portfolio would perform under different market scenarios. Enter a custom scenario or choose from common stress tests.
-            </p>
+        <section className="glass-light animate-slide-in-up mx-auto max-w-7xl rounded-3xl border-t border-white/10 p-6 shadow-2xl sm:p-8 md:p-10">
+          <h3 className="text-gradient mb-6 text-3xl font-bold">Stress Testing</h3>
+          <p className="mb-8 text-base text-gray-300">
+            Test how your portfolio performs under different market scenarios with interactive controls and historical simulations.
+          </p>
 
-            {/* Pre-defined Scenarios */}
-            <div className="mb-6">
-              <p className="mb-4 text-base font-semibold text-gray-200">Quick Scenarios:</p>
-              <div className="flex flex-wrap gap-3">
-                {predefinedScenarios.map((scenario, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setStressTestScenario(scenario);
-                      handleStressTest(scenario);
-                    }}
-                    disabled={stressTestLoading}
-                    className="btn-ripple group rounded-xl border border-white/20 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 px-5 py-3 text-sm font-semibold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] hover:shadow-xl hover:shadow-[#00FF99]/20 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {scenario}
-                  </button>
-                ))}
+          {/* Scenario Input Section - 2 Column Layout */}
+          <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-5">
+            {/* LEFT COLUMN - Scenarios (60%) */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* Historical Event Templates */}
+              <div>
+                <p className="mb-3 text-sm font-semibold text-gray-200">Historical Events:</p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {historicalScenarios.map((event, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        const scenario = event.description;
+                        setStressTestScenario(scenario);
+                        handleStressTest(scenario);
+                      }}
+                      disabled={stressTestLoading}
+                      className="btn-ripple group relative overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-[#1C1F26]/90 to-[#171A1F]/90 p-4 text-left shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#9B59B6]/50 hover:bg-[#9B59B6]/10 hover:shadow-xl hover:shadow-[#9B59B6]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <div className="mb-2 text-2xl">{event.icon}</div>
+                      <div className="mb-1 text-xs font-bold text-[#9B59B6] transition-colors duration-300 group-hover:text-[#B47FD5]">{event.year}</div>
+                      <div className="mb-1 text-sm font-semibold text-gray-200 transition-colors duration-300 group-hover:text-white">{event.name}</div>
+                      <div className="text-xs text-gray-400 transition-colors duration-300 group-hover:text-gray-300">{event.description.slice(0, 40)}...</div>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Custom Scenario Input */}
-            <div className="group mb-6">
-              <label htmlFor="stress-scenario" className="mb-3 block text-base font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99]">
-                Custom Scenario
-              </label>
-              <div className="flex gap-3">
-                <input
-                  id="stress-scenario"
-                  type="text"
-                  value={stressTestScenario}
-                  onChange={(e) => setStressTestScenario(e.target.value)}
-                  placeholder="e.g., Oil prices spike 50%, causing energy sector volatility"
-                  className="flex-1 rounded-xl border border-gray-600 bg-[#171A1F]/80 px-5 py-4 text-base text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !stressTestLoading) {
-                      handleStressTest(stressTestScenario);
-                    }
-                  }}
-                />
-                <button
-                  onClick={() => handleStressTest(stressTestScenario)}
-                  disabled={stressTestLoading || !stressTestScenario.trim()}
-                  className="btn-ripple group relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#00FF99] to-[#00E689] px-8 py-4 font-bold text-[#171A1F] shadow-xl shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00FF99]/40 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {stressTestLoading && (
-                    <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
-                      <div className="h-full animate-[progressBar_2s_ease-in-out_infinite] bg-[#171A1F]/60"></div>
-                    </div>
-                  )}
-                  <span className="inline-flex items-center gap-2">
+              {/* Quick Scenarios */}
+              <div>
+                <p className="mb-3 text-sm font-semibold text-gray-200">Quick Scenarios:</p>
+                <div className="flex flex-wrap gap-2">
+                  {quickScenarios.map((scenario, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setStressTestScenario(scenario);
+                        handleStressTest(scenario);
+                      }}
+                      disabled={stressTestLoading}
+                      className="btn-ripple rounded-lg border border-white/20 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 px-4 py-2 text-sm font-medium text-gray-300 shadow-md backdrop-blur-sm transition-all duration-300 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] hover:shadow-lg hover:shadow-[#00FF99]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {scenario}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom Scenario Input */}
+              <div className="group">
+                <label htmlFor="stress-scenario" className="mb-2 block text-sm font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99]">
+                  Custom Scenario:
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="stress-scenario"
+                    type="text"
+                    value={stressTestScenario}
+                    onChange={(e) => setStressTestScenario(e.target.value)}
+                    placeholder="e.g., Oil prices spike 50%, causing energy volatility"
+                    className="flex-1 rounded-lg border border-gray-600 bg-[#171A1F]/80 px-4 py-3 text-sm text-gray-100 placeholder-gray-500 shadow-md outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-lg focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/30"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !stressTestLoading) {
+                        handleStressTest(stressTestScenario);
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => handleStressTest(stressTestScenario)}
+                    disabled={stressTestLoading || !stressTestScenario.trim()}
+                    className="btn-ripple group relative overflow-hidden rounded-lg bg-gradient-to-r from-[#00FF99] to-[#00E689] px-6 py-3 font-semibold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#00FF99]/40 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
                     {stressTestLoading ? (
                       <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                     ) : (
-                      <span className="transition-transform duration-300 group-hover:scale-110">Run Test</span>
+                      "Run"
                     )}
-                  </span>
-                </button>
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Stress Test Results */}
-            {stressTestResult && (
-              <div className="glass mt-8 animate-slide-in-up rounded-2xl border border-white/10 p-8 shadow-2xl">
-                <div className="mb-6 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex-1">
-                    <h4 className="text-gradient mb-3 text-2xl font-bold">Stress Test Results</h4>
-                    <p className="rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-4 text-sm italic leading-relaxed text-gray-300 backdrop-blur-sm">{stressTestResult.analysis}</p>
+            {/* RIGHT COLUMN - Controls (40%) */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Time Horizon Slider */}
+              <div className="rounded-xl border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-5 shadow-lg backdrop-blur-sm">
+                <label className="mb-3 block text-sm font-semibold text-gray-200">
+                  Time Horizon: <span className="text-[#00FF99]">{stressTestTimeHorizon} months</span>
+                </label>
+                <input
+                  type="range"
+                  min="6"
+                  max="24"
+                  step="6"
+                  value={stressTestTimeHorizon}
+                  onChange={(e) => setStressTestTimeHorizon(parseInt(e.target.value))}
+                  className="w-full accent-[#00FF99]"
+                />
+                <div className="mt-2 flex justify-between text-xs text-gray-400">
+                  <span>6mo</span>
+                  <span>12mo</span>
+                  <span>18mo</span>
+                  <span>24mo</span>
+                </div>
+              </div>
+
+              {/* Scenario Builder Toggle */}
+              <div className="rounded-xl border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-5 shadow-lg backdrop-blur-sm">
+                <button
+                  onClick={() => setShowScenarioBuilder(!showScenarioBuilder)}
+                  className="mb-3 flex w-full items-center justify-between text-sm font-semibold text-gray-200 transition-colors hover:text-[#00FF99]"
+                >
+                  <span>Scenario Builder</span>
+                  <svg
+                    className={`h-5 w-5 transition-transform duration-300 ${showScenarioBuilder ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Collapsible Scenario Builder */}
+                <div className={`overflow-hidden transition-all duration-300 ${showScenarioBuilder ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="space-y-4 pt-2">
+                    {/* Market Movement */}
+                    <div>
+                      <label className="mb-2 block text-xs font-medium text-gray-300">
+                        Market Movement: <span className="text-[#00FF99]">{scenarioBuilderParams.marketMovement > 0 ? '+' : ''}{scenarioBuilderParams.marketMovement}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="-50"
+                        max="50"
+                        step="5"
+                        value={scenarioBuilderParams.marketMovement}
+                        onChange={(e) => setScenarioBuilderParams(prev => ({ ...prev, marketMovement: parseInt(e.target.value) }))}
+                        className="w-full accent-[#00FF99]"
+                      />
+                      <div className="mt-1 flex justify-between text-xs text-gray-500">
+                        <span>-50%</span>
+                        <span>0%</span>
+                        <span>+50%</span>
+                      </div>
+                    </div>
+
+                    {/* Inflation */}
+                    <div>
+                      <label className="mb-2 block text-xs font-medium text-gray-300">
+                        Inflation: <span className="text-[#00FF99]">{scenarioBuilderParams.inflation}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="15"
+                        step="0.5"
+                        value={scenarioBuilderParams.inflation}
+                        onChange={(e) => setScenarioBuilderParams(prev => ({ ...prev, inflation: parseFloat(e.target.value) }))}
+                        className="w-full accent-[#FFB84D]"
+                      />
+                      <div className="mt-1 flex justify-between text-xs text-gray-500">
+                        <span>0%</span>
+                        <span>7.5%</span>
+                        <span>15%</span>
+                      </div>
+                    </div>
+
+                    {/* Volatility */}
+                    <div>
+                      <label className="mb-2 block text-xs font-medium text-gray-300">
+                        Volatility: <span className="text-[#00FF99]">{scenarioBuilderParams.volatility}/10</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        step="1"
+                        value={scenarioBuilderParams.volatility}
+                        onChange={(e) => setScenarioBuilderParams(prev => ({ ...prev, volatility: parseInt(e.target.value) }))}
+                        className="w-full accent-[#9B59B6]"
+                      />
+                      <div className="mt-1 flex justify-between text-xs text-gray-500">
+                        <span>Low</span>
+                        <span>Med</span>
+                        <span>High</span>
+                      </div>
+                    </div>
+
+                    {/* Run Custom Scenario */}
+                    <button
+                      onClick={() => {
+                        const scenario = generateScenarioFromSliders();
+                        setStressTestScenario(scenario);
+                        handleStressTest(scenario);
+                      }}
+                      disabled={stressTestLoading}
+                      className="btn-ripple w-full rounded-lg bg-gradient-to-r from-[#9B59B6] to-[#B47FD5] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#9B59B6]/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#9B59B6]/40 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Run Custom Scenario
+                    </button>
                   </div>
-                  <div className="flex flex-col items-end gap-3">
-                    <div className={`rounded-xl border-2 px-6 py-4 text-center shadow-2xl ${stressTestResult.percentageChange < 0 ? 'border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 shadow-red-500/20' : 'border-green-500/50 bg-gradient-to-br from-green-500/20 to-green-600/10 shadow-green-500/20'}`}>
-                      <div className={`text-4xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Section */}
+          {stressTestResult && (
+            <>
+              {/* Scenario History Pills */}
+              {stressTestHistory.length > 1 && (
+                <div className="mb-6 overflow-x-auto pb-2">
+                  <div className="flex gap-2">
+                    {stressTestHistory.map((test, index) => (
+                      <button
+                        key={test.timestamp}
+                        onClick={() => loadHistoricalTest(index)}
+                        className={`btn-ripple flex-shrink-0 rounded-full px-4 py-2 text-xs font-semibold shadow-md transition-all duration-300 hover:scale-105 ${
+                          index === activeHistoryIndex
+                            ? 'border-2 border-[#00FF99] bg-[#00FF99]/20 text-[#00FF99] shadow-lg shadow-[#00FF99]/30'
+                            : 'border border-white/20 bg-[#1C1F26]/80 text-gray-300 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={`text-lg ${index === activeHistoryIndex ? '' : 'opacity-60'}`}>
+                            {test.percentageChange < 0 ? '📉' : '📈'}
+                          </span>
+                          <span>{test.scenarioName?.slice(0, 30)}{test.scenarioName?.length > 30 ? '...' : ''}</span>
+                          <span className={`font-bold ${test.percentageChange < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                            {test.percentageChange > 0 ? '+' : ''}{test.percentageChange.toFixed(1)}%
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Main Results - 2 Column Layout */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                {/* LEFT COLUMN - Chart (65%) */}
+                <div className="lg:col-span-2 space-y-4">
+                  {/* Analysis Card */}
+                  <div className="glass rounded-xl border border-white/10 p-6 shadow-xl">
+                    <h4 className="text-gradient mb-3 text-xl font-bold">Analysis</h4>
+                    <p className="rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-4 text-sm italic leading-relaxed text-gray-300 backdrop-blur-sm">
+                      {stressTestResult.analysis}
+                    </p>
+                  </div>
+
+                  {/* Portfolio Value Chart */}
+                  {stressTestResult.portfolioValue && stressTestResult.portfolioValue.length > 0 && (
+                    <div className="glass rounded-xl border border-white/10 p-6 shadow-xl">
+                      <div className="mb-4 flex items-center justify-between">
+                        <h4 className="text-lg font-semibold text-gray-200">Portfolio Timeline</h4>
+                        <div className={`rounded-full px-4 py-1 text-sm font-bold shadow-md ${
+                          stressTestResult.riskLevel === 'Severe' ? 'bg-gradient-to-r from-red-600 to-red-700 text-white' :
+                          stressTestResult.riskLevel === 'High' ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white' :
+                          stressTestResult.riskLevel === 'Moderate' ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900' :
+                          'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                        }`}>
+                          {stressTestResult.riskLevel} Risk
+                        </div>
+                      </div>
+                      
+                      <div className="h-72 sm:h-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart
+                            data={stressTestResult.portfolioValue.map((value: number, index: number) => ({
+                              month: index,
+                              value: value,
+                              recoveryValue: recoveryPath ? calculateRecoveryPath(stressTestResult.portfolioValue, recoveryPath)[index] : null,
+                              percentChange: ((value - stressTestResult.portfolioValue[0]) / stressTestResult.portfolioValue[0] * 100).toFixed(1),
+                            }))}
+                            margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                            <XAxis 
+                              dataKey="month" 
+                              tick={{ fill: '#9ca3af', fontSize: 11 }}
+                              label={{ value: 'Months', position: 'insideBottom', offset: -5, fill: '#9ca3af', fontSize: 12 }}
+                            />
+                            <YAxis 
+                              tick={{ fill: '#9ca3af', fontSize: 11 }}
+                              width={60}
+                              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                            />
+                            <Tooltip 
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload;
+                                  return (
+                                    <div className="rounded-lg border border-[#00FF99]/30 bg-[#171A1F]/95 p-3 shadow-xl backdrop-blur-sm">
+                                      <p className="mb-2 text-xs font-semibold text-[#00FF99]">Month {data.month}</p>
+                                      <p className="mb-1 text-sm font-bold text-gray-100">${data.value.toLocaleString()}</p>
+                                      <p className={`text-xs font-medium ${parseFloat(data.percentChange) < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                                        {parseFloat(data.percentChange) > 0 ? '+' : ''}{data.percentChange}% from start
+                                      </p>
+                                      {recoveryPath && data.recoveryValue && (
+                                        <p className="mt-2 text-xs text-[#9B59B6]">Recovery: ${data.recoveryValue.toLocaleString()}</p>
+                                      )}
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="value" 
+                              stroke="#00FF99" 
+                              strokeWidth={3}
+                              dot={false}
+                              activeDot={{ r: 6, fill: '#00FF99', stroke: '#00FF99', strokeWidth: 2, filter: 'drop-shadow(0 0 6px rgba(0, 255, 153, 0.8))' }}
+                              animationBegin={0}
+                              animationDuration={600}
+                            />
+                            {recoveryPath && (
+                              <Line 
+                                type="monotone" 
+                                dataKey="recoveryValue" 
+                                stroke="#9B59B6" 
+                                strokeWidth={2}
+                                strokeDasharray="5 5"
+                                dot={false}
+                                opacity={0.7}
+                                animationBegin={0}
+                                animationDuration={600}
+                              />
+                            )}
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* Recovery Path Selector */}
+                      <div className="mt-4 border-t border-white/10 pt-4">
+                        <p className="mb-2 text-xs font-medium text-gray-400">Model Recovery Path:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            { type: 'v' as const, label: 'V-Shaped', desc: 'Fast recovery', color: 'green' },
+                            { type: 'u' as const, label: 'U-Shaped', desc: 'Gradual recovery', color: 'blue' },
+                            { type: 'l' as const, label: 'L-Shaped', desc: 'Prolonged', color: 'orange' },
+                            { type: 'w' as const, label: 'W-Shaped', desc: 'Double-dip', color: 'red' }
+                          ].map((path) => (
+                            <button
+                              key={path.type}
+                              onClick={() => setRecoveryPath(recoveryPath === path.type ? null : path.type)}
+                              className={`btn-ripple flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-all duration-300 ${
+                                recoveryPath === path.type
+                                  ? 'border-[#9B59B6] bg-[#9B59B6]/20 text-[#9B59B6] shadow-md shadow-[#9B59B6]/30'
+                                  : 'border-white/20 bg-[#1C1F26]/50 text-gray-400 hover:border-[#9B59B6]/50 hover:bg-[#9B59B6]/10 hover:text-[#9B59B6]'
+                              }`}
+                            >
+                              <div>{path.label}</div>
+                              <div className="text-xs opacity-70">{path.desc}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* RIGHT COLUMN - Metrics & Controls (35%) */}
+                <div className="space-y-4">
+                  {/* Key Metrics Card */}
+                  <div className="glass rounded-xl border border-white/10 p-5 shadow-xl">
+                    <h4 className="mb-4 text-sm font-semibold text-gray-200">Key Metrics</h4>
+                    <div className={`mb-4 rounded-lg border-2 p-4 text-center ${
+                      stressTestResult.percentageChange < 0 
+                        ? 'border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10' 
+                        : 'border-green-500/50 bg-gradient-to-br from-green-500/20 to-green-600/10'
+                    }`}>
+                      <div className={`text-3xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-500' : 'text-green-500'}`}>
                         {stressTestResult.percentageChange > 0 ? '+' : ''}{stressTestResult.percentageChange.toFixed(1)}%
                       </div>
-                      <div className="mt-2 text-sm font-medium text-gray-300">
-                        Final: ${stressTestResult.finalValue.toLocaleString()}
-                      </div>
+                      <div className="mt-2 text-xs font-medium text-gray-300">Total Change</div>
                     </div>
-                    <div className={`inline-block rounded-full px-5 py-2 text-sm font-bold shadow-lg ${
-                      stressTestResult.riskLevel === 'Severe' ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-red-500/40' :
-                      stressTestResult.riskLevel === 'High' ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-orange-500/40' :
-                      stressTestResult.riskLevel === 'Moderate' ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 shadow-yellow-500/40' :
-                      'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-green-500/40'
-                    }`}>
-                      {stressTestResult.riskLevel} Risk
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Initial Value:</span>
+                        <span className="font-semibold text-gray-200">${stressTestResult.portfolioValue[0].toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Final Value:</span>
+                        <span className="font-semibold text-gray-200">${stressTestResult.finalValue.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Time Horizon:</span>
+                        <span className="font-semibold text-gray-200">{stressTestResult.portfolioValue.length - 1} months</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Asset Impact Breakdown */}
-                <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                  {stressTestResult.impact && Object.entries(stressTestResult.impact).map(([asset, impact]: [string, any], index: number) => (
-                    <div 
-                      key={asset} 
-                      className="group rounded-xl border border-white/20 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#00FF99]/50 hover:shadow-xl hover:shadow-[#00FF99]/20"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <div className="mb-2 text-sm font-semibold capitalize text-gray-300 transition-colors duration-300 group-hover:text-[#00FF99]">{asset}</div>
-                      <div className={`text-2xl font-bold transition-all duration-300 ${impact < 0 ? 'text-red-500 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'text-green-500 group-hover:drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]'}`}>
-                        {impact > 0 ? '+' : ''}{impact.toFixed(1)}%
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Portfolio Value Chart */}
-                {stressTestResult.portfolioValue && stressTestResult.portfolioValue.length > 0 && (
-                  <div className="glass h-64 rounded-2xl p-6 shadow-2xl sm:h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
-                        data={stressTestResult.months.map((month: string, index: number) => ({
-                          month: index,
-                          value: stressTestResult.portfolioValue[index],
-                          display: index % 3 === 0, // Show quarterly labels
-                        })).filter((item: any) => item.display)}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                  {/* Asset Impact with Filtering */}
+                  <div className="glass rounded-xl border border-white/10 p-5 shadow-xl">
+                    <div className="mb-3 flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-gray-200">Asset Impact</h4>
+                      <button
+                        onClick={() => {
+                          if (stressTestResult.impact) {
+                            const allAssets = Object.keys(stressTestResult.impact);
+                            setVisibleAssetClasses(
+                              visibleAssetClasses.length === allAssets.length ? [] : allAssets
+                            );
+                          }
+                        }}
+                        className="text-xs text-[#00FF99] hover:underline"
                       >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                        <XAxis 
-                          dataKey="month" 
-                          tick={{ fill: '#9ca3af', fontSize: 12 }}
-                          label={{ value: 'Months Passed', position: 'insideBottom', offset: -10, fill: '#9ca3af', fontSize: 13 }}
-                        />
-                        <YAxis 
-                          tick={{ fill: '#9ca3af', fontSize: 12 }}
-                          label={{ value: 'Portfolio Value ($)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
-                        />
-                        <Tooltip 
-                          formatter={(value: number) => [`$${value.toLocaleString()}`, 'Portfolio Value']}
-                          contentStyle={{ 
-                            backgroundColor: 'rgba(23, 26, 31, 0.95)', 
-                            border: '1px solid rgba(0, 255, 153, 0.3)', 
-                            borderRadius: '12px',
-                            color: '#00FF99',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            backdropFilter: 'blur(8px)',
-                            boxShadow: '0 8px 32px rgba(0, 255, 153, 0.2)'
+                        {visibleAssetClasses.length === Object.keys(stressTestResult.impact || {}).length ? 'Hide All' : 'Show All'}
+                      </button>
+                    </div>
+                    
+                    {/* Filter Toggles */}
+                    <div className="mb-3 flex flex-wrap gap-1">
+                      {stressTestResult.impact && Object.keys(stressTestResult.impact).map((asset) => (
+                        <button
+                          key={asset}
+                          onClick={() => {
+                            setVisibleAssetClasses(prev =>
+                              prev.includes(asset)
+                                ? prev.filter(a => a !== asset)
+                                : [...prev, asset]
+                            );
                           }}
-                          labelStyle={{ color: '#00FF99', fontSize: '14px', fontWeight: '600' }}
-                          itemStyle={{ color: '#00FF99' }}
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="value" 
-                          stroke="#00FF99" 
-                          strokeWidth={3}
-                          dot={{ fill: '#00FF99', r: 4, strokeWidth: 2, stroke: '#00FF99' }}
-                          activeDot={{ r: 7, fill: '#00FF99', stroke: '#00FF99', strokeWidth: 3, filter: 'drop-shadow(0 0 8px rgba(0, 255, 153, 0.8))' }}
-                          animationBegin={0}
-                          animationDuration={800}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                          className={`rounded-full px-2 py-1 text-xs font-medium transition-all duration-300 ${
+                            visibleAssetClasses.includes(asset)
+                              ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/50'
+                              : 'bg-gray-700/50 text-gray-400 border border-gray-600'
+                          }`}
+                        >
+                          {asset}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Asset Cards */}
+                    <div className="space-y-2">
+                      {stressTestResult.impact && Object.entries(stressTestResult.impact)
+                        .filter(([asset]) => visibleAssetClasses.includes(asset))
+                        .map(([asset, impact]: [string, any]) => (
+                        <div 
+                          key={asset} 
+                          className="rounded-lg border border-white/10 bg-gradient-to-br from-[#1C1F26]/60 to-[#171A1F]/60 p-3 transition-all duration-300 hover:border-[#00FF99]/30"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium capitalize text-gray-300">{asset}</span>
+                            <span className={`text-lg font-bold ${impact < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                              {impact > 0 ? '+' : ''}{impact.toFixed(1)}%
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                )}
+
+                  {/* Live Portfolio Rebalancing */}
+                  <div className="glass rounded-xl border border-white/10 p-5 shadow-xl">
+                    <h4 className="mb-3 text-sm font-semibold text-gray-200">Test Different Allocation</h4>
+                    <div className="mb-3 space-y-2">
+                      {tempPortfolioAllocation.map((item, index) => (
+                        <div key={item.name}>
+                          <div className="mb-1 flex items-center justify-between text-xs">
+                            <span className="font-medium text-gray-300">{item.name}</span>
+                            <span className="font-semibold text-[#00FF99]">{item.value}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="5"
+                            value={item.value}
+                            onChange={(e) => updateTempAllocation(index, parseInt(e.target.value))}
+                            className="w-full accent-[#00FF99]"
+                            style={{ height: '4px' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="mb-3 rounded-lg border border-white/20 bg-[#1C1F26]/50 p-2 text-center">
+                      <span className={`text-sm font-bold ${Math.abs(getTotalAllocation() - 100) < 0.1 ? 'text-[#00FF99]' : 'text-red-400'}`}>
+                        Total: {getTotalAllocation().toFixed(1)}%
+                      </span>
+                    </div>
+                    
+                    <button
+                      onClick={testRebalancedPortfolio}
+                      disabled={stressTestLoading || Math.abs(getTotalAllocation() - 100) > 0.1}
+                      className="btn-ripple w-full rounded-lg bg-gradient-to-r from-[#00D4FF] to-[#00B4E6] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#00D4FF]/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#00D4FF]/40 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Test This Allocation
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+            </>
+          )}
         </section>
         )}
         </>

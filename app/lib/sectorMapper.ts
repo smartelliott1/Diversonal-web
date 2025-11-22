@@ -130,8 +130,12 @@ export function formatSectorDataForClaude(sectorsData: Record<string, any>): str
                                   marketCap >= 1e9 ? `$${(marketCap / 1e9).toFixed(1)}B` :
                                   marketCap >= 1e6 ? `$${(marketCap / 1e6).toFixed(0)}M` : `$${marketCap}`;
 
+      // Beta - volatility relative to market
+      const beta = profile.beta ? profile.beta.toFixed(2) : 'N/A';
+
       // Key metrics - Calculate P/E in real-time for accuracy
       const incomeStatement = (data as any).incomeStatement;
+      const incomeStatementHistory = (data as any).incomeStatementHistory || [];
       const currentPrice = profile.price;
       const eps = incomeStatement?.eps;
       
@@ -140,11 +144,23 @@ export function formatSectorDataForClaude(sectorsData: Record<string, any>): str
         ? (currentPrice / eps).toFixed(1) 
         : (ratios?.priceToEarningsRatio?.toFixed(1) || 'N/A');
       
+      // Revenue Growth - YoY percentage calculated from historical data
+      let revenueGrowth = 'N/A';
+      if (incomeStatementHistory.length >= 2) {
+        const currentRevenue = incomeStatementHistory[0]?.revenue;
+        const previousRevenue = incomeStatementHistory[1]?.revenue;
+        
+        if (currentRevenue && previousRevenue && previousRevenue > 0) {
+          const growth = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+          revenueGrowth = `${growth > 0 ? '+' : ''}${growth.toFixed(1)}%`;
+        }
+      }
+      
       const roe = ratios?.returnOnEquity ? `${(ratios.returnOnEquity * 100).toFixed(1)}%` : 'N/A';
       const debtToEquity = ratios?.debtToEquityRatio?.toFixed(2) || 'N/A';
       const profitMargin = ratios?.netProfitMargin ? `${(ratios.netProfitMargin * 100).toFixed(1)}%` : 'N/A';
 
-      prompt += `- ${ticker} (${profile.companyName}): Market Cap ${marketCapFormatted} | P/E ${pe} | ROE ${roe} | Debt/Equity ${debtToEquity} | Profit Margin ${profitMargin}\n`;
+      prompt += `- ${ticker} (${profile.companyName}): Market Cap ${marketCapFormatted} | Beta ${beta} | P/E ${pe} | Revenue Growth ${revenueGrowth} | ROE ${roe} | Debt/Equity ${debtToEquity} | Profit Margin ${profitMargin}\n`;
     }
     
     prompt += '\n';

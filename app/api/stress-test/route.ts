@@ -11,6 +11,7 @@ interface StressTestRequest {
   portfolio: Array<{ name: string; value: number; color: string; breakdown?: string }>;
   initialCapital: number;
   timeHorizon: string;
+  customTimeHorizon?: number; // Custom time horizon in months (6, 12, 18, 24)
 }
 
 interface StressTestResult {
@@ -42,7 +43,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { scenario, portfolio, initialCapital, timeHorizon } = body;
+  const { scenario, portfolio, initialCapital, timeHorizon, customTimeHorizon } = body;
+  
+  // Use custom time horizon if provided, otherwise default to 18 months
+  const monthsToSimulate = customTimeHorizon || 18;
+  const dataPoints = monthsToSimulate + 1; // Include month 0
 
   try {
 
@@ -63,7 +68,7 @@ export async function POST(request: NextRequest) {
       console.warn("ANTHROPIC_API_KEY not set, using fallback algorithm");
       console.log("Environment check - NODE_ENV:", process.env.NODE_ENV);
       return NextResponse.json({
-        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses),
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses, monthsToSimulate),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm",
       });
     }
@@ -120,7 +125,7 @@ ${scenario}
 2. Analyze how this scenario would impact each asset class in the portfolio FROM the current conditions
 3. Consider historical correlations, market behavior, and economic relationships
 4. Factor in current market cycle stage and volatility (VIX) as starting point
-5. Calculate monthly portfolio values over an 18-month period showing realistic progression
+5. Calculate monthly portfolio values over a ${monthsToSimulate}-month period showing realistic progression
 6. Determine the overall impact and risk level
 
 **Asset Class Impact Analysis:**
@@ -153,7 +158,7 @@ Example format:
 - Impact percentages should be realistic based on historical data and market behavior
 - Portfolio values should show a realistic trajectory (not linear, but market-like fluctuations)
 - Risk levels: "Low", "Moderate", "High", or "Severe"
-- Ensure portfolioValue array has 19 values (Month 0 through Month 18)
+- Ensure portfolioValue array has ${dataPoints} values (Month 0 through Month ${monthsToSimulate})
 - First value should be the initial capital
 - Values should reflect realistic market recovery patterns when applicable
 - Consider that different scenarios have different recovery trajectories`;
@@ -221,7 +226,7 @@ Example format:
       
       // Fallback to algorithm
       return NextResponse.json({
-        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses),
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses, monthsToSimulate),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm (Claude API unavailable - please verify API key and model access in Anthropic console)",
       });
     }
@@ -251,31 +256,32 @@ Example format:
       console.error("Error parsing Claude response:", parseError);
       // Fallback to algorithm
       return NextResponse.json({
-        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses),
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses, monthsToSimulate),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm",
       });
     }
 
     // Validate and normalize the data
-    if (!stressTestResult.portfolioValue || stressTestResult.portfolioValue.length !== 19) {
+    if (!stressTestResult.portfolioValue || stressTestResult.portfolioValue.length !== dataPoints) {
       // Generate missing months if needed
       const values = stressTestResult.portfolioValue || [];
-      while (values.length < 19) {
+      while (values.length < dataPoints) {
         values.push(values[values.length - 1] || initialCapital);
       }
-      stressTestResult.portfolioValue = values.slice(0, 19);
+      stressTestResult.portfolioValue = values.slice(0, dataPoints);
     }
 
-    if (!stressTestResult.months || stressTestResult.months.length !== 19) {
-      stressTestResult.months = Array.from({ length: 19 }, (_, i) => `Month ${i}`);
+    if (!stressTestResult.months || stressTestResult.months.length !== dataPoints) {
+      stressTestResult.months = Array.from({ length: dataPoints }, (_, i) => `Month ${i}`);
     }
 
     // Ensure first value is initial capital
     stressTestResult.portfolioValue[0] = initialCapital;
 
     // Calculate final value and percentage change if not provided
+    const lastIndex = dataPoints - 1;
     if (!stressTestResult.finalValue) {
-      stressTestResult.finalValue = stressTestResult.portfolioValue[18];
+      stressTestResult.finalValue = stressTestResult.portfolioValue[lastIndex];
     }
     if (!stressTestResult.percentageChange) {
       stressTestResult.percentageChange = 
@@ -307,7 +313,7 @@ Example format:
         .map((item) => item.name);
       
       return NextResponse.json({
-        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses),
+        ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses, monthsToSimulate),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm (AI service temporarily unavailable)",
       });
     } catch (fallbackError) {
@@ -330,7 +336,8 @@ function generateFallbackStressTest(
   scenario: string,
   portfolio: Array<{ name: string; value: number }>,
   initialCapital: number,
-  portfolioAssetClasses: string[]
+  portfolioAssetClasses: string[],
+  monthsToSimulate: number = 18
 ): StressTestResult {
   const scenarioLower = scenario.toLowerCase();
   
@@ -423,8 +430,8 @@ function generateFallbackStressTest(
   
   if (isPositive) {
     // Positive trajectory: gradual growth with some volatility
-    for (let i = 1; i <= 18; i++) {
-      const progress = i / 18;
+    for (let i = 1; i <= monthsToSimulate; i++) {
+      const progress = i / monthsToSimulate;
       // Non-linear growth with some volatility
       const growthFactor = 1 + (progress * Math.abs(totalImpact) / 100);
       // Add some volatility (small random fluctuations)
@@ -435,8 +442,8 @@ function generateFallbackStressTest(
     }
   } else {
     // Negative trajectory: decline with potential recovery
-    for (let i = 1; i <= 18; i++) {
-      const progress = i / 18;
+    for (let i = 1; i <= monthsToSimulate; i++) {
+      const progress = i / monthsToSimulate;
       // Non-linear decline with some recovery potential
       const declineFactor = 1 - (progress * Math.abs(totalImpact) / 100);
       const recoveryFactor = progress > 0.6 ? 1 + (progress - 0.6) * 0.1 : 1;
@@ -446,7 +453,7 @@ function generateFallbackStressTest(
     }
   }
 
-  portfolioValue[18] = finalValue;
+  portfolioValue[monthsToSimulate] = finalValue;
 
   const changeDirection = isPositive ? "increase" : "decline";
 

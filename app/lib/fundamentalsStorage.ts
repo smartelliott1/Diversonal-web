@@ -78,6 +78,7 @@ export async function saveFundamentals(stocks: StockFundamentals[]): Promise<voi
         ratios: stock.ratios,
         keyMetrics: stock.keyMetrics,
         incomeStatement: stock.incomeStatement,
+        incomeStatementHistory: stock.incomeStatementHistory,
         analystEstimates: stock.analystEstimates,
         lastUpdated: stock.lastUpdated,
         error: stock.error,

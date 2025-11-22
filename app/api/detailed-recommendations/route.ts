@@ -257,18 +257,19 @@ Use the actual current market conditions and intelligence from ALL sections abov
 - **CONSIDER UPCOMING CATALYSTS:** Reference the economic calendar and earnings schedule
 - **INCORPORATE MARKET NEWS:** Use recent news headlines to identify trending themes, sectors getting attention, and potential risks
 - For high-risk profiles and younger investors, include smaller market cap opportunities with 30%+ YoY growth and strong institutional buying
-- **CITE SPECIFIC SIGNALS:** When recommending a stock, note ONLY significant/relevant factors/data, mention if insiders are buying, if there's positive news momentum, or if it's in a leading sector
+- **USE REVENUE GROWTH DATA:** The fundamentals include YoY revenue growth percentages - favor stocks with strong growth (>15% for growth stocks, >5% for value stocks)
+- **CITE SPECIFIC SIGNALS:** When recommending a stock, note ONLY significant/relevant factors/data, mention if insiders are buying, if there's positive news momentum, if it's in a leading sector, and cite revenue growth for growth-oriented picks
 
 **Beta-Based Stock Selection (CRITICAL):**
-Based on risk tolerance, prioritize stocks with appropriate beta levels:
+The fundamentals data above includes ACTUAL BETA VALUES for each stock. You MUST use these real beta values to filter stocks based on risk tolerance:
 
-- **Low Risk**: Focus on defensive stocks with beta <0.8 (e.g., ORCL 0.77, XOM 0.38, LLY 0.39, CME 0.30). These provide stability and lower volatility.
+- **Low Risk**: ONLY recommend stocks with beta <0.8. These are defensive stocks that provide stability and lower volatility than the market.
 
-- **Moderate Risk**: Favor balanced stocks with beta 0.8-1.5 (e.g., GOOGL 1.08, MSFT 1.1, JPM 1.1). These track the market with moderate amplification.
+- **Moderate Risk**: Prioritize stocks with beta 0.8-1.5. These track the market with moderate amplification - not too volatile, not too conservative.
 
-- **High Risk**: Prioritize high-beta stocks with beta >1.5 (e.g., TSLA 1.87, SHOP 2.8, SOFI 1.94, MARA 5.4). These amplify market movements for aggressive growth.
+- **High Risk**: Favor high-beta stocks with beta >1.5. These amplify market movements for aggressive growth potential but come with higher volatility.
 
-Include beta values in your rationales and ensure stock selections align with the user's risk profile. Beta is available in the fundamentals data for each stock.
+
 
 **Response Format (JSON only, no markdown formatting):**
 {

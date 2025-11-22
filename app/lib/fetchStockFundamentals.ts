@@ -10,6 +10,7 @@ export interface StockFundamentals {
   ratios: any;
   keyMetrics: any;
   incomeStatement: any;
+  incomeStatementHistory: any[]; // Last 2 years for growth calculations
   analystEstimates: any | null;
   lastUpdated: string;
   error?: string;
@@ -55,6 +56,7 @@ export async function fetchStockFundamentals(
     ratios: null,
     keyMetrics: null,
     incomeStatement: null,
+    incomeStatementHistory: [],
     analystEstimates: null,
     lastUpdated: new Date().toISOString(),
   };
@@ -83,11 +85,14 @@ export async function fetchStockFundamentals(
       return data[0] || null;
     });
 
-    // Fetch income statement (required)
-    result.incomeStatement = await rateLimiter.executeWithRateLimit(async () => {
+    // Fetch income statement (required) - get last 2 years for growth calculation
+    const incomeStatements = await rateLimiter.executeWithRateLimit(async () => {
       const data = await fetchFMP('/stable/income-statement', ticker);
-      return data[0] || null;
+      return data || [];
     });
+    
+    result.incomeStatement = incomeStatements[0] || null;
+    result.incomeStatementHistory = incomeStatements.slice(0, 2); // Store last 2 years
 
     // Fetch analyst estimates (optional)
     try {
