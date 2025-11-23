@@ -484,47 +484,49 @@ export default function Home() {
   const historicalScenarios = [
     {
       name: "2008 Financial Crisis",
-      description: "Market drops 37%, credit markets freeze, housing collapse",
-      year: "2008",
-      icon: "📉"
+      description: "Market drops 37%, credit freeze",
+      year: "2008"
     },
     {
-      name: "2020 COVID-19 Crash",
-      description: "S&P 500 drops 34% in 33 days, then V-shaped recovery",
-      year: "2020",
-      icon: "🦠"
+      name: "2020 COVID-19",
+      description: "S&P 500 drops 34% in 33 days",
+      year: "2020"
     },
     {
       name: "2022 Inflation Surge",
-      description: "Rising rates, 8.5% inflation peak, bond market sell-off",
-      year: "2022",
-      icon: "📈"
+      description: "8.5% inflation, bond sell-off",
+      year: "2022"
     },
     {
-      name: "Dot-com Bubble Burst",
-      description: "Tech stocks crash 78%, recession follows",
-      year: "2000-2002",
-      icon: "💻"
+      name: "Dot-com Bubble",
+      description: "Tech crash 78%",
+      year: "2000-02"
     },
     {
       name: "1987 Black Monday",
-      description: "Dow Jones drops 22.6% in single day",
-      year: "1987",
-      icon: "⚫"
+      description: "Dow drops 22.6% in one day",
+      year: "1987"
     },
     {
       name: "Bull Market 2010s",
-      description: "10-year rally, S&P 500 gains 250%+",
-      year: "2010-2019",
-      icon: "🐂"
+      description: "S&P 500 gains 250%+",
+      year: "2010-19"
+    },
+    {
+      name: "S&P 500 drops 10%",
+      description: "Moderate market decline",
+      year: "Scenario"
+    },
+    {
+      name: "Bull market +20%",
+      description: "Strong market rally",
+      year: "Scenario"
+    },
+    {
+      name: "Rising rates & inflation",
+      description: "High inflation environment",
+      year: "Scenario"
     }
-  ];
-
-  // Pre-defined quick scenarios
-  const quickScenarios = [
-    "S&P 500 drops 10% over next year",
-    "Strong bull market with 20% gains",
-    "Rising interest rates and inflation",
   ];
 
   // Generate scenario description from slider params
@@ -2135,20 +2137,20 @@ export default function Home() {
 
           {/* Stress Test Tab */}
           {activeResultTab === 'stressTest' && (
-        <section className="glass-light animate-slide-in-up mx-auto max-w-7xl rounded-3xl border-t border-white/10 p-6 shadow-2xl sm:p-8 md:p-10">
-          <h3 className="text-gradient mb-6 text-3xl font-bold">Stress Testing</h3>
-          <p className="mb-8 text-base text-gray-300">
-            Test how your portfolio performs under different market scenarios with interactive controls and historical simulations.
+        <section className="glass-light animate-slide-in-up mx-auto max-w-[1600px] rounded-2xl border-t border-white/10 p-4 shadow-2xl sm:p-6">
+          <h3 className="text-gradient mb-4 text-2xl font-bold">Stress Testing</h3>
+          <p className="mb-6 text-sm text-gray-300">
+            Test portfolio performance under various market scenarios
           </p>
 
           {/* Scenario Input Section - 2 Column Layout */}
-          <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-5">
-            {/* LEFT COLUMN - Scenarios (60%) */}
-            <div className="lg:col-span-3 space-y-6">
-              {/* Historical Event Templates */}
+          <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-9">
+            {/* LEFT COLUMN - Scenarios (55%) */}
+            <div className="lg:col-span-5 space-y-4">
+              {/* Historical Event Templates - 3x3 Grid */}
               <div>
-                <p className="mb-3 text-sm font-semibold text-gray-200">Historical Events:</p>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Scenarios</p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {historicalScenarios.map((event, index) => (
                     <button
                       key={index}
@@ -2158,32 +2160,11 @@ export default function Home() {
                         handleStressTest(scenario);
                       }}
                       disabled={stressTestLoading}
-                      className="btn-ripple group relative overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-[#1C1F26]/90 to-[#171A1F]/90 p-4 text-left shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#9B59B6]/50 hover:bg-[#9B59B6]/10 hover:shadow-xl hover:shadow-[#9B59B6]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="btn-ripple group relative overflow-hidden rounded-lg border border-white/20 bg-gradient-to-br from-[#1C1F26]/90 to-[#171A1F]/90 p-3 text-left shadow-md backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#9B59B6]/50 hover:bg-[#9B59B6]/10 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <div className="mb-2 text-2xl">{event.icon}</div>
-                      <div className="mb-1 text-xs font-bold text-[#9B59B6] transition-colors duration-300 group-hover:text-[#B47FD5]">{event.year}</div>
-                      <div className="mb-1 text-sm font-semibold text-gray-200 transition-colors duration-300 group-hover:text-white">{event.name}</div>
-                      <div className="text-xs text-gray-400 transition-colors duration-300 group-hover:text-gray-300">{event.description.slice(0, 40)}...</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Quick Scenarios */}
-              <div>
-                <p className="mb-3 text-sm font-semibold text-gray-200">Quick Scenarios:</p>
-                <div className="flex flex-wrap gap-2">
-                  {quickScenarios.map((scenario, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setStressTestScenario(scenario);
-                        handleStressTest(scenario);
-                      }}
-                      disabled={stressTestLoading}
-                      className="btn-ripple rounded-lg border border-white/20 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 px-4 py-2 text-sm font-medium text-gray-300 shadow-md backdrop-blur-sm transition-all duration-300 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] hover:shadow-lg hover:shadow-[#00FF99]/20 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {scenario}
+                      <div className="mb-1 text-xs font-bold text-[#9B59B6]">{event.year}</div>
+                      <div className="mb-0.5 text-xs font-semibold text-gray-200 transition-colors duration-300 group-hover:text-white">{event.name}</div>
+                      <div className="text-xs text-gray-500 transition-colors duration-300 group-hover:text-gray-400">{event.description}</div>
                     </button>
                   ))}
                 </div>
@@ -2191,8 +2172,8 @@ export default function Home() {
 
               {/* Custom Scenario Input */}
               <div className="group">
-                <label htmlFor="stress-scenario" className="mb-2 block text-sm font-semibold text-gray-200 transition-colors duration-300 group-focus-within:text-[#00FF99]">
-                  Custom Scenario:
+                <label htmlFor="stress-scenario" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400 transition-colors duration-300 group-focus-within:text-[#00FF99]">
+                  Custom Scenario
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -2200,8 +2181,8 @@ export default function Home() {
                     type="text"
                     value={stressTestScenario}
                     onChange={(e) => setStressTestScenario(e.target.value)}
-                    placeholder="e.g., Oil prices spike 50%, causing energy volatility"
-                    className="flex-1 rounded-lg border border-gray-600 bg-[#171A1F]/80 px-4 py-3 text-sm text-gray-100 placeholder-gray-500 shadow-md outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-lg focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/30"
+                    placeholder="Enter custom scenario..."
+                    className="flex-1 rounded-lg border border-gray-600 bg-[#171A1F]/80 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 shadow-sm outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:ring-1 focus:ring-[#00FF99]/30"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !stressTestLoading) {
                         handleStressTest(stressTestScenario);
@@ -2211,10 +2192,10 @@ export default function Home() {
                   <button
                     onClick={() => handleStressTest(stressTestScenario)}
                     disabled={stressTestLoading || !stressTestScenario.trim()}
-                    className="btn-ripple group relative overflow-hidden rounded-lg bg-gradient-to-r from-[#00FF99] to-[#00E689] px-6 py-3 font-semibold text-[#171A1F] shadow-lg shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#00FF99]/40 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="btn-ripple rounded-lg bg-gradient-to-r from-[#00FF99] to-[#00E689] px-5 py-2 text-sm font-semibold text-[#171A1F] shadow-md shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {stressTestLoading ? (
-                      <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
@@ -2226,12 +2207,12 @@ export default function Home() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN - Controls (40%) */}
-            <div className="lg:col-span-2 space-y-6">
+            {/* RIGHT COLUMN - Controls (45%) */}
+            <div className="lg:col-span-4 space-y-4">
               {/* Time Horizon Slider */}
-              <div className="rounded-xl border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-5 shadow-lg backdrop-blur-sm">
-                <label className="mb-3 block text-sm font-semibold text-gray-200">
-                  Time Horizon: <span className="text-[#00FF99]">{stressTestTimeHorizon} months</span>
+              <div className="rounded-lg border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-4 shadow-md backdrop-blur-sm">
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Time Horizon: <span className="text-[#00FF99]">{stressTestTimeHorizon}mo</span>
                 </label>
                 <input
                   type="range"
@@ -2242,23 +2223,23 @@ export default function Home() {
                   onChange={(e) => setStressTestTimeHorizon(parseInt(e.target.value))}
                   className="w-full accent-[#00FF99]"
                 />
-                <div className="mt-2 flex justify-between text-xs text-gray-400">
-                  <span>6mo</span>
-                  <span>12mo</span>
-                  <span>18mo</span>
-                  <span>24mo</span>
+                <div className="mt-1.5 flex justify-between text-xs text-gray-500">
+                  <span>6</span>
+                  <span>12</span>
+                  <span>18</span>
+                  <span>24</span>
                 </div>
               </div>
 
               {/* Scenario Builder Toggle */}
-              <div className="rounded-xl border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-5 shadow-lg backdrop-blur-sm">
+              <div className="rounded-lg border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-4 shadow-md backdrop-blur-sm">
                 <button
                   onClick={() => setShowScenarioBuilder(!showScenarioBuilder)}
-                  className="mb-3 flex w-full items-center justify-between text-sm font-semibold text-gray-200 transition-colors hover:text-[#00FF99]"
+                  className="mb-2 flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wide text-gray-400 transition-colors hover:text-[#00FF99]"
                 >
-                  <span>Scenario Builder</span>
+                  <span>Advanced Builder</span>
                   <svg
-                    className={`h-5 w-5 transition-transform duration-300 ${showScenarioBuilder ? 'rotate-180' : ''}`}
+                    className={`h-4 w-4 transition-transform duration-300 ${showScenarioBuilder ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -2268,12 +2249,12 @@ export default function Home() {
                 </button>
 
                 {/* Collapsible Scenario Builder */}
-                <div className={`overflow-hidden transition-all duration-300 ${showScenarioBuilder ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                  <div className="space-y-4 pt-2">
+                <div className={`overflow-hidden transition-all duration-300 ${showScenarioBuilder ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="space-y-3 pt-2">
                     {/* Market Movement */}
                     <div>
-                      <label className="mb-2 block text-xs font-medium text-gray-300">
-                        Market Movement: <span className="text-[#00FF99]">{scenarioBuilderParams.marketMovement > 0 ? '+' : ''}{scenarioBuilderParams.marketMovement}%</span>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-400">
+                        Market: <span className="text-[#00FF99]">{scenarioBuilderParams.marketMovement > 0 ? '+' : ''}{scenarioBuilderParams.marketMovement}%</span>
                       </label>
                       <input
                         type="range"
@@ -2284,17 +2265,12 @@ export default function Home() {
                         onChange={(e) => setScenarioBuilderParams(prev => ({ ...prev, marketMovement: parseInt(e.target.value) }))}
                         className="w-full accent-[#00FF99]"
                       />
-                      <div className="mt-1 flex justify-between text-xs text-gray-500">
-                        <span>-50%</span>
-                        <span>0%</span>
-                        <span>+50%</span>
-                      </div>
                     </div>
 
                     {/* Inflation */}
                     <div>
-                      <label className="mb-2 block text-xs font-medium text-gray-300">
-                        Inflation: <span className="text-[#00FF99]">{scenarioBuilderParams.inflation}%</span>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-400">
+                        Inflation: <span className="text-[#FFB84D]">{scenarioBuilderParams.inflation}%</span>
                       </label>
                       <input
                         type="range"
@@ -2305,17 +2281,12 @@ export default function Home() {
                         onChange={(e) => setScenarioBuilderParams(prev => ({ ...prev, inflation: parseFloat(e.target.value) }))}
                         className="w-full accent-[#FFB84D]"
                       />
-                      <div className="mt-1 flex justify-between text-xs text-gray-500">
-                        <span>0%</span>
-                        <span>7.5%</span>
-                        <span>15%</span>
-                      </div>
                     </div>
 
                     {/* Volatility */}
                     <div>
-                      <label className="mb-2 block text-xs font-medium text-gray-300">
-                        Volatility: <span className="text-[#00FF99]">{scenarioBuilderParams.volatility}/10</span>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-400">
+                        Volatility: <span className="text-[#9B59B6]">{scenarioBuilderParams.volatility}/10</span>
                       </label>
                       <input
                         type="range"
@@ -2326,11 +2297,6 @@ export default function Home() {
                         onChange={(e) => setScenarioBuilderParams(prev => ({ ...prev, volatility: parseInt(e.target.value) }))}
                         className="w-full accent-[#9B59B6]"
                       />
-                      <div className="mt-1 flex justify-between text-xs text-gray-500">
-                        <span>Low</span>
-                        <span>Med</span>
-                        <span>High</span>
-                      </div>
                     </div>
 
                     {/* Run Custom Scenario */}
@@ -2341,9 +2307,9 @@ export default function Home() {
                         handleStressTest(scenario);
                       }}
                       disabled={stressTestLoading}
-                      className="btn-ripple w-full rounded-lg bg-gradient-to-r from-[#9B59B6] to-[#B47FD5] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#9B59B6]/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#9B59B6]/40 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="btn-ripple w-full rounded-lg bg-gradient-to-r from-[#9B59B6] to-[#B47FD5] px-4 py-2 text-sm font-semibold text-white shadow-md shadow-[#9B59B6]/30 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      Run Custom Scenario
+                      Run Test
                     </button>
                   </div>
                 </div>
@@ -2356,23 +2322,20 @@ export default function Home() {
             <>
               {/* Scenario History Pills */}
               {stressTestHistory.length > 1 && (
-                <div className="mb-6 overflow-x-auto pb-2">
+                <div className="mb-4 overflow-x-auto pb-2">
                   <div className="flex gap-2">
                     {stressTestHistory.map((test, index) => (
                       <button
                         key={test.timestamp}
                         onClick={() => loadHistoricalTest(index)}
-                        className={`btn-ripple flex-shrink-0 rounded-full px-4 py-2 text-xs font-semibold shadow-md transition-all duration-300 hover:scale-105 ${
+                        className={`btn-ripple flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm transition-all duration-300 hover:scale-105 ${
                           index === activeHistoryIndex
-                            ? 'border-2 border-[#00FF99] bg-[#00FF99]/20 text-[#00FF99] shadow-lg shadow-[#00FF99]/30'
-                            : 'border border-white/20 bg-[#1C1F26]/80 text-gray-300 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10'
+                            ? 'border border-[#00FF99] bg-[#00FF99]/20 text-[#00FF99]'
+                            : 'border border-white/20 bg-[#1C1F26]/80 text-gray-400 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10'
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={`text-lg ${index === activeHistoryIndex ? '' : 'opacity-60'}`}>
-                            {test.percentageChange < 0 ? '📉' : '📈'}
-                          </span>
-                          <span>{test.scenarioName?.slice(0, 30)}{test.scenarioName?.length > 30 ? '...' : ''}</span>
+                          <span>{test.scenarioName?.slice(0, 25)}{test.scenarioName?.length > 25 ? '...' : ''}</span>
                           <span className={`font-bold ${test.percentageChange < 0 ? 'text-red-400' : 'text-green-400'}`}>
                             {test.percentageChange > 0 ? '+' : ''}{test.percentageChange.toFixed(1)}%
                           </span>
@@ -2384,29 +2347,28 @@ export default function Home() {
               )}
 
               {/* Main Results - 2 Column Layout */}
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {/* LEFT COLUMN - Chart (65%) */}
-                <div className="lg:col-span-2 space-y-4">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+                {/* LEFT COLUMN - Chart (60%) */}
+                <div className="lg:col-span-3 space-y-4">
                   {/* Analysis Card */}
-                  <div className="glass rounded-xl border border-white/10 p-6 shadow-xl">
-                    <h4 className="text-gradient mb-3 text-xl font-bold">Analysis</h4>
-                    <p className="rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-4 text-sm italic leading-relaxed text-gray-300 backdrop-blur-sm">
+                  <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                    <p className="rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-3 text-xs leading-relaxed text-gray-300 backdrop-blur-sm">
                       {stressTestResult.analysis}
                     </p>
                   </div>
 
                   {/* Portfolio Value Chart */}
                   {stressTestResult.portfolioValue && stressTestResult.portfolioValue.length > 0 && (
-                    <div className="glass rounded-xl border border-white/10 p-6 shadow-xl">
-                      <div className="mb-4 flex items-center justify-between">
-                        <h4 className="text-lg font-semibold text-gray-200">Portfolio Timeline</h4>
-                        <div className={`rounded-full px-4 py-1 text-sm font-bold shadow-md ${
+                    <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                      <div className="mb-3 flex items-center justify-between">
+                        <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-400">Timeline</h4>
+                        <div className={`rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
                           stressTestResult.riskLevel === 'Severe' ? 'bg-gradient-to-r from-red-600 to-red-700 text-white' :
                           stressTestResult.riskLevel === 'High' ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white' :
                           stressTestResult.riskLevel === 'Moderate' ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900' :
                           'bg-gradient-to-r from-green-500 to-green-600 text-white'
                         }`}>
-                          {stressTestResult.riskLevel} Risk
+                          {stressTestResult.riskLevel}
                         </div>
                       </div>
                       
@@ -2480,26 +2442,26 @@ export default function Home() {
                       </div>
 
                       {/* Recovery Path Selector */}
-                      <div className="mt-4 border-t border-white/10 pt-4">
-                        <p className="mb-2 text-xs font-medium text-gray-400">Model Recovery Path:</p>
-                        <div className="flex flex-wrap gap-2">
+                      <div className="mt-3 border-t border-white/10 pt-3">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Recovery Path</p>
+                        <div className="grid grid-cols-4 gap-1.5">
                           {[
-                            { type: 'v' as const, label: 'V-Shaped', desc: 'Fast recovery', color: 'green' },
-                            { type: 'u' as const, label: 'U-Shaped', desc: 'Gradual recovery', color: 'blue' },
-                            { type: 'l' as const, label: 'L-Shaped', desc: 'Prolonged', color: 'orange' },
-                            { type: 'w' as const, label: 'W-Shaped', desc: 'Double-dip', color: 'red' }
+                            { type: 'v' as const, label: 'V', desc: 'Fast' },
+                            { type: 'u' as const, label: 'U', desc: 'Gradual' },
+                            { type: 'l' as const, label: 'L', desc: 'Slow' },
+                            { type: 'w' as const, label: 'W', desc: 'Double' }
                           ].map((path) => (
                             <button
                               key={path.type}
                               onClick={() => setRecoveryPath(recoveryPath === path.type ? null : path.type)}
-                              className={`btn-ripple flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-all duration-300 ${
+                              className={`btn-ripple rounded border px-2 py-1.5 text-xs font-semibold transition-all duration-300 ${
                                 recoveryPath === path.type
-                                  ? 'border-[#9B59B6] bg-[#9B59B6]/20 text-[#9B59B6] shadow-md shadow-[#9B59B6]/30'
-                                  : 'border-white/20 bg-[#1C1F26]/50 text-gray-400 hover:border-[#9B59B6]/50 hover:bg-[#9B59B6]/10 hover:text-[#9B59B6]'
+                                  ? 'border-[#9B59B6] bg-[#9B59B6]/20 text-[#9B59B6] shadow-sm'
+                                  : 'border-white/20 bg-[#1C1F26]/50 text-gray-400 hover:border-[#9B59B6]/50 hover:bg-[#9B59B6]/10'
                               }`}
                             >
-                              <div>{path.label}</div>
-                              <div className="text-xs opacity-70">{path.desc}</div>
+                              <div className="font-bold">{path.label}</div>
+                              <div className="text-[10px] opacity-70">{path.desc}</div>
                             </button>
                           ))}
                         </div>
@@ -2508,41 +2470,41 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* RIGHT COLUMN - Metrics & Controls (35%) */}
-                <div className="space-y-4">
+                {/* RIGHT COLUMN - Metrics & Controls (40%) */}
+                <div className="lg:col-span-2 space-y-4">
                   {/* Key Metrics Card */}
-                  <div className="glass rounded-xl border border-white/10 p-5 shadow-xl">
-                    <h4 className="mb-4 text-sm font-semibold text-gray-200">Key Metrics</h4>
-                    <div className={`mb-4 rounded-lg border-2 p-4 text-center ${
+                  <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Metrics</h4>
+                    <div className={`mb-3 rounded-lg border p-3 text-center ${
                       stressTestResult.percentageChange < 0 
                         ? 'border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10' 
                         : 'border-green-500/50 bg-gradient-to-br from-green-500/20 to-green-600/10'
                     }`}>
-                      <div className={`text-3xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                      <div className={`text-2xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-500' : 'text-green-500'}`}>
                         {stressTestResult.percentageChange > 0 ? '+' : ''}{stressTestResult.percentageChange.toFixed(1)}%
                       </div>
-                      <div className="mt-2 text-xs font-medium text-gray-300">Total Change</div>
+                      <div className="mt-1 text-[10px] font-medium uppercase tracking-wide text-gray-400">Change</div>
                     </div>
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-1.5 text-xs">
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Initial Value:</span>
-                        <span className="font-semibold text-gray-200">${stressTestResult.portfolioValue[0].toLocaleString()}</span>
+                        <span className="text-gray-500">Initial:</span>
+                        <span className="font-semibold text-gray-200">${(stressTestResult.portfolioValue[0] / 1000).toFixed(1)}k</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Final Value:</span>
-                        <span className="font-semibold text-gray-200">${stressTestResult.finalValue.toLocaleString()}</span>
+                        <span className="text-gray-500">Final:</span>
+                        <span className="font-semibold text-gray-200">${(stressTestResult.finalValue / 1000).toFixed(1)}k</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Time Horizon:</span>
-                        <span className="font-semibold text-gray-200">{stressTestResult.portfolioValue.length - 1} months</span>
+                        <span className="text-gray-500">Duration:</span>
+                        <span className="font-semibold text-gray-200">{stressTestResult.portfolioValue.length - 1}mo</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Asset Impact with Filtering */}
-                  <div className="glass rounded-xl border border-white/10 p-5 shadow-xl">
-                    <div className="mb-3 flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-gray-200">Asset Impact</h4>
+                  <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                    <div className="mb-2 flex items-center justify-between">
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Asset Impact</h4>
                       <button
                         onClick={() => {
                           if (stressTestResult.impact) {
@@ -2552,14 +2514,14 @@ export default function Home() {
                             );
                           }
                         }}
-                        className="text-xs text-[#00FF99] hover:underline"
+                        className="text-[10px] text-[#00FF99] hover:underline"
                       >
-                        {visibleAssetClasses.length === Object.keys(stressTestResult.impact || {}).length ? 'Hide All' : 'Show All'}
+                        {visibleAssetClasses.length === Object.keys(stressTestResult.impact || {}).length ? 'Hide' : 'All'}
                       </button>
                     </div>
                     
                     {/* Filter Toggles */}
-                    <div className="mb-3 flex flex-wrap gap-1">
+                    <div className="mb-2 flex flex-wrap gap-1">
                       {stressTestResult.impact && Object.keys(stressTestResult.impact).map((asset) => (
                         <button
                           key={asset}
@@ -2570,10 +2532,10 @@ export default function Home() {
                                 : [...prev, asset]
                             );
                           }}
-                          className={`rounded-full px-2 py-1 text-xs font-medium transition-all duration-300 ${
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-medium transition-all duration-300 ${
                             visibleAssetClasses.includes(asset)
                               ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/50'
-                              : 'bg-gray-700/50 text-gray-400 border border-gray-600'
+                              : 'bg-gray-700/50 text-gray-500 border border-gray-600'
                           }`}
                         >
                           {asset}
@@ -2582,17 +2544,17 @@ export default function Home() {
                     </div>
 
                     {/* Asset Cards */}
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {stressTestResult.impact && Object.entries(stressTestResult.impact)
                         .filter(([asset]) => visibleAssetClasses.includes(asset))
                         .map(([asset, impact]: [string, any]) => (
                         <div 
                           key={asset} 
-                          className="rounded-lg border border-white/10 bg-gradient-to-br from-[#1C1F26]/60 to-[#171A1F]/60 p-3 transition-all duration-300 hover:border-[#00FF99]/30"
+                          className="rounded border border-white/10 bg-gradient-to-br from-[#1C1F26]/60 to-[#171A1F]/60 p-2 transition-all duration-300 hover:border-[#00FF99]/30"
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium capitalize text-gray-300">{asset}</span>
-                            <span className={`text-lg font-bold ${impact < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                            <span className="text-xs font-medium capitalize text-gray-400">{asset}</span>
+                            <span className={`text-sm font-bold ${impact < 0 ? 'text-red-500' : 'text-green-500'}`}>
                               {impact > 0 ? '+' : ''}{impact.toFixed(1)}%
                             </span>
                           </div>
@@ -2602,13 +2564,13 @@ export default function Home() {
                   </div>
 
                   {/* Live Portfolio Rebalancing */}
-                  <div className="glass rounded-xl border border-white/10 p-5 shadow-xl">
-                    <h4 className="mb-3 text-sm font-semibold text-gray-200">Test Different Allocation</h4>
+                  <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Rebalance Portfolio</h4>
                     <div className="mb-3 space-y-2">
                       {tempPortfolioAllocation.map((item, index) => (
                         <div key={item.name}>
-                          <div className="mb-1 flex items-center justify-between text-xs">
-                            <span className="font-medium text-gray-300">{item.name}</span>
+                          <div className="mb-0.5 flex items-center justify-between text-xs">
+                            <span className="font-medium text-gray-500">{item.name}</span>
                             <span className="font-semibold text-[#00FF99]">{item.value}%</span>
                           </div>
                           <input
@@ -2619,24 +2581,24 @@ export default function Home() {
                             value={item.value}
                             onChange={(e) => updateTempAllocation(index, parseInt(e.target.value))}
                             className="w-full accent-[#00FF99]"
-                            style={{ height: '4px' }}
+                            style={{ height: '3px' }}
                           />
                         </div>
                       ))}
                     </div>
                     
-                    <div className="mb-3 rounded-lg border border-white/20 bg-[#1C1F26]/50 p-2 text-center">
-                      <span className={`text-sm font-bold ${Math.abs(getTotalAllocation() - 100) < 0.1 ? 'text-[#00FF99]' : 'text-red-400'}`}>
-                        Total: {getTotalAllocation().toFixed(1)}%
+                    <div className="mb-2 rounded border border-white/20 bg-[#1C1F26]/50 p-1.5 text-center">
+                      <span className={`text-xs font-bold ${Math.abs(getTotalAllocation() - 100) < 0.1 ? 'text-[#00FF99]' : 'text-red-400'}`}>
+                        Total: {getTotalAllocation().toFixed(0)}%
                       </span>
                     </div>
                     
                     <button
                       onClick={testRebalancedPortfolio}
                       disabled={stressTestLoading || Math.abs(getTotalAllocation() - 100) > 0.1}
-                      className="btn-ripple w-full rounded-lg bg-gradient-to-r from-[#00D4FF] to-[#00B4E6] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#00D4FF]/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#00D4FF]/40 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="btn-ripple w-full rounded-lg bg-gradient-to-r from-[#00D4FF] to-[#00B4E6] px-4 py-2 text-sm font-semibold text-white shadow-md shadow-[#00D4FF]/30 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      Test This Allocation
+                      Run Test
                     </button>
                   </div>
                 </div>
