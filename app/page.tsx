@@ -916,8 +916,9 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section id="hero-section" className="flex min-h-screen items-center justify-center pt-16">
-        <div className="mx-auto max-w-5xl px-6 text-center">
+      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden pt-16">
+        {/* Hero Text */}
+        <div className="relative z-10 mx-auto max-w-5xl px-6 text-center mb-16">
           <h2 className="mb-6 text-5xl font-semibold text-[#E6E6E6] sm:text-6xl lg:text-7xl">
             AI-Powered Portfolio Optimization
           </h2>
@@ -925,9 +926,164 @@ export default function Home() {
             Professional-grade portfolio allocation powered by advanced AI. Get personalized recommendations, stress test scenarios, and detailed stock picks.
           </p>
         </div>
+
+        {/* 3D Mockup Visualization */}
+        <div className="relative z-0 w-full max-w-7xl px-6 mb-20" style={{ perspective: '2000px' }}>
+          <div className="relative mx-auto h-[400px] md:h-[500px]">
+            
+            {/* Left Panel - Form Input */}
+            <div 
+              className="absolute left-0 top-1/2 hidden w-[280px] -translate-y-1/2 transform rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4 shadow-2xl transition-transform duration-300 hover:scale-[1.02] lg:block md:w-[320px]"
+              style={{ 
+                transform: 'translateY(-50%) rotateY(8deg) rotateX(2deg) translateZ(-50px)',
+                transformOrigin: 'center center'
+              }}
+            >
+              <div className="mb-3 flex items-center justify-between border-b border-[#2A2A2A] pb-2">
+                <h4 className="text-sm font-semibold text-[#E6E6E6]">Portfolio Builder</h4>
+                <div className="flex gap-1">
+                  <div className="h-2 w-2 rounded-full bg-[#808080]"></div>
+                  <div className="h-2 w-2 rounded-full bg-[#808080]"></div>
+                  <div className="h-2 w-2 rounded-full bg-[#808080]"></div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-xs text-[#B4B4B4]">Your age</label>
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
+                    <span className="text-xs text-[#808080]">32</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-[#B4B4B4]">Risk tolerance</label>
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
+                    <span className="text-xs text-[#808080]">Moderate</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-[#B4B4B4]">Time horizon</label>
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
+                    <span className="text-xs text-[#808080]">7+ years</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-[#B4B4B4]">Available capital</label>
+                  <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2 py-1.5">
+                    <span className="text-xs text-[#00FF99]">$50,000</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Center Panel - Portfolio Results */}
+            <div 
+              className="absolute left-1/2 top-1/2 z-10 w-[300px] md:w-[360px] -translate-x-1/2 -translate-y-1/2 transform rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 shadow-2xl transition-transform duration-300 hover:scale-[1.02]"
+              style={{ 
+                transform: 'translate(-50%, -50%) rotateY(-2deg) rotateX(1deg)',
+                transformOrigin: 'center center'
+              }}
+            >
+              <div className="mb-4 flex items-center justify-between border-b border-[#2A2A2A] pb-2">
+                <h4 className="text-sm font-semibold text-[#E6E6E6]">Your Portfolio</h4>
+                <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2 py-0.5">
+                  <span className="text-xs font-medium text-[#00FF99]">Optimized</span>
+                </div>
+              </div>
+              {/* Mini Pie Chart */}
+              <div className="mb-4 flex justify-center">
+                <div className="relative h-32 w-32">
+                  <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90 transform">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#4A4A4A" strokeWidth="20" strokeDasharray="75.4 251.2" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#5A5A5A" strokeWidth="20" strokeDasharray="62.8 251.2" strokeDashoffset="-75.4" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#00FF99" strokeWidth="20" strokeDasharray="50.2 251.2" strokeDashoffset="-138.2" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#808080" strokeWidth="20" strokeDasharray="37.7 251.2" strokeDashoffset="-188.4" />
+                  </svg>
+                </div>
+              </div>
+              {/* Allocations */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-sm bg-[#4A4A4A]"></div>
+                    <span className="text-xs text-[#B4B4B4]">Equities</span>
+                  </div>
+                  <span className="text-xs font-medium text-[#E6E6E6]">40%</span>
+                </div>
+                <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-sm bg-[#5A5A5A]"></div>
+                    <span className="text-xs text-[#B4B4B4]">Bonds</span>
+                  </div>
+                  <span className="text-xs font-medium text-[#E6E6E6]">25%</span>
+                </div>
+                <div className="flex items-center justify-between rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 p-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-sm bg-[#00FF99]"></div>
+                    <span className="text-xs text-[#00FF99]">Commodities</span>
+                  </div>
+                  <span className="text-xs font-medium text-[#00FF99]">20%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Panel - Stock Recommendations */}
+            <div 
+              className="absolute right-0 top-1/2 hidden w-[280px] -translate-y-1/2 transform rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4 shadow-2xl transition-transform duration-300 hover:scale-[1.02] lg:block md:w-[320px]"
+              style={{ 
+                transform: 'translateY(-50%) rotateY(-8deg) rotateX(2deg) translateZ(-50px)',
+                transformOrigin: 'center center'
+              }}
+            >
+              <div className="mb-3 flex items-center justify-between border-b border-[#2A2A2A] pb-2">
+                <h4 className="text-sm font-semibold text-[#E6E6E6]">Stock Picks</h4>
+                <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2 py-0.5">
+                  <span className="text-xs font-medium text-[#00FF99]">Live</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2.5">
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-[#E6E6E6]">AAPL</span>
+                    <span className="rounded-sm bg-[#00FF99]/20 px-1.5 py-0.5 text-xs font-medium text-[#00FF99]">Buy</span>
+                  </div>
+                  <p className="text-xs text-[#808080]">Apple Inc. • Tech</p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="rounded-sm border border-[#808080] bg-[#242424] px-1.5 py-0.5 text-xs text-[#B4B4B4]">Low Risk</span>
+                    <span className="text-xs text-[#00FF99]">+12.5%</span>
+                  </div>
+                </div>
+                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2.5">
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-[#E6E6E6]">MSFT</span>
+                    <span className="rounded-sm bg-[#00FF99]/20 px-1.5 py-0.5 text-xs font-medium text-[#00FF99]">Buy</span>
+                  </div>
+                  <p className="text-xs text-[#808080]">Microsoft Corp. • Tech</p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="rounded-sm border border-[#808080] bg-[#242424] px-1.5 py-0.5 text-xs text-[#B4B4B4]">Low Risk</span>
+                    <span className="text-xs text-[#00FF99]">+8.3%</span>
+                  </div>
+                </div>
+                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2.5">
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-[#E6E6E6]">NVDA</span>
+                    <span className="rounded-sm bg-[#00FF99]/20 px-1.5 py-0.5 text-xs font-medium text-[#00FF99]">Buy</span>
+                  </div>
+                  <p className="text-xs text-[#808080]">NVIDIA Corp. • Tech</p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="rounded-sm border border-[#808080] bg-[#242424] px-1.5 py-0.5 text-xs text-[#B4B4B4]">Mod Risk</span>
+                    <span className="text-xs text-[#00FF99]">+24.1%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Scroll Button */}
         <button 
           onClick={scrollToNextSection}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 cursor-pointer transition-all duration-200 hover:translate-y-1"
+          className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 cursor-pointer transition-all duration-200 hover:translate-y-1"
           aria-label="Scroll to next section"
         >
           <svg className="h-6 w-6 text-[#808080] hover:text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1443,7 +1599,7 @@ export default function Home() {
                     target.style.height = target.scrollHeight + 'px';
                   }}
                   onChange={(e) => setGoalLength(e.target.value.length)}
-                  className="w-full rounded-xl border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5 text-center text-sm text-[#E6E6E6] placeholder-[#808080] placeholder:text-center outline-none transition-all duration-200 hover:border-[#3A3A3A] focus:border-[#00FF99] focus:bg-[#0F0F0F] resize-none"
+                  className="w-full rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5 text-center text-sm text-[#E6E6E6] placeholder-[#808080] placeholder:text-center outline-none transition-all duration-200 hover:border-[#3A3A3A] focus:border-[#00FF99] focus:bg-[#0F0F0F] resize-none"
                 />
                 <div className="mt-2 flex items-center justify-between">
                   <span className={`text-xs transition-colors duration-200 ${goalLength >= 50 ? 'text-[#00FF99] font-medium' : 'text-[#808080]'}`}>
