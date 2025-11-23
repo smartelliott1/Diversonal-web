@@ -2417,10 +2417,12 @@ export default function Home() {
             {/* RIGHT COLUMN - Controls (45%) */}
             <div className="lg:col-span-4 space-y-4">
               {/* Time Horizon Slider */}
-              <div className="rounded-lg border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-4 shadow-md backdrop-blur-sm">
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  Time Horizon: <span className="text-[#00FF99]">{stressTestTimeHorizon}mo</span>
-                </label>
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Time Horizon</p>
+                <div className="rounded-lg border border-white/10 bg-gradient-to-br from-[#1C1F26]/80 to-[#171A1F]/80 p-4 shadow-md backdrop-blur-sm">
+                  <div className="mb-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-400">
+                    <span className="text-[#00FF99]">{stressTestTimeHorizon}mo</span>
+                  </div>
                 <input
                   type="range"
                   min="6"
@@ -2430,11 +2432,12 @@ export default function Home() {
                   onChange={(e) => setStressTestTimeHorizon(parseInt(e.target.value))}
                   className="w-full accent-[#00FF99]"
                 />
-                <div className="mt-1.5 flex justify-between text-xs text-gray-500">
-                  <span>6</span>
-                  <span>12</span>
-                  <span>18</span>
-                  <span>24</span>
+                  <div className="mt-1.5 flex justify-between text-xs text-gray-500">
+                    <span>6</span>
+                    <span>12</span>
+                    <span>18</span>
+                    <span>24</span>
+                  </div>
                 </div>
               </div>
 
@@ -2599,6 +2602,7 @@ export default function Home() {
                             <YAxis 
                               tick={{ fill: '#9ca3af', fontSize: 11 }}
                               width={60}
+                              domain={[(dataMin: number) => dataMin * 0.90, (dataMax: number) => dataMax * 1.10]}
                               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                             />
                             <Tooltip 
@@ -2769,45 +2773,47 @@ export default function Home() {
                       ))}
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  {/* Live Portfolio Rebalancing */}
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
-                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Rebalance Portfolio</h4>
-                    <div className="mb-3 space-y-2">
-                      {tempPortfolioAllocation.map((item, index) => (
-                        <div key={item.name}>
-                          <div className="mb-0.5 flex items-center justify-between text-xs">
-                            <span className="font-medium text-gray-500">{item.name}</span>
-                            <span className="font-semibold text-[#00FF99]">{item.value}%</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            step="5"
-                            value={item.value}
-                            onChange={(e) => updateTempAllocation(index, parseInt(e.target.value))}
-                            className="w-full accent-[#00FF99]"
-                            style={{ height: '3px' }}
-                          />
-                        </div>
-                      ))}
+              {/* Live Portfolio Rebalancing - Full Width */}
+              <div className="mt-4 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Rebalance Portfolio</h4>
+                <div className="mb-3 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+                  {tempPortfolioAllocation.map((item, index) => (
+                    <div key={item.name}>
+                      <div className="mb-0.5 flex items-center justify-between text-xs">
+                        <span className="font-medium text-gray-500">{item.name}</span>
+                        <span className="font-semibold text-[#00FF99]">{item.value}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="5"
+                        value={item.value}
+                        onChange={(e) => updateTempAllocation(index, parseInt(e.target.value))}
+                        className="w-full accent-[#00FF99]"
+                        style={{ height: '3px' }}
+                      />
                     </div>
-                    
-                    <div className="mb-2 rounded border border-white/20 bg-[#1C1F26]/50 p-1.5 text-center">
-                      <span className={`text-xs font-bold ${Math.abs(getTotalAllocation() - 100) < 0.1 ? 'text-[#00FF99]' : 'text-red-400'}`}>
-                        Total: {getTotalAllocation().toFixed(0)}%
-                      </span>
-                    </div>
-                    
-                    <button
-                      onClick={testRebalancedPortfolio}
-                      disabled={stressTestLoading || Math.abs(getTotalAllocation() - 100) > 0.1}
-                      className="btn-ripple w-full rounded-lg bg-gradient-to-r from-[#00D4FF] to-[#00B4E6] px-4 py-2 text-sm font-semibold text-white shadow-md shadow-[#00D4FF]/30 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      Run Test
-                    </button>
+                  ))}
+                </div>
+                
+                <div className="flex items-center justify-center gap-4">
+                  <div className="rounded border border-white/20 bg-[#1C1F26]/50 px-4 py-1.5 text-center">
+                    <span className={`text-xs font-bold ${Math.abs(getTotalAllocation() - 100) < 0.1 ? 'text-[#00FF99]' : 'text-red-400'}`}>
+                      Total: {getTotalAllocation().toFixed(0)}%
+                    </span>
                   </div>
+                  
+                  <button
+                    onClick={testRebalancedPortfolio}
+                    disabled={stressTestLoading || Math.abs(getTotalAllocation() - 100) > 0.1}
+                    className="btn-ripple rounded-lg bg-gradient-to-r from-[#00D4FF] to-[#00B4E6] px-6 py-2 text-sm font-semibold text-white shadow-md shadow-[#00D4FF]/30 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Run Test
+                  </button>
                 </div>
               </div>
             </>
