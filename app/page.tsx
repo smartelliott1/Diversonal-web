@@ -803,9 +803,9 @@ export default function Home() {
             {/* Logo/Brand - Left Side */}
             <button
               onClick={handleGoHome}
-              className="group flex items-center gap-2 transition-all duration-200"
+              className="group flex items-center gap-2 transition-all duration-300 hover:scale-105"
             >
-              <h1 className="text-2xl font-medium tracking-wide text-[#E6E6E6] transition-all duration-200 group-hover:text-[#00FF99]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+              <h1 className="animate-glow text-3xl font-normal tracking-[0.3em] text-[#00FF99] uppercase transition-all duration-300 group-hover:text-[#00E689]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
                 Diversonal
               </h1>
             </button>
@@ -894,9 +894,9 @@ export default function Home() {
             {/* Logo/Brand - Left Side */}
             <button
               onClick={handleGoHome}
-              className="group flex items-center gap-2 transition-all duration-200"
+              className="group flex items-center gap-2 transition-all duration-300 hover:scale-105"
             >
-              <h1 className="text-2xl font-medium tracking-wide text-[#E6E6E6] transition-all duration-200 group-hover:text-[#00FF99]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+              <h1 className="animate-glow text-3xl font-normal tracking-[0.3em] text-[#00FF99] uppercase transition-all duration-300 group-hover:text-[#00E689]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
                 Diversonal
               </h1>
             </button>
@@ -1354,7 +1354,7 @@ export default function Home() {
         >
           {/* Investment Profile Section */}
           <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
-            <h3 className="mb-6 text-lg font-semibold text-[#E6E6E6]">Investment Profile</h3>
+            <h3 className="mb-6 text-center text-lg font-semibold text-[#E6E6E6]">Investment Profile</h3>
             <div className="space-y-5">
           <div className="group">
             <label htmlFor="age" className="mb-2 flex items-center gap-2 text-sm font-medium text-[#B4B4B4] group-focus-within:text-[#E6E6E6]">
@@ -1424,7 +1424,7 @@ export default function Home() {
 
           {/* Your Investment Vision Section */}
           <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
-            <h3 className="mb-6 text-lg font-semibold text-[#E6E6E6]">Your Investment Vision</h3>
+            <h3 className="mb-6 text-center text-lg font-semibold text-[#E6E6E6]">Your Investment Vision</h3>
             <div className="space-y-4">
               <div className="group">
                 <label htmlFor="goal" className="mb-2 flex items-center gap-2 text-sm font-medium text-[#B4B4B4] group-focus-within:text-[#E6E6E6]">
@@ -1443,7 +1443,7 @@ export default function Home() {
                     target.style.height = target.scrollHeight + 'px';
                   }}
                   onChange={(e) => setGoalLength(e.target.value.length)}
-                  className="w-full rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5 text-sm text-[#E6E6E6] placeholder-[#808080] outline-none transition-all duration-200 hover:border-[#3A3A3A] focus:border-[#00FF99] focus:bg-[#0F0F0F] resize-none"
+                  className="w-full rounded-xl border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5 text-center text-sm text-[#E6E6E6] placeholder-[#808080] placeholder:text-center outline-none transition-all duration-200 hover:border-[#3A3A3A] focus:border-[#00FF99] focus:bg-[#0F0F0F] resize-none"
                 />
                 <div className="mt-2 flex items-center justify-between">
                   <span className={`text-xs transition-colors duration-200 ${goalLength >= 50 ? 'text-[#00FF99] font-medium' : 'text-[#808080]'}`}>
@@ -1472,7 +1472,7 @@ export default function Home() {
 
           {/* Sector Preferences Section */}
           <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
-            <h3 className="mb-6 text-lg font-semibold text-[#E6E6E6]">Sector Preferences</h3>
+            <h3 className="mb-6 text-center text-lg font-semibold text-[#E6E6E6]">Sector Preferences</h3>
             <div className="space-y-5">
           <div>
             <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[#B4B4B4]">
@@ -1854,7 +1854,6 @@ export default function Home() {
           {/* Stock Picks Tab */}
           {activeResultTab === 'stockPicks' && (
         <section className="glass-light animate-slide-in-up mx-auto max-w-5xl rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
-          <h2 className="text-gradient mb-8 animate-fade-in text-3xl font-bold sm:text-4xl">AI Stock Picks & Analysis</h2>
           
           {/* Generate/Regenerate Button */}
           {!detailedRecommendations && (
@@ -1891,25 +1890,13 @@ export default function Home() {
 
           {/* Streaming Text Display - shown during generation */}
           {detailPanelLoading && streamingText && (
-            <div className="mb-8 animate-fade-in rounded-2xl border-2 border-[#00FF99]/30 bg-[#1C1F26] p-6 shadow-xl">
-              <div className="mb-4 flex items-center gap-3">
-                <svg className="h-6 w-6 animate-spin text-[#00FF99]" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <h4 className="text-lg font-semibold uppercase tracking-wide text-[#00FF99]">
-                  AI Generation in Progress
-                </h4>
-              </div>
-              <div ref={streamingTextRef} className="max-h-[400px] overflow-y-auto rounded-xl border border-gray-700 bg-[#171A1F] p-5">
-                <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-300">
+            <div className="mb-6 animate-fade-in">
+              <div ref={streamingTextRef} className="max-h-[250px] overflow-y-auto border border-white bg-black p-3">
+                <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-white">
                   {streamingText}
-                  <span className="ml-1 inline-block h-5 w-2 animate-pulse bg-[#00FF99]"></span>
+                  <span className="ml-1 inline-block h-4 w-1.5 animate-pulse bg-white"></span>
                 </pre>
               </div>
-              <p className="mt-3 text-xs italic text-gray-500">
-                Streaming live from Claude AI...
-              </p>
             </div>
           )}
 
