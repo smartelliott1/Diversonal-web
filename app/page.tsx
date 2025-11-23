@@ -1660,7 +1660,7 @@ export default function Home() {
             <h3 className="mb-6 text-center text-lg font-semibold text-[#E6E6E6]">Your Investment Vision</h3>
             <div className="space-y-4">
               <div className="group">
-                <label htmlFor="goal" className="mb-2 flex items-center gap-2 text-sm font-medium text-[#B4B4B4] group-focus-within:text-[#E6E6E6]">
+                <label htmlFor="goal" className="mb-2 flex items-center justify-center gap-2 text-sm font-medium text-[#B4B4B4] group-focus-within:text-[#E6E6E6]">
                   <span className="text-xs font-normal text-[#808080]">(Be specific for better results)</span>
                   <InfoIcon tooltip="What you're investing for: retirement, buying a home, education, wealth growth, etc." />
                 </label>
@@ -1676,7 +1676,7 @@ export default function Home() {
                     target.style.height = target.scrollHeight + 'px';
                   }}
                   onChange={(e) => setGoalLength(e.target.value.length)}
-                  className="w-full rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5 text-center text-sm text-[#E6E6E6] placeholder-[#808080] placeholder:text-center outline-none transition-all duration-200 hover:border-[#3A3A3A] focus:border-[#00FF99] focus:bg-[#0F0F0F] resize-none"
+                  className="w-full rounded-xl border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5 text-center text-base text-[#E6E6E6] placeholder-[#808080] placeholder:text-center outline-none transition-all duration-200 hover:border-[#3A3A3A] focus:border-[#00FF99] focus:bg-[#0F0F0F] resize-none"
                 />
                 <div className="mt-2 flex items-center justify-between">
                   <span className={`text-xs transition-colors duration-200 ${goalLength >= 50 ? 'text-[#00FF99] font-medium' : 'text-[#808080]'}`}>
