@@ -48,12 +48,44 @@ body {
   }
 }
 
+@keyframes screenGlow {
+  0%, 100% {
+    box-shadow: 0 0 40px rgba(0, 255, 153, 0.1), 0 0 80px rgba(0, 255, 153, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(0, 255, 153, 0.15), 0 0 120px rgba(0, 255, 153, 0.08);
+  }
+}
+
+@keyframes floatScreen {
+  0%, 100% {
+    transform: rotateX(8deg) rotateY(0deg) translateY(0);
+  }
+  50% {
+    transform: rotateX(8deg) rotateY(0deg) translateY(-10px);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
 
 .animate-glow {
   animation: glow 2s ease-in-out infinite;
+}
+
+/* 3D Computer Screen Styles */
+.computer-screen-3d {
+  animation: floatScreen 6s ease-in-out infinite;
+}
+
+.computer-screen-3d:hover {
+  animation-play-state: paused;
+}
+
+.feature-screen {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 

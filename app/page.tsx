@@ -846,6 +846,233 @@ export default function Home() {
     );
   };
   
+  // 3D Computer Screen Component
+  const ComputerScreen3D = () => {
+    const [currentFeature, setCurrentFeature] = useState(0);
+    
+    // Auto-cycle through features every 5 seconds
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentFeature((prev) => (prev + 1) % 3);
+      }, 5000);
+      
+      return () => clearInterval(interval);
+    }, []);
+    
+    return (
+      <div className="relative z-0 w-full max-w-6xl px-6" style={{ perspective: '1500px' }}>
+        <div 
+          className="computer-screen-3d group relative mx-auto w-full max-w-5xl transition-transform duration-500 hover:scale-[1.02]"
+          style={{ 
+            transform: 'rotateX(8deg) rotateY(0deg)',
+            transformStyle: 'preserve-3d'
+          }}
+        >
+          {/* Monitor Base/Stand */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full">
+            <div className="mt-4 h-8 w-32 rounded-b-lg bg-gradient-to-b from-[#2A2A2A] to-[#1A1A1A]" style={{ transform: 'translateZ(-20px)' }}></div>
+            <div className="mx-auto h-12 w-20 bg-gradient-to-b from-[#1A1A1A] to-[#0F0F0F]"></div>
+          </div>
+          
+          {/* Monitor Bezel */}
+          <div className="relative rounded-lg border-8 border-[#1A1A1A] bg-[#1A1A1A] shadow-2xl" style={{ transform: 'translateZ(10px)' }}>
+            {/* Screen Glow Effect */}
+            <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-[#00FF99]/20 via-[#00FF99]/10 to-[#00FF99]/20 opacity-50 blur-xl"></div>
+            
+            {/* Screen Content Container */}
+            <div className="relative overflow-hidden rounded-sm bg-[#0F0F0F] aspect-[16/10]">
+              {/* Feature 0: Portfolio Optimization */}
+              <div className={`feature-screen absolute inset-0 p-8 transition-opacity duration-700 ${currentFeature === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className="h-full flex flex-col">
+                  <div className="mb-6 flex items-center justify-between border-b border-[#2A2A2A] pb-4">
+                    <h3 className="text-2xl font-semibold text-[#E6E6E6]">Portfolio Optimization</h3>
+                    <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-3 py-1.5">
+                      <span className="text-sm font-medium text-[#00FF99]">AI-Powered</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-1 items-center gap-8">
+                    {/* Pie Chart */}
+                    <div className="flex-shrink-0">
+                      <div className="relative h-48 w-48">
+                        <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90 transform">
+                          <circle cx="50" cy="50" r="40" fill="none" stroke="#4A4A4A" strokeWidth="20" strokeDasharray="75.4 251.2" />
+                          <circle cx="50" cy="50" r="40" fill="none" stroke="#5A5A5A" strokeWidth="20" strokeDasharray="62.8 251.2" strokeDashoffset="-75.4" />
+                          <circle cx="50" cy="50" r="40" fill="none" stroke="#00FF99" strokeWidth="20" strokeDasharray="50.2 251.2" strokeDashoffset="-138.2" />
+                          <circle cx="50" cy="50" r="40" fill="none" stroke="#808080" strokeWidth="20" strokeDasharray="37.7 251.2" strokeDashoffset="-188.4" />
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    {/* Allocations */}
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-3 w-3 rounded-sm bg-[#4A4A4A]"></div>
+                          <span className="text-sm text-[#B4B4B4]">Equities</span>
+                        </div>
+                        <span className="text-lg font-semibold text-[#E6E6E6]">40%</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-3 w-3 rounded-sm bg-[#5A5A5A]"></div>
+                          <span className="text-sm text-[#B4B4B4]">Bonds</span>
+                        </div>
+                        <span className="text-lg font-semibold text-[#E6E6E6]">25%</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-3 w-3 rounded-sm bg-[#00FF99]"></div>
+                          <span className="text-sm text-[#00FF99]">Commodities</span>
+                        </div>
+                        <span className="text-lg font-semibold text-[#00FF99]">20%</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-3 w-3 rounded-sm bg-[#808080]"></div>
+                          <span className="text-sm text-[#B4B4B4]">Real Estate</span>
+                        </div>
+                        <span className="text-lg font-semibold text-[#E6E6E6]">15%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Feature 1: Stock Picks */}
+              <div className={`feature-screen absolute inset-0 p-8 transition-opacity duration-700 ${currentFeature === 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className="h-full flex flex-col">
+                  <div className="mb-6 flex items-center justify-between border-b border-[#2A2A2A] pb-4">
+                    <h3 className="text-2xl font-semibold text-[#E6E6E6]">Stock Recommendations</h3>
+                    <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-3 py-1.5">
+                      <span className="text-sm font-medium text-[#00FF99]">Live Data</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-xl font-bold text-[#E6E6E6]">AAPL</span>
+                        <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
+                      </div>
+                      <p className="mb-3 text-sm text-[#808080]">Apple Inc. • Technology</p>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-1 text-xs text-[#B4B4B4]">Low Risk</span>
+                        <span className="text-sm font-semibold text-[#00FF99]">+12.5%</span>
+                      </div>
+                    </div>
+                    
+                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-xl font-bold text-[#E6E6E6]">MSFT</span>
+                        <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
+                      </div>
+                      <p className="mb-3 text-sm text-[#808080]">Microsoft Corp. • Technology</p>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-1 text-xs text-[#B4B4B4]">Low Risk</span>
+                        <span className="text-sm font-semibold text-[#00FF99]">+8.3%</span>
+                      </div>
+                    </div>
+                    
+                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-xl font-bold text-[#E6E6E6]">NVDA</span>
+                        <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
+                      </div>
+                      <p className="mb-3 text-sm text-[#808080]">NVIDIA Corp. • Technology</p>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-1 text-xs text-[#B4B4B4]">Mod Risk</span>
+                        <span className="text-sm font-semibold text-[#00FF99]">+24.1%</span>
+                      </div>
+                    </div>
+                    
+                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-xl font-bold text-[#E6E6E6]">GOOGL</span>
+                        <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
+                      </div>
+                      <p className="mb-3 text-sm text-[#808080]">Alphabet Inc. • Technology</p>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-1 text-xs text-[#B4B4B4]">Low Risk</span>
+                        <span className="text-sm font-semibold text-[#00FF99]">+15.7%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Feature 2: Stress Testing */}
+              <div className={`feature-screen absolute inset-0 p-8 transition-opacity duration-700 ${currentFeature === 2 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className="h-full flex flex-col">
+                  <div className="mb-6 flex items-center justify-between border-b border-[#2A2A2A] pb-4">
+                    <h3 className="text-2xl font-semibold text-[#E6E6E6]">Stress Testing</h3>
+                    <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-3 py-1.5">
+                      <span className="text-sm font-medium text-[#00FF99]">Scenario Analysis</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="text-lg font-semibold text-[#E6E6E6]">Market Crash (-30%)</span>
+                        <span className="text-xl font-bold text-[#D95F5F]">-$8,400</span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
+                        <div className="h-full w-[70%] bg-[#D95F5F]"></div>
+                      </div>
+                      <p className="mt-2 text-sm text-[#808080]">Portfolio resilience: Moderate</p>
+                    </div>
+                    
+                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="text-lg font-semibold text-[#E6E6E6]">Rising Interest Rates</span>
+                        <span className="text-xl font-bold text-[#D95F5F]">-$2,100</span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
+                        <div className="h-full w-[20%] bg-[#D95F5F]"></div>
+                      </div>
+                      <p className="mt-2 text-sm text-[#808080]">Portfolio resilience: Strong</p>
+                    </div>
+                    
+                    <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 p-5">
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="text-lg font-semibold text-[#00FF99]">Tech Sector Boom</span>
+                        <span className="text-xl font-bold text-[#00FF99]">+$12,800</span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
+                        <div className="h-full w-[90%] bg-[#00FF99]"></div>
+                      </div>
+                      <p className="mt-2 text-sm text-[#00FF99]">High upside potential</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Progress Indicators */}
+              <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+                <button 
+                  onClick={() => setCurrentFeature(0)}
+                  className={`h-2 rounded-full transition-all duration-300 ${currentFeature === 0 ? 'w-8 bg-[#00FF99]' : 'w-2 bg-[#808080] hover:bg-[#B4B4B4]'}`}
+                  aria-label="Show portfolio optimization"
+                />
+                <button 
+                  onClick={() => setCurrentFeature(1)}
+                  className={`h-2 rounded-full transition-all duration-300 ${currentFeature === 1 ? 'w-8 bg-[#00FF99]' : 'w-2 bg-[#808080] hover:bg-[#B4B4B4]'}`}
+                  aria-label="Show stock picks"
+                />
+                <button 
+                  onClick={() => setCurrentFeature(2)}
+                  className={`h-2 rounded-full transition-all duration-300 ${currentFeature === 2 ? 'w-8 bg-[#00FF99]' : 'w-2 bg-[#808080] hover:bg-[#B4B4B4]'}`}
+                  aria-label="Show stress testing"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
   // Landing Page Component
   const LandingSection = () => {
     const scrollToSection = (sectionId: string) => {
@@ -916,9 +1143,9 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden pt-16">
+      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden pt-32 pb-20">
         {/* Hero Text */}
-        <div className="relative z-10 mx-auto max-w-5xl px-6 text-center mb-16">
+        <div className="relative z-10 mx-auto max-w-5xl px-6 text-center mb-24">
           <h2 className="mb-6 text-5xl font-semibold text-[#E6E6E6] sm:text-6xl lg:text-7xl">
             AI-Powered Portfolio Optimization
           </h2>
@@ -927,158 +1154,8 @@ export default function Home() {
           </p>
         </div>
 
-        {/* 3D Mockup Visualization */}
-        <div className="relative z-0 w-full max-w-7xl px-6 mb-20" style={{ perspective: '2000px' }}>
-          <div className="relative mx-auto h-[400px] md:h-[500px]">
-            
-            {/* Left Panel - Form Input */}
-            <div 
-              className="absolute left-0 top-1/2 hidden w-[280px] -translate-y-1/2 transform rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4 shadow-2xl transition-transform duration-300 hover:scale-[1.02] lg:block md:w-[320px]"
-              style={{ 
-                transform: 'translateY(-50%) rotateY(8deg) rotateX(2deg) translateZ(-50px)',
-                transformOrigin: 'center center'
-              }}
-            >
-              <div className="mb-3 flex items-center justify-between border-b border-[#2A2A2A] pb-2">
-                <h4 className="text-sm font-semibold text-[#E6E6E6]">Portfolio Builder</h4>
-                <div className="flex gap-1">
-                  <div className="h-2 w-2 rounded-full bg-[#808080]"></div>
-                  <div className="h-2 w-2 rounded-full bg-[#808080]"></div>
-                  <div className="h-2 w-2 rounded-full bg-[#808080]"></div>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs text-[#B4B4B4]">Your age</label>
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
-                    <span className="text-xs text-[#808080]">32</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-[#B4B4B4]">Risk tolerance</label>
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
-                    <span className="text-xs text-[#808080]">Moderate</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-[#B4B4B4]">Time horizon</label>
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
-                    <span className="text-xs text-[#808080]">7+ years</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-[#B4B4B4]">Available capital</label>
-                  <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2 py-1.5">
-                    <span className="text-xs text-[#00FF99]">$50,000</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Center Panel - Portfolio Results */}
-            <div 
-              className="absolute left-1/2 top-1/2 z-10 w-[300px] md:w-[360px] -translate-x-1/2 -translate-y-1/2 transform rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 shadow-2xl transition-transform duration-300 hover:scale-[1.02]"
-              style={{ 
-                transform: 'translate(-50%, -50%) rotateY(-2deg) rotateX(1deg)',
-                transformOrigin: 'center center'
-              }}
-            >
-              <div className="mb-4 flex items-center justify-between border-b border-[#2A2A2A] pb-2">
-                <h4 className="text-sm font-semibold text-[#E6E6E6]">Your Portfolio</h4>
-                <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2 py-0.5">
-                  <span className="text-xs font-medium text-[#00FF99]">Optimized</span>
-                </div>
-              </div>
-              {/* Mini Pie Chart */}
-              <div className="mb-4 flex justify-center">
-                <div className="relative h-32 w-32">
-                  <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90 transform">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#4A4A4A" strokeWidth="20" strokeDasharray="75.4 251.2" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#5A5A5A" strokeWidth="20" strokeDasharray="62.8 251.2" strokeDashoffset="-75.4" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#00FF99" strokeWidth="20" strokeDasharray="50.2 251.2" strokeDashoffset="-138.2" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#808080" strokeWidth="20" strokeDasharray="37.7 251.2" strokeDashoffset="-188.4" />
-                  </svg>
-                </div>
-              </div>
-              {/* Allocations */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-sm bg-[#4A4A4A]"></div>
-                    <span className="text-xs text-[#B4B4B4]">Equities</span>
-                  </div>
-                  <span className="text-xs font-medium text-[#E6E6E6]">40%</span>
-                </div>
-                <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-sm bg-[#5A5A5A]"></div>
-                    <span className="text-xs text-[#B4B4B4]">Bonds</span>
-                  </div>
-                  <span className="text-xs font-medium text-[#E6E6E6]">25%</span>
-                </div>
-                <div className="flex items-center justify-between rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-sm bg-[#00FF99]"></div>
-                    <span className="text-xs text-[#00FF99]">Commodities</span>
-                  </div>
-                  <span className="text-xs font-medium text-[#00FF99]">20%</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Panel - Stock Recommendations */}
-            <div 
-              className="absolute right-0 top-1/2 hidden w-[280px] -translate-y-1/2 transform rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4 shadow-2xl transition-transform duration-300 hover:scale-[1.02] lg:block md:w-[320px]"
-              style={{ 
-                transform: 'translateY(-50%) rotateY(-8deg) rotateX(2deg) translateZ(-50px)',
-                transformOrigin: 'center center'
-              }}
-            >
-              <div className="mb-3 flex items-center justify-between border-b border-[#2A2A2A] pb-2">
-                <h4 className="text-sm font-semibold text-[#E6E6E6]">Stock Picks</h4>
-                <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2 py-0.5">
-                  <span className="text-xs font-medium text-[#00FF99]">Live</span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2.5">
-                  <div className="mb-1 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#E6E6E6]">AAPL</span>
-                    <span className="rounded-sm bg-[#00FF99]/20 px-1.5 py-0.5 text-xs font-medium text-[#00FF99]">Buy</span>
-                  </div>
-                  <p className="text-xs text-[#808080]">Apple Inc. • Tech</p>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <span className="rounded-sm border border-[#808080] bg-[#242424] px-1.5 py-0.5 text-xs text-[#B4B4B4]">Low Risk</span>
-                    <span className="text-xs text-[#00FF99]">+12.5%</span>
-                  </div>
-                </div>
-                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2.5">
-                  <div className="mb-1 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#E6E6E6]">MSFT</span>
-                    <span className="rounded-sm bg-[#00FF99]/20 px-1.5 py-0.5 text-xs font-medium text-[#00FF99]">Buy</span>
-                  </div>
-                  <p className="text-xs text-[#808080]">Microsoft Corp. • Tech</p>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <span className="rounded-sm border border-[#808080] bg-[#242424] px-1.5 py-0.5 text-xs text-[#B4B4B4]">Low Risk</span>
-                    <span className="text-xs text-[#00FF99]">+8.3%</span>
-                  </div>
-                </div>
-                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2.5">
-                  <div className="mb-1 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#E6E6E6]">NVDA</span>
-                    <span className="rounded-sm bg-[#00FF99]/20 px-1.5 py-0.5 text-xs font-medium text-[#00FF99]">Buy</span>
-                  </div>
-                  <p className="text-xs text-[#808080]">NVIDIA Corp. • Tech</p>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <span className="rounded-sm border border-[#808080] bg-[#242424] px-1.5 py-0.5 text-xs text-[#B4B4B4]">Mod Risk</span>
-                    <span className="text-xs text-[#00FF99]">+24.1%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
+        {/* 3D Computer Screen */}
+        <ComputerScreen3D />
 
         {/* Scroll Button */}
         <button 
