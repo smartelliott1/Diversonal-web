@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 // Recharts is a composable charting library built on React components
 // It's lightweight, responsive, and works seamlessly with Next.js
 // Documentation: https://recharts.org/
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
 // Toast notifications for user feedback
 import toast, { Toaster } from "react-hot-toast";
 // PDF generation libraries
@@ -2012,8 +2012,7 @@ export default function Home() {
                     data={currentPortfolioData as any}
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
-                    label={(entry: any) => `${entry.name}: ${entry.value}%`}
+                    innerRadius={60}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
@@ -2026,6 +2025,16 @@ export default function Home() {
                       <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} strokeWidth={2} />
                     ))}
                   </Pie>
+                  <Legend 
+                    verticalAlign="middle" 
+                    align="right"
+                    layout="vertical"
+                    iconType="circle"
+                    formatter={(value: string) => {
+                      const item = currentPortfolioData.find((d: any) => d.name === value);
+                      return item ? `${value}: ${item.value}%` : value;
+                    }}
+                  />
                   <Tooltip 
                     formatter={(value: number) => `${value}%`}
                     contentStyle={{ 
@@ -2055,7 +2064,7 @@ export default function Home() {
                   />
                   <YAxis 
                     tick={{ fill: '#9ca3af', fontSize: 12 }}
-                    label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
+                    label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft', dy: 80, fill: '#9ca3af' }}
                   />
                   <Tooltip 
                     formatter={(value: number) => `${value}%`}
