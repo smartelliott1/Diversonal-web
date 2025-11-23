@@ -1588,7 +1588,7 @@ export default function Home() {
           {/* Investment Profile Section */}
           <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
             <h3 className="mb-6 text-center text-lg font-semibold text-[#E6E6E6]">Investment Profile</h3>
-            <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-5">
           <div className="group">
             <label htmlFor="age" className="mb-2 flex items-center gap-2 text-sm font-medium text-[#B4B4B4] group-focus-within:text-[#E6E6E6]">
               Your age
