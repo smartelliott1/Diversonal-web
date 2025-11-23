@@ -2010,10 +2010,10 @@ export default function Home() {
                 <PieChart>
                   <Pie
                     data={currentPortfolioData as any}
-                    cx="50%"
+                    cx="45%"
                     cy="50%"
                     innerRadius={60}
-                    outerRadius={80}
+                    outerRadius={120}
                     fill="#8884d8"
                     dataKey="value"
                     animationBegin={0}
@@ -2030,6 +2030,12 @@ export default function Home() {
                     align="right"
                     layout="vertical"
                     iconType="circle"
+                    iconSize={14}
+                    wrapperStyle={{
+                      paddingLeft: '20px',
+                      fontSize: '14px',
+                      lineHeight: '28px'
+                    }}
                     formatter={(value: string) => {
                       const item = currentPortfolioData.find((d: any) => d.name === value);
                       return item ? `${value}: ${item.value}%` : value;
@@ -2055,7 +2061,7 @@ export default function Home() {
             {/* Bar Chart - Alternative visualization */}
             <div className="h-64 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-6 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
+                <BarChart data={barChartData} margin={{ top: 30, right: 30, left: 20, bottom: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis 
                     dataKey="name" 
