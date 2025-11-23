@@ -1850,7 +1850,7 @@ export default function Home() {
 
           {/* Portfolio Tab */}
           {activeResultTab === 'portfolio' && (
-        <section id="portfolio-result" ref={portfolioRef} className="glass-light animate-slide-in-up mx-auto max-w-5xl rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
+        <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-5xl rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-gradient animate-fade-in text-3xl font-bold sm:text-4xl">Your AI-Optimized Portfolio</h2>
@@ -1928,7 +1928,7 @@ export default function Home() {
             <h3 className="text-gradient mb-6 text-2xl font-bold">Asset Allocation</h3>
             
             {/* Pie Chart - Mobile-friendly and visually appealing */}
-            <div className="glass mb-8 h-64 rounded-2xl p-6 shadow-2xl sm:h-80">
+            <div className="mb-8 h-64 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-6 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -1967,7 +1967,7 @@ export default function Home() {
             </div>
 
             {/* Bar Chart - Alternative visualization */}
-            <div className="glass h-64 rounded-2xl p-6 shadow-2xl sm:h-80">
+            <div className="h-64 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-6 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -2009,7 +2009,7 @@ export default function Home() {
 
           {/* Stock Picks Tab */}
           {activeResultTab === 'stockPicks' && (
-        <section className="glass-light animate-slide-in-up mx-auto max-w-5xl rounded-3xl border-t border-white/10 p-8 shadow-2xl sm:p-10 md:p-12">
+        <section className="animate-fade-in mx-auto max-w-5xl rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
           
           {/* Generate/Regenerate Button */}
           {!detailedRecommendations && (
@@ -2017,7 +2017,7 @@ export default function Home() {
               <button
                 onClick={handleGetDetailedRecommendations}
                 disabled={detailPanelLoading}
-                className="btn-ripple group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl border-2 border-[#00FF99] bg-gradient-to-r from-[#00FF99] via-[#00E689] to-[#00FF99] bg-[length:200%_100%] px-10 py-5 text-lg font-bold text-[#171A1F] shadow-2xl shadow-[#00FF99]/40 transition-all duration-500 hover:scale-105 hover:bg-[position:100%_0] hover:shadow-[0_20px_60px_rgba(0,255,153,0.5)] disabled:cursor-not-allowed disabled:opacity-50"
+                className="group relative inline-flex items-center gap-3 rounded-sm border border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {detailPanelLoading && (
                   <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
@@ -2058,7 +2058,7 @@ export default function Home() {
 
           {/* Market Context Banner */}
           {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
-            <div className="mb-8 animate-slide-in-up rounded-2xl border border-[#00FF99]/30 bg-gradient-to-br from-[#00FF99]/10 to-[#00FF99]/5 p-6 shadow-xl">
+            <div className="mb-8 animate-fade-in rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-6">
               <h4 className="mb-3 flex items-center gap-2 text-base font-semibold uppercase tracking-wide text-[#00FF99]">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -2102,7 +2102,7 @@ export default function Home() {
                 // Check if this asset class has 0% allocation
                 if (portfolioItem.value === 0) {
                   return (
-                    <div key={assetClass} className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
+                    <div key={assetClass} className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-12 text-center">
                       <svg className="mx-auto mb-4 h-16 w-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -2136,7 +2136,7 @@ export default function Home() {
                     
                     {/* Pie Chart Visualization */}
                     {data.breakdown && data.breakdown.length > 0 && (
-                      <div className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-6">
+                      <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
                         <h4 className="mb-6 text-xl font-semibold text-gray-100">Allocation Breakdown</h4>
                         {detailPanelLoading ? (
                           <div className="flex h-64 items-center justify-center">
@@ -2187,7 +2187,7 @@ export default function Home() {
                       detailPanelLoading ? (
                         <div className="space-y-4">
                           <h4 className="text-xl font-semibold text-gray-100">Recommended Positions</h4>
-                          <div className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
+                          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-12 text-center">
                             <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
                             <p className="text-sm text-gray-400">Analyzing positions and generating recommendations...</p>
                           </div>
@@ -2199,7 +2199,7 @@ export default function Home() {
                             {data.recommendations.map((rec: StockRecommendation, index: number) => (
                             <div
                               key={index}
-                              className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-6 transition-all hover:border-[#00FF99]/50 hover:shadow-lg hover:shadow-[#00FF99]/10"
+                              className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6 transition-all hover:border-[#00FF99]/30"
                             >
                               {/* Ticker and Name */}
                               <div className="mb-4 flex items-start justify-between">
@@ -2235,7 +2235,7 @@ export default function Home() {
                         </div>
                       )
                     ) : (
-                      <div className="rounded-2xl border border-gray-700 bg-[#1C1F26] p-12 text-center">
+                      <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-12 text-center">
                         <svg className="mx-auto mb-4 h-16 w-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -2267,7 +2267,7 @@ export default function Home() {
 
           {/* Stress Test Tab */}
           {activeResultTab === 'stressTest' && (
-        <section className="glass-light animate-slide-in-up mx-auto max-w-[1600px] rounded-2xl border-t border-white/10 p-4 shadow-2xl sm:p-6">
+        <section className="animate-fade-in mx-auto max-w-[1600px] rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4 sm:p-6">
           <h3 className="text-gradient mb-4 text-2xl font-bold">Stress Testing</h3>
           <p className="mb-6 text-sm text-gray-300">
             Test portfolio performance under various market scenarios
@@ -2481,7 +2481,7 @@ export default function Home() {
                 {/* LEFT COLUMN - Chart (60%) */}
                 <div className="lg:col-span-3 space-y-4">
                   {/* Analysis Card */}
-                  <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
                     <p className="rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-3 text-xs leading-relaxed text-gray-300 backdrop-blur-sm">
                       {stressTestResult.analysis}
                     </p>
@@ -2489,7 +2489,7 @@ export default function Home() {
 
                   {/* Portfolio Value Chart */}
                   {stressTestResult.portfolioValue && stressTestResult.portfolioValue.length > 0 && (
-                    <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
                       <div className="mb-3 flex items-center justify-between">
                         <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-400">Timeline</h4>
                         <div className={`rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
@@ -2603,7 +2603,7 @@ export default function Home() {
                 {/* RIGHT COLUMN - Metrics & Controls (40%) */}
                 <div className="lg:col-span-2 space-y-4">
                   {/* Key Metrics Card */}
-                  <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Metrics</h4>
                     <div className={`mb-3 rounded-lg border p-3 text-center ${
                       stressTestResult.percentageChange < 0 
@@ -2632,7 +2632,7 @@ export default function Home() {
                   </div>
 
                   {/* Asset Impact with Filtering */}
-                  <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
                     <div className="mb-2 flex items-center justify-between">
                       <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Asset Impact</h4>
                       <button
@@ -2694,7 +2694,7 @@ export default function Home() {
                   </div>
 
                   {/* Live Portfolio Rebalancing */}
-                  <div className="glass rounded-lg border border-white/10 p-4 shadow-lg">
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Rebalance Portfolio</h4>
                     <div className="mb-3 space-y-2">
                       {tempPortfolioAllocation.map((item, index) => (
@@ -2742,9 +2742,9 @@ export default function Home() {
 
       {/* Saved Portfolios Modal - Outside main views */}
       {showSavedPortfolios && savedPortfolios.length > 0 && (
-        <div className="glass fixed inset-0 z-50 overflow-auto bg-black/80 p-4 backdrop-blur-md">
-          <div className="mx-auto max-w-4xl animate-slide-in-up">
-            <div className="glass mb-8 rounded-2xl border border-white/20 p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 overflow-auto bg-black/80 p-4">
+          <div className="mx-auto max-w-4xl animate-fade-in">
+            <div className="mb-8 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-gradient text-2xl font-bold">Saved Portfolios</h2>
                 <button
@@ -2793,7 +2793,7 @@ export default function Home() {
       {/* Save Dialog */}
       {showSaveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-          <div className="glass w-full max-w-md animate-slide-in-up rounded-2xl border border-white/20 p-8 shadow-2xl">
+          <div className="w-full max-w-md animate-fade-in rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8">
             <h3 className="text-gradient mb-6 text-2xl font-bold">Save Portfolio</h3>
             <input
               type="text"
