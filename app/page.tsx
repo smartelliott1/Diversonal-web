@@ -136,7 +136,7 @@ export default function Home() {
   const streamingTextRef = useRef<HTMLDivElement>(null);
   
   // Available sectors for selection
-  const sectors = ["Technology", "Energy", "Finance", "Healthcare", "Cryptocurrency", "Blockchain Integration", "Real Estate", "Precious Metals", "Aerospace", "Quantum Computing"];
+  const sectors = ["Technology", "Energy", "Finance", "Healthcare", "Cryptocurrency", "Blockchain Integration", "Real Estate", "Precious Metals", "Aerospace", "Quantum Computing", "AI", "Biotech", "Robotics", "Consumer/Retail"];
   
   // Default portfolio data (shown before generation)
   const defaultPortfolioData: PortfolioItem[] = [
