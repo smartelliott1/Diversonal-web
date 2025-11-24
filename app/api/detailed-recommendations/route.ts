@@ -234,7 +234,17 @@ ${earningsCalendar}
 ${fundamentalsData}
 
 ${formData.sectors.length > 0 ? `**CRITICAL - Sector Conviction Priority:**
-User's conviction sectors are ${formData.sectors.join(", ")}. Prioritize these sectors with LARGER position sizes (favor "Large" sizes) and dedicate the majority of Equities recommendations to them. Include 2-3 small/mid-cap rising stars if risk profile allows.
+User's HIGH CONVICTION sectors are ${formData.sectors.join(", ")}. 
+
+MANDATORY SECTOR ALLOCATION RULES:
+- Allocate 75-85% of total Equities portfolio to user's selected sectors ONLY
+- Recommend 5-6 stocks from selected sectors with mostly Large/Medium positions
+- Only 1-2 stocks (15-25% total) may come from other sectors as diversification
+- If user selected multiple sectors, distribute across them based on strength signals
+- Selected sectors take ABSOLUTE PRIORITY over all other factors
+- Example: If user selected "AI" and "Robotics", recommend 3 AI stocks + 2 Robotics stocks + 1 diversification pick
+
+This is THE PRIMARY constraint - sector preference overrides beta matching, insider signals, and market momentum.
 ` : ''}
 **⚠️ CRITICAL - DATA SOURCE REQUIREMENTS:**
 The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as of today. You MUST:
@@ -261,7 +271,7 @@ Use the actual current market conditions and intelligence from ALL sections abov
 - **CITE SPECIFIC SIGNALS:** When recommending a stock, note ONLY significant/relevant factors/data, mention if insiders are buying, if there's positive news momentum, if it's in a leading sector, and cite revenue growth for growth-oriented picks
 
 **Beta-Based Stock Selection (CRITICAL):**
-The fundamentals data above includes ACTUAL BETA VALUES for each stock. You MUST use these real beta values to filter stocks based on risk tolerance:
+The fundamentals data above includes ACTUAL BETA VALUES for each stock. You MUST use these real beta values to filter stocks based on risk tolerancef:
 
 - **Low Risk**: ONLY recommend stocks with beta <0.8. These are defensive stocks that provide stability and lower volatility than the market.
 
@@ -307,7 +317,8 @@ The fundamentals data above includes ACTUAL BETA VALUES for each stock. You MUST
 - marketContext: Synthesize ALL intelligence (market data, news, insiders, economic/earnings calendars) into 3-5 sentences
 - Match investment style to age/horizon (growth for young, income for older)
 - Cite growth metrics for small/mid-caps (revenue %, institutional buying, momentum)
-- **SIGNAL INTEGRATION:** Stocks with insider buying + positive news + strong sector = highest conviction recommendations`;
+- **SIGNAL INTEGRATION:** Stocks with insider buying + positive news + strong sector = highest conviction recommendations
+- **SECTOR PREFERENCE OVERRIDE:** User's selected sectors are THE TOP PRIORITY. 75-85% of equity allocation MUST come from their chosen sectors.`;
 
     console.log("Calling Claude Sonnet 4 for detailed recommendations with streaming...");
 
