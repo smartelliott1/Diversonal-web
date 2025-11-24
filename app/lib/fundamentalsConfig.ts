@@ -38,6 +38,10 @@ export const fundamentalsConfig = {
     'Precious Metals': 'precious-metals',
     'Real Estate': 'real-estate',
     'Aerospace': 'aerospace',
+    'AI': 'ai',
+    'Biotech': 'biotech',
+    'Robotics': 'robotics',
+    'Consumer/Retail': 'consumer-retail',
   } as const,
   
   // Request queue settings

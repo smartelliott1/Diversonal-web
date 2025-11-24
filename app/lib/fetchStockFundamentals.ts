@@ -120,20 +120,35 @@ export async function fetchAllStocks(
 ): Promise<StockFundamentals[]> {
   console.log(`[Fundamentals] Starting fetch for ${stocks.length} stocks...`);
   
+  // Group stocks by ticker to avoid duplicate fetches
+  const tickerMap = new Map<string, Array<string>>();
+  for (const stock of stocks) {
+    if (!tickerMap.has(stock.ticker)) {
+      tickerMap.set(stock.ticker, []);
+    }
+    tickerMap.get(stock.ticker)!.push(stock.sector);
+  }
+  
+  const uniqueTickers = Array.from(tickerMap.keys());
+  console.log(`[Fundamentals] Fetching ${uniqueTickers.length} unique tickers (${stocks.length} total entries with multi-sector stocks)`);
+  
   const startTime = Date.now();
-  const results: StockFundamentals[] = [];
+  const fetchedData = new Map<string, StockFundamentals>();
   let successCount = 0;
   let errorCount = 0;
 
-  for (let i = 0; i < stocks.length; i++) {
-    const stock = stocks[i];
-    const progress = ((i + 1) / stocks.length * 100).toFixed(1);
+  // Fetch each unique ticker once
+  for (let i = 0; i < uniqueTickers.length; i++) {
+    const ticker = uniqueTickers[i];
+    const progress = ((i + 1) / uniqueTickers.length * 100).toFixed(1);
     
-    console.log(`[Fundamentals] Progress: ${i + 1}/${stocks.length} (${progress}%)`);
+    console.log(`[Fundamentals] Progress: ${i + 1}/${uniqueTickers.length} (${progress}%)`);
     
     try {
-      const fundamentals = await fetchStockFundamentals(stock.ticker, stock.sector);
-      results.push(fundamentals);
+      // Fetch with the first sector (we'll replicate for other sectors)
+      const sectors = tickerMap.get(ticker)!;
+      const fundamentals = await fetchStockFundamentals(ticker, sectors[0]);
+      fetchedData.set(ticker, fundamentals);
       
       if (fundamentals.error) {
         errorCount++;
@@ -141,9 +156,22 @@ export async function fetchAllStocks(
         successCount++;
       }
     } catch (error) {
-      console.error(`[Fundamentals] Failed to process ${stock.ticker}:`, error);
+      console.error(`[Fundamentals] Failed to process ${ticker}:`, error);
       errorCount++;
       // Continue with next stock
+    }
+  }
+
+  // Build results array with proper sector assignments
+  const results: StockFundamentals[] = [];
+  for (const stock of stocks) {
+    const fetchedStock = fetchedData.get(stock.ticker);
+    if (fetchedStock) {
+      // Create a copy with the correct sector
+      results.push({
+        ...fetchedStock,
+        sector: stock.sector,
+      });
     }
   }
 

@@ -37,7 +37,11 @@ export function extractSectorsFromPortfolio(portfolio: PortfolioItem[]): string[
             (sectorName === 'Cryptocurrency' && (breakdown.includes('crypto') || breakdown.includes('cryptocurrency'))) ||
             (sectorName === 'Precious Metals' && (breakdown.includes('precious') || breakdown.includes('metal') || breakdown.includes('gold'))) ||
             (sectorName === 'Real Estate' && (breakdown.includes('real estate') || breakdown.includes('reit'))) ||
-            (sectorName === 'Aerospace' && (breakdown.includes('aerospace') || breakdown.includes('space')))
+            (sectorName === 'Aerospace' && (breakdown.includes('aerospace') || breakdown.includes('space'))) ||
+            (sectorName === 'AI' && (breakdown.includes('ai') || breakdown.includes('artificial intelligence'))) ||
+            (sectorName === 'Biotech' && (breakdown.includes('biotech') || breakdown.includes('biotechnology'))) ||
+            (sectorName === 'Robotics' && (breakdown.includes('robotics') || breakdown.includes('automation') || breakdown.includes('robot'))) ||
+            (sectorName === 'Consumer/Retail' && (breakdown.includes('consumer') || breakdown.includes('retail') || breakdown.includes('restaurant') || breakdown.includes('apparel')))
         ) {
           sectors.add(sectorName);
         }
@@ -109,6 +113,9 @@ export function formatSectorDataForClaude(sectorsData: Record<string, any>): str
   let prompt = '**AVAILABLE STOCKS WITH REAL FUNDAMENTALS:**\n\n';
   prompt += 'Use ONLY these stocks when making recommendations. All data is current and verified.\n\n';
 
+  // Track seen tickers to avoid duplicates
+  const seenTickers = new Set<string>();
+
   for (const [fileName, sectorData] of Object.entries(sectorsData)) {
     if (!sectorData || !sectorData.stocks) continue;
 
@@ -118,6 +125,9 @@ export function formatSectorDataForClaude(sectorsData: Record<string, any>): str
     const stocks = Object.entries(sectorData.stocks);
     
     for (const [ticker, data] of stocks) {
+      // Skip if we've already included this ticker
+      if (seenTickers.has(ticker)) continue;
+      seenTickers.add(ticker);
       const profile = (data as any).profile;
       const ratios = (data as any).ratios;
       const keyMetrics = (data as any).keyMetrics;
