@@ -92,3 +92,38 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* Risk tolerance slider styling */
+.slider-thumb::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00FF99;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-webkit-slider-thumb:hover {
+  width: 24px;
+  height: 24px;
+  box-shadow: 0 0 15px rgba(0, 255, 153, 0.8);
+}
+
+.slider-thumb::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00FF99;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-moz-range-thumb:hover {
+  width: 24px;
+  height: 24px;
+  box-shadow: 0 0 15px rgba(0, 255, 153, 0.8);
+}

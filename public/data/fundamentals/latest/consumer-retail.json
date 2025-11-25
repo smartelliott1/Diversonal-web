@@ -1,107 +1,108 @@
 {
-  "sector": "Energy",
+  "sector": "Consumer/Retail",
   "stockCount": 10,
   "lastUpdated": "2025-11-24T20:54:14.379Z",
   "stocks": {
-    "VST": {
+    "COST": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     },
-    "SMR": {
+    "WMT": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     },
-    "NEP": {
+    "ULTA": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     },
-    "XOM": {
+    "ELF": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     },
-    "BP": {
+    "BROS": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     },
-    "BE": {
+    "SBUX": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     },
-    "OKLO": {
+    "LULU": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     },
-    "STEM": {
+    "CMG": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     },
-    "WULF": {
+    "HD": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     },
-    "TAC": {
+    "LOW": {
       "profile": null,
       "ratios": null,
       "keyMetrics": null,
       "incomeStatement": null,
       "incomeStatementHistory": [],
       "analystEstimates": null,
-      "lastUpdated": "2025-11-24T20:54:11.738Z",
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
       "error": "FMP_API_KEY not configured"
     }
   }
 }
+

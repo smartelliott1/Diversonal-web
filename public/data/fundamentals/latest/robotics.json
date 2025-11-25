@@ -1,0 +1,68 @@
+{
+  "sector": "Robotics",
+  "stockCount": 6,
+  "lastUpdated": "2025-11-24T20:54:14.379Z",
+  "stocks": {
+    "MU": {
+      "profile": null,
+      "ratios": null,
+      "keyMetrics": null,
+      "incomeStatement": null,
+      "incomeStatementHistory": [],
+      "analystEstimates": null,
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
+      "error": "FMP_API_KEY not configured"
+    },
+    "TSLA": {
+      "profile": null,
+      "ratios": null,
+      "keyMetrics": null,
+      "incomeStatement": null,
+      "incomeStatementHistory": [],
+      "analystEstimates": null,
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
+      "error": "FMP_API_KEY not configured"
+    },
+    "ISRG": {
+      "profile": null,
+      "ratios": null,
+      "keyMetrics": null,
+      "incomeStatement": null,
+      "incomeStatementHistory": [],
+      "analystEstimates": null,
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
+      "error": "FMP_API_KEY not configured"
+    },
+    "TER": {
+      "profile": null,
+      "ratios": null,
+      "keyMetrics": null,
+      "incomeStatement": null,
+      "incomeStatementHistory": [],
+      "analystEstimates": null,
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
+      "error": "FMP_API_KEY not configured"
+    },
+    "EMR": {
+      "profile": null,
+      "ratios": null,
+      "keyMetrics": null,
+      "incomeStatement": null,
+      "incomeStatementHistory": [],
+      "analystEstimates": null,
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
+      "error": "FMP_API_KEY not configured"
+    },
+    "AMZN": {
+      "profile": null,
+      "ratios": null,
+      "keyMetrics": null,
+      "incomeStatement": null,
+      "incomeStatementHistory": [],
+      "analystEstimates": null,
+      "lastUpdated": "2025-11-24T20:54:11.737Z",
+      "error": "FMP_API_KEY not configured"
+    }
+  }
+}
+

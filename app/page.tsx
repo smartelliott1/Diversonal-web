@@ -45,7 +45,7 @@ interface SavedPortfolio {
   portfolioData: PortfolioItem[];
   formData: {
     age: string;
-    risk: string;
+    risk: number;
     horizon: string;
     capital: string;
     goal: string;
@@ -91,7 +91,7 @@ export default function Home() {
   // Store form data to use across tabs
   const [savedFormData, setSavedFormData] = useState<{
     age: string;
-    risk: string;
+    risk: number;
     horizon: string;
     capital: string;
     goal: string;
@@ -101,6 +101,7 @@ export default function Home() {
   const [showResult, setShowResult] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
+  const [riskTolerance, setRiskTolerance] = useState<number>(50);
   const [savedPortfolios, setSavedPortfolios] = useState<SavedPortfolio[]>([]);
   const [showSavedPortfolios, setShowSavedPortfolios] = useState(false);
   const [saveName, setSaveName] = useState("");
@@ -187,7 +188,7 @@ export default function Home() {
     // Use saved form data instead of reading from DOM
     const formData = savedFormData || {
       age: "",
-      risk: "",
+      risk: 50,
       horizon: "",
       capital: "",
       goal: "",
@@ -695,7 +696,7 @@ export default function Home() {
       // Collect form data
       const formData = {
         age: (document.getElementById("age") as HTMLInputElement)?.value || "",
-        riskTolerance: (document.getElementById("risk") as HTMLSelectElement)?.value || "",
+        riskTolerance: riskTolerance,
         timeHorizon: (document.getElementById("horizon") as HTMLSelectElement)?.value || "",
         capital: (document.getElementById("capital") as HTMLInputElement)?.value || "",
         goal: (document.getElementById("goal") as HTMLInputElement)?.value || "",
@@ -1604,20 +1605,33 @@ export default function Home() {
           </div>
 
           <div className="group">
-            <label htmlFor="risk" className="mb-2 flex items-center gap-2 text-sm font-medium text-[#B4B4B4] group-focus-within:text-[#E6E6E6]">
-              Risk tolerance
-              <InfoIcon tooltip="How comfortable you are with potential investment losses. Low = conservative, High = aggressive" />
+            <label htmlFor="risk" className="mb-2 flex items-center justify-between text-sm font-medium text-[#B4B4B4] group-focus-within:text-[#E6E6E6]">
+              <span className="flex items-center gap-2">
+                Risk tolerance
+                <InfoIcon tooltip="Slide from 0 (ultra conservative) to 100 (maximum aggression). Your exact score determines the volatility and growth potential of your recommendations." />
+              </span>
+              <span className="text-[#00FF99] font-semibold">{riskTolerance}/100</span>
             </label>
-            <select
+            <input
               id="risk"
+              type="range"
+              min="0"
+              max="100"
+              value={riskTolerance}
+              onChange={(e) => setRiskTolerance(parseInt(e.target.value))}
               required
-              className="w-full appearance-none rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23808080%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:16px] bg-[right_0.75rem_center] bg-no-repeat px-3 py-2.5 text-sm text-[#E6E6E6] outline-none transition-all duration-200 hover:border-[#3A3A3A] focus:border-[#00FF99] focus:bg-[#0F0F0F]"
-            >
-              <option value="">Select risk tolerance…</option>
-              <option>Low</option>
-              <option>Moderate</option>
-              <option>High</option>
-            </select>
+              className="w-full h-2 bg-[#2A2A2A] rounded-lg appearance-none cursor-pointer slider-thumb"
+              style={{
+                background: `linear-gradient(to right, #00FF99 0%, #00FF99 ${riskTolerance}%, #2A2A2A ${riskTolerance}%, #2A2A2A 100%)`
+              }}
+            />
+            <div className="flex justify-between mt-2 text-xs text-[#808080]">
+              <span className={riskTolerance <= 20 ? 'text-[#00FF99] font-medium' : ''}>Conservative</span>
+              <span className={riskTolerance > 20 && riskTolerance <= 40 ? 'text-[#00FF99] font-medium' : ''}>Moderate</span>
+              <span className={riskTolerance > 40 && riskTolerance <= 60 ? 'text-[#00FF99] font-medium' : ''}>Balanced</span>
+              <span className={riskTolerance > 60 && riskTolerance <= 80 ? 'text-[#00FF99] font-medium' : ''}>Growth</span>
+              <span className={riskTolerance > 80 ? 'text-[#00FF99] font-medium' : ''}>Aggressive</span>
+            </div>
           </div>
 
           <div className="group">

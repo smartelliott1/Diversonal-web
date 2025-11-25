@@ -19,7 +19,7 @@ interface DetailedRecommendationsRequest {
   portfolio: Array<{ name: string; value: number; color: string; breakdown?: string }>;
   formData: {
     age: string;
-    risk: string;
+    risk: number;
     horizon: string;
     capital: string;
     goal: string;
@@ -217,11 +217,27 @@ export async function POST(request: NextRequest) {
 
 **User Profile:**
 - Age: ${formData.age}
-- Risk Tolerance: ${formData.risk}
+- Risk Tolerance: ${formData.risk}/100
 - Time Horizon: ${formData.horizon}
 - Investment Capital: $${formData.capital}
 - Investment Goal: ${formData.goal}
 - Sector Preferences: ${formData.sectors.join(", ") || "None specified"}
+
+**Risk Tolerance Scale Interpretation:**
+The client's risk score is ${formData.risk}/100. Interpret as follows:
+
+- **0-20 (Ultra Conservative)**: Prioritize capital preservation. Stocks: beta <0.7, mature companies, dividend aristocrats. Minimal crypto/commodities.
+- **21-40 (Conservative)**: Focus on stability with modest growth. Stocks: beta 0.7-1.0, established companies, defensive sectors.
+- **41-60 (Balanced)**: Mix of growth and stability. Stocks: beta 0.9-1.3, mix of value and growth, diversified sectors.
+- **61-80 (Growth-Oriented)**: Favor growth over stability. Stocks: beta 1.2-1.8, growth companies, leading sectors, small-cap opportunities.
+- **81-100 (Maximum Aggression)**: Maximize growth potential. Stocks: beta >1.5, high-growth companies, emerging sectors, small/mid-caps, leveraged positions. DO NOT hold back - client wants MAXIMUM risk and return potential.
+
+**CRITICAL FOR HIGH RISK (80-100)**: At this level, the client explicitly wants aggressive growth:
+- Prioritize high-beta stocks (>1.5) and small/mid-cap growth opportunities
+- Include momentum plays and emerging sector leaders
+- Larger crypto allocation (15-25% if applicable)
+- Minimize or eliminate bonds/cash
+- Position sizes should favor "Large" for highest-conviction growth picks
 
 **Portfolio Allocation:**
 ${portfolioSummary}
@@ -245,6 +261,16 @@ The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as o
 - If recommending based on overbought/oversold conditions, use the actual RSI values shown in the live data
 - Base sector recommendations on the actual leading/lagging sectors shown in the live performance data
 
+**MANDATORY DATA USAGE CHECKLIST:**
+For EVERY stock recommendation, you MUST verify and cite:
+✓ Current price from live data (not training data)
+✓ Beta value from fundamentals (ensure it matches risk profile ${formData.risk}/100)
+✓ Revenue/earnings growth from fundamentals
+✓ Sector performance from live market data
+✓ At least ONE catalyst: insider buying, news mention, earnings proximity, or technical signal
+
+If a data point is missing from the provided data, acknowledge it briefly (e.g., "Beta: N/A") but don't make assumptions or use training data.
+
 **Analysis Framework:**
 Use the actual current market conditions and intelligence from ALL sections above:
 - Use current S&P 500, VIX, and volatility levels to assess market risk
@@ -260,14 +286,16 @@ Use the actual current market conditions and intelligence from ALL sections abov
 - **USE REVENUE GROWTH DATA:** The fundamentals include YoY revenue growth percentages - favor stocks with strong growth (>15% for growth stocks, >5% for value stocks)
 - **CITE SPECIFIC SIGNALS:** When recommending a stock, note ONLY significant/relevant factors/data, mention if insiders are buying, if there's positive news momentum, if it's in a leading sector, and cite revenue growth for growth-oriented picks
 
-**Beta-Based Stock Selection (CRITICAL):**
-The fundamentals data above includes ACTUAL BETA VALUES for each stock. You MUST use these real beta values to filter stocks based on risk tolerance:
+**Stock Selection by Beta (STRICT FILTERING):**
+The fundamentals data above includes ACTUAL BETA VALUES for each stock. Based on risk score ${formData.risk}/100, you MUST filter stocks as follows:
 
-- **Low Risk**: ONLY recommend stocks with beta <0.8. These are defensive stocks that provide stability and lower volatility than the market.
+- **0-30**: ONLY stocks with beta 0.4-0.9 (defensive, low volatility)
+- **31-50**: ONLY stocks with beta 0.8-1.2 (market-like, moderate volatility)
+- **51-70**: Favor stocks with beta 1.0-1.5 (moderate growth, moderate amplification)
+- **71-90**: Favor stocks with beta 1.3-2.0 (high growth, strong amplification)
+- **91-100**: MAXIMIZE beta - Prioritize stocks with beta >2.5, favor >3.0 if available (maximum aggression, extreme amplification)
 
-- **Moderate Risk**: Prioritize stocks with beta 0.8-1.5. These track the market with moderate amplification - not too volatile, not too conservative.
-
-- **High Risk**: Favor high-beta stocks with beta >1.5. These amplify market movements for aggressive growth potential but come with higher volatility.
+Use the ACTUAL beta values from fundamentals data to assess this. This is non-negotiable. If beta data is missing for a stock, acknowledge it but prefer stocks with known beta values that match the risk profile.
 
 
 
@@ -278,7 +306,7 @@ The fundamentals data above includes ACTUAL BETA VALUES for each stock. You MUST
       {
         "ticker": "AAPL",
         "name": "Apple Inc.",
-        "rationale": "Trading at $268.12 (+0.25% today). P/E 34.1x, below tech sector avg. Strong FCF $7.5/share. In leading Technology sector (+2.3% this week). Insiders bought $2.1M worth last week (bullish signal). Recent news: AI features driving services revenue. No earnings this week (low volatility risk).",
+        "rationale": "Current price: $268.12 (+0.25%). Beta: 1.15 (matches risk profile ${formData.risk}/100). P/E: 34.1x vs sector avg 38x (value opportunity). Revenue growth: 12% YoY. Strong FCF $7.5B/quarter. Sector: Technology (+2.3% week, leading). Catalyst: Major insider buy $2.1M last week. News: AI features driving 18% services growth. Earnings: Not until next month (low volatility window).",
         "positionSize": "Large",
         "riskLevel": "Moderate"
       }
@@ -298,8 +326,8 @@ The fundamentals data above includes ACTUAL BETA VALUES for each stock. You MUST
 
 **Guidelines:**
 - Provide 3-5 recommendations per asset class (5-7 for Equities)
-- Each rationale: 2-4 sentences with specific data points from the intelligence provided
-- **REQUIRED CITATIONS IF RELEVANT:** For each stock, mention 1-2 of: current price, P/E ratio, sector performance, insider activity, recent news, or upcoming earnings
+- Each rationale MUST include: current price, beta value with risk profile fit, key valuation metric (P/E, P/S, etc.), growth metric (revenue/earnings growth), and 1-2 catalysts from the intelligence data
+- **REQUIRED STRUCTURE:** Follow the example format exactly - lead with price, cite beta and risk match, add valuation context, mention growth, reference sector/catalyst
 - Position sizes: Large (25-35%), Medium (15-25%), Small (5-15%)
 - Risk levels: Based on volatility, beta, drawdown history, and upcoming catalysts
 - Breakdown percentages must sum to 100 per asset class

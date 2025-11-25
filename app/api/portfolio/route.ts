@@ -13,7 +13,7 @@ const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
 interface PortfolioRequest {
   age: string;
-  riskTolerance: string;
+  riskTolerance: number;
   timeHorizon: string;
   capital: string;
   goal: string;
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const { age, riskTolerance, timeHorizon, capital, goal, sectors } = body;
 
     // Validate required fields
-    if (!age || !riskTolerance || !timeHorizon || !capital || !goal) {
+    if (!age || typeof riskTolerance !== 'number' || !timeHorizon || !capital || !goal) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -101,11 +101,19 @@ export async function POST(request: NextRequest) {
 
 **Client Profile:**
 - Age: ${age} years old
-- Risk Tolerance: ${riskTolerance}
+- Risk Tolerance: ${riskTolerance}/100
 - Time Horizon: ${timeHorizon}
 - Available Capital: $${parseInt(capital).toLocaleString()}
 - Investment Goal: ${goal}
 - Preferred Sectors: ${sectors.length > 0 ? sectors.join(", ") : "None specified"}
+
+**Risk Tolerance Interpretation:**
+The client's risk score is ${riskTolerance}/100. Interpret as follows:
+- 0-20 (Ultra Conservative): Maximum capital preservation. Heavy bonds (50-70%), minimal equities (20-30%), gold for stability, zero crypto.
+- 21-40 (Conservative): Focus on stability with modest growth. Balanced bonds/equities (40-50% bonds, 35-45% equities), defensive sectors, minimal crypto.
+- 41-60 (Balanced): Mix of growth and stability. Moderate equities (45-55%), some bonds (25-35%), diversified across asset classes.
+- 61-80 (Growth-Oriented): Favor growth over stability. High equities (60-75%), minimal bonds (10-20%), growth sectors, moderate crypto (3-7%).
+- 81-100 (Maximum Aggression): Maximize growth potential. Very high equities (75-90%), zero or minimal bonds, aggressive sectors, significant crypto (5-15%). DO NOT hold back.
 
 ${marketContext}
 ${economicCalendar}
@@ -143,7 +151,7 @@ The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as o
    - Adjust crypto allocation based on risk appetite, age, and current volatility (VIX)
    - Follow modern portfolio theory principles
    - Only include asset classes that are relevant to the client's inputs (Typically, all but one or two asset classes)
-   - If risk tolerance is high + age is below 40, there is no reason to ever have bonds, a cash allocation is sufficient to a young, high risk tolerance client.
+   - If risk tolerance is >70 + age is below 40, there is no reason to ever have bonds, a cash allocation is sufficient to a young, high risk tolerance client.
 
 3. For Equities (and every other asset class), provide a breakdown (e.g., "S&P 500: 25%, Tech stocks: 10%, International: 10%")
 
@@ -340,7 +348,7 @@ The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as o
 // Sophisticated fallback algorithm when AI is unavailable
 function generateFallbackPortfolio(
   age: string,
-  riskTolerance: string,
+  riskTolerance: number,
   timeHorizon: string,
   capital: string,
   goal: string,
@@ -357,26 +365,47 @@ function generateFallbackPortfolio(
   let cryptoBase = 0; // Start with 0, only allocate for high risk tolerance
   let cashBase = 5;
 
-  // Adjust based on risk tolerance
-  if (riskTolerance === "Low") {
-    equitiesBase = Math.max(20, equitiesBase - 20);
-    bondsBase += 15;
-    commoditiesBase += 3; // Commodities as inflation hedge
+  // Adjust based on risk tolerance (0-100 scale)
+  // More granular adjustments based on numerical risk score
+  const riskFactor = riskTolerance / 100; // 0 to 1
+  
+  if (riskTolerance <= 20) {
+    // Ultra Conservative (0-20)
+    equitiesBase = Math.max(20, equitiesBase - 25);
+    bondsBase += 20;
+    commoditiesBase += 3;
     realEstateBase -= 5;
-    cryptoBase = 0; // No crypto for low risk
-    cashBase += 12;
-  } else if (riskTolerance === "High") {
-    equitiesBase = Math.min(75, equitiesBase + 15);
-    bondsBase = Math.max(10, bondsBase - 15);
+    cryptoBase = 0;
+    cashBase += 15;
+  } else if (riskTolerance <= 40) {
+    // Conservative (21-40)
+    equitiesBase = Math.max(30, equitiesBase - 15);
+    bondsBase += 10;
     commoditiesBase += 2;
-    realEstateBase += 5;
-    cryptoBase = ageNum < 40 ? 8 : 5; // Crypto for high risk, more if younger
-    cashBase = Math.max(2, cashBase - 5);
-  } else {
-    // Moderate risk
+    realEstateBase -= 3;
+    cryptoBase = 0;
+    cashBase += 8;
+  } else if (riskTolerance <= 60) {
+    // Balanced (41-60)
     commoditiesBase += 1;
     realEstateBase += 2;
-    cryptoBase = ageNum < 35 ? 4 : 2; // Small crypto allocation for moderate risk if young
+    cryptoBase = ageNum < 35 ? 4 : 2;
+  } else if (riskTolerance <= 80) {
+    // Growth-Oriented (61-80)
+    equitiesBase = Math.min(70, equitiesBase + 10);
+    bondsBase = Math.max(10, bondsBase - 10);
+    commoditiesBase += 2;
+    realEstateBase += 3;
+    cryptoBase = ageNum < 40 ? 6 : 4;
+    cashBase = Math.max(2, cashBase - 3);
+  } else {
+    // Maximum Aggression (81-100)
+    equitiesBase = Math.min(85, equitiesBase + 20);
+    bondsBase = Math.max(0, bondsBase - 20);
+    commoditiesBase += 2;
+    realEstateBase += 5;
+    cryptoBase = ageNum < 40 ? 12 : 8;
+    cashBase = Math.max(1, cashBase - 5);
   }
 
   // Adjust based on time horizon
@@ -385,19 +414,19 @@ function generateFallbackPortfolio(
     bondsBase -= 5;
     commoditiesBase -= 2;
     realEstateBase += 3;
-    cryptoBase = riskTolerance === "High" ? cryptoBase + 2 : cryptoBase;
+    cryptoBase = riskTolerance > 60 ? cryptoBase + 2 : cryptoBase;
     cashBase -= 2;
   } else if (timeHorizon.includes("<1") || timeHorizon.includes("1-3")) {
     equitiesBase -= 15;
     bondsBase += 10;
     commoditiesBase -= 2;
     realEstateBase -= 5;
-    cryptoBase = Math.max(0, cryptoBase - 3); // Reduce crypto for short horizon
+    cryptoBase = Math.max(0, cryptoBase - 3);
     cashBase += 10;
   }
 
   // Ensure crypto is 0 for low risk or very old age
-  if (riskTolerance === "Low" || ageNum > 60) {
+  if (riskTolerance <= 20 || ageNum > 60) {
     cryptoBase = 0;
   }
 
