@@ -1567,7 +1567,7 @@ export default function Home() {
       {/* Navigation for Form and Results Views */}
       {viewMode !== 'landing' && <Navigation />}
       
-      <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : 'mx-auto max-w-6xl pt-24'}`}>
+      <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : viewMode === 'form' ? 'mx-auto max-w-6xl pt-24' : 'mx-auto max-w-6xl pt-8'}`}>
         {viewMode === 'form' && (
           <div className="animate-fade-in mb-8">
             <p className="text-center text-xl text-[#B4B4B4]">
@@ -1784,8 +1784,8 @@ export default function Home() {
         {viewMode === 'results' && (
         <>
           {/* Tab Navigation - Enhanced with Incentives */}
-          <div className="mb-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div className="mb-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
               <h3 className="text-xl font-semibold text-gray-200">Explore Your Investment Strategy</h3>
             </div>
             
@@ -1793,7 +1793,7 @@ export default function Home() {
               {/* Portfolio Tab */}
               <button
                 onClick={() => setActiveResultTab('portfolio')}
-                className={`group relative overflow-hidden rounded-sm border p-4 text-left transition-all duration-200 ${
+                className={`group relative overflow-hidden rounded-sm border p-3 text-left transition-all duration-200 ${
                   activeResultTab === 'portfolio'
                     ? 'border-[#00FF99] bg-[#00FF99]/10'
                     : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3A3A3A] hover:bg-[#242424]'
@@ -1838,7 +1838,7 @@ export default function Home() {
               {/* Stock Picks Tab */}
               <button
                 onClick={() => setActiveResultTab('stockPicks')}
-                className={`group relative overflow-hidden rounded-sm border p-4 text-left transition-all duration-200 ${
+                className={`group relative overflow-hidden rounded-sm border p-3 text-left transition-all duration-200 ${
                   activeResultTab === 'stockPicks'
                     ? 'border-[#00FF99] bg-[#00FF99]/10'
                     : detailedRecommendations 
@@ -1894,7 +1894,7 @@ export default function Home() {
               {/* Stress Test Tab */}
               <button
                 onClick={() => setActiveResultTab('stressTest')}
-                className={`group relative overflow-hidden rounded-sm border p-4 text-left transition-all duration-200 ${
+                className={`group relative overflow-hidden rounded-sm border p-3 text-left transition-all duration-200 ${
                   activeResultTab === 'stressTest'
                     ? 'border-[#00FF99] bg-[#00FF99]/10'
                     : stressTestResult
