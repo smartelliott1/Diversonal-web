@@ -1,8 +1,28 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```bash
+# Required: xAI Grok API Key (for AI stock recommendations and X sentiment)
+XAI_API_KEY=your_xai_api_key_here
+
+# Required: Financial Modeling Prep API Key (for market data)
+FMP_API_KEY=your_fmp_api_key_here
+
+# Optional: Anthropic API Key (legacy - replaced by Grok)
+# ANTHROPIC_API_KEY=your_anthropic_key_here
+```
+
+### Getting API Keys:
+
+- **xAI API Key**: Visit [https://x.ai/](https://x.ai/) or [https://console.x.ai/](https://console.x.ai/) to sign up and generate your API key
+- **FMP API Key**: Sign up at [https://financialmodelingprep.com/](https://financialmodelingprep.com/)
+
 ## Getting Started
 
-First, run the development server:
+First, install dependencies and set up environment variables, then run the development server:
 
 ```bash
 npm run dev

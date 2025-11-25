@@ -128,6 +128,22 @@ export default function Home() {
   const [detailedRecommendations, setDetailedRecommendations] = useState<DetailedRecommendations | null>(null);
   const [detailPanelLoading, setDetailPanelLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("Equities");
+  
+  // Three-stage Grok integration state
+  const [marketContext, setMarketContext] = useState<{
+    sp500: { price: number; change: number; changePercent: number };
+    fearGreed: { value: number; label: string };
+    contextSummary: string;
+  } | null>(null);
+  const [marketContextLoading, setMarketContextLoading] = useState(false);
+  const [xPosts, setXPosts] = useState<Record<string, Array<{
+    author: string;
+    content: string;
+    engagement: number;
+    timestamp: string;
+    sentiment: "Bullish" | "Neutral" | "Bearish";
+  }>>>({});
+  const [xPostsLoading, setXPostsLoading] = useState(false);
   const [streamingText, setStreamingText] = useState<string>("");
   const [parsedAssetClasses, setParsedAssetClasses] = useState<string[]>([]);
   const [partialRecommendations, setPartialRecommendations] = useState<DetailedRecommendations>({} as DetailedRecommendations);
@@ -339,33 +355,62 @@ export default function Home() {
 
   // Handle detailed recommendations request
   const handleGetDetailedRecommendations = async () => {
-    setDetailPanelLoading(true);
+    // Reset state
     setStreamingText("");
     setParsedAssetClasses([]);
     setPartialRecommendations({} as DetailedRecommendations);
+    setMarketContext(null);
+    setXPosts({});
 
+    // Use saved form data
+    const formData = savedFormData || {
+      age: "",
+      risk: "",
+      horizon: "",
+      capital: "",
+      goal: "",
+      sectors: [],
+    };
+
+    // Filter out asset classes with 0% allocation
+    const filteredPortfolio = currentPortfolioData.filter(item => item.value > 0);
+
+    // STAGE 1: Market Context
+    setMarketContextLoading(true);
     try {
-      // Use saved form data instead of reading from DOM
-      const formData = savedFormData || {
-        age: "",
-        risk: "",
-        horizon: "",
-        capital: "",
-        goal: "",
-        sectors: [],
-      };
-
-      // Filter out asset classes with 0% allocation to save API costs
-      const filteredPortfolio = currentPortfolioData.filter(item => item.value > 0);
-
-      const response = await fetch("/api/detailed-recommendations", {
+      console.log("[Stage 1] Fetching market context...");
+      const contextResponse = await fetch("/api/market-context", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ formData }),
+      });
+
+      if (!contextResponse.ok) {
+        throw new Error("Failed to fetch market context");
+      }
+
+      const contextData = await contextResponse.json();
+      setMarketContext(contextData);
+      console.log("[Stage 1] Market context loaded:", contextData);
+    } catch (error: any) {
+      console.error("[Stage 1] Error:", error);
+      toast.error("Market context unavailable, continuing with recommendations...");
+      // Continue to Stage 2 even if Stage 1 fails
+    } finally {
+      setMarketContextLoading(false);
+    }
+
+    // STAGE 2: Stock Recommendations
+    setDetailPanelLoading(true);
+    try {
+      console.log("[Stage 2] Fetching stock recommendations...");
+      const response = await fetch("/api/stock-recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           portfolio: filteredPortfolio,
           formData,
+          marketContext,
         }),
       });
 
@@ -377,7 +422,6 @@ export default function Home() {
       // Check if response is streaming or JSON (queue status)
       const contentType = response.headers.get("content-type");
       
-      // Check for queue response first
       if (contentType?.includes("application/json")) {
         const data = await response.json();
         
@@ -403,7 +447,7 @@ export default function Home() {
           setActiveTab(currentPortfolioData[0].name);
         }
         
-        toast.success("Detailed recommendations generated!");
+        toast.success("Recommendations generated!");
       } else if (contentType?.includes("text/event-stream") || contentType?.includes("text/plain")) {
         // Handle streaming response
         const reader = response.body?.getReader();
@@ -419,11 +463,9 @@ export default function Home() {
             accumulatedText += chunk;
             setStreamingText(accumulatedText);
             
-            // Parse and extract completed asset class sections with data
+            // Parse and extract completed asset class sections
             const detectAndExtractCompleted = (text: string) => {
               const partial: any = {};
-              
-              // Match complete asset class sections
               const pattern = /"(\w+)":\s*\{[\s\S]*?"recommendations":\s*\[[\s\S]*?\][\s\S]*?"breakdown":\s*\[[\s\S]*?\]\s*\}/g;
               const matches = [...text.matchAll(pattern)];
               
@@ -431,12 +473,11 @@ export default function Home() {
                 const assetClass = match[1];
                 if (assetClass !== 'marketContext') {
                   try {
-                    // Extract and parse just this section
                     const sectionText = `{${match[0]}}`;
                     const parsed = JSON.parse(sectionText);
                     partial[assetClass] = parsed[assetClass];
                   } catch (e) {
-                    // Parsing failed, section not complete yet
+                    // Parsing failed
                   }
                 }
               });
@@ -459,12 +500,50 @@ export default function Home() {
               setDetailedRecommendations(data);
               setIsFirstGeneration(false);
               
-              // Set first asset class from portfolio as active tab
               if (currentPortfolioData.length > 0) {
                 setActiveTab(currentPortfolioData[0].name);
               }
               
-              toast.success("Detailed recommendations generated!");
+              toast.success("Recommendations generated!");
+              console.log("[Stage 2] Stock recommendations loaded");
+
+              // STAGE 3: X Posts (after recommendations are ready)
+              try {
+                // Extract tickers from recommendations
+                const tickers: string[] = [];
+                Object.keys(data).forEach(assetClass => {
+                  const assetData = data[assetClass];
+                  if (typeof assetData !== 'string' && assetData.recommendations) {
+                    assetData.recommendations.forEach((rec: any) => {
+                      if (rec.ticker) {
+                        tickers.push(rec.ticker);
+                      }
+                    });
+                  }
+                });
+
+                if (tickers.length > 0) {
+                  console.log(`[Stage 3] Fetching X posts for ${tickers.length} tickers...`);
+                  setXPostsLoading(true);
+                  
+                  const postsResponse = await fetch("/api/x-posts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ tickers }),
+                  });
+
+                  if (postsResponse.ok) {
+                    const postsData = await postsResponse.json();
+                    setXPosts(postsData);
+                    console.log("[Stage 3] X posts loaded for", Object.keys(postsData).length, "tickers");
+                  }
+                }
+              } catch (postsError) {
+                console.error("[Stage 3] Error fetching X posts:", postsError);
+                // Silent fail - X posts are nice-to-have
+              } finally {
+                setXPostsLoading(false);
+              }
             }
           } catch (parseError) {
             console.error("Error parsing streamed response:", parseError);
@@ -473,8 +552,8 @@ export default function Home() {
         }
       }
     } catch (error: any) {
-      console.error("Error generating detailed recommendations:", error);
-      toast.error(error?.message || "Failed to generate detailed recommendations. Please try again.");
+      console.error("[Stage 2] Error:", error);
+      toast.error(error?.message || "Failed to generate recommendations. Please try again.");
     } finally {
       setDetailPanelLoading(false);
       setStreamingText("");
@@ -2158,6 +2237,87 @@ export default function Home() {
             </div>
           )}
 
+          {/* Market Snapshot - Stage 1 Data */}
+          {(marketContext || marketContextLoading) && (
+            <div className="mb-6 animate-fade-in">
+              <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Market Snapshot
+                </h3>
+                
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {/* S&P 500 Card */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                    <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">S&P 500</div>
+                    {marketContextLoading ? (
+                      <div className="h-16 animate-pulse bg-gray-800 rounded"></div>
+                    ) : marketContext ? (
+                      <>
+                        <div className="text-2xl font-bold text-[#E6E6E6]">
+                          ${marketContext.sp500.price.toFixed(2)}
+                        </div>
+                        <div className={`text-lg font-medium ${marketContext.sp500.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {marketContext.sp500.change >= 0 ? '↗ +' : '↘ '}{marketContext.sp500.changePercent.toFixed(2)}%
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+
+                  {/* Fear & Greed Card */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                    <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">Fear & Greed</div>
+                    {marketContextLoading ? (
+                      <div className="h-16 animate-pulse bg-gray-800 rounded"></div>
+                    ) : marketContext ? (
+                      <>
+                        <div className="flex items-center justify-center">
+                          <ResponsiveContainer width="100%" height={80}>
+                            <PieChart>
+                              <Pie
+                                data={[
+                                  { value: marketContext.fearGreed.value, fill: marketContext.fearGreed.value <= 25 ? '#EF4444' : marketContext.fearGreed.value <= 45 ? '#F97316' : marketContext.fearGreed.value <= 55 ? '#EAB308' : marketContext.fearGreed.value <= 75 ? '#84CC16' : '#22C55E' },
+                                  { value: 100 - marketContext.fearGreed.value, fill: '#2A2A2A' }
+                                ]}
+                                cx="50%"
+                                cy="50%"
+                                startAngle={180}
+                                endAngle={0}
+                                innerRadius={25}
+                                outerRadius={35}
+                                dataKey="value"
+                              />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                        <div className="text-center mt-[-15px]">
+                          <div className="text-2xl font-bold text-[#E6E6E6]">{marketContext.fearGreed.value}</div>
+                          <div className="text-sm text-gray-400">{marketContext.fearGreed.label}</div>
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+
+                  {/* Market Context Card */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4 md:col-span-1">
+                    <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">Context</div>
+                    {marketContextLoading ? (
+                      <div className="space-y-2">
+                        <div className="h-3 animate-pulse bg-gray-800 rounded"></div>
+                        <div className="h-3 animate-pulse bg-gray-800 rounded"></div>
+                        <div className="h-3 animate-pulse bg-gray-800 rounded w-3/4"></div>
+                      </div>
+                    ) : marketContext ? (
+                      <p className="text-sm text-gray-300 leading-relaxed">{marketContext.contextSummary}</p>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Market Context Banner */}
           {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
             <div className="mb-8 animate-fade-in rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-6">
@@ -2328,9 +2488,55 @@ export default function Home() {
                               </div>
 
                               {/* Rationale */}
-                              <p className="text-base leading-relaxed text-gray-300">
-                                {rec.rationale}
-                              </p>
+                              <div className="mb-4">
+                                <h6 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
+                                  📊 AI Analysis
+                                </h6>
+                                <p className="text-base leading-relaxed text-gray-300">
+                                  {rec.rationale}
+                                </p>
+                              </div>
+
+                              {/* X Pulse Section */}
+                              {xPostsLoading ? (
+                                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Loading X posts...
+                                  </div>
+                                </div>
+                              ) : xPosts[rec.ticker] && xPosts[rec.ticker].length > 0 ? (
+                                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                                  <h6 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
+                                    💬 X Pulse
+                                  </h6>
+                                  <div className="space-y-3">
+                                    {xPosts[rec.ticker].slice(0, 3).map((post, postIndex) => (
+                                      <div 
+                                        key={postIndex}
+                                        className={`border-l-2 pl-3 py-2 ${
+                                          post.sentiment === 'Bullish' ? 'border-green-500' :
+                                          post.sentiment === 'Bearish' ? 'border-red-500' :
+                                          'border-yellow-500'
+                                        }`}
+                                      >
+                                        <div className="flex items-center justify-between mb-1">
+                                          <div className="flex items-center gap-2">
+                                            <span className={post.sentiment === 'Bullish' ? '🟢' : post.sentiment === 'Bearish' ? '🔴' : '🟡'}></span>
+                                            <span className="text-sm font-medium text-[#00FF99]">@{post.author}</span>
+                                            <span className="text-xs text-gray-500">• {post.timestamp}</span>
+                                          </div>
+                                          <span className="text-xs text-gray-500">{post.engagement.toLocaleString()} ❤️</span>
+                                        </div>
+                                        <p className="text-sm text-gray-300 line-clamp-2">{post.content}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : null}
                             </div>
                           ))}
                           </div>
