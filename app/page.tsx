@@ -1567,7 +1567,7 @@ export default function Home() {
       {/* Navigation for Form and Results Views */}
       {viewMode !== 'landing' && <Navigation />}
       
-      <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : viewMode === 'form' ? 'mx-auto max-w-6xl pt-24' : 'mx-auto max-w-6xl pt-8'}`}>
+      <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : viewMode === 'form' ? 'mx-auto max-w-6xl pt-24' : 'mx-auto max-w-6xl pt-16'}`}>
         {viewMode === 'form' && (
           <div className="animate-fade-in mb-8">
             <p className="text-center text-xl text-[#B4B4B4]">
@@ -1784,7 +1784,7 @@ export default function Home() {
         {viewMode === 'results' && (
         <>
           {/* Tab Navigation - Enhanced with Incentives */}
-          <div className="mb-3">
+          <div className="mb-6">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {/* Portfolio Tab */}
               <button
