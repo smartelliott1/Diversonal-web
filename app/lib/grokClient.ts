@@ -116,30 +116,20 @@ export async function callGrokStreaming(
 
 /**
  * Stage 1: Market Context
- * Ask Grok for current Fear & Greed Index and market summary
+ * Ask Grok for a concise market summary (Fear & Greed now calculated separately)
  */
 export async function callGrokMarketContext(): Promise<{
-  fearGreedIndex: number;
-  fearGreedLabel: string;
   marketContext: string;
 }> {
-  const prompt = `You have access to real-time market data and X (Twitter). Provide a current market analysis:
+  const prompt = `You have access to real-time market data and X (Twitter). Provide a concise 2-3 sentence market context summary for today describing:
 
-INSTRUCTIONS:
-1. What is the current CNN Fear & Greed Index value today? (0-100 scale)
-   - If you can't access the exact CNN index, estimate it based on current market conditions
-   - 0-25 = Extreme Fear, 25-45 = Fear, 45-55 = Neutral, 55-75 = Greed, 75-100 = Extreme Greed
-
-2. Write a concise 2-3 sentence market context for today describing:
-   - Current S&P 500 level and today's movement
-   - Overall market sentiment and key drivers
-   - Notable sector movements or trending themes
+- Current S&P 500 level and today's movement
+- Overall market sentiment and key drivers
+- Notable sector movements or trending themes
 
 Response format (JSON only):
 {
-  "fearGreedIndex": 52,
-  "fearGreedLabel": "Neutral",
-  "marketContext": "Markets showing cautious optimism with S&P 500 at 6,602.99 (+0.98%) as tech sector leads gains. Fear & Greed Index at 52 (Neutral) reflects balanced sentiment despite inverted yield curve signaling recession concerns. Consumer cyclicals lag significantly (-3.9%), indicating defensive sector rotation."
+  "marketContext": "Markets showing cautious optimism with S&P 500 at 6,602.99 (+0.98%) as tech sector leads gains. Balanced sentiment prevails despite inverted yield curve signaling recession concerns. Consumer cyclicals lag significantly (-3.9%), indicating defensive sector rotation."
 }`;
 
   const response = await callGrok(prompt);
@@ -148,8 +138,6 @@ Response format (JSON only):
   try {
     const parsed = JSON.parse(response);
     return {
-      fearGreedIndex: parsed.fearGreedIndex,
-      fearGreedLabel: parsed.fearGreedLabel,
       marketContext: parsed.marketContext,
     };
   } catch (error) {

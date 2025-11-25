@@ -1292,6 +1292,79 @@ export async function getStockEarnings(ticker: string): Promise<EarningsEvent[]>
 // COMPREHENSIVE MARKET CONTEXT (for AI prompts)
 // ============================================================================
 
+// ============================================================================
+// DIVERSONAL FEAR & GREED INDEX
+// ============================================================================
+
+export async function calculateDiversonalFearGreedIndex(): Promise<{
+  index: number;
+  label: string;
+}> {
+  try {
+    const [marketData, technicals] = await Promise.all([
+      getMarketData(),
+      getTechnicalIndicators(),
+    ]);
+    
+    // Component 1: VIX (30% weight) - Inverse relationship (lower VIX = more greed)
+    // VIX typically ranges from 10-80, with 10-20 being calm, 20-30 normal, 30+ fear
+    // Normalize: (80 - VIX) / 70 * 100 to get 0-100 scale (inverted)
+    const vixScore = Math.max(0, Math.min(100, ((80 - marketData.vix) / 70) * 100));
+    
+    // Component 2: S&P 500 RSI (25% weight) - Direct relationship (higher RSI = more greed)
+    // RSI ranges from 0-100, already on correct scale
+    const rsiScore = technicals.sp500RSI;
+    
+    // Component 3: Market Performance (20% weight) - S&P 500 daily change
+    // Daily changes typically range from -5% to +5%, normalize to 0-100
+    // 0% change = 50, +5% = 100, -5% = 0
+    const performanceScore = Math.max(0, Math.min(100, 50 + (marketData.sp500Change * 10)));
+    
+    // Component 4: Yield Curve Spread (15% weight)
+    // Inverted curve (negative spread) = fear, normal curve (positive spread) = greed
+    // Spread typically ranges from -2% to +3%, normalize to 0-100
+    // -2% = 0, 0% = 40, +3% = 100
+    const yieldScore = Math.max(0, Math.min(100, 40 + (marketData.yieldSpread * 20)));
+    
+    // Component 5: Consumer Sentiment (10% weight)
+    // Ranges from 60-110 typically, normalize to 0-100
+    // 60 = 0, 90 = 50, 110 = 100
+    const sentimentScore = Math.max(0, Math.min(100, ((marketData.consumerSentiment - 60) / 50) * 100));
+    
+    // Calculate weighted average
+    const index = Math.round(
+      (vixScore * 0.30) +
+      (rsiScore * 0.25) +
+      (performanceScore * 0.20) +
+      (yieldScore * 0.15) +
+      (sentimentScore * 0.10)
+    );
+    
+    // Map to label
+    let label: string;
+    if (index <= 25) {
+      label = "Extreme Fear";
+    } else if (index <= 45) {
+      label = "Fear";
+    } else if (index <= 55) {
+      label = "Neutral";
+    } else if (index <= 75) {
+      label = "Greed";
+    } else {
+      label = "Extreme Greed";
+    }
+    
+    console.log(`[Diversonal F&G] Index: ${index} (${label}) | VIX: ${vixScore.toFixed(1)} | RSI: ${rsiScore.toFixed(1)} | Perf: ${performanceScore.toFixed(1)} | Yield: ${yieldScore.toFixed(1)} | Sentiment: ${sentimentScore.toFixed(1)}`);
+    
+    return { index, label };
+    
+  } catch (error: any) {
+    console.error("[Diversonal F&G] Error calculating index:", error?.message);
+    // Return neutral default on error
+    return { index: 50, label: "Neutral" };
+  }
+}
+
 export async function getComprehensiveMarketContext(): Promise<string> {
   try {
     const [marketData, sectorData, technicals, commodities, crypto] = await Promise.all([

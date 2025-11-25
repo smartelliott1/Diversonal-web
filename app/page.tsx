@@ -2016,7 +2016,7 @@ export default function Home() {
 
           {/* Portfolio Tab */}
           {activeResultTab === 'portfolio' && (
-        <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-5xl rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
+        <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-7xl rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-gradient animate-fade-in text-3xl font-bold sm:text-4xl">Your AI-Optimized Portfolio</h2>
@@ -2190,15 +2190,19 @@ export default function Home() {
 
           {/* Stock Picks Tab */}
           {activeResultTab === 'stockPicks' && (
-        <section className="animate-fade-in mx-auto max-w-5xl rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
+        <section className="animate-fade-in mx-auto max-w-7xl rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6 sm:p-8">
           
           {/* Generate/Regenerate Button */}
           {!detailedRecommendations && (
-            <div className="mb-10 flex flex-col items-center gap-4">
+            <div className="mb-8 flex flex-col items-center gap-3">
+              <div className="text-center mb-2">
+                <p className="text-sm text-gray-400 mb-1">Get AI-powered stock recommendations tailored to your portfolio</p>
+                <p className="text-xs text-gray-500">Powered by Grok AI • Includes real-time X sentiment analysis</p>
+              </div>
               <button
                 onClick={handleGetDetailedRecommendations}
                 disabled={detailPanelLoading}
-                className="group relative inline-flex items-center gap-3 rounded-sm border border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689] disabled:cursor-not-allowed disabled:opacity-50"
+                className="group relative inline-flex items-center gap-3 rounded-sm border border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg shadow-[#00FF99]/30"
               >
                 {detailPanelLoading && (
                   <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
@@ -2218,7 +2222,7 @@ export default function Home() {
                     <svg className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
-                    Deep Dive Stock Picks with AI Reasoning
+                    Generate Deep Dive Stock Picks
                   </>
                 )}
               </button>
@@ -2227,54 +2231,51 @@ export default function Home() {
 
           {/* Streaming Text Display - shown during generation */}
           {detailPanelLoading && streamingText && (
-            <div className="mb-6 animate-fade-in">
-              <div ref={streamingTextRef} className="max-h-[250px] overflow-y-auto border border-white bg-black p-3">
-                <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-white">
+            <div className="mb-4 animate-fade-in">
+              <div ref={streamingTextRef} className="max-h-[200px] overflow-y-auto border border-white bg-black p-2.5">
+                <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-white">
                   {streamingText}
-                  <span className="ml-1 inline-block h-4 w-1.5 animate-pulse bg-white"></span>
+                  <span className="ml-1 inline-block h-3 w-1 animate-pulse bg-white"></span>
                 </pre>
               </div>
             </div>
           )}
 
-          {/* Market Snapshot - Stage 1 Data */}
+          {/* Market Snapshot - Compact Horizontal Bar */}
           {(marketContext || marketContextLoading) && (
             <div className="mb-6 animate-fade-in">
-              <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
-                <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  Market Snapshot
-                </h3>
-                
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  {/* S&P 500 Card */}
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
-                    <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">S&P 500</div>
+              <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 items-center">
+                  {/* S&P 500 */}
+                  <div className="flex items-center gap-3 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
+                    <div className="flex-shrink-0">
+                      <div className="text-xs font-medium uppercase tracking-wide text-gray-500">S&P 500</div>
+                    </div>
                     {marketContextLoading ? (
-                      <div className="h-16 animate-pulse bg-gray-800 rounded"></div>
+                      <div className="h-8 w-full animate-pulse bg-gray-800 rounded"></div>
                     ) : marketContext ? (
-                      <>
-                        <div className="text-2xl font-bold text-[#E6E6E6]">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="text-xl font-bold text-[#E6E6E6]">
                           ${marketContext.sp500.price.toFixed(2)}
                         </div>
-                        <div className={`text-lg font-medium ${marketContext.sp500.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        <div className={`text-sm font-medium ${marketContext.sp500.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                           {marketContext.sp500.change >= 0 ? '↗ +' : '↘ '}{marketContext.sp500.changePercent.toFixed(2)}%
                         </div>
-                      </>
+                      </div>
                     ) : null}
                   </div>
 
-                  {/* Fear & Greed Card */}
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
-                    <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">Fear & Greed</div>
+                  {/* Diversonal Fear & Greed */}
+                  <div className="flex items-center gap-3 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
+                    <div className="flex-shrink-0">
+                      <div className="text-xs font-medium uppercase tracking-wide text-gray-500">Diversonal F&G</div>
+                    </div>
                     {marketContextLoading ? (
-                      <div className="h-16 animate-pulse bg-gray-800 rounded"></div>
+                      <div className="h-8 w-full animate-pulse bg-gray-800 rounded"></div>
                     ) : marketContext ? (
-                      <>
-                        <div className="flex items-center justify-center">
-                          <ResponsiveContainer width="100%" height={80}>
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="flex-shrink-0">
+                          <ResponsiveContainer width={60} height={35}>
                             <PieChart>
                               <Pie
                                 data={[
@@ -2285,32 +2286,30 @@ export default function Home() {
                                 cy="50%"
                                 startAngle={180}
                                 endAngle={0}
-                                innerRadius={25}
-                                outerRadius={35}
+                                innerRadius={12}
+                                outerRadius={17}
                                 dataKey="value"
                               />
                             </PieChart>
                           </ResponsiveContainer>
                         </div>
-                        <div className="text-center mt-[-15px]">
-                          <div className="text-2xl font-bold text-[#E6E6E6]">{marketContext.fearGreed.value}</div>
-                          <div className="text-sm text-gray-400">{marketContext.fearGreed.label}</div>
+                        <div className="flex items-baseline gap-2">
+                          <div className="text-xl font-bold text-[#E6E6E6]">{marketContext.fearGreed.value}</div>
+                          <div className="text-xs text-gray-400">{marketContext.fearGreed.label}</div>
                         </div>
-                      </>
+                      </div>
                     ) : null}
                   </div>
 
-                  {/* Market Context Card */}
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4 md:col-span-1">
-                    <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">Context</div>
+                  {/* Market Context Inline */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
                     {marketContextLoading ? (
-                      <div className="space-y-2">
-                        <div className="h-3 animate-pulse bg-gray-800 rounded"></div>
-                        <div className="h-3 animate-pulse bg-gray-800 rounded"></div>
-                        <div className="h-3 animate-pulse bg-gray-800 rounded w-3/4"></div>
+                      <div className="space-y-1.5">
+                        <div className="h-2 animate-pulse bg-gray-800 rounded"></div>
+                        <div className="h-2 animate-pulse bg-gray-800 rounded w-5/6"></div>
                       </div>
                     ) : marketContext ? (
-                      <p className="text-sm text-gray-300 leading-relaxed">{marketContext.contextSummary}</p>
+                      <p className="text-xs text-gray-300 leading-relaxed line-clamp-2">{marketContext.contextSummary}</p>
                     ) : null}
                   </div>
                 </div>
@@ -2318,24 +2317,30 @@ export default function Home() {
             </div>
           )}
 
-          {/* Market Context Banner */}
-          {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
-            <div className="mb-8 animate-fade-in rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-6">
-              <h4 className="mb-3 flex items-center gap-2 text-base font-semibold uppercase tracking-wide text-[#00FF99]">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Market Context
-              </h4>
-              <p className="text-base leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
-            </div>
-          )}
-
-          {/* Asset Class Tabs */}
+          {/* Main Content Area with Sidebar Layout */}
           {(detailedRecommendations || (detailPanelLoading && parsedAssetClasses.length > 0)) && (
-            <div className="mb-8">
-              <div className="overflow-x-auto">
-                <div className="inline-flex gap-2 rounded-xl border border-gray-700 bg-[#171A1F] p-2">
+            <div className="flex flex-col lg:flex-row gap-6 mb-6">
+              {/* Left Sidebar - Market Context */}
+              {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
+                <div className="lg:w-1/4 flex-shrink-0">
+                  <div className="sticky top-4 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                    <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#00FF99]">
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      Market Context
+                    </h4>
+                    <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Right Content Area */}
+              <div className="flex-1">
+                {/* Asset Class Tabs */}
+                <div className="mb-6">
+                  <div className="overflow-x-auto">
+                    <div className="inline-flex gap-2 rounded-xl border border-gray-700 bg-[#171A1F] p-2">
                   {(detailPanelLoading ? parsedAssetClasses : currentPortfolioData.map(item => item.name)).map((assetClass) => (
                     <button
                       key={assetClass}
@@ -2349,15 +2354,14 @@ export default function Home() {
                       {assetClass}
                     </button>
                   ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* Recommendations Content */}
-          {((detailPanelLoading && Object.keys(partialRecommendations).length > 0) || (!detailPanelLoading && detailedRecommendations)) && (
-            <div className="animate-slide-in-up space-y-8">
-              {currentPortfolioData.map((portfolioItem) => {
+                {/* Recommendations Content */}
+                {((detailPanelLoading && Object.keys(partialRecommendations).length > 0) || (!detailPanelLoading && detailedRecommendations)) && (
+                  <div className="animate-slide-in-up space-y-6">
+                    {currentPortfolioData.map((portfolioItem) => {
                 const assetClass = portfolioItem.name;
                 if (activeTab !== assetClass) return null;
                 
@@ -2383,12 +2387,12 @@ export default function Home() {
                 if (typeof data === 'string' || !data) return null;
                 
                 return (
-                  <div key={assetClass} className="space-y-6">
+                  <div key={assetClass} className="space-y-4">
                     {/* Loading indicator for partial data */}
                     {detailPanelLoading && (
-                      <div className="rounded-xl border border-[#00FF99]/30 bg-[#00FF99]/10 p-4">
-                        <p className="flex items-center gap-2 text-sm text-[#00FF99]">
-                          <svg className="h-5 w-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="rounded-xl border border-[#00FF99]/30 bg-[#00FF99]/10 p-3">
+                        <p className="flex items-center gap-2 text-xs text-[#00FF99]">
+                          <svg className="h-4 w-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           ✓ {assetClass} recommendations loaded. Additional analysis may still be generating...
@@ -2396,170 +2400,175 @@ export default function Home() {
                       </div>
                     )}
                     
-                    {/* Pie Chart Visualization */}
-                    {data.breakdown && data.breakdown.length > 0 && (
-                      <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
-                        <h4 className="mb-6 text-xl font-semibold text-gray-100">Allocation Breakdown</h4>
-                        {detailPanelLoading ? (
-                          <div className="flex h-64 items-center justify-center">
-                            <div className="text-center">
-                              <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
-                              <p className="text-sm text-gray-400">Generating allocation breakdown...</p>
+                    {/* Side-by-Side Layout: Pie Chart + Recommendations */}
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                      {/* Left: Pie Chart Visualization (40%) */}
+                      {data.breakdown && data.breakdown.length > 0 && (
+                        <div className="lg:col-span-2 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                          <h4 className="mb-4 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
+                          {detailPanelLoading ? (
+                            <div className="flex h-48 items-center justify-center">
+                              <div className="text-center">
+                                <div className="mx-auto mb-3 h-12 w-12 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
+                                <p className="text-xs text-gray-400">Generating...</p>
+                              </div>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="h-80">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <PieChart>
-                                <Pie
-                                  data={data.breakdown}
-                                  cx="50%"
-                                  cy="50%"
-                                  labelLine={false}
-                                  label={(entry: any) => `${entry.name}: ${entry.value}%`}
-                                  outerRadius={100}
-                                  fill="#8884d8"
-                                  dataKey="value"
+                          ) : (
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={data.breakdown}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={(entry: any) => `${entry.name}: ${entry.value}%`}
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                  >
+                                    {data.breakdown.map((entry: any, index: number) => (
+                                      <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                  </Pie>
+                                  <Tooltip
+                                    formatter={(value: number) => `${value}%`}
+                                    contentStyle={{
+                                      backgroundColor: '#171A1F',
+                                      border: 'none',
+                                      borderRadius: '12px',
+                                      color: '#00FF99',
+                                      padding: '8px'
+                                    }}
+                                    labelStyle={{ color: '#00FF99', fontSize: '12px' }}
+                                    itemStyle={{ color: '#00FF99', fontSize: '12px' }}
+                                  />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Right: Recommendations List (60%) */}
+                      <div className={data.breakdown && data.breakdown.length > 0 ? "lg:col-span-3" : "lg:col-span-5"}>
+                        {data.recommendations && data.recommendations.length > 0 ? (
+                          detailPanelLoading ? (
+                            <div className="space-y-3">
+                              <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
+                              <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
+                                <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
+                                <p className="text-xs text-gray-400">Analyzing positions...</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
+                              <div className="grid gap-3">
+                                {data.recommendations.map((rec: StockRecommendation, index: number) => (
+                                <div
+                                  key={index}
+                                  className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4 transition-all hover:border-[#00FF99]/30"
                                 >
-                                  {data.breakdown.map((entry: any, index: number) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                  ))}
-                                </Pie>
-                                <Tooltip
-                                  formatter={(value: number) => `${value}%`}
-                                  contentStyle={{
-                                    backgroundColor: '#171A1F',
-                                    border: 'none',
-                                    borderRadius: '12px',
-                                    color: '#00FF99',
-                                    padding: '12px'
-                                  }}
-                                  labelStyle={{ color: '#00FF99' }}
-                                  itemStyle={{ color: '#00FF99' }}
-                                />
-                              </PieChart>
-                            </ResponsiveContainer>
+                                  {/* Ticker and Name */}
+                                  <div className="mb-3 flex items-start justify-between">
+                                    <div>
+                                      <div className="mb-1 flex items-center gap-2">
+                                        <h5 className="text-xl font-bold text-[#00FF99]">{rec.ticker}</h5>
+                                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                          rec.riskLevel === 'Low' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                          rec.riskLevel === 'Moderate' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                                          'bg-red-500/20 text-red-400 border border-red-500/30'
+                                        }`}>
+                                          {rec.riskLevel} Risk
+                                        </span>
+                                      </div>
+                                      <p className="text-xs text-gray-400">{rec.name}</p>
+                                    </div>
+                                    <div className={`rounded-lg px-3 py-1 text-xs font-semibold ${
+                                      rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :
+                                      rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                      'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                                    }`}>
+                                      {rec.positionSize}
+                                    </div>
+                                  </div>
+
+                                  {/* Rationale */}
+                                  <div className="mb-3">
+                                    <h6 className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                      📊 AI Analysis
+                                    </h6>
+                                    <p className="text-sm leading-relaxed text-gray-300">
+                                      {rec.rationale}
+                                    </p>
+                                  </div>
+
+                                  {/* X Pulse Section */}
+                                  {xPostsLoading ? (
+                                    <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
+                                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                                        <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Loading X posts...
+                                      </div>
+                                    </div>
+                                  ) : xPosts[rec.ticker] && xPosts[rec.ticker].length > 0 ? (
+                                    <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
+                                      <h6 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                        💬 X Pulse
+                                      </h6>
+                                      <div className="space-y-2">
+                                        {xPosts[rec.ticker].slice(0, 2).map((post, postIndex) => (
+                                          <div 
+                                            key={postIndex}
+                                            className={`border-l-2 pl-2 py-1.5 ${
+                                              post.sentiment === 'Bullish' ? 'border-green-500' :
+                                              post.sentiment === 'Bearish' ? 'border-red-500' :
+                                              'border-yellow-500'
+                                            }`}
+                                          >
+                                            <div className="flex items-center justify-between mb-0.5">
+                                              <div className="flex items-center gap-1.5">
+                                                <span className={post.sentiment === 'Bullish' ? '🟢' : post.sentiment === 'Bearish' ? '🔴' : '🟡'}></span>
+                                                <span className="text-xs font-medium text-[#00FF99]">@{post.author}</span>
+                                                <span className="text-xs text-gray-500">• {post.timestamp}</span>
+                                              </div>
+                                              <span className="text-xs text-gray-500">{post.engagement.toLocaleString()} ❤️</span>
+                                            </div>
+                                            <p className="text-xs text-gray-300 line-clamp-2">{post.content}</p>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ) : null}
+                                </div>
+                              ))}
+                              </div>
+                            </div>
+                          )
+                        ) : (
+                          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
+                            <svg className="mx-auto mb-3 h-12 w-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-sm leading-relaxed text-gray-400">
+                              Based on your risk profile, time horizon, and investment goals, we don't recommend active positions in this asset class at this time.
+                            </p>
                           </div>
                         )}
                       </div>
-                    )}
-
-                    {/* Recommendations List */}
-                    {data.recommendations && data.recommendations.length > 0 ? (
-                      detailPanelLoading ? (
-                        <div className="space-y-4">
-                          <h4 className="text-xl font-semibold text-gray-100">Recommended Positions</h4>
-                          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-12 text-center">
-                            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
-                            <p className="text-sm text-gray-400">Analyzing positions and generating recommendations...</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <h4 className="text-xl font-semibold text-gray-100">Recommended Positions</h4>
-                          <div className="grid gap-4">
-                            {data.recommendations.map((rec: StockRecommendation, index: number) => (
-                            <div
-                              key={index}
-                              className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6 transition-all hover:border-[#00FF99]/30"
-                            >
-                              {/* Ticker and Name */}
-                              <div className="mb-4 flex items-start justify-between">
-                                <div>
-                                  <div className="mb-2 flex items-center gap-3">
-                                    <h5 className="text-2xl font-bold text-[#00FF99]">{rec.ticker}</h5>
-                                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                                      rec.riskLevel === 'Low' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                                      rec.riskLevel === 'Moderate' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                                      'bg-red-500/20 text-red-400 border border-red-500/30'
-                                    }`}>
-                                      {rec.riskLevel} Risk
-                                    </span>
-                                  </div>
-                                  <p className="text-sm text-gray-400">{rec.name}</p>
-                                </div>
-                                <div className={`rounded-xl px-4 py-2 text-sm font-semibold ${
-                                  rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :
-                                  rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                  'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-                                }`}>
-                                  {rec.positionSize}
-                                </div>
-                              </div>
-
-                              {/* Rationale */}
-                              <div className="mb-4">
-                                <h6 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                                  📊 AI Analysis
-                                </h6>
-                                <p className="text-base leading-relaxed text-gray-300">
-                                  {rec.rationale}
-                                </p>
-                              </div>
-
-                              {/* X Pulse Section */}
-                              {xPostsLoading ? (
-                                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
-                                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Loading X posts...
-                                  </div>
-                                </div>
-                              ) : xPosts[rec.ticker] && xPosts[rec.ticker].length > 0 ? (
-                                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
-                                  <h6 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                                    💬 X Pulse
-                                  </h6>
-                                  <div className="space-y-3">
-                                    {xPosts[rec.ticker].slice(0, 3).map((post, postIndex) => (
-                                      <div 
-                                        key={postIndex}
-                                        className={`border-l-2 pl-3 py-2 ${
-                                          post.sentiment === 'Bullish' ? 'border-green-500' :
-                                          post.sentiment === 'Bearish' ? 'border-red-500' :
-                                          'border-yellow-500'
-                                        }`}
-                                      >
-                                        <div className="flex items-center justify-between mb-1">
-                                          <div className="flex items-center gap-2">
-                                            <span className={post.sentiment === 'Bullish' ? '🟢' : post.sentiment === 'Bearish' ? '🔴' : '🟡'}></span>
-                                            <span className="text-sm font-medium text-[#00FF99]">@{post.author}</span>
-                                            <span className="text-xs text-gray-500">• {post.timestamp}</span>
-                                          </div>
-                                          <span className="text-xs text-gray-500">{post.engagement.toLocaleString()} ❤️</span>
-                                        </div>
-                                        <p className="text-sm text-gray-300 line-clamp-2">{post.content}</p>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              ) : null}
-                            </div>
-                          ))}
-                          </div>
-                        </div>
-                      )
-                    ) : (
-                      <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-12 text-center">
-                        <svg className="mx-auto mb-4 h-16 w-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <p className="text-base leading-relaxed text-gray-400">
-                          Based on your risk profile, time horizon, and investment goals, we don't recommend active positions in this asset class at this time.
-                        </p>
-                      </div>
-                    )}
+                    </div>
 
                     {/* Regenerate Button */}
                     {!detailPanelLoading && (
-                      <div className="mt-8 border-t border-gray-700 pt-8">
+                      <div className="mt-6 border-t border-gray-700 pt-6">
                         <button
                           onClick={handleGetDetailedRecommendations}
                           disabled={detailPanelLoading}
-                          className="w-full rounded-xl border-2 border-[#00FF99] bg-transparent px-6 py-4 text-base font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F] disabled:opacity-50"
+                          className="w-full rounded-xl border-2 border-[#00FF99] bg-transparent px-5 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F] disabled:opacity-50"
                         >
                           Regenerate Recommendations
                         </button>
@@ -2567,7 +2576,10 @@ export default function Home() {
                     )}
                   </div>
                 );
-              })}
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </section>
