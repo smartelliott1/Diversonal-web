@@ -1784,11 +1784,7 @@ export default function Home() {
         {viewMode === 'results' && (
         <>
           {/* Tab Navigation - Enhanced with Incentives */}
-          <div className="mb-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-200">Explore Your Investment Strategy</h3>
-            </div>
-            
+          <div className="mb-3">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {/* Portfolio Tab */}
               <button
