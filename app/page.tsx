@@ -135,8 +135,18 @@ export default function Home() {
     nasdaq: { price: number; change: number; changePercent: number };
     dow: { price: number; change: number; changePercent: number };
     russell2000: { price: number; change: number; changePercent: number };
+    vix: { price: number; change: number; changePercent: number };
+    nvda: { price: number; change: number; changePercent: number };
+    tsla: { price: number; change: number; changePercent: number };
+    aapl: { price: number; change: number; changePercent: number };
+    googl: { price: number; change: number; changePercent: number };
+    amzn: { price: number; change: number; changePercent: number };
     btc: { price: number; change: number; changePercent: number };
     eth: { price: number; change: number; changePercent: number };
+    sol: { price: number; change: number; changePercent: number };
+    xmr: { price: number; change: number; changePercent: number };
+    gold: { price: number; change: number; changePercent: number };
+    silver: { price: number; change: number; changePercent: number };
     fearGreed: { value: number; label: string };
     contextSummary: string;
   } | null>(null);
@@ -1160,6 +1170,33 @@ export default function Home() {
   
   // Landing Page Component
   const LandingSection = () => {
+    const [landingTickerData, setLandingTickerData] = useState<Array<{
+      label: string;
+      symbol: string;
+      price: string;
+      change: number;
+    }>>([]);
+    const [landingTickerLoading, setLandingTickerLoading] = useState(true);
+
+    // Fetch ticker data on mount
+    useEffect(() => {
+      const fetchTickerData = async () => {
+        try {
+          const response = await fetch("/api/ticker-data");
+          const data = await response.json();
+          if (data.tickers) {
+            setLandingTickerData(data.tickers);
+          }
+        } catch (error) {
+          console.error("Error fetching landing ticker data:", error);
+        } finally {
+          setLandingTickerLoading(false);
+        }
+      };
+
+      fetchTickerData();
+    }, []);
+
     const scrollToSection = (sectionId: string) => {
       const section = document.getElementById(sectionId);
       if (section) {
@@ -1227,20 +1264,74 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* Ticker Stream - Below Navigation */}
+      <div className="fixed top-16 left-0 right-0 z-40 overflow-hidden bg-[#0F0F0F] border-b border-[#2A2A2A] py-3">
+        {landingTickerLoading ? (
+          <div className="text-center text-xs text-[#808080]">Loading market data...</div>
+        ) : (
+          <div className="ticker-wrapper">
+            <div className="ticker-content">
+              {/* Original set */}
+              {landingTickerData.map((ticker, i) => (
+                <div key={i} className="ticker-item">
+                  <div className="text-xs text-gray-500 uppercase">{ticker.label}</div>
+                  <div className="text-lg font-bold text-[#E6E6E6]">{ticker.price}</div>
+                  <div className={`text-sm ${ticker.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {ticker.change >= 0 ? '↗ +' : '↘ '}{Math.abs(ticker.change).toFixed(2)}%
+                  </div>
+                </div>
+              ))}
+              {/* Duplicate set for seamless loop */}
+              {landingTickerData.map((ticker, i) => (
+                <div key={`dup-${i}`} className="ticker-item">
+                  <div className="text-xs text-gray-500 uppercase">{ticker.label}</div>
+                  <div className="text-lg font-bold text-[#E6E6E6]">{ticker.price}</div>
+                  <div className={`text-sm ${ticker.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {ticker.change >= 0 ? '↗ +' : '↘ '}{Math.abs(ticker.change).toFixed(2)}%
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Hero Section */}
       <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden pt-32 pb-20">
-        {/* Hero Text */}
-        <div className="relative z-10 mx-auto max-w-5xl px-6 text-center mb-24">
-          <h2 className="mb-6 text-5xl font-semibold text-[#E6E6E6] sm:text-6xl lg:text-7xl">
+        {/* Hero Header */}
+        <div className="relative z-10 mx-auto max-w-5xl px-6 text-center mt-12">
+          <h2 className="mb-8 text-5xl font-semibold text-[#E6E6E6] sm:text-6xl lg:text-7xl">
             AI-Powered Portfolio Optimization
           </h2>
-          <p className="mx-auto max-w-3xl text-lg text-[#B4B4B4] sm:text-xl">
+          
+          {/* Sub Header */}
+          <p className="mx-auto max-w-3xl mb-12 text-lg text-[#B4B4B4] sm:text-xl">
             Professional-grade portfolio allocation powered by advanced AI. Get personalized recommendations, stress test scenarios, and detailed stock picks.
           </p>
+          
+          {/* AI Logos */}
+          <div className="flex items-center justify-center gap-8 mb-16">
+            {/* OpenAI Logo */}
+            <svg className="h-8 w-8 text-[#808080] transition-colors duration-200 hover:text-[#00FF99]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z"/>
+            </svg>
+            
+            {/* XAI Logo */}
+            <svg className="h-8 w-8 text-[#808080] transition-colors duration-200 hover:text-[#00FF99]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            
+            {/* Claude Logo */}
+            <svg className="h-8 w-8 text-[#808080] transition-colors duration-200 hover:text-[#00FF99]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.29 2.833c-1.14 0-2.097.428-2.87 1.283a5.09 5.09 0 0 0-1.183 3.408c0 1.282.394 2.368 1.183 3.257.788.889 1.73 1.334 2.87 1.334 1.14 0 2.082-.445 2.87-1.334.789-.889 1.183-1.975 1.183-3.257 0-1.282-.394-2.469-1.183-3.408-.788-.855-1.73-1.283-2.87-1.283zm-2.87 14.167c0 1.282.394 2.519 1.183 3.408.788.855 1.73 1.283 2.87 1.283 1.14 0 2.082-.428 2.87-1.283.789-.889 1.183-2.126 1.183-3.408 0-1.282-.394-2.368-1.183-3.257-.788-.889-1.73-1.334-2.87-1.334-1.14 0-2.097.445-2.87 1.334-.789.889-1.183 1.975-1.183 3.257zM2.709 7.524c0 1.282.394 2.368 1.183 3.257.788.889 1.73 1.334 2.87 1.334 1.14 0 2.082-.445 2.87-1.334.789-.889 1.183-1.975 1.183-3.257 0-1.282-.394-2.519-1.183-3.408C8.844 3.261 7.902 2.833 6.762 2.833c-1.14 0-2.097.428-2.87 1.283-.789.889-1.183 2.126-1.183 3.408z"/>
+            </svg>
+          </div>
         </div>
 
         {/* 3D Computer Screen */}
-        <ComputerScreen3D />
+        <div className="mb-16">
+          <ComputerScreen3D />
+        </div>
 
         {/* Scroll Button */}
         <button 
@@ -2392,8 +2483,18 @@ export default function Home() {
                               { label: 'Nasdaq', price: marketContext.nasdaq.price.toFixed(2), change: marketContext.nasdaq.changePercent },
                               { label: 'Dow', price: marketContext.dow.price.toFixed(2), change: marketContext.dow.changePercent },
                               { label: 'Russell 2000', price: marketContext.russell2000.price.toFixed(2), change: marketContext.russell2000.changePercent },
+                              { label: 'VIX', price: marketContext.vix.price.toFixed(2), change: marketContext.vix.changePercent },
+                              { label: 'NVDA', price: `$${marketContext.nvda.price.toFixed(2)}`, change: marketContext.nvda.changePercent },
+                              { label: 'TSLA', price: `$${marketContext.tsla.price.toFixed(2)}`, change: marketContext.tsla.changePercent },
+                              { label: 'AAPL', price: `$${marketContext.aapl.price.toFixed(2)}`, change: marketContext.aapl.changePercent },
+                              { label: 'GOOGL', price: `$${marketContext.googl.price.toFixed(2)}`, change: marketContext.googl.changePercent },
+                              { label: 'AMZN', price: `$${marketContext.amzn.price.toFixed(2)}`, change: marketContext.amzn.changePercent },
                               { label: 'BTC', price: `$${marketContext.btc.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, change: marketContext.btc.changePercent },
                               { label: 'ETH', price: `$${marketContext.eth.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, change: marketContext.eth.changePercent },
+                              { label: 'SOL', price: `$${marketContext.sol.price.toFixed(2)}`, change: marketContext.sol.changePercent },
+                              { label: 'XMR', price: `$${marketContext.xmr.price.toFixed(2)}`, change: marketContext.xmr.changePercent },
+                              { label: 'GOLD', price: `$${marketContext.gold.price.toFixed(2)}`, change: marketContext.gold.changePercent },
+                              { label: 'SILVER', price: `$${marketContext.silver.price.toFixed(2)}`, change: marketContext.silver.changePercent },
                               { label: 'Fear & Greed', price: marketContext.fearGreed.value.toString(), change: 0, isIndex: true },
                             ].map((indicator, i) => (
                               <div key={i} className="ticker-item">
@@ -2415,8 +2516,18 @@ export default function Home() {
                               { label: 'Nasdaq', price: marketContext.nasdaq.price.toFixed(2), change: marketContext.nasdaq.changePercent },
                               { label: 'Dow', price: marketContext.dow.price.toFixed(2), change: marketContext.dow.changePercent },
                               { label: 'Russell 2000', price: marketContext.russell2000.price.toFixed(2), change: marketContext.russell2000.changePercent },
+                              { label: 'VIX', price: marketContext.vix.price.toFixed(2), change: marketContext.vix.changePercent },
+                              { label: 'NVDA', price: `$${marketContext.nvda.price.toFixed(2)}`, change: marketContext.nvda.changePercent },
+                              { label: 'TSLA', price: `$${marketContext.tsla.price.toFixed(2)}`, change: marketContext.tsla.changePercent },
+                              { label: 'AAPL', price: `$${marketContext.aapl.price.toFixed(2)}`, change: marketContext.aapl.changePercent },
+                              { label: 'GOOGL', price: `$${marketContext.googl.price.toFixed(2)}`, change: marketContext.googl.changePercent },
+                              { label: 'AMZN', price: `$${marketContext.amzn.price.toFixed(2)}`, change: marketContext.amzn.changePercent },
                               { label: 'BTC', price: `$${marketContext.btc.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, change: marketContext.btc.changePercent },
                               { label: 'ETH', price: `$${marketContext.eth.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, change: marketContext.eth.changePercent },
+                              { label: 'SOL', price: `$${marketContext.sol.price.toFixed(2)}`, change: marketContext.sol.changePercent },
+                              { label: 'XMR', price: `$${marketContext.xmr.price.toFixed(2)}`, change: marketContext.xmr.changePercent },
+                              { label: 'GOLD', price: `$${marketContext.gold.price.toFixed(2)}`, change: marketContext.gold.changePercent },
+                              { label: 'SILVER', price: `$${marketContext.silver.price.toFixed(2)}`, change: marketContext.silver.changePercent },
                               { label: 'Fear & Greed', price: marketContext.fearGreed.value.toString(), change: 0, isIndex: true },
                             ].map((indicator, i) => (
                               <div key={`dup-${i}`} className="ticker-item">

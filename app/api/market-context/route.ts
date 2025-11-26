@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callGrokMarketContext } from "@/app/lib/grokClient";
-import { getMarketData, calculateDiversonalFearGreedIndex, getCryptoData } from "@/app/lib/financialData";
+import { getMarketData, calculateDiversonalFearGreedIndex, getCryptoData, getCommodityData } from "@/app/lib/financialData";
 
 // Stage 1: Market Context API
 // Fetches live market data (indices + crypto), calculates Diversonal Fear & Greed Index, and asks Grok for market summary
@@ -27,17 +27,39 @@ export async function POST(request: NextRequest) {
   try {
     console.log("[Market Context] Fetching market data and calculating Fear & Greed Index...");
     
-    // Fetch Russell 2000 separately (not in default getMarketData)
-    const russellData = await fetchFMP("/stable/quote?symbol=^RUT");
-    const russell = russellData[0];
-    
-    // Fetch live market data from FMP and calculate Fear & Greed Index
-    const [marketData, cryptoData, fearGreedData, grokResponse] = await Promise.all([
+    // Fetch all data in parallel
+    const [
+      russellData,
+      nvdaData,
+      tslaData,
+      aaplData,
+      googlData,
+      amznData,
+      marketData,
+      cryptoData,
+      commodityData,
+      fearGreedData,
+      grokResponse
+    ] = await Promise.all([
+      fetchFMP("/stable/quote?symbol=^RUT"),
+      fetchFMP("/stable/quote?symbol=NVDA"),
+      fetchFMP("/stable/quote?symbol=TSLA"),
+      fetchFMP("/stable/quote?symbol=AAPL"),
+      fetchFMP("/stable/quote?symbol=GOOGL"),
+      fetchFMP("/stable/quote?symbol=AMZN"),
       getMarketData(),
       getCryptoData(),
+      getCommodityData(),
       calculateDiversonalFearGreedIndex(),
       callGrokMarketContext(),
     ]);
+    
+    const russell = russellData[0];
+    const nvda = nvdaData[0];
+    const tsla = tslaData[0];
+    const aapl = aaplData[0];
+    const googl = googlData[0];
+    const amzn = amznData[0];
     
     console.log("[Market Context] Fear & Greed:", fearGreedData);
     console.log("[Market Context] Grok response:", grokResponse);
@@ -64,6 +86,36 @@ export async function POST(request: NextRequest) {
         change: russell.changePercentage,
         changePercent: russell.changePercentage,
       },
+      vix: {
+        price: marketData.vix,
+        change: marketData.vixChange,
+        changePercent: marketData.vixChange,
+      },
+      nvda: {
+        price: nvda.price,
+        change: nvda.changePercentage,
+        changePercent: nvda.changePercentage,
+      },
+      tsla: {
+        price: tsla.price,
+        change: tsla.changePercentage,
+        changePercent: tsla.changePercentage,
+      },
+      aapl: {
+        price: aapl.price,
+        change: aapl.changePercentage,
+        changePercent: aapl.changePercentage,
+      },
+      googl: {
+        price: googl.price,
+        change: googl.changePercentage,
+        changePercent: googl.changePercentage,
+      },
+      amzn: {
+        price: amzn.price,
+        change: amzn.changePercentage,
+        changePercent: amzn.changePercentage,
+      },
       btc: {
         price: cryptoData.bitcoin,
         change: cryptoData.bitcoinChange,
@@ -73,6 +125,26 @@ export async function POST(request: NextRequest) {
         price: cryptoData.ethereum,
         change: cryptoData.ethereumChange,
         changePercent: cryptoData.ethereumChange,
+      },
+      sol: {
+        price: cryptoData.solana,
+        change: cryptoData.solanaChange,
+        changePercent: cryptoData.solanaChange,
+      },
+      xmr: {
+        price: cryptoData.monero,
+        change: cryptoData.moneroChange,
+        changePercent: cryptoData.moneroChange,
+      },
+      gold: {
+        price: commodityData.gold,
+        change: commodityData.goldChange,
+        changePercent: commodityData.goldChange,
+      },
+      silver: {
+        price: commodityData.silver,
+        change: commodityData.silverChange,
+        changePercent: commodityData.silverChange,
       },
       fearGreed: {
         value: fearGreedData.index,
