@@ -1646,7 +1646,7 @@ export default function Home() {
       {/* Navigation for Form and Results Views */}
       {viewMode !== 'landing' && <Navigation />}
       
-      <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : viewMode === 'form' ? 'mx-auto max-w-6xl pt-24' : 'mx-auto max-w-6xl pt-16'}`}>
+      <div className={`relative z-10 ${viewMode === 'landing' ? 'h-full' : viewMode === 'form' ? 'w-full px-8 pt-24' : 'w-full px-8 pt-16'}`}>
         {viewMode === 'form' && (
           <div className="animate-fade-in mb-8">
             <p className="text-center text-xl text-[#B4B4B4]">
@@ -1660,7 +1660,7 @@ export default function Home() {
 
         {/* Form View */}
         {viewMode === 'form' && (
-          <div>
+          <div className="mx-auto max-w-4xl">
         <form
           className="animate-fade-in space-y-6"
           onSubmit={handleSubmit}
@@ -2016,7 +2016,7 @@ export default function Home() {
 
           {/* Portfolio Tab */}
           {activeResultTab === 'portfolio' && (
-        <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-7xl rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
+        <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-gradient animate-fade-in text-3xl font-bold sm:text-4xl">Your AI-Optimized Portfolio</h2>
@@ -2190,7 +2190,7 @@ export default function Home() {
 
           {/* Stock Picks Tab */}
           {activeResultTab === 'stockPicks' && (
-        <section className="animate-fade-in mx-auto max-w-7xl rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6 sm:p-8">
+        <section className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6 sm:p-8">
           
           {/* Generate/Regenerate Button */}
           {!detailedRecommendations && (
@@ -2241,126 +2241,108 @@ export default function Home() {
             </div>
           )}
 
-          {/* Market Snapshot - Compact Horizontal Bar */}
+          {/* Market Snapshot - 2 Card Layout */}
           {(marketContext || marketContextLoading) && (
             <div className="mb-6 animate-fade-in">
-              <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-3">
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 items-center">
-                  {/* S&P 500 */}
-                  <div className="flex items-center gap-3 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
-                    <div className="flex-shrink-0">
-                      <div className="text-xs font-medium uppercase tracking-wide text-gray-500">S&P 500</div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {/* S&P 500 */}
+                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4 shadow-sm">
+                  <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-3">S&P 500</div>
+                  {marketContextLoading ? (
+                    <div className="h-12 animate-pulse bg-gray-800 rounded"></div>
+                  ) : marketContext ? (
+                    <div className="flex items-center gap-4">
+                      <div className="text-3xl font-bold text-[#E6E6E6]">
+                        ${marketContext.sp500.price.toFixed(2)}
+                      </div>
+                      <div className={`text-lg font-medium ${marketContext.sp500.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {marketContext.sp500.change >= 0 ? '↗ +' : '↘ '}{marketContext.sp500.changePercent.toFixed(2)}%
+                      </div>
                     </div>
-                    {marketContextLoading ? (
-                      <div className="h-8 w-full animate-pulse bg-gray-800 rounded"></div>
-                    ) : marketContext ? (
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="text-xl font-bold text-[#E6E6E6]">
-                          ${marketContext.sp500.price.toFixed(2)}
-                        </div>
-                        <div className={`text-sm font-medium ${marketContext.sp500.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          {marketContext.sp500.change >= 0 ? '↗ +' : '↘ '}{marketContext.sp500.changePercent.toFixed(2)}%
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
+                  ) : null}
+                </div>
 
-                  {/* Diversonal Fear & Greed */}
-                  <div className="flex items-center gap-3 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
-                    <div className="flex-shrink-0">
-                      <div className="text-xs font-medium uppercase tracking-wide text-gray-500">Diversonal F&G</div>
+                {/* Diversonal Fear & Greed */}
+                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4 shadow-sm">
+                  <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-3">Diversonal Fear & Greed</div>
+                  {marketContextLoading ? (
+                    <div className="h-12 animate-pulse bg-gray-800 rounded"></div>
+                  ) : marketContext ? (
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0">
+                        <ResponsiveContainer width={70} height={50}>
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { value: marketContext.fearGreed.value, fill: marketContext.fearGreed.value <= 25 ? '#EF4444' : marketContext.fearGreed.value <= 45 ? '#F97316' : marketContext.fearGreed.value <= 55 ? '#EAB308' : marketContext.fearGreed.value <= 75 ? '#84CC16' : '#22C55E' },
+                                { value: 100 - marketContext.fearGreed.value, fill: '#2A2A2A' }
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              startAngle={180}
+                              endAngle={0}
+                              innerRadius={18}
+                              outerRadius={25}
+                              dataKey="value"
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="flex flex-col">
+                        <div className="text-3xl font-bold text-[#E6E6E6]">{marketContext.fearGreed.value}</div>
+                        <div className="text-sm text-gray-400">{marketContext.fearGreed.label}</div>
+                      </div>
                     </div>
-                    {marketContextLoading ? (
-                      <div className="h-8 w-full animate-pulse bg-gray-800 rounded"></div>
-                    ) : marketContext ? (
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="flex-shrink-0">
-                          <ResponsiveContainer width={60} height={35}>
-                            <PieChart>
-                              <Pie
-                                data={[
-                                  { value: marketContext.fearGreed.value, fill: marketContext.fearGreed.value <= 25 ? '#EF4444' : marketContext.fearGreed.value <= 45 ? '#F97316' : marketContext.fearGreed.value <= 55 ? '#EAB308' : marketContext.fearGreed.value <= 75 ? '#84CC16' : '#22C55E' },
-                                  { value: 100 - marketContext.fearGreed.value, fill: '#2A2A2A' }
-                                ]}
-                                cx="50%"
-                                cy="50%"
-                                startAngle={180}
-                                endAngle={0}
-                                innerRadius={12}
-                                outerRadius={17}
-                                dataKey="value"
-                              />
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </div>
-                        <div className="flex items-baseline gap-2">
-                          <div className="text-xl font-bold text-[#E6E6E6]">{marketContext.fearGreed.value}</div>
-                          <div className="text-xs text-gray-400">{marketContext.fearGreed.label}</div>
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          )}
 
-                  {/* Market Context Inline */}
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
-                    {marketContextLoading ? (
-                      <div className="space-y-1.5">
-                        <div className="h-2 animate-pulse bg-gray-800 rounded"></div>
-                        <div className="h-2 animate-pulse bg-gray-800 rounded w-5/6"></div>
-                      </div>
-                    ) : marketContext ? (
-                      <p className="text-xs text-gray-300 leading-relaxed line-clamp-2">{marketContext.contextSummary}</p>
-                    ) : null}
+          {/* Market Context Banner - Collapsible */}
+          {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
+            <div className="mb-6 animate-fade-in">
+              <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <svg className="h-5 w-5 text-[#00FF99] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99] mb-2">Market Context</h4>
+                    <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Main Content Area with Sidebar Layout */}
+          {/* Asset Class Tabs and Content */}
           {(detailedRecommendations || (detailPanelLoading && parsedAssetClasses.length > 0)) && (
-            <div className="flex flex-col lg:flex-row gap-6 mb-6">
-              {/* Left Sidebar - Market Context */}
-              {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
-                <div className="lg:w-1/4 flex-shrink-0">
-                  <div className="sticky top-4 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
-                    <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[#00FF99]">
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      Market Context
-                    </h4>
-                    <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
+            <div>
+              {/* Asset Class Tabs */}
+              <div className="mb-8">
+                <div className="overflow-x-auto pb-2">
+                  <div className="inline-flex gap-3 rounded-xl border border-gray-700 bg-[#171A1F] p-2 shadow-md">
+                    {(detailPanelLoading ? parsedAssetClasses : currentPortfolioData.map(item => item.name)).map((assetClass) => (
+                      <button
+                        key={assetClass}
+                        onClick={() => setActiveTab(assetClass)}
+                        className={`flex-shrink-0 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-300 ${
+                          activeTab === assetClass
+                            ? 'bg-[#00FF99] text-[#171A1F] shadow-lg shadow-[#00FF99]/30 scale-105'
+                            : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200 hover:scale-102'
+                        }`}
+                      >
+                        {assetClass}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              )}
-
-              {/* Right Content Area */}
-              <div className="flex-1">
-                {/* Asset Class Tabs */}
-                <div className="mb-6">
-                  <div className="overflow-x-auto">
-                    <div className="inline-flex gap-2 rounded-xl border border-gray-700 bg-[#171A1F] p-2">
-                  {(detailPanelLoading ? parsedAssetClasses : currentPortfolioData.map(item => item.name)).map((assetClass) => (
-                    <button
-                      key={assetClass}
-                      onClick={() => setActiveTab(assetClass)}
-                      className={`flex-shrink-0 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-300 ${
-                        activeTab === assetClass
-                          ? 'bg-[#00FF99] text-[#171A1F] shadow-lg shadow-[#00FF99]/30'
-                          : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
-                      }`}
-                    >
-                      {assetClass}
-                    </button>
-                  ))}
-                    </div>
-                  </div>
-                </div>
+              </div>
 
                 {/* Recommendations Content */}
                 {((detailPanelLoading && Object.keys(partialRecommendations).length > 0) || (!detailPanelLoading && detailedRecommendations)) && (
-                  <div className="animate-slide-in-up space-y-6">
+                  <div className="animate-slide-in-up">
                     {currentPortfolioData.map((portfolioItem) => {
                 const assetClass = portfolioItem.name;
                 if (activeTab !== assetClass) return null;
@@ -2387,12 +2369,12 @@ export default function Home() {
                 if (typeof data === 'string' || !data) return null;
                 
                 return (
-                  <div key={assetClass} className="space-y-4">
+                  <div key={assetClass} className="space-y-6">
                     {/* Loading indicator for partial data */}
                     {detailPanelLoading && (
-                      <div className="rounded-xl border border-[#00FF99]/30 bg-[#00FF99]/10 p-3">
-                        <p className="flex items-center gap-2 text-xs text-[#00FF99]">
-                          <svg className="h-4 w-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="rounded-lg border border-[#00FF99]/30 bg-[#00FF99]/10 p-4">
+                        <p className="flex items-center gap-2 text-sm text-[#00FF99]">
+                          <svg className="h-5 w-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           ✓ {assetClass} recommendations loaded. Additional analysis may still be generating...
@@ -2401,11 +2383,11 @@ export default function Home() {
                     )}
                     
                     {/* Side-by-Side Layout: Pie Chart + Recommendations */}
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                       {/* Left: Pie Chart Visualization (40%) */}
                       {data.breakdown && data.breakdown.length > 0 && (
-                        <div className="lg:col-span-2 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
-                          <h4 className="mb-4 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
+                        <div className="lg:col-span-2 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 shadow-sm">
+                          <h4 className="mb-5 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
                           {detailPanelLoading ? (
                             <div className="flex h-48 items-center justify-center">
                               <div className="text-center">
@@ -2462,13 +2444,13 @@ export default function Home() {
                               </div>
                             </div>
                           ) : (
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                               <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
-                              <div className="grid gap-3">
+                              <div className="grid gap-4">
                                 {data.recommendations.map((rec: StockRecommendation, index: number) => (
                                 <div
                                   key={index}
-                                  className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4 transition-all hover:border-[#00FF99]/30"
+                                  className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 transition-all hover:border-[#00FF99]/30 hover:shadow-md"
                                 >
                                   {/* Ticker and Name */}
                                   <div className="mb-3 flex items-start justify-between">
@@ -2579,7 +2561,6 @@ export default function Home() {
                     })}
                   </div>
                 )}
-              </div>
             </div>
           )}
         </section>
