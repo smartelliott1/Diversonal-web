@@ -1297,20 +1297,20 @@ export default function Home() {
       </div>
 
       {/* Hero Section */}
-      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden pt-24 pb-20">
+      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden pt-16 pb-20">
         {/* Hero Header */}
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
-          <h2 className="mb-6 text-5xl font-semibold text-[#E6E6E6] sm:text-6xl lg:text-7xl">
+          <h2 className="mb-4 text-5xl font-semibold text-[#E6E6E6] sm:text-6xl lg:text-7xl">
             AI-Powered Portfolio Optimization
           </h2>
           
           {/* Sub Header */}
-          <p className="mx-auto max-w-3xl mb-8 text-lg text-[#B4B4B4] sm:text-xl">
+          <p className="mx-auto max-w-3xl mb-5 text-lg text-[#B4B4B4] sm:text-xl">
             Professional-grade portfolio allocation powered by advanced AI. Get personalized recommendations, stress test scenarios, and detailed stock picks.
           </p>
           
           {/* AI Logos */}
-          <div className="flex items-center justify-center gap-12 mb-12">
+          <div className="flex items-center justify-center gap-12 mb-8">
             {/* OpenAI Logo with Text */}
             <div className="flex items-center gap-2 text-[#808080] transition-colors duration-200 hover:text-[#00FF99]">
               <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
