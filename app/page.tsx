@@ -132,6 +132,11 @@ export default function Home() {
   // Three-stage Grok integration state
   const [marketContext, setMarketContext] = useState<{
     sp500: { price: number; change: number; changePercent: number };
+    nasdaq: { price: number; change: number; changePercent: number };
+    dow: { price: number; change: number; changePercent: number };
+    russell2000: { price: number; change: number; changePercent: number };
+    btc: { price: number; change: number; changePercent: number };
+    eth: { price: number; change: number; changePercent: number };
     fearGreed: { value: number; label: string };
     contextSummary: string;
   } | null>(null);
@@ -2241,85 +2246,9 @@ export default function Home() {
             </div>
           )}
 
-          {/* Market Snapshot - 2 Card Layout */}
-          {(marketContext || marketContextLoading) && (
-            <div className="mb-6 animate-fade-in">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {/* S&P 500 */}
-                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4 shadow-sm">
-                  <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-3">S&P 500</div>
-                  {marketContextLoading ? (
-                    <div className="h-12 animate-pulse bg-gray-800 rounded"></div>
-                  ) : marketContext ? (
-                    <div className="flex items-center gap-4">
-                      <div className="text-3xl font-bold text-[#E6E6E6]">
-                        ${marketContext.sp500.price.toFixed(2)}
-                      </div>
-                      <div className={`text-lg font-medium ${marketContext.sp500.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        {marketContext.sp500.change >= 0 ? '↗ +' : '↘ '}{marketContext.sp500.changePercent.toFixed(2)}%
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-
-                {/* Diversonal Fear & Greed */}
-                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4 shadow-sm">
-                  <div className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-3">Diversonal Fear & Greed</div>
-                  {marketContextLoading ? (
-                    <div className="h-12 animate-pulse bg-gray-800 rounded"></div>
-                  ) : marketContext ? (
-                    <div className="flex items-center gap-4">
-                      <div className="flex-shrink-0">
-                        <ResponsiveContainer width={70} height={50}>
-                          <PieChart>
-                            <Pie
-                              data={[
-                                { value: marketContext.fearGreed.value, fill: marketContext.fearGreed.value <= 25 ? '#EF4444' : marketContext.fearGreed.value <= 45 ? '#F97316' : marketContext.fearGreed.value <= 55 ? '#EAB308' : marketContext.fearGreed.value <= 75 ? '#84CC16' : '#22C55E' },
-                                { value: 100 - marketContext.fearGreed.value, fill: '#2A2A2A' }
-                              ]}
-                              cx="50%"
-                              cy="50%"
-                              startAngle={180}
-                              endAngle={0}
-                              innerRadius={18}
-                              outerRadius={25}
-                              dataKey="value"
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="flex flex-col">
-                        <div className="text-3xl font-bold text-[#E6E6E6]">{marketContext.fearGreed.value}</div>
-                        <div className="text-sm text-gray-400">{marketContext.fearGreed.label}</div>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Market Context Banner - Collapsible */}
-          {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
-            <div className="mb-6 animate-fade-in">
-              <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-5 shadow-sm">
-                <div className="flex items-start gap-3">
-                  <svg className="h-5 w-5 text-[#00FF99] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99] mb-2">Market Context</h4>
-                    <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Asset Class Tabs and Content */}
+          {/* Asset Class Tabs */}
           {(detailedRecommendations || (detailPanelLoading && parsedAssetClasses.length > 0)) && (
             <div>
-              {/* Asset Class Tabs */}
               <div className="mb-8">
                 <div className="overflow-x-auto pb-2">
                   <div className="inline-flex gap-3 rounded-xl border border-gray-700 bg-[#171A1F] p-2 shadow-md">
@@ -2340,12 +2269,12 @@ export default function Home() {
                 </div>
               </div>
 
-                {/* Recommendations Content */}
-                {((detailPanelLoading && Object.keys(partialRecommendations).length > 0) || (!detailPanelLoading && detailedRecommendations)) && (
-                  <div className="animate-slide-in-up">
-                    {currentPortfolioData.map((portfolioItem) => {
-                const assetClass = portfolioItem.name;
-                if (activeTab !== assetClass) return null;
+              {/* Recommendations Content */}
+              {((detailPanelLoading && Object.keys(partialRecommendations).length > 0) || (!detailPanelLoading && detailedRecommendations)) && (
+                <div className="animate-slide-in-up">
+                  {currentPortfolioData.map((portfolioItem) => {
+                    const assetClass = portfolioItem.name;
+                    if (activeTab !== assetClass) return null;
                 
                 // Check if this asset class has 0% allocation
                 if (portfolioItem.value === 0) {
@@ -2372,7 +2301,7 @@ export default function Home() {
                   <div key={assetClass} className="space-y-6">
                     {/* Loading indicator for partial data */}
                     {detailPanelLoading && (
-                      <div className="rounded-lg border border-[#00FF99]/30 bg-[#00FF99]/10 p-4">
+                      <div className="rounded-lg border border-[#00FF99]/30 bg-[#00FF99]/10 p-4 mb-6">
                         <p className="flex items-center gap-2 text-sm text-[#00FF99]">
                           <svg className="h-5 w-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -2382,12 +2311,13 @@ export default function Home() {
                       </div>
                     )}
                     
-                    {/* Side-by-Side Layout: Pie Chart + Recommendations */}
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                      {/* Left: Pie Chart Visualization (40%) */}
+                    {/* TIER 1: Top Row - Allocation Breakdown (40%) + Market Context (60%) */}
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+                      {/* Left: Allocation Breakdown - 40% */}
                       {data.breakdown && data.breakdown.length > 0 && (
-                        <div className="lg:col-span-2 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 shadow-sm">
-                          <h4 className="mb-5 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
+                        <div className="lg:col-span-2 flex flex-col">
+                          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 shadow-sm h-full">
+                            <h4 className="mb-5 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
                           {detailPanelLoading ? (
                             <div className="flex h-48 items-center justify-center">
                               <div className="text-center">
@@ -2429,34 +2359,103 @@ export default function Home() {
                               </ResponsiveContainer>
                             </div>
                           )}
+                          </div>
                         </div>
                       )}
-
-                      {/* Right: Recommendations List (60%) */}
-                      <div className={data.breakdown && data.breakdown.length > 0 ? "lg:col-span-3" : "lg:col-span-5"}>
-                        {data.recommendations && data.recommendations.length > 0 ? (
-                          detailPanelLoading ? (
-                            <div className="space-y-3">
-                              <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
-                              <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
-                                <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
-                                <p className="text-xs text-gray-400">Analyzing positions...</p>
+                      
+                      {/* Right: Market Context - 60% */}
+                      {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
+                        <div className="lg:col-span-3 flex flex-col">
+                          <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-5 shadow-sm h-full">
+                            <div className="flex items-start gap-3 h-full">
+                              <svg className="h-5 w-5 text-[#00FF99] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                              <div className="flex-1">
+                                <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99] mb-2">Market Context</h4>
+                                <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
                               </div>
                             </div>
-                          ) : (
-                            <div className="space-y-4">
-                              <h4 className="text-lg font-semibold text-gray-100">Recommended Positions</h4>
-                              <div className="grid gap-4">
-                                {data.recommendations.map((rec: StockRecommendation, index: number) => (
-                                <div
-                                  key={index}
-                                  className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 transition-all hover:border-[#00FF99]/30 hover:shadow-md"
-                                >
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* TIER 2: Auto-Scrolling Market Indicators Ticker */}
+                    {marketContext && !marketContextLoading && (
+                      <div className="mb-6 overflow-hidden bg-[#0F0F0F] border border-[#2A2A2A] rounded-sm py-3">
+                        <div className="ticker-wrapper">
+                          <div className="ticker-content">
+                            {/* Original set */}
+                            {[
+                              { label: 'S&P 500', price: marketContext.sp500.price.toFixed(2), change: marketContext.sp500.changePercent },
+                              { label: 'Nasdaq', price: marketContext.nasdaq.price.toFixed(2), change: marketContext.nasdaq.changePercent },
+                              { label: 'Dow', price: marketContext.dow.price.toFixed(2), change: marketContext.dow.changePercent },
+                              { label: 'Russell 2000', price: marketContext.russell2000.price.toFixed(2), change: marketContext.russell2000.changePercent },
+                              { label: 'BTC', price: `$${marketContext.btc.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, change: marketContext.btc.changePercent },
+                              { label: 'ETH', price: `$${marketContext.eth.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, change: marketContext.eth.changePercent },
+                              { label: 'Fear & Greed', price: marketContext.fearGreed.value.toString(), change: 0, isIndex: true },
+                            ].map((indicator, i) => (
+                              <div key={i} className="ticker-item">
+                                <div className="text-xs text-gray-500 uppercase">{indicator.label}</div>
+                                <div className="text-lg font-bold text-[#E6E6E6]">{indicator.price}</div>
+                                {!indicator.isIndex && (
+                                  <div className={`text-sm ${indicator.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    {indicator.change >= 0 ? '↗ +' : '↘ '}{Math.abs(indicator.change).toFixed(2)}%
+                                  </div>
+                                )}
+                                {indicator.isIndex && (
+                                  <div className="text-xs text-gray-400">{marketContext.fearGreed.label}</div>
+                                )}
+                              </div>
+                            ))}
+                            {/* Duplicate set for seamless loop */}
+                            {[
+                              { label: 'S&P 500', price: marketContext.sp500.price.toFixed(2), change: marketContext.sp500.changePercent },
+                              { label: 'Nasdaq', price: marketContext.nasdaq.price.toFixed(2), change: marketContext.nasdaq.changePercent },
+                              { label: 'Dow', price: marketContext.dow.price.toFixed(2), change: marketContext.dow.changePercent },
+                              { label: 'Russell 2000', price: marketContext.russell2000.price.toFixed(2), change: marketContext.russell2000.changePercent },
+                              { label: 'BTC', price: `$${marketContext.btc.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, change: marketContext.btc.changePercent },
+                              { label: 'ETH', price: `$${marketContext.eth.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, change: marketContext.eth.changePercent },
+                              { label: 'Fear & Greed', price: marketContext.fearGreed.value.toString(), change: 0, isIndex: true },
+                            ].map((indicator, i) => (
+                              <div key={`dup-${i}`} className="ticker-item">
+                                <div className="text-xs text-gray-500 uppercase">{indicator.label}</div>
+                                <div className="text-lg font-bold text-[#E6E6E6]">{indicator.price}</div>
+                                {!indicator.isIndex && (
+                                  <div className={`text-sm ${indicator.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    {indicator.change >= 0 ? '↗ +' : '↘ '}{Math.abs(indicator.change).toFixed(2)}%
+                                  </div>
+                                )}
+                                {indicator.isIndex && (
+                                  <div className="text-xs text-gray-400">{marketContext.fearGreed.label}</div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* TIER 3: Stock Positions - 2 Column Layout (Ticker Details | X Posts) */}
+                    <div>
+                      {data.recommendations && data.recommendations.length > 0 ? (
+                        detailPanelLoading ? (
+                          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
+                            <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
+                            <p className="text-xs text-gray-400">Analyzing positions...</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-6">
+                            {data.recommendations.map((rec: StockRecommendation, index: number) => (
+                              <div key={index} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Left: Ticker Details */}
+                                <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 transition-all hover:border-[#00FF99]/30 hover:shadow-md">
                                   {/* Ticker and Name */}
-                                  <div className="mb-3 flex items-start justify-between">
+                                  <div className="mb-4 flex items-start justify-between">
                                     <div>
-                                      <div className="mb-1 flex items-center gap-2">
-                                        <h5 className="text-xl font-bold text-[#00FF99]">{rec.ticker}</h5>
+                                      <div className="mb-2 flex items-center gap-2">
+                                        <h5 className="text-2xl font-bold text-[#00FF99]">{rec.ticker}</h5>
                                         <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                                           rec.riskLevel === 'Low' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
                                           rec.riskLevel === 'Moderate' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
@@ -2465,9 +2464,9 @@ export default function Home() {
                                           {rec.riskLevel} Risk
                                         </span>
                                       </div>
-                                      <p className="text-xs text-gray-400">{rec.name}</p>
+                                      <p className="text-sm text-gray-400">{rec.name}</p>
                                     </div>
-                                    <div className={`rounded-lg px-3 py-1 text-xs font-semibold ${
+                                    <div className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
                                       rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :
                                       rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
                                       'bg-gray-500/20 text-gray-400 border border-gray-500/30'
@@ -2477,60 +2476,66 @@ export default function Home() {
                                   </div>
 
                                   {/* Rationale */}
-                                  <div className="mb-3">
-                                    <h6 className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                  <div>
+                                    <h6 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
                                       📊 AI Analysis
                                     </h6>
                                     <p className="text-sm leading-relaxed text-gray-300">
                                       {rec.rationale}
                                     </p>
                                   </div>
+                                </div>
 
-                                  {/* X Pulse Section */}
+                                {/* Right: X Posts */}
+                                <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
                                   {xPostsLoading ? (
-                                    <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
-                                      <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <div className="flex items-center justify-center h-full">
+                                      <div className="text-center">
+                                        <svg className="h-8 w-8 animate-spin mx-auto mb-2 text-gray-600" fill="none" viewBox="0 0 24 24">
                                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        Loading X posts...
+                                        <p className="text-xs text-gray-400">Loading X posts...</p>
                                       </div>
                                     </div>
                                   ) : xPosts[rec.ticker] && xPosts[rec.ticker].length > 0 ? (
-                                    <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
-                                      <h6 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                    <div>
+                                      <h6 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
                                         💬 X Pulse
                                       </h6>
-                                      <div className="space-y-2">
-                                        {xPosts[rec.ticker].slice(0, 2).map((post, postIndex) => (
+                                      <div className="space-y-3">
+                                        {xPosts[rec.ticker].map((post, postIndex) => (
                                           <div 
                                             key={postIndex}
-                                            className={`border-l-2 pl-2 py-1.5 ${
+                                            className={`border-l-2 pl-3 py-2 ${
                                               post.sentiment === 'Bullish' ? 'border-green-500' :
                                               post.sentiment === 'Bearish' ? 'border-red-500' :
                                               'border-yellow-500'
                                             }`}
                                           >
-                                            <div className="flex items-center justify-between mb-0.5">
-                                              <div className="flex items-center gap-1.5">
+                                            <div className="flex items-center justify-between mb-1">
+                                              <div className="flex items-center gap-2">
                                                 <span className={post.sentiment === 'Bullish' ? '🟢' : post.sentiment === 'Bearish' ? '🔴' : '🟡'}></span>
-                                                <span className="text-xs font-medium text-[#00FF99]">@{post.author}</span>
+                                                <span className="text-sm font-medium text-[#00FF99]">@{post.author}</span>
                                                 <span className="text-xs text-gray-500">• {post.timestamp}</span>
                                               </div>
                                               <span className="text-xs text-gray-500">{post.engagement.toLocaleString()} ❤️</span>
                                             </div>
-                                            <p className="text-xs text-gray-300 line-clamp-2">{post.content}</p>
+                                            <p className="text-sm text-gray-300">{post.content}</p>
                                           </div>
                                         ))}
                                       </div>
                                     </div>
-                                  ) : null}
+                                  ) : (
+                                    <div className="flex items-center justify-center h-full">
+                                      <p className="text-sm text-gray-400">No X posts available for {rec.ticker}</p>
+                                    </div>
+                                  )}
                                 </div>
-                              ))}
                               </div>
-                            </div>
-                          )
+                            ))}
+                          </div>
+                        )
                         ) : (
                           <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
                             <svg className="mx-auto mb-3 h-12 w-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2542,25 +2547,24 @@ export default function Home() {
                           </div>
                         )}
                       </div>
-                    </div>
-
-                    {/* Regenerate Button */}
-                    {!detailPanelLoading && (
-                      <div className="mt-6 border-t border-gray-700 pt-6">
-                        <button
-                          onClick={handleGetDetailedRecommendations}
-                          disabled={detailPanelLoading}
-                          className="w-full rounded-xl border-2 border-[#00FF99] bg-transparent px-5 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F] disabled:opacity-50"
-                        >
-                          Regenerate Recommendations
-                        </button>
-                      </div>
-                    )}
                   </div>
                 );
-                    })}
-                  </div>
-                )}
+                })}
+
+                {/* Regenerate Button */}
+                  {!detailPanelLoading && (
+                    <div className="mt-8 border-t border-gray-700 pt-8">
+                      <button
+                        onClick={handleGetDetailedRecommendations}
+                        disabled={detailPanelLoading}
+                        className="w-full rounded-xl border-2 border-[#00FF99] bg-transparent px-5 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F] disabled:opacity-50"
+                      >
+                        Regenerate Recommendations
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </section>

@@ -127,3 +127,33 @@ html {
   height: 24px;
   box-shadow: 0 0 15px rgba(0, 255, 153, 0.8);
 }
+
+/* Ticker Animation - Auto-scrolling Market Indicators */
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-wrapper {
+  overflow: hidden;
+}
+
+.ticker-content {
+  display: flex;
+  animation: ticker-scroll 40s linear infinite;
+  will-change: transform;
+}
+
+.ticker-item {
+  flex-shrink: 0;
+  padding: 0 2rem;
+  border-right: 1px solid #2A2A2A;
+}
+
+.ticker-item:last-child {
+  border-right: none;
+}
