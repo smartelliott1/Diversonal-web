@@ -1297,7 +1297,7 @@ export default function Home() {
       </div>
 
       {/* Hero Section */}
-      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden pt-[160px] pb-20">
+      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden pt-[170px] pb-20">
         {/* Hero Header */}
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <h2 className="mb-4 text-5xl font-semibold text-[#E6E6E6] sm:text-6xl lg:text-7xl">
@@ -1343,7 +1343,7 @@ export default function Home() {
         </div>
 
         {/* 3D Computer Screen */}
-        <div className="relative z-10 mt-12 flex-shrink-0 w-[600px] h-[300px]">
+        <div className="relative z-10 mt-12 flex-shrink-0 w-[1050px] h-[350px]">
           <ComputerScreen3D />
         </div>
 
