@@ -957,7 +957,7 @@ export default function Home() {
     return (
       <div className="relative z-0 w-full max-w-6xl px-6" style={{ perspective: '1500px' }}>
         <div 
-          className="computer-screen-3d group relative mx-auto w-full max-w-5xl transition-transform duration-500 hover:scale-[1.02]"
+          className="computer-screen-3d group relative mx-auto w-full transition-transform duration-500 hover:scale-[1.02]"
           style={{ 
             transform: 'rotateX(8deg) rotateY(0deg)',
             transformStyle: 'preserve-3d'
@@ -1343,7 +1343,7 @@ export default function Home() {
         </div>
 
         {/* 3D Computer Screen */}
-        <div className="relative z-10 mt-6 flex-shrink-0 w-[1312px] h-[350px]">
+        <div className="relative z-10 mt-3 flex-shrink-0 w-full max-w-[1312px] h-[350px]">
           <ComputerScreen3D />
         </div>
 
