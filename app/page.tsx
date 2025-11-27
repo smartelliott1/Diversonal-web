@@ -1297,7 +1297,7 @@ export default function Home() {
       </div>
 
       {/* Hero Section */}
-      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-start pt-[180px] pb-60">
+      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-start pt-[180px] pb-[480px]">
         {/* Hero Header */}
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <h2 className="mb-4 text-5xl font-semibold text-[#E6E6E6] sm:text-6xl lg:text-7xl">
