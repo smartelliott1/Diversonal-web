@@ -955,7 +955,7 @@ export default function Home() {
     }, []);
     
     return (
-      <div className="relative z-0 w-full max-w-6xl px-6" style={{ perspective: '1500px' }}>
+      <div className="relative z-0 w-full max-w-6xl px-6 mx-auto" style={{ perspective: '1500px' }}>
         <div 
           className="computer-screen-3d group relative mx-auto w-full transition-transform duration-500 hover:scale-[1.02]"
           style={{ 
