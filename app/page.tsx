@@ -1297,7 +1297,7 @@ export default function Home() {
       </div>
 
       {/* Hero Section */}
-      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-start pt-[180px] pb-20">
+      <section id="hero-section" className="relative flex min-h-screen flex-col items-center justify-start pt-[180px] pb-60">
         {/* Hero Header */}
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <h2 className="mb-4 text-5xl font-semibold text-[#E6E6E6] sm:text-6xl lg:text-7xl">
@@ -1343,7 +1343,7 @@ export default function Home() {
         </div>
 
         {/* 3D Computer Screen */}
-        <div className="relative z-30 mt-3 flex-shrink-0 max-w-[1312px] w-[1312px] h-[250px] mx-auto">
+        <div className="relative z-30 mt-3 flex-shrink-0 max-w-[1312px] w-[1312px] h-[300px] mx-auto">
           <ComputerScreen3D />
         </div>
 
@@ -1360,7 +1360,7 @@ export default function Home() {
       </section>
 
       {/* Portfolio Generation Feature Section */}
-      <section id="portfolio-generation-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-32 pb-20">
+      <section id="portfolio-generation-section" className="flex min-h-screen items-center bg-[#0F0F0F] py-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div>
