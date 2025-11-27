@@ -1343,7 +1343,7 @@ export default function Home() {
         </div>
 
         {/* 3D Computer Screen */}
-        <div className="relative z-10 mt-12 flex-shrink-0 w-[1050px] h-[350px]">
+        <div className="relative z-10 mt-6 flex-shrink-0 w-[1312px] h-[350px]">
           <ComputerScreen3D />
         </div>
 
