@@ -2615,45 +2615,46 @@ export default function Home() {
                                   {/* Ticker and Name */}
                                   <div className="mb-4 flex items-start justify-between">
                                     <div className="flex-1">
-                                      <div className="mb-2 flex items-center gap-2">
+                                      <div className="mb-2 flex items-center gap-3">
                                         <h5 className="text-2xl font-bold text-[#00FF99]">{rec.ticker}</h5>
-                                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                                          rec.riskLevel === 'Low' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                                          rec.riskLevel === 'Moderate' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                                          'bg-red-500/20 text-red-400 border border-red-500/30'
-                                        }`}>
-                                          {rec.riskLevel} Risk
-                                        </span>
+                                        {/* Live Price Display */}
+                                        {stockPricesLoading ? (
+                                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                                            <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-600 border-t-[#00FF99]"></div>
+                                            Loading price...
+                                          </div>
+                                        ) : stockPrices[rec.ticker] ? (
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-xl font-bold text-[#E6E6E6]">
+                                              ${stockPrices[rec.ticker].price.toFixed(2)}
+                                            </span>
+                                            <span className={`text-sm font-medium ${
+                                              stockPrices[rec.ticker].changePercentage >= 0 
+                                                ? 'text-green-400' 
+                                                : 'text-red-400'
+                                            }`}>
+                                              {stockPrices[rec.ticker].changePercentage >= 0 ? '↗' : '↘'} {stockPrices[rec.ticker].changePercentage >= 0 ? '+' : ''}{stockPrices[rec.ticker].changePercentage.toFixed(2)}%
+                                            </span>
+                                          </div>
+                                        ) : null}
                                       </div>
                                       <p className="text-sm text-gray-400 mb-2">{rec.name}</p>
-                                      
-                                      {/* Live Price Display */}
-                                      {stockPricesLoading ? (
-                                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                                          <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-600 border-t-[#00FF99]"></div>
-                                          Loading price...
-                                        </div>
-                                      ) : stockPrices[rec.ticker] ? (
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-xl font-bold text-[#E6E6E6]">
-                                            ${stockPrices[rec.ticker].price.toFixed(2)}
-                                          </span>
-                                          <span className={`text-sm font-medium ${
-                                            stockPrices[rec.ticker].changePercentage >= 0 
-                                              ? 'text-green-400' 
-                                              : 'text-red-400'
-                                          }`}>
-                                            {stockPrices[rec.ticker].changePercentage >= 0 ? '↗' : '↘'} {stockPrices[rec.ticker].changePercentage >= 0 ? '+' : ''}{stockPrices[rec.ticker].changePercentage.toFixed(2)}%
-                                          </span>
-                                        </div>
-                                      ) : null}
                                     </div>
-                                    <div className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
-                                      rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :
-                                      rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                      'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-                                    }`}>
-                                      {rec.positionSize}
+                                    <div className="flex items-center gap-2">
+                                      <div className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
+                                        rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :
+                                        rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                        'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                                      }`}>
+                                        {rec.positionSize}
+                                      </div>
+                                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                        rec.riskLevel === 'Low' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                        rec.riskLevel === 'Moderate' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                                        'bg-red-500/20 text-red-400 border border-red-500/30'
+                                      }`}>
+                                        {rec.riskLevel} Risk
+                                      </span>
                                     </div>
                                   </div>
 
