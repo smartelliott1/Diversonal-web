@@ -1,20 +1,20 @@
 {
   "sector": "Aerospace",
   "stockCount": 3,
-  "lastUpdated": "2025-11-25T02:59:56.840Z",
+  "lastUpdated": "2025-11-28T20:41:36.448Z",
   "stocks": {
     "RKLB": {
       "profile": {
         "symbol": "RKLB",
-        "price": 42.45,
-        "marketCap": 21776142189,
+        "price": 42.33,
+        "marketCap": 21714584190,
         "beta": 2.174,
         "lastDividend": 0,
         "range": "14.71-73.97",
-        "change": 2.15,
-        "changePercentage": 5.33499,
-        "volume": 20041317,
-        "averageVolume": 22869865,
+        "change": 0.4,
+        "changePercentage": 0.95397,
+        "volume": 5564571,
+        "averageVolume": 22125603,
         "companyName": "Rocket Lab USA, Inc.",
         "currency": "USD",
         "cik": "0001819994",
@@ -285,41 +285,41 @@
       "analystEstimates": {
         "symbol": "RKLB",
         "date": "2029-12-31",
-        "revenueLow": 1667729930,
-        "revenueHigh": 2010190574,
+        "revenueLow": 1667738049,
+        "revenueHigh": 2010200361,
         "revenueAvg": 1838033333,
-        "ebitdaLow": -1363603124,
-        "ebitdaHigh": -1131296591,
+        "ebitdaLow": -1363609763,
+        "ebitdaHigh": -1131302098,
         "ebitdaAvg": -1246821086,
-        "ebitLow": -1500573768,
-        "ebitHigh": -1244932604,
+        "ebitLow": -1500581074,
+        "ebitHigh": -1244938664,
         "ebitAvg": -1372061256,
-        "netIncomeLow": 207918594,
+        "netIncomeLow": 207923553,
         "netIncomeHigh": 265178656,
         "netIncomeAvg": 236394887,
-        "sgaExpenseLow": 932269622,
-        "sgaExpenseHigh": 1123706887,
+        "sgaExpenseLow": 932274161,
+        "sgaExpenseHigh": 1123712358,
         "sgaExpenseAvg": 1027470102,
         "epsAvg": 0.47667,
         "epsHigh": 0.53471,
-        "epsLow": 0.41925,
+        "epsLow": 0.41926,
         "numAnalystsRevenue": 7,
         "numAnalystsEps": 2
       },
-      "lastUpdated": "2025-11-25T02:59:25.606Z"
+      "lastUpdated": "2025-11-28T20:41:05.241Z"
     },
     "SPCE": {
       "profile": {
         "symbol": "SPCE",
-        "price": 3.36,
-        "marketCap": 212352672,
+        "price": 3.87,
+        "marketCap": 244584774,
         "beta": 1.984,
         "lastDividend": 0,
         "range": "2.18-7.59",
-        "change": -0.02,
-        "changePercentage": -0.59172,
-        "volume": 2730075,
-        "averageVolume": 3992923,
+        "change": 0.17,
+        "changePercentage": 4.59459,
+        "volume": 1766835,
+        "averageVolume": 3951485,
         "companyName": "Virgin Galactic Holdings, Inc.",
         "currency": "USD",
         "cik": "0001706946",
@@ -611,20 +611,20 @@
         "numAnalystsRevenue": 5,
         "numAnalystsEps": 4
       },
-      "lastUpdated": "2025-11-25T02:59:26.804Z"
+      "lastUpdated": "2025-11-28T20:41:06.443Z"
     },
     "LMT": {
       "profile": {
         "symbol": "LMT",
-        "price": 451.06,
-        "marketCap": 105559238016,
+        "price": 457.86,
+        "marketCap": 107150606832,
         "beta": 0.234,
         "lastDividend": 13.2,
-        "range": "410.11-529.99",
-        "change": -9.72,
-        "changePercentage": -2.10947,
-        "volume": 965741,
-        "averageVolume": 1334142,
+        "range": "410.11-529.48",
+        "change": 3.7,
+        "changePercentage": 0.81469,
+        "volume": 652785,
+        "averageVolume": 1334076,
         "companyName": "Lockheed Martin Corporation",
         "currency": "USD",
         "cik": "0000936468",
@@ -916,7 +916,7 @@
         "numAnalystsRevenue": 15,
         "numAnalystsEps": 10
       },
-      "lastUpdated": "2025-11-25T02:59:28.008Z"
+      "lastUpdated": "2025-11-28T20:41:07.634Z"
     }
   }
 }

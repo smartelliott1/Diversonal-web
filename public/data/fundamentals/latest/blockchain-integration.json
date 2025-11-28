@@ -1,20 +1,20 @@
 {
   "sector": "Blockchain Integration",
   "stockCount": 4,
-  "lastUpdated": "2025-11-25T02:59:56.840Z",
+  "lastUpdated": "2025-11-28T20:41:36.448Z",
   "stocks": {
     "COIN": {
       "profile": {
         "symbol": "COIN",
-        "price": 255.97,
-        "marketCap": 65498149072,
+        "price": 273.81,
+        "marketCap": 70063086289,
         "beta": 3.675,
         "lastDividend": 0,
         "range": "142.58-444.65",
-        "change": 15.56,
-        "changePercentage": 6.47228,
-        "volume": 9666706,
-        "averageVolume": 9525293,
+        "change": 8.84,
+        "changePercentage": 3.33623,
+        "volume": 8841521,
+        "averageVolume": 9680101,
         "companyName": "Coinbase Global, Inc.",
         "currency": "USD",
         "cik": "0001679788",
@@ -304,22 +304,22 @@
         "epsHigh": 3.98215,
         "epsLow": 2.7716,
         "numAnalystsRevenue": 9,
-        "numAnalystsEps": 10
+        "numAnalystsEps": 4
       },
-      "lastUpdated": "2025-11-25T02:59:11.207Z"
+      "lastUpdated": "2025-11-28T20:40:50.837Z"
     },
     "HOOD": {
       "profile": {
         "symbol": "HOOD",
-        "price": 114.97,
-        "marketCap": 101754500986,
+        "price": 128.79,
+        "marketCap": 113985928346,
         "beta": 2.423,
         "lastDividend": 0,
         "range": "29.66-153.86",
-        "change": 7.67,
-        "changePercentage": 7.14818,
-        "volume": 30525423,
-        "averageVolume": 35598748,
+        "change": 0.59,
+        "changePercentage": 0.46022,
+        "volume": 12593077,
+        "averageVolume": 35711826,
         "companyName": "Robinhood Markets, Inc.",
         "currency": "USD",
         "cik": "0001783879",
@@ -590,41 +590,41 @@
       "analystEstimates": {
         "symbol": "HOOD",
         "date": "2029-12-31",
-        "revenueLow": 6238076173,
-        "revenueHigh": 7658399776,
+        "revenueLow": 6247675808,
+        "revenueHigh": 7637091095,
         "revenueAvg": 7135000000,
-        "ebitdaLow": -2136588103,
-        "ebitdaHigh": -1740337372,
+        "ebitdaLow": -2130643275,
+        "ebitdaHigh": -1743015538,
         "ebitdaAvg": -1990566772,
-        "ebitLow": -2341595862,
-        "ebitHigh": -1907324478,
+        "ebitLow": -2335080621,
+        "ebitHigh": -1910259616,
         "ebitAvg": -2181563638,
-        "netIncomeLow": 2281839528,
-        "netIncomeHigh": 2987683698,
+        "netIncomeLow": 2286605990,
+        "netIncomeHigh": 2977099615,
         "netIncomeAvg": 2727576230,
-        "sgaExpenseLow": 3105985714,
-        "sgaExpenseHigh": 3813175672,
+        "sgaExpenseLow": 3110765446,
+        "sgaExpenseHigh": 3802565917,
         "sgaExpenseAvg": 3552570930,
         "epsAvg": 3.01,
-        "epsHigh": 3.29704,
-        "epsLow": 2.51811,
-        "numAnalystsRevenue": 15,
-        "numAnalystsEps": 11
+        "epsHigh": 3.28536,
+        "epsLow": 2.52337,
+        "numAnalystsRevenue": 11,
+        "numAnalystsEps": 10
       },
-      "lastUpdated": "2025-11-25T02:59:12.404Z"
+      "lastUpdated": "2025-11-28T20:40:52.043Z"
     },
     "CRCL": {
       "profile": {
         "symbol": "CRCL",
-        "price": 72.74,
-        "marketCap": 17129723795,
+        "price": 79.93,
+        "marketCap": 18822914806,
         "beta": 10.603601,
         "lastDividend": 0,
         "range": "64-298.99",
-        "change": 1.41,
-        "changePercentage": 1.97673,
-        "volume": 15544566,
-        "averageVolume": 12938478,
+        "change": 7.29,
+        "changePercentage": 10.03579,
+        "volume": 21982571,
+        "averageVolume": 13269871,
         "companyName": "Circle Internet Group",
         "currency": "USD",
         "cik": "0001876042",
@@ -895,28 +895,28 @@
       "analystEstimates": {
         "symbol": "CRCL",
         "date": "2027-12-31",
-        "revenueLow": 4299331473,
-        "revenueHigh": 5230776408,
-        "revenueAvg": 4596596800,
-        "ebitdaLow": -2256996909,
-        "ebitdaHigh": -1855093219,
-        "ebitdaAvg": -1983358485,
-        "ebitLow": -2636771261,
-        "ebitHigh": -2167241110,
-        "ebitAvg": -2317088974,
+        "revenueLow": 4390906932,
+        "revenueHigh": 5226717575,
+        "revenueAvg": 4605063460,
+        "ebitdaLow": -2255245587,
+        "ebitdaHigh": -1894606575,
+        "ebitdaAvg": -1987011714,
+        "ebitLow": -2634725252,
+        "ebitHigh": -2213403194,
+        "ebitAvg": -2321356915,
         "netIncomeLow": 105910901,
         "netIncomeHigh": 396325897,
         "netIncomeAvg": 251118399,
-        "sgaExpenseLow": 1591065583,
-        "sgaExpenseHigh": 1935768007,
-        "sgaExpenseAvg": 1701075392,
-        "epsAvg": 2.35108,
+        "sgaExpenseLow": 1624955169,
+        "sgaExpenseHigh": 1934265943,
+        "sgaExpenseAvg": 1704208672,
+        "epsAvg": 2.32692,
         "epsHigh": 5.426,
         "epsLow": 1.45,
         "numAnalystsRevenue": 15,
         "numAnalystsEps": 12
       },
-      "lastUpdated": "2025-11-25T02:59:15.405Z"
+      "lastUpdated": "2025-11-28T20:40:53.239Z"
     },
     "SQ": {
       "profile": {
@@ -1221,7 +1221,7 @@
         "numAnalystsRevenue": 1,
         "numAnalystsEps": 3
       },
-      "lastUpdated": "2025-11-25T02:59:18.054Z"
+      "lastUpdated": "2025-11-28T20:40:54.439Z"
     }
   }
 }

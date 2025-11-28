@@ -1,20 +1,20 @@
 {
   "sector": "Quantum Computing",
   "stockCount": 5,
-  "lastUpdated": "2025-11-25T02:59:56.840Z",
+  "lastUpdated": "2025-11-28T20:41:36.448Z",
   "stocks": {
     "IONQ": {
       "profile": {
         "symbol": "IONQ",
-        "price": 46.76,
-        "marketCap": 13882059234,
+        "price": 49.53,
+        "marketCap": 14704413898,
         "beta": 2.592,
         "lastDividend": 0,
         "range": "17.88-84.64",
-        "change": 5.05,
-        "changePercentage": 12.10741,
-        "volume": 40094824,
-        "averageVolume": 29538750,
+        "change": 2.63,
+        "changePercentage": 5.60768,
+        "volume": 9879540,
+        "averageVolume": 29974809,
         "companyName": "IonQ, Inc.",
         "currency": "USD",
         "cik": "0001824920",
@@ -285,41 +285,41 @@
       "analystEstimates": {
         "symbol": "IONQ",
         "date": "2029-12-31",
-        "revenueLow": 704141079,
-        "revenueHigh": 747865039,
+        "revenueLow": 698176475,
+        "revenueHigh": 757940573,
         "revenueAvg": 726130000,
-        "ebitdaLow": -448719023,
-        "ebitdaHigh": -422484647,
+        "ebitdaLow": -454764343,
+        "ebitdaHigh": -418905885,
         "ebitdaAvg": -435678000,
-        "ebitLow": -448719023,
-        "ebitHigh": -422484647,
+        "ebitLow": -454764343,
+        "ebitHigh": -418905885,
         "ebitAvg": -435678000,
-        "netIncomeLow": -247876284,
-        "netIncomeHigh": -229200032,
+        "netIncomeLow": -252179470,
+        "netIncomeHigh": -226652205,
         "netIncomeAvg": -238592481,
-        "sgaExpenseLow": 2606470529,
-        "sgaExpenseHigh": 2768320500,
+        "sgaExpenseLow": 2584391766,
+        "sgaExpenseHigh": 2805616410,
         "sgaExpenseAvg": 2687865404,
         "epsAvg": -1.12,
-        "epsHigh": -1.07591,
-        "epsLow": -1.16358,
+        "epsHigh": -1.06395,
+        "epsLow": -1.18378,
         "numAnalystsRevenue": 5,
         "numAnalystsEps": 1
       },
-      "lastUpdated": "2025-11-25T02:58:53.325Z"
+      "lastUpdated": "2025-11-28T20:40:32.841Z"
     },
     "RGTI": {
       "profile": {
         "symbol": "RGTI",
-        "price": 26.57,
-        "marketCap": 8768792892,
+        "price": 25.57,
+        "marketCap": 8438766814,
         "beta": 1.647,
         "lastDividend": 0,
-        "range": "2.1-58.15",
-        "change": 2.98,
-        "changePercentage": 12.63247,
-        "volume": 41871890,
-        "averageVolume": 82565646,
+        "range": "2.42-58.15",
+        "change": 0,
+        "changePercentage": 0,
+        "volume": 13833901,
+        "averageVolume": 82760501,
         "companyName": "Rigetti Computing, Inc.",
         "currency": "USD",
         "cik": "0001838359",
@@ -611,20 +611,20 @@
         "numAnalystsRevenue": 5,
         "numAnalystsEps": 2
       },
-      "lastUpdated": "2025-11-25T02:58:54.405Z"
+      "lastUpdated": "2025-11-28T20:40:34.045Z"
     },
     "QBTS": {
       "profile": {
         "symbol": "QBTS",
-        "price": 23.11,
-        "marketCap": 8012666407,
+        "price": 22.78,
+        "marketCap": 7898258820,
         "beta": 1.522,
         "lastDividend": 0,
         "range": "2.5-46.75",
-        "change": 2.7,
-        "changePercentage": 13.22881,
-        "volume": 29200862,
-        "averageVolume": 53026698,
+        "change": 0.37,
+        "changePercentage": 1.65105,
+        "volume": 9180154,
+        "averageVolume": 53404500,
         "companyName": "D-Wave Quantum Inc.",
         "currency": "USD",
         "cik": "0001907982",
@@ -916,20 +916,20 @@
         "numAnalystsRevenue": 2,
         "numAnalystsEps": 2
       },
-      "lastUpdated": "2025-11-25T02:58:55.600Z"
+      "lastUpdated": "2025-11-28T20:40:35.235Z"
     },
     "QUBT": {
       "profile": {
         "symbol": "QUBT",
-        "price": 11.49,
-        "marketCap": 1568385000,
+        "price": 11.69,
+        "marketCap": 1595685000,
         "beta": 3.766,
         "lastDividend": 0,
         "range": "4.373-27.15",
-        "change": 1.29,
-        "changePercentage": 12.64706,
-        "volume": 22490250,
-        "averageVolume": 38280579,
+        "change": 0.23,
+        "changePercentage": 2.00698,
+        "volume": 9180791,
+        "averageVolume": 38798550,
         "companyName": "Quantum Computing, Inc.",
         "currency": "USD",
         "cik": "0001758009",
@@ -1221,20 +1221,20 @@
         "numAnalystsRevenue": 2,
         "numAnalystsEps": 2
       },
-      "lastUpdated": "2025-11-25T02:58:56.858Z"
+      "lastUpdated": "2025-11-28T20:40:36.436Z"
     },
     "IBM": {
       "profile": {
         "symbol": "IBM",
-        "price": 304.12,
-        "marketCap": 284271670849,
+        "price": 308.415,
+        "marketCap": 288286358558,
         "beta": 0.688,
         "lastDividend": 6.71,
         "range": "214.5-324.9",
-        "change": 6.68,
-        "changePercentage": 2.24583,
-        "volume": 5939765,
-        "averageVolume": 5348862,
+        "change": 5.205,
+        "changePercentage": 1.71663,
+        "volume": 1588054,
+        "averageVolume": 5325126,
         "companyName": "International Business Machines Corporation",
         "currency": "USD",
         "cik": "0000051143",
@@ -1526,7 +1526,7 @@
         "numAnalystsRevenue": 9,
         "numAnalystsEps": 4
       },
-      "lastUpdated": "2025-11-25T02:58:58.003Z"
+      "lastUpdated": "2025-11-28T20:40:37.633Z"
     }
   }
 }

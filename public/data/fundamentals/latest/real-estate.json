@@ -1,20 +1,20 @@
 {
   "sector": "Real Estate",
   "stockCount": 2,
-  "lastUpdated": "2025-11-25T02:59:56.840Z",
+  "lastUpdated": "2025-11-28T20:41:36.448Z",
   "stocks": {
     "PLD": {
       "profile": {
         "symbol": "PLD",
-        "price": 126.45,
-        "marketCap": 117317136105,
+        "price": 128.53,
+        "marketCap": 119246907897,
         "beta": 1.411,
         "lastDividend": 3.99,
-        "range": "85.35-127.5",
-        "change": 0.66,
-        "changePercentage": 0.52468,
-        "volume": 3340981,
-        "averageVolume": 3426285,
+        "range": "85.35-129.33",
+        "change": 0.37,
+        "changePercentage": 0.2887,
+        "volume": 1206116,
+        "averageVolume": 3520774,
         "companyName": "Prologis, Inc.",
         "currency": "USD",
         "cik": "0001045609",
@@ -306,20 +306,20 @@
         "numAnalystsRevenue": 2,
         "numAnalystsEps": 2
       },
-      "lastUpdated": "2025-11-25T02:59:24.510Z"
+      "lastUpdated": "2025-11-28T20:41:02.839Z"
     },
     "EQIX": {
       "profile": {
         "symbol": "EQIX",
-        "price": 760.62,
-        "marketCap": 74194863491,
+        "price": 753.31,
+        "marketCap": 73481807758,
         "beta": 1.027,
         "lastDividend": 18.76,
-        "range": "701.41-994.03",
-        "change": 5.94,
-        "changePercentage": 0.78709,
-        "volume": 797665,
-        "averageVolume": 486362,
+        "range": "701.41-991.93",
+        "change": 2.9,
+        "changePercentage": 0.38646,
+        "volume": 299452,
+        "averageVolume": 500157,
         "companyName": "Equinix, Inc.",
         "currency": "USD",
         "cik": "0001101239",
@@ -611,7 +611,7 @@
         "numAnalystsRevenue": 14,
         "numAnalystsEps": 8
       },
-      "lastUpdated": "2025-11-25T02:59:24.854Z"
+      "lastUpdated": "2025-11-28T20:41:04.036Z"
     }
   }
 }

@@ -1,20 +1,20 @@
 {
   "sector": "Precious Metals",
   "stockCount": 2,
-  "lastUpdated": "2025-11-25T02:59:56.840Z",
+  "lastUpdated": "2025-11-28T20:41:36.448Z",
   "stocks": {
     "NEM": {
       "profile": {
         "symbol": "NEM",
-        "price": 86.53,
-        "marketCap": 94426985746,
+        "price": 90.73,
+        "marketCap": 99010290266,
         "beta": 0.441,
         "lastDividend": 1,
         "range": "36.86-98.58",
-        "change": 3.04,
-        "changePercentage": 3.64115,
-        "volume": 7013701,
-        "averageVolume": 11483587,
+        "change": 0.21,
+        "changePercentage": 0.23199,
+        "volume": 4674603,
+        "averageVolume": 11607009,
         "companyName": "Newmont Corporation",
         "currency": "USD",
         "cik": "0001164727",
@@ -285,28 +285,28 @@
       "analystEstimates": {
         "symbol": "NEM",
         "date": "2029-12-31",
-        "revenueLow": 20525495574,
-        "revenueHigh": 23898585592,
+        "revenueLow": 20542662608,
+        "revenueHigh": 23913749803,
         "revenueAvg": 22457511450,
-        "ebitdaLow": 7575346251,
-        "ebitdaHigh": 8820252847,
+        "ebitdaLow": 7581682090,
+        "ebitdaHigh": 8825849503,
         "ebitdaAvg": 8288395501,
-        "ebitLow": 2233970304,
-        "ebitHigh": 2601093373,
+        "ebitLow": 2235838743,
+        "ebitHigh": 2602743827,
         "ebitAvg": 2444248593,
-        "netIncomeLow": 7147459486,
-        "netIncomeHigh": 8718795967,
+        "netIncomeLow": 7155461046,
+        "netIncomeHigh": 8725856167,
         "netIncomeAvg": 8047480007,
-        "sgaExpenseLow": 480779903,
-        "sgaExpenseHigh": 559789634,
+        "sgaExpenseLow": 481182015,
+        "sgaExpenseHigh": 560144834,
         "sgaExpenseAvg": 526034567,
         "epsAvg": 7.01,
-        "epsHigh": 7.59477,
-        "epsLow": 6.22601,
-        "numAnalystsRevenue": 11,
-        "numAnalystsEps": 10
+        "epsHigh": 7.60092,
+        "epsLow": 6.23298,
+        "numAnalystsRevenue": 10,
+        "numAnalystsEps": 4
       },
-      "lastUpdated": "2025-11-25T02:59:20.806Z"
+      "lastUpdated": "2025-11-28T20:41:00.443Z"
     },
     "GOLD": {
       "profile": {
@@ -611,7 +611,7 @@
         "numAnalystsRevenue": 12,
         "numAnalystsEps": 9
       },
-      "lastUpdated": "2025-11-25T02:59:22.005Z"
+      "lastUpdated": "2025-11-28T20:41:01.642Z"
     }
   }
 }
