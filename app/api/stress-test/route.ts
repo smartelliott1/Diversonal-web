@@ -457,25 +457,32 @@ function generateFallbackStressTest(
 
   const changeDirection = isPositive ? "increase" : "decline";
 
-  // Build impact object with only asset classes present in portfolio
+  // Calculate actual percentage change from start to end
+  const actualPercentageChange = ((finalValue - initialCapital) / initialCapital) * 100;
+  
+  // Scale factor to adjust asset impacts to match actual portfolio performance
+  // This ensures the weighted sum of asset impacts equals the actual portfolio change
+  const scaleFactor = totalImpact !== 0 ? actualPercentageChange / totalImpact : 1;
+
+  // Build impact object with scaled values that match actual portfolio performance
   const impact: any = {};
   portfolioAssetClasses.forEach(assetClass => {
     const lowerName = assetClass.toLowerCase();
-    if (assetClass === "Equities") impact.equities = equitiesImpact;
-    else if (assetClass === "Bonds") impact.bonds = bondsImpact;
-    else if (assetClass === "Commodities") impact.commodities = commoditiesImpact;
-    else if (assetClass === "Real Estate") impact["real estate"] = realEstateImpact;
-    else if (assetClass === "Cryptocurrencies") impact.cryptocurrencies = cryptoImpact;
+    if (assetClass === "Equities") impact.equities = equitiesImpact * scaleFactor;
+    else if (assetClass === "Bonds") impact.bonds = bondsImpact * scaleFactor;
+    else if (assetClass === "Commodities") impact.commodities = commoditiesImpact * scaleFactor;
+    else if (assetClass === "Real Estate") impact["real estate"] = realEstateImpact * scaleFactor;
+    else if (assetClass === "Cryptocurrencies") impact.cryptocurrencies = cryptoImpact * scaleFactor;
     else if (assetClass === "Cash") impact.cash = 0;
   });
 
   return {
-    analysis: `Based on the scenario "${scenario}", this portfolio would experience a ${Math.abs(percentageChange).toFixed(1)}% ${changeDirection}. The stress test shows how different asset classes would be impacted, with ${isPositive ? "equities and cryptocurrencies leading gains" : "cryptocurrencies and equities most affected"}, commodities ${isPositive || scenarioLower.includes("inflation") ? "providing positive returns" : "showing mixed results"}, and cash remaining stable.`,
+    analysis: `Based on the scenario "${scenario}", this portfolio would experience a ${Math.abs(actualPercentageChange).toFixed(1)}% ${changeDirection}. The stress test shows how different asset classes would be impacted, with ${isPositive ? "equities and cryptocurrencies leading gains" : "cryptocurrencies and equities most affected"}, commodities ${isPositive || scenarioLower.includes("inflation") ? "providing positive returns" : "showing mixed results"}, and cash remaining stable.`,
     impact,
     portfolioValue,
     months,
     finalValue,
-    percentageChange,
+    percentageChange: actualPercentageChange,
     riskLevel: isPositive ? "Low" : riskLevel,
   };
 }
