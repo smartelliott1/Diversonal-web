@@ -159,6 +159,12 @@ export default function Home() {
     sentiment: "Bullish" | "Neutral" | "Bearish";
   }>>>({});
   const [xPostsLoading, setXPostsLoading] = useState(false);
+  const [stockPrices, setStockPrices] = useState<Record<string, {
+    price: number;
+    change: number;
+    changePercentage: number;
+  }>>({});
+  const [stockPricesLoading, setStockPricesLoading] = useState(false);
   const [streamingText, setStreamingText] = useState<string>("");
   const [parsedAssetClasses, setParsedAssetClasses] = useState<string[]>([]);
   const [partialRecommendations, setPartialRecommendations] = useState<DetailedRecommendations>({} as DetailedRecommendations);
@@ -522,42 +528,72 @@ export default function Home() {
               toast.success("Recommendations generated!");
               console.log("[Stage 2] Stock recommendations loaded");
 
-              // STAGE 3: X Posts (after recommendations are ready)
-              try {
-                // Extract tickers from recommendations
-                const tickers: string[] = [];
-                Object.keys(data).forEach(assetClass => {
-                  const assetData = data[assetClass];
-                  if (typeof assetData !== 'string' && assetData.recommendations) {
-                    assetData.recommendations.forEach((rec: any) => {
-                      if (rec.ticker) {
-                        tickers.push(rec.ticker);
-                      }
-                    });
-                  }
-                });
-
-                if (tickers.length > 0) {
-                  console.log(`[Stage 3] Fetching X posts for ${tickers.length} tickers...`);
-                  setXPostsLoading(true);
-                  
-                  const postsResponse = await fetch("/api/x-posts", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ tickers }),
+              // Extract tickers from recommendations
+              const tickers: string[] = [];
+              Object.keys(data).forEach(assetClass => {
+                const assetData = data[assetClass];
+                if (typeof assetData !== 'string' && assetData.recommendations) {
+                  assetData.recommendations.forEach((rec: any) => {
+                    if (rec.ticker) {
+                      tickers.push(rec.ticker);
+                    }
                   });
-
-                  if (postsResponse.ok) {
-                    const postsData = await postsResponse.json();
-                    setXPosts(postsData);
-                    console.log("[Stage 3] X posts loaded for", Object.keys(postsData).length, "tickers");
-                  }
                 }
-              } catch (postsError) {
-                console.error("[Stage 3] Error fetching X posts:", postsError);
-                // Silent fail - X posts are nice-to-have
-              } finally {
-                setXPostsLoading(false);
+              });
+
+              // STAGE 2.5: Fetch Live Stock Prices (in parallel with X posts)
+              if (tickers.length > 0) {
+                const pricesPromise = (async () => {
+                  try {
+                    console.log(`[Stage 2.5] Fetching live prices for ${tickers.length} tickers...`);
+                    setStockPricesLoading(true);
+                    
+                    const pricesResponse = await fetch("/api/stock-prices", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ tickers }),
+                    });
+
+                    if (pricesResponse.ok) {
+                      const pricesData = await pricesResponse.json();
+                      setStockPrices(pricesData.prices || {});
+                      console.log("[Stage 2.5] Live prices loaded for", Object.keys(pricesData.prices || {}).length, "tickers");
+                    }
+                  } catch (pricesError) {
+                    console.error("[Stage 2.5] Error fetching stock prices:", pricesError);
+                    // Silent fail - prices are nice-to-have for enhanced UX
+                  } finally {
+                    setStockPricesLoading(false);
+                  }
+                })();
+
+                // STAGE 3: X Posts (in parallel with prices)
+                const postsPromise = (async () => {
+                  try {
+                    console.log(`[Stage 3] Fetching X posts for ${tickers.length} tickers...`);
+                    setXPostsLoading(true);
+                    
+                    const postsResponse = await fetch("/api/x-posts", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ tickers }),
+                    });
+
+                    if (postsResponse.ok) {
+                      const postsData = await postsResponse.json();
+                      setXPosts(postsData);
+                      console.log("[Stage 3] X posts loaded for", Object.keys(postsData).length, "tickers");
+                    }
+                  } catch (postsError) {
+                    console.error("[Stage 3] Error fetching X posts:", postsError);
+                    // Silent fail - X posts are nice-to-have
+                  } finally {
+                    setXPostsLoading(false);
+                  }
+                })();
+
+                // Wait for both to complete (but don't block on errors)
+                await Promise.allSettled([pricesPromise, postsPromise]);
               }
             }
           } catch (parseError) {
@@ -2578,7 +2614,7 @@ export default function Home() {
                                 <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 transition-all hover:border-[#00FF99]/30 hover:shadow-md">
                                   {/* Ticker and Name */}
                                   <div className="mb-4 flex items-start justify-between">
-                                    <div>
+                                    <div className="flex-1">
                                       <div className="mb-2 flex items-center gap-2">
                                         <h5 className="text-2xl font-bold text-[#00FF99]">{rec.ticker}</h5>
                                         <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
@@ -2589,7 +2625,28 @@ export default function Home() {
                                           {rec.riskLevel} Risk
                                         </span>
                                       </div>
-                                      <p className="text-sm text-gray-400">{rec.name}</p>
+                                      <p className="text-sm text-gray-400 mb-2">{rec.name}</p>
+                                      
+                                      {/* Live Price Display */}
+                                      {stockPricesLoading ? (
+                                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                                          <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-600 border-t-[#00FF99]"></div>
+                                          Loading price...
+                                        </div>
+                                      ) : stockPrices[rec.ticker] ? (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xl font-bold text-[#E6E6E6]">
+                                            ${stockPrices[rec.ticker].price.toFixed(2)}
+                                          </span>
+                                          <span className={`text-sm font-medium ${
+                                            stockPrices[rec.ticker].changePercentage >= 0 
+                                              ? 'text-green-400' 
+                                              : 'text-red-400'
+                                          }`}>
+                                            {stockPrices[rec.ticker].changePercentage >= 0 ? '↗' : '↘'} {stockPrices[rec.ticker].changePercentage >= 0 ? '+' : ''}{stockPrices[rec.ticker].changePercentage.toFixed(2)}%
+                                          </span>
+                                        </div>
+                                      ) : null}
                                     </div>
                                     <div className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
                                       rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :

@@ -240,18 +240,18 @@ ${formData.sectors.length > 0 ? `**CRITICAL - Sector Conviction Priority:**
 User's conviction sectors are ${formData.sectors.join(", ")}. Prioritize these sectors with LARGER position sizes (favor "Large" sizes) and dedicate the majority of Equities recommendations to them. Include 2-3 small/mid-cap rising stars if risk profile allows.
 ` : ''}
 **⚠️ CRITICAL - DATA SOURCE REQUIREMENTS:**
-The LIVE MARKET DATA section above contains REAL-TIME prices and indicators as of today. You MUST:
-- Use ONLY the prices, indicators, and data shown in the LIVE MARKET DATA section above
-- COMPLETELY IGNORE all prices and market data from your training cutoff - they are outdated and incorrect
-- When recommending ANY asset (stocks, commodities, bonds, crypto, etc.), reference the EXACT current price from the live data
-- Example: If live data shows "Gold: $4,125.50 (+2.3%)", you must use $4,125.50 in your analysis, NOT any training data price
+The LIVE MARKET DATA section above contains REAL-TIME market indicators and sector performance. You MUST:
+- Use market indices (S&P 500, VIX, etc.) and sector performance from the LIVE MARKET DATA section
+- Use commodity/crypto prices from the LIVE MARKET DATA section (e.g., "Gold: $4,125.50")
+- COMPLETELY IGNORE all market data from your training cutoff - it is outdated and incorrect
+- For INDIVIDUAL STOCKS: Do NOT reference specific prices in rationales - prices will be displayed separately in the UI
 - If recommending based on overbought/oversold conditions, use the actual RSI values shown in the live data
 - Base sector recommendations on the actual leading/lagging sectors shown in the live performance data
 
 **MANDATORY DATA USAGE CHECKLIST:**
 For EVERY stock recommendation, you MUST verify and cite:
-✓ Current price from live data (not training data)
 ✓ Beta value from fundamentals (ensure it matches risk profile ${formData.risk}/100)
+✓ Valuation metrics (P/E, P/S, etc.) from fundamentals
 ✓ Revenue/earnings growth from fundamentals
 ✓ Sector performance from live market data
 ✓ At least ONE catalyst: insider buying, news mention, earnings proximity, or technical signal
@@ -292,7 +292,7 @@ Use the ACTUAL beta values from fundamentals data to assess this. This is non-ne
       {
         "ticker": "AAPL",
         "name": "Apple Inc.",
-        "rationale": "Current price: $268.12 (+0.25%). Beta: 1.15 (matches risk profile ${formData.risk}/100). P/E: 34.1x vs sector avg 38x (value opportunity). Revenue growth: 12% YoY. Strong FCF $7.5B/quarter. Sector: Technology (+2.3% week, leading). Catalyst: Major insider buy $2.1M last week. News: AI features driving 18% services growth. Earnings: Not until next month (low volatility window).",
+        "rationale": "Beta: 1.15 (matches risk profile ${formData.risk}/100). P/E: 34.1x vs sector avg 38x (value opportunity). Revenue growth: 12% YoY. Strong FCF $7.5B/quarter. Sector: Technology (+2.3% week, leading). Catalyst: Major insider buy $2.1M last week. News: AI features driving 18% services growth. Earnings: Not until next month (low volatility window).",
         "positionSize": "Large",
         "riskLevel": "Moderate"
       }
@@ -312,8 +312,9 @@ Use the ACTUAL beta values from fundamentals data to assess this. This is non-ne
 
 **Guidelines:**
 - Provide 3-5 recommendations per asset class (5-7 for Equities)
-- Each rationale MUST include: current price, beta value with risk profile fit, key valuation metric (P/E, P/S, etc.), growth metric (revenue/earnings growth), and 1-2 catalysts from the intelligence data
-- **REQUIRED STRUCTURE:** Follow the example format exactly - lead with price, cite beta and risk match, add valuation context, mention growth, reference sector/catalyst
+- Each rationale MUST include: beta value with risk profile fit, key valuation metric (P/E, P/S, etc.), growth metric (revenue/earnings growth), and 1-2 catalysts from the intelligence data
+- **REQUIRED STRUCTURE:** Follow the example format exactly - lead with beta and risk match, add valuation context, mention growth, reference sector/catalyst
+- **DO NOT include stock prices in rationales** - they will be fetched and displayed separately in real-time
 - Position sizes: Large (25-35%), Medium (15-25%), Small (5-15%)
 - Risk levels: Based on volatility, beta, drawdown history, and upcoming catalysts
 - Breakdown percentages must sum to 100 per asset class
