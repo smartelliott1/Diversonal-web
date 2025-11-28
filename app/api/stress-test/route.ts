@@ -14,15 +14,21 @@ interface StressTestRequest {
   customTimeHorizon?: number; // Custom time horizon in months (6, 12, 18, 24)
 }
 
+interface AssetImpact {
+  high: number;
+  low: number;
+  end: number;
+}
+
 interface StressTestResult {
   analysis: string;
   impact: {
-    equities: number;
-    bonds: number;
-    commodities?: number;
-    "real estate"?: number;
-    cryptocurrencies?: number;
-    cash: number;
+    equities?: AssetImpact;
+    bonds?: AssetImpact;
+    commodities?: AssetImpact;
+    "real estate"?: AssetImpact;
+    cryptocurrencies?: AssetImpact;
+    cash?: AssetImpact;
   };
   portfolioValue: number[];
   months: string[];
@@ -141,11 +147,16 @@ ${portfolioAssetClasses.includes("Cash") ? "- Cash: Typically remains stable, bu
 **Response Format (JSON only, no other text):**
 CRITICAL: The "impact" object must ONLY contain the asset classes present in this portfolio: ${portfolioAssetClasses.join(", ")}. Do NOT include any other asset classes.
 
+For each asset class, provide THREE values:
+- "high": Best performance reached during the period (highest gain or smallest loss)
+- "low": Worst performance reached during the period (largest loss or smallest gain)
+- "end": Final performance from start to end of the period
+
 Example format:
 {
   "analysis": "2-3 sentence explanation of the scenario's impact on the portfolio",
   "impact": {
-    ${portfolioAssetClasses.map(ac => `"${ac.toLowerCase()}": -10.5`).join(",\n    ")}
+    ${portfolioAssetClasses.map(ac => `"${ac.toLowerCase()}": { "high": 2.0, "low": -18.0, "end": -10.5 }`).join(",\n    ")}
   },
   "portfolioValue": [100000, 95200, 91800, 89500, 88200, 87500, 86800, 86200, 85800, 85500, 85200, 85000, 84800, 84600, 84500, 84400, 84300, 84200, 84000],
   "months": ["Month 0", "Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6", "Month 7", "Month 8", "Month 9", "Month 10", "Month 11", "Month 12", "Month 13", "Month 14", "Month 15", "Month 16", "Month 17", "Month 18"],
@@ -156,6 +167,7 @@ Example format:
 
 **Important Guidelines:**
 - Impact percentages should be realistic based on historical data and market behavior
+- For each asset, high should be >= end >= low (or end <= high depending on direction)
 - Portfolio values should show a realistic trajectory (not linear, but market-like fluctuations)
 - Risk levels: "Low", "Moderate", "High", or "Severe"
 - Ensure portfolioValue array has ${dataPoints} values (Month 0 through Month ${monthsToSimulate})
@@ -460,20 +472,71 @@ function generateFallbackStressTest(
   // Calculate actual percentage change from start to end
   const actualPercentageChange = ((finalValue - initialCapital) / initialCapital) * 100;
   
-  // Scale factor to adjust asset impacts to match actual portfolio performance
-  // This ensures the weighted sum of asset impacts equals the actual portfolio change
-  const scaleFactor = totalImpact !== 0 ? actualPercentageChange / totalImpact : 1;
+  // Calculate high and low points from the portfolio trajectory
+  const portfolioChanges = portfolioValue.map(value => ((value - initialCapital) / initialCapital) * 100);
+  const highPortfolio = Math.max(...portfolioChanges);
+  const lowPortfolio = Math.min(...portfolioChanges);
+  
+  // Asset impacts need to track high, low, and end values
+  // We'll scale them proportionally based on the portfolio trajectory
+  const baseImpacts = {
+    equities: equitiesImpact,
+    bonds: bondsImpact,
+    commodities: commoditiesImpact,
+    realEstate: realEstateImpact,
+    crypto: cryptoImpact,
+  };
+  
+  // Calculate scale factors for high, low, and end
+  const endScale = totalImpact !== 0 ? actualPercentageChange / totalImpact : 1;
+  const highScale = totalImpact !== 0 ? highPortfolio / totalImpact : 1;
+  const lowScale = totalImpact !== 0 ? lowPortfolio / totalImpact : 1;
 
-  // Build impact object with scaled values that match actual portfolio performance
+  // Build impact object with high/low/end values for each asset
   const impact: any = {};
   portfolioAssetClasses.forEach(assetClass => {
-    const lowerName = assetClass.toLowerCase();
-    if (assetClass === "Equities") impact.equities = equitiesImpact * scaleFactor;
-    else if (assetClass === "Bonds") impact.bonds = bondsImpact * scaleFactor;
-    else if (assetClass === "Commodities") impact.commodities = commoditiesImpact * scaleFactor;
-    else if (assetClass === "Real Estate") impact["real estate"] = realEstateImpact * scaleFactor;
-    else if (assetClass === "Cryptocurrencies") impact.cryptocurrencies = cryptoImpact * scaleFactor;
-    else if (assetClass === "Cash") impact.cash = 0;
+    if (assetClass === "Equities") {
+      impact.equities = {
+        high: equitiesImpact * highScale,
+        low: equitiesImpact * lowScale,
+        end: equitiesImpact * endScale
+      };
+    }
+    else if (assetClass === "Bonds") {
+      impact.bonds = {
+        high: bondsImpact * highScale,
+        low: bondsImpact * lowScale,
+        end: bondsImpact * endScale
+      };
+    }
+    else if (assetClass === "Commodities") {
+      impact.commodities = {
+        high: commoditiesImpact * highScale,
+        low: commoditiesImpact * lowScale,
+        end: commoditiesImpact * endScale
+      };
+    }
+    else if (assetClass === "Real Estate") {
+      impact["real estate"] = {
+        high: realEstateImpact * highScale,
+        low: realEstateImpact * lowScale,
+        end: realEstateImpact * endScale
+      };
+    }
+    else if (assetClass === "Cryptocurrencies") {
+      impact.cryptocurrencies = {
+        high: cryptoImpact * highScale,
+        low: cryptoImpact * lowScale,
+        end: cryptoImpact * endScale
+      };
+    }
+    else if (assetClass === "Cash") {
+      impact.cash = {
+        high: 0,
+        low: 0,
+        end: 0
+      };
+    }
   });
 
   return {

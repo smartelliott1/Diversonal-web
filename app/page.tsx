@@ -3169,19 +3169,43 @@ export default function Home() {
                     <div className="space-y-1.5">
                       {stressTestResult.impact && Object.entries(stressTestResult.impact)
                         .filter(([asset]) => visibleAssetClasses.includes(asset))
-                        .map(([asset, impact]: [string, any]) => (
-                        <div 
-                          key={asset} 
-                          className="rounded border border-white/10 bg-gradient-to-br from-[#1C1F26]/60 to-[#171A1F]/60 p-2 transition-all duration-300 hover:border-[#00FF99]/30"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium capitalize text-gray-400">{asset}</span>
-                            <span className={`text-sm font-bold ${impact < 0 ? 'text-red-500' : 'text-green-500'}`}>
-                              {impact > 0 ? '+' : ''}{impact.toFixed(1)}%
-                            </span>
+                        .map(([asset, impact]: [string, any]) => {
+                          // Handle both old format (number) and new format (object with high/low/end)
+                          const isOldFormat = typeof impact === 'number';
+                          const impactData = isOldFormat 
+                            ? { high: impact, low: impact, end: impact }
+                            : impact;
+                          
+                          return (
+                          <div 
+                            key={asset} 
+                            className="rounded border border-white/10 bg-gradient-to-br from-[#1C1F26]/60 to-[#171A1F]/60 p-2 transition-all duration-300 hover:border-[#00FF99]/30"
+                          >
+                            <div className="mb-1.5">
+                              <span className="text-xs font-medium capitalize text-gray-400">{asset}</span>
+                            </div>
+                            <div className="space-y-0.5 text-[10px]">
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-500">High:</span>
+                                <span className={`font-semibold ${impactData.high >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                  {impactData.high > 0 ? '+' : ''}{impactData.high.toFixed(1)}%
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-500">Low:</span>
+                                <span className={`font-semibold ${impactData.low >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                  {impactData.low > 0 ? '+' : ''}{impactData.low.toFixed(1)}%
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between border-t border-white/10 pt-0.5">
+                                <span className="font-medium text-gray-400">End:</span>
+                                <span className={`font-bold text-sm ${impactData.end >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                  {impactData.end > 0 ? '+' : ''}{impactData.end.toFixed(1)}%
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )})}
                     </div>
                   </div>
                 </div>
