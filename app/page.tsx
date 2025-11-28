@@ -1360,7 +1360,7 @@ export default function Home() {
       </section>
 
       {/* Portfolio Generation Feature Section */}
-      <section id="portfolio-generation-section" className="flex min-h-screen items-center bg-[#0F0F0F] py-20">
+      <section id="portfolio-generation-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[180px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div>
@@ -1452,7 +1452,7 @@ export default function Home() {
       </section>
 
       {/* Stock Picks Feature Section */}
-      <section id="stock-picks-section" className="flex min-h-screen items-center bg-[#0F0F0F] py-20">
+      <section id="stock-picks-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[100px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
@@ -1533,7 +1533,7 @@ export default function Home() {
       </section>
 
       {/* Stress Testing Feature Section */}
-      <section id="stress-testing-section" className="flex min-h-screen items-center bg-[#0F0F0F] py-20">
+      <section id="stress-testing-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[180px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div>
@@ -1622,7 +1622,7 @@ export default function Home() {
       </section>
 
       {/* Save & Export Feature Section */}
-      <section id="save-export-section" className="flex min-h-screen items-center bg-[#0F0F0F] py-20">
+      <section id="save-export-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[230px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
