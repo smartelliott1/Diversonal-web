@@ -472,62 +472,69 @@ function generateFallbackStressTest(
   // Calculate actual percentage change from start to end
   const actualPercentageChange = ((finalValue - initialCapital) / initialCapital) * 100;
   
-  // Calculate high and low points from the portfolio trajectory
-  const portfolioChanges = portfolioValue.map(value => ((value - initialCapital) / initialCapital) * 100);
-  const highPortfolio = Math.max(...portfolioChanges);
-  const lowPortfolio = Math.min(...portfolioChanges);
-  
-  // Asset impacts need to track high, low, and end values
-  // We'll scale them proportionally based on the portfolio trajectory
-  const baseImpacts = {
-    equities: equitiesImpact,
-    bonds: bondsImpact,
-    commodities: commoditiesImpact,
-    realEstate: realEstateImpact,
-    crypto: cryptoImpact,
+  // Helper function to calculate high/low variance for asset classes
+  // This represents typical intra-period volatility based on asset characteristics
+  const calculateVariance = (baseImpact: number, volatilityMultiplier: number): { high: number; low: number } => {
+    // Volatility range: assets can deviate from final impact during the period
+    const variance = Math.abs(baseImpact) * volatilityMultiplier;
+    
+    if (baseImpact < 0) {
+      // Negative scenario: high is less negative, low is more negative
+      return {
+        high: Math.min(baseImpact + variance, 0), // Can recover somewhat
+        low: baseImpact - variance // Can get worse
+      };
+    } else {
+      // Positive scenario: high is more positive, low is less positive
+      return {
+        high: baseImpact + variance, // Can go higher
+        low: Math.max(baseImpact - variance, 0) // Can dip but not negative in positive scenario
+      };
+    }
   };
-  
-  // Calculate scale factors for high, low, and end
-  const endScale = totalImpact !== 0 ? actualPercentageChange / totalImpact : 1;
-  const highScale = totalImpact !== 0 ? highPortfolio / totalImpact : 1;
-  const lowScale = totalImpact !== 0 ? lowPortfolio / totalImpact : 1;
 
-  // Build impact object with high/low/end values for each asset
+  // Build impact object with raw asset performance values
+  // High/low represent typical intra-period volatility, end is the final impact
   const impact: any = {};
   portfolioAssetClasses.forEach(assetClass => {
     if (assetClass === "Equities") {
+      const variance = calculateVariance(equitiesImpact, 0.4); // 40% variance for equities
       impact.equities = {
-        high: equitiesImpact * highScale,
-        low: equitiesImpact * lowScale,
-        end: equitiesImpact * endScale
+        high: variance.high,
+        low: variance.low,
+        end: equitiesImpact
       };
     }
     else if (assetClass === "Bonds") {
+      const variance = calculateVariance(bondsImpact, 0.3); // 30% variance for bonds
       impact.bonds = {
-        high: bondsImpact * highScale,
-        low: bondsImpact * lowScale,
-        end: bondsImpact * endScale
+        high: variance.high,
+        low: variance.low,
+        end: bondsImpact
       };
     }
     else if (assetClass === "Commodities") {
+      const variance = calculateVariance(commoditiesImpact, 0.5); // 50% variance for commodities
       impact.commodities = {
-        high: commoditiesImpact * highScale,
-        low: commoditiesImpact * lowScale,
-        end: commoditiesImpact * endScale
+        high: variance.high,
+        low: variance.low,
+        end: commoditiesImpact
       };
     }
     else if (assetClass === "Real Estate") {
+      const variance = calculateVariance(realEstateImpact, 0.35); // 35% variance for real estate
       impact["real estate"] = {
-        high: realEstateImpact * highScale,
-        low: realEstateImpact * lowScale,
-        end: realEstateImpact * endScale
+        high: variance.high,
+        low: variance.low,
+        end: realEstateImpact
       };
     }
     else if (assetClass === "Cryptocurrencies") {
+      const variance = calculateVariance(cryptoImpact, 0.6); // 60% variance for crypto (highly volatile)
       impact.cryptocurrencies = {
-        high: cryptoImpact * highScale,
-        low: cryptoImpact * lowScale,
-        end: cryptoImpact * endScale
+        high: variance.high,
+        low: variance.low,
+        end: cryptoImpact
       };
     }
     else if (assetClass === "Cash") {
