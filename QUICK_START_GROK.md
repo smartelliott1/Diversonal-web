@@ -52,12 +52,13 @@ You should see:
 ### Stage 2 (10-15 seconds):
 - 📊 **Stock recommendations** stream in
 - Watch the JSON stream in the terminal
-- Recommendations appear as they generate
+- Recommendations appear with personalized fit explanations
 
-### Stage 3 (3-5 seconds):
-- 💬 **X Pulse sections** appear below each stock
-- Shows 2-3 trending X posts per ticker
-- Color-coded sentiment indicators
+### Stage 3 (5-10 seconds):
+- 📈 **Market data loads** for each stock in right column
+- Sentiment gauge (analyzed by Grok from headlines)
+- Key financial metrics (P/E, growth rates, margins)
+- Most relevant recent news headline
 
 ## Troubleshooting
 
@@ -75,24 +76,26 @@ You should see:
 - Verify API key has necessary permissions
 - Try again (queue system may be full)
 
-### X posts don't appear
-- This is optional - Stage 3 fails silently
-- Check if Grok has X data access
-- Recommendations still work without X posts
+### Market data doesn't appear in right column
+- This is optional - Stage 3 fails gracefully
+- Check FMP API key is valid
+- Check browser console for errors
+- Recommendations still work without market data
 
 ## What You'll See
 
 ### Before (Claude):
 - Single API call
 - Market context from FMP only
-- No social sentiment
+- Technical rationale for each stock
 - No Fear & Greed visualization
 
 ### After (Grok):
 - Three progressive stages
 - Real-time Fear & Greed Index
-- X sentiment analysis per stock
-- Enhanced market intelligence
+- Personalized fit explanations for each stock
+- Market sentiment analysis per stock (Grok-analyzed from headlines)
+- Key financial metrics and news headlines
 - Faster perceived performance (progressive loading)
 
 ## Model Information

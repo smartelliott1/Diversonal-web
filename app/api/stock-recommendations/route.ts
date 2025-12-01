@@ -292,7 +292,7 @@ Use the ACTUAL beta values from fundamentals data to assess this. This is non-ne
       {
         "ticker": "AAPL",
         "name": "Apple Inc.",
-        "rationale": "Beta: 1.15 (matches risk profile ${formData.risk}/100). P/E: 34.1x vs sector avg 38x (value opportunity). Revenue growth: 12% YoY. Strong FCF $7.5B/quarter. Sector: Technology (+2.3% week, leading). Catalyst: Major insider buy $2.1M last week. News: AI features driving 18% services growth. Earnings: Not until next month (low volatility window).",
+        "personalizedFit": "Given your ${formData.age} age and ${formData.horizon} time horizon, Apple aligns well with your ${formData.risk}/100 risk tolerance. With your $${formData.capital} portfolio focused on ${formData.goal}, this established tech leader provides the right balance of growth potential and stability. Its beta of 1.15 matches your risk profile while offering exposure to the AI revolution you're seeking in ${formData.sectors.includes('Technology') || formData.sectors.includes('AI') ? 'your preferred tech sector' : 'high-growth sectors'}.",
         "positionSize": "Large",
         "riskLevel": "Moderate"
       }
@@ -312,17 +312,21 @@ Use the ACTUAL beta values from fundamentals data to assess this. This is non-ne
 
 **Guidelines:**
 - Provide 3-5 recommendations per asset class (5-7 for Equities)
-- Each rationale MUST include: beta value with risk profile fit, key valuation metric (P/E, P/S, etc.), growth metric (revenue/earnings growth), and 1-2 catalysts from the intelligence data
-- **REQUIRED STRUCTURE:** Follow the example format exactly - lead with beta and risk match, add valuation context, mention growth, reference sector/catalyst
-- **DO NOT include stock prices in rationales** - they will be fetched and displayed separately in real-time
+- Each personalizedFit MUST explain in 2-3 conversational sentences why THIS SPECIFIC STOCK fits the user's unique situation:
+  * Reference their age (${formData.age}) and time horizon (${formData.horizon})
+  * Explain how the stock's risk profile (beta, volatility) matches their ${formData.risk}/100 risk tolerance
+  * Connect to their investment capital ($${formData.capital}) and goal (${formData.goal})
+  * Mention alignment with their sector preferences if applicable (${formData.sectors.join(', ')})
+  * Make it personal and conversational - directly address why this fits THEIR situation
+- **DO NOT include technical jargon, just explain the fit in plain language**
+- **DO NOT include stock prices** - they will be fetched and displayed separately in real-time
 - Position sizes: Large (25-35%), Medium (15-25%), Small (5-15%)
 - Risk levels: Based on volatility, beta, drawdown history, and upcoming catalysts
 - Breakdown percentages must sum to 100 per asset class
 - Use varied hex colors for visualization
 - marketContext: Synthesize ALL intelligence (market data, news, insiders, economic/earnings calendars) into 3-5 sentences
 - Match investment style to age/horizon (growth for young, income for older)
-- Cite growth metrics for small/mid-caps (revenue %, institutional buying, momentum)
-- **SIGNAL INTEGRATION:** Stocks with insider buying + positive news + strong sector = highest conviction recommendations`;
+- Use the fundamentals data and market intelligence to ensure recommendations truly fit the user's profile`;
 
     console.log("Calling Grok for detailed recommendations with streaming...");
 

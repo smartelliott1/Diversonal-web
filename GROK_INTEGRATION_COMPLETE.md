@@ -2,23 +2,22 @@
 
 ## Overview
 
-Successfully implemented three-stage Grok API integration replacing Claude Sonnet 4 for stock recommendations, with integrated X (Twitter) sentiment analysis and Fear & Greed Index visualization.
+Successfully implemented three-stage Grok API integration replacing Claude Sonnet 4 for stock recommendations, with personalized fit analysis, market sentiment scoring, key metrics, and news headlines.
 
 ## What Was Implemented
 
 ### 1. Backend Infrastructure
 
 **New Files Created:**
-- `/app/lib/grokClient.ts` - Grok API client with three specialized functions:
+- `/app/lib/grokClient.ts` - Grok API client with specialized functions:
   - `callGrok()` - Basic non-streaming calls
   - `callGrokStreaming()` - Streaming support for stock recommendations
   - `callGrokMarketContext()` - Stage 1: Market context + Fear & Greed
-  - `callGrokXPosts()` - Stage 3: X posts for recommended tickers
 
-**New API Routes:**
+**API Routes:**
 - `/app/api/market-context/route.ts` - Stage 1: Fetches S&P 500 data and asks Grok for Fear & Greed Index
-- `/app/api/stock-recommendations/route.ts` - Stage 2: Generates stock picks using Grok (replaced Claude)
-- `/app/api/x-posts/route.ts` - Stage 3: Fetches trending X posts for recommended stocks
+- `/app/api/stock-recommendations/route.ts` - Stage 2: Generates personalized stock picks using Grok
+- `/app/api/stock-data/route.ts` - Stage 3: Fetches metrics, sentiment (via Grok analysis of headlines), and news
 
 ### 2. Three-Stage Progressive Loading
 
@@ -32,14 +31,17 @@ Successfully implemented three-stage Grok API integration replacing Claude Sonne
 - Uses market context from Stage 1
 - Fetches comprehensive market data (FMP API)
 - Loads sector fundamentals
-- Grok generates detailed stock picks with streaming
-- **UI**: Shows recommendations as they stream in
+- Grok generates personalized stock picks with streaming
+- **UI**: Shows recommendations with "Why This Fits Your Goals" explanation as they stream in
 
-#### Stage 3: X Posts (3-5s)
+#### Stage 3: Stock Data (5-10s)
 - Extracts tickers from Stage 2 recommendations
-- Asks Grok for 2-3 trending X posts per ticker
-- Appends to stock cards when ready
-- **UI**: Shows X Pulse section below each stock
+- For each ticker:
+  * Fetches recent headlines from FMP
+  * Grok analyzes all headlines to determine sentiment score (0-100)
+  * Fetches key metrics (P/E, EPS growth, revenue growth, profit margin, dividend yield)
+  * Returns one most relevant headline to display
+- **UI**: Right column shows sentiment gauge, key metrics grid, and clickable news headline
 
 ### 3. Frontend UI Components
 
@@ -58,20 +60,19 @@ Successfully implemented three-stage Grok API integration replacing Claude Sonne
 - Color-coded: Red (Extreme Fear) → Green (Extreme Greed)
 - Real-time value from Grok
 
-**X Pulse Section (Per Stock):**
-- Shows 2-3 high-engagement X posts
-- Color-coded sentiment indicators (🟢 Bullish, 🟡 Neutral, 🔴 Bearish)
-- Author handle, timestamp, engagement count
-- Compact design to minimize scrolling
+**Stock Data Section (Per Stock - Right Column):**
+- **Sentiment Gauge**: Circular gauge showing 0-100 sentiment score (Bearish/Neutral/Bullish)
+- **Key Metrics Grid**: P/E Ratio, EPS Growth, Revenue Growth, Profit Margin, Dividend Yield
+- **Recent News**: Single most relevant headline with source and date, clickable link
 
 ### 4. Key Features
 
 ✅ **Progressive Enhancement**: Users see data as it loads (Stage 1 → 2 → 3)
-✅ **Graceful Degradation**: If Stage 1 or 3 fails, Stage 2 continues
-✅ **Real-time Data**: Grok has access to live X and market data
-✅ **Streaming Support**: Stock recommendations stream identically to previous Claude implementation
+✅ **Graceful Degradation**: If any stage fails, other stages continue
+✅ **Personalized Recommendations**: Each stock includes explanation of why it fits user's specific goals
+✅ **Streaming Support**: Stock recommendations stream in real-time
 ✅ **Queue System**: Existing `requestQueue.ts` handles rate limiting
-✅ **Backwards Compatible**: Same JSON response format as Claude
+✅ **Intelligent Sentiment**: Grok analyzes multiple headlines to determine overall market sentiment per stock
 
 ## Configuration
 
@@ -110,8 +111,8 @@ Asks Grok: "What is the current CNN Fear & Greed Index?" with fallback to estima
 ### Stage 2 Prompt
 Full stock recommendation prompt (identical to Claude's) with added instruction to leverage X data.
 
-### Stage 3 Prompt
-Requests 2-3 high-engagement X posts per ticker from last 24 hours, including sentiment labels.
+### Stage 3 Process
+Fetches recent headlines from FMP, sends them to Grok for sentiment analysis (0-100 score), and returns key metrics plus the most relevant headline.
 
 ## Files Modified
 
@@ -119,17 +120,17 @@ Requests 2-3 high-engagement X posts per ticker from last 24 hours, including se
    - Added new state variables for three-stage flow
    - Completely rewrote `handleGetDetailedRecommendations()` function
    - Added Market Snapshot UI component
-   - Added X Pulse section to stock cards
+   - Added right column with sentiment gauge, key metrics, and news headlines
 
 2. **`/README.md`**
    - Added environment variables section
    - Added API key setup instructions
 
-3. **New Files** (8 total):
+3. **New Files**:
    - `app/lib/grokClient.ts`
    - `app/api/market-context/route.ts`
    - `app/api/stock-recommendations/route.ts`
-   - `app/api/x-posts/route.ts`
+   - `app/api/stock-data/route.ts`
    - `GROK_INTEGRATION_COMPLETE.md` (this file)
 
 ## Testing Checklist
@@ -138,13 +139,15 @@ Before deploying, test:
 
 - [ ] Stage 1 loads and displays S&P 500, Fear & Greed, context
 - [ ] Fear & Greed gauge renders correctly with color coding
-- [ ] Stage 2 streams stock recommendations properly
-- [ ] Stage 3 loads X posts after recommendations complete
-- [ ] X Pulse sections show correct sentiment indicators
-- [ ] Error handling works (Stage 1 failure doesn't block Stage 2)
+- [ ] Stage 2 streams stock recommendations with personalized fit explanations
+- [ ] Stage 3 loads market data (sentiment, metrics, news) for each stock
+- [ ] Sentiment gauge displays correctly with proper colors (red/yellow/green)
+- [ ] Key metrics grid shows all available data
+- [ ] News headline is clickable and opens in new tab
+- [ ] Error handling works (any stage failure doesn't block others)
 - [ ] Queue system still functions
 - [ ] Mobile responsive layout works
-- [ ] Loading states display properly
+- [ ] Loading states display properly in right column
 
 ## Next Steps
 
@@ -169,15 +172,19 @@ Before deploying, test:
 1. User clicks "Deep Dive Stock Picks with AI Reasoning"
 2. **Market Snapshot appears** (S&P 500, Fear & Greed, context)
 3. **Stock recommendations stream in** (users can read as they generate)
-4. **X posts append** to each stock card
-5. User can explore recommendations with social sentiment context
+   - Left column shows personalized explanation of why each stock fits their goals
+4. **Market data loads** in right column for each stock
+   - Sentiment gauge (Grok-analyzed from headlines)
+   - Key financial metrics
+   - Most relevant recent news headline
+5. User can explore recommendations with comprehensive market data context
 
 ## Benefits Over Claude
 
-1. **Real-time X Access**: Grok has native access to X data
-2. **Market Intelligence**: Can fetch current Fear & Greed Index
-3. **Cost**: May be more cost-effective than Claude (depending on pricing)
-4. **Speed**: Similar performance with three-stage caching potential
+1. **Personalized Explanations**: Each stock includes why it fits the user's specific situation
+2. **Market Intelligence**: Real-time Fear & Greed Index and sentiment analysis
+3. **Data-Driven**: Key metrics and news headlines provide objective context
+4. **Speed**: Similar performance with three-stage progressive loading
 
 ## Notes
 

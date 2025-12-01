@@ -23,9 +23,30 @@ interface PortfolioItem {
 interface StockRecommendation {
   ticker: string;
   name: string;
-  rationale: string;
+  personalizedFit: string;
   positionSize: "Large" | "Medium" | "Small";
   riskLevel: "Low" | "Moderate" | "High";
+}
+
+interface StockData {
+  ticker: string;
+  sentiment: {
+    score: number;
+    label: "Bullish" | "Neutral" | "Bearish";
+  };
+  metrics: {
+    peRatio: number | null;
+    epsGrowth: number | null;
+    revenueGrowth: number | null;
+    profitMargin: number | null;
+    dividendYield: number | null;
+  };
+  headline: {
+    title: string;
+    site: string;
+    publishedDate: string;
+    url: string;
+  } | null;
 }
 
 interface AssetClassRecommendations {
@@ -151,14 +172,8 @@ export default function Home() {
     contextSummary: string;
   } | null>(null);
   const [marketContextLoading, setMarketContextLoading] = useState(false);
-  const [xPosts, setXPosts] = useState<Record<string, Array<{
-    author: string;
-    content: string;
-    engagement: number;
-    timestamp: string;
-    sentiment: "Bullish" | "Neutral" | "Bearish";
-  }>>>({});
-  const [xPostsLoading, setXPostsLoading] = useState(false);
+  const [stockData, setStockData] = useState<Record<string, StockData>>({});
+  const [rightColumnLoading, setRightColumnLoading] = useState<Record<string, boolean>>({});
   const [stockPrices, setStockPrices] = useState<Record<string, {
     price: number;
     change: number;
@@ -381,7 +396,8 @@ export default function Home() {
     setParsedAssetClasses([]);
     setPartialRecommendations({} as DetailedRecommendations);
     setMarketContext(null);
-    setXPosts({});
+    setStockData({});
+    setRightColumnLoading({});
 
     // Use saved form data
     const formData = savedFormData || {
@@ -541,11 +557,19 @@ export default function Home() {
                 }
               });
 
-              // STAGE 2.5: Fetch Live Stock Prices (in parallel with X posts)
+              // STAGE 3: Fetch Right Column Data (Prices + Metrics + Sentiment + Headlines)
               if (tickers.length > 0) {
+                console.log(`[Stage 3] Loading data for ${tickers.length} stocks...`);
+                
+                // Set loading state for all tickers
+                const loadingState: Record<string, boolean> = {};
+                tickers.forEach(ticker => loadingState[ticker] = true);
+                setRightColumnLoading(loadingState);
+                
+                // Fetch stock prices first (fast)
                 const pricesPromise = (async () => {
                   try {
-                    console.log(`[Stage 2.5] Fetching live prices for ${tickers.length} tickers...`);
+                    console.log(`[Stage 3] Fetching live prices for ${tickers.length} tickers...`);
                     setStockPricesLoading(true);
                     
                     const pricesResponse = await fetch("/api/stock-prices", {
@@ -557,43 +581,43 @@ export default function Home() {
                     if (pricesResponse.ok) {
                       const pricesData = await pricesResponse.json();
                       setStockPrices(pricesData.prices || {});
-                      console.log("[Stage 2.5] Live prices loaded for", Object.keys(pricesData.prices || {}).length, "tickers");
+                      console.log("[Stage 3] Live prices loaded for", Object.keys(pricesData.prices || {}).length, "tickers");
                     }
                   } catch (pricesError) {
-                    console.error("[Stage 2.5] Error fetching stock prices:", pricesError);
-                    // Silent fail - prices are nice-to-have for enhanced UX
+                    console.error("[Stage 3] Error fetching stock prices:", pricesError);
                   } finally {
                     setStockPricesLoading(false);
                   }
                 })();
-
-                // STAGE 3: X Posts (in parallel with prices)
-                const postsPromise = (async () => {
+                
+                // Fetch stock data for each ticker (metrics, sentiment, headlines)
+                const dataPromises = tickers.map(async (ticker) => {
                   try {
-                    console.log(`[Stage 3] Fetching X posts for ${tickers.length} tickers...`);
-                    setXPostsLoading(true);
-                    
-                    const postsResponse = await fetch("/api/x-posts", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ tickers }),
+                    const response = await fetch('/api/stock-data', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ ticker })
                     });
-
-                    if (postsResponse.ok) {
-                      const postsData = await postsResponse.json();
-                      setXPosts(postsData);
-                      console.log("[Stage 3] X posts loaded for", Object.keys(postsData).length, "tickers");
+                    
+                    if (response.ok) {
+                      const data = await response.json();
+                      
+                      // Update state as each ticker completes
+                      setStockData(prev => ({ ...prev, [ticker]: data }));
+                      setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
+                      console.log(`[Stage 3] Data loaded for ${ticker}`);
+                    } else {
+                      setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
                     }
-                  } catch (postsError) {
-                    console.error("[Stage 3] Error fetching X posts:", postsError);
-                    // Silent fail - X posts are nice-to-have
-                  } finally {
-                    setXPostsLoading(false);
+                  } catch (error) {
+                    console.error(`[Stage 3] Error loading data for ${ticker}:`, error);
+                    setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
                   }
-                })();
-
-                // Wait for both to complete (but don't block on errors)
-                await Promise.allSettled([pricesPromise, postsPromise]);
+                });
+                
+                // Wait for all to complete
+                await Promise.allSettled([pricesPromise, ...dataPromises]);
+                console.log('[Stage 3] All stock data loaded');
               }
             }
           } catch (parseError) {
@@ -2658,60 +2682,144 @@ export default function Home() {
                                     </div>
                                   </div>
 
-                                  {/* Rationale */}
+                                  {/* Personalized Fit */}
                                   <div>
                                     <h6 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                                      📊 AI Analysis
+                                      🎯 Why This Fits Your Goals
                                     </h6>
                                     <p className="text-sm leading-relaxed text-gray-300">
-                                      {rec.rationale}
+                                      {rec.personalizedFit}
                                     </p>
                                   </div>
                                 </div>
 
-                                {/* Right: X Posts */}
+                                {/* Right: Market Data (Sentiment, Metrics, News) */}
                                 <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
-                                  {xPostsLoading ? (
+                                  {rightColumnLoading[rec.ticker] ? (
                                     <div className="flex items-center justify-center h-full">
                                       <div className="text-center">
                                         <svg className="h-8 w-8 animate-spin mx-auto mb-2 text-gray-600" fill="none" viewBox="0 0 24 24">
                                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        <p className="text-xs text-gray-400">Loading X posts...</p>
+                                        <p className="text-xs text-gray-400">Loading market data...</p>
                                       </div>
                                     </div>
-                                  ) : xPosts[rec.ticker] && xPosts[rec.ticker].length > 0 ? (
-                                    <div>
-                                      <h6 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                                        💬 X Pulse
-                                      </h6>
-                                      <div className="space-y-3">
-                                        {xPosts[rec.ticker].map((post, postIndex) => (
-                                          <div 
-                                            key={postIndex}
-                                            className={`border-l-2 pl-3 py-2 ${
-                                              post.sentiment === 'Bullish' ? 'border-green-500' :
-                                              post.sentiment === 'Bearish' ? 'border-red-500' :
-                                              'border-yellow-500'
-                                            }`}
-                                          >
-                                            <div className="flex items-center justify-between mb-1">
-                                              <div className="flex items-center gap-2">
-                                                <span className={post.sentiment === 'Bullish' ? '🟢' : post.sentiment === 'Bearish' ? '🔴' : '🟡'}></span>
-                                                <span className="text-sm font-medium text-[#00FF99]">@{post.author}</span>
-                                                <span className="text-xs text-gray-500">• {post.timestamp}</span>
-                                              </div>
-                                              <span className="text-xs text-gray-500">{post.engagement.toLocaleString()} ❤️</span>
+                                  ) : stockData[rec.ticker] ? (
+                                    <div className="space-y-6">
+                                      {/* Section 1: Sentiment Gauge */}
+                                      <div>
+                                        <h6 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                          Market Sentiment
+                                        </h6>
+                                        <div className="flex flex-col items-center">
+                                          <ResponsiveContainer width="100%" height={120}>
+                                            <PieChart>
+                                              <Pie
+                                                data={[
+                                                  { value: stockData[rec.ticker].sentiment.score },
+                                                  { value: 100 - stockData[rec.ticker].sentiment.score }
+                                                ]}
+                                                cx="50%"
+                                                cy="50%"
+                                                startAngle={180}
+                                                endAngle={0}
+                                                innerRadius={40}
+                                                outerRadius={55}
+                                                dataKey="value"
+                                              >
+                                                <Cell fill={
+                                                  stockData[rec.ticker].sentiment.score >= 61 ? '#10B981' :
+                                                  stockData[rec.ticker].sentiment.score >= 41 ? '#F59E0B' :
+                                                  '#EF4444'
+                                                } />
+                                                <Cell fill="#1A1A1A" />
+                                              </Pie>
+                                            </PieChart>
+                                          </ResponsiveContainer>
+                                          <div className="text-center -mt-16">
+                                            <div className="text-2xl font-bold text-[#E6E6E6]">
+                                              {stockData[rec.ticker].sentiment.score}
                                             </div>
-                                            <p className="text-sm text-gray-300">{post.content}</p>
+                                            <div className={`text-xs font-semibold ${
+                                              stockData[rec.ticker].sentiment.label === 'Bullish' ? 'text-green-400' :
+                                              stockData[rec.ticker].sentiment.label === 'Bearish' ? 'text-red-400' :
+                                              'text-yellow-400'
+                                            }`}>
+                                              {stockData[rec.ticker].sentiment.label}
+                                            </div>
                                           </div>
-                                        ))}
+                                        </div>
                                       </div>
+
+                                      {/* Section 2: Key Metrics */}
+                                      <div>
+                                        <h6 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                          Key Metrics
+                                        </h6>
+                                        <div className="grid grid-cols-2 gap-3 text-sm">
+                                          {stockData[rec.ticker].metrics.peRatio !== null && (
+                                            <div>
+                                              <div className="text-gray-500 text-xs">P/E Ratio</div>
+                                              <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics.peRatio!.toFixed(2)}</div>
+                                            </div>
+                                          )}
+                                          {stockData[rec.ticker].metrics.epsGrowth !== null && (
+                                            <div>
+                                              <div className="text-gray-500 text-xs">EPS Growth</div>
+                                              <div className={`font-semibold ${stockData[rec.ticker].metrics.epsGrowth! >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                {stockData[rec.ticker].metrics.epsGrowth! >= 0 ? '+' : ''}{stockData[rec.ticker].metrics.epsGrowth!.toFixed(1)}%
+                                              </div>
+                                            </div>
+                                          )}
+                                          {stockData[rec.ticker].metrics.revenueGrowth !== null && (
+                                            <div>
+                                              <div className="text-gray-500 text-xs">Revenue Growth</div>
+                                              <div className={`font-semibold ${stockData[rec.ticker].metrics.revenueGrowth! >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                {stockData[rec.ticker].metrics.revenueGrowth! >= 0 ? '+' : ''}{stockData[rec.ticker].metrics.revenueGrowth!.toFixed(1)}%
+                                              </div>
+                                            </div>
+                                          )}
+                                          {stockData[rec.ticker].metrics.profitMargin !== null && (
+                                            <div>
+                                              <div className="text-gray-500 text-xs">Profit Margin</div>
+                                              <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics.profitMargin!.toFixed(1)}%</div>
+                                            </div>
+                                          )}
+                                          {stockData[rec.ticker].metrics.dividendYield !== null && stockData[rec.ticker].metrics.dividendYield! > 0 && (
+                                            <div>
+                                              <div className="text-gray-500 text-xs">Dividend Yield</div>
+                                              <div className="text-[#00FF99] font-semibold">{stockData[rec.ticker].metrics.dividendYield!.toFixed(2)}%</div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {/* Section 3: Recent Headline */}
+                                      {stockData[rec.ticker].headline && (
+                                        <div>
+                                          <h6 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                            Recent News
+                                          </h6>
+                                          <a 
+                                            href={stockData[rec.ticker].headline!.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 transition-all hover:border-[#00FF99]/30"
+                                          >
+                                            <div className="text-sm text-gray-300 leading-snug mb-2 line-clamp-2">
+                                              {stockData[rec.ticker].headline!.title}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                              {stockData[rec.ticker].headline!.site} • {new Date(stockData[rec.ticker].headline!.publishedDate).toLocaleDateString()}
+                                            </div>
+                                          </a>
+                                        </div>
+                                      )}
                                     </div>
                                   ) : (
                                     <div className="flex items-center justify-center h-full">
-                                      <p className="text-sm text-gray-400">No X posts available for {rec.ticker}</p>
+                                      <p className="text-sm text-gray-400">No market data available</p>
                                     </div>
                                   )}
                                 </div>
