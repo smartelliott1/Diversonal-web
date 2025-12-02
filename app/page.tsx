@@ -40,6 +40,7 @@ interface StockData {
     revenueGrowth: number | null;
     profitMargin: number | null;
     dividendYield: number | null;
+    growthPeriod: string | null;
   };
   headline: {
     title: string;
@@ -2768,7 +2769,9 @@ export default function Home() {
                                             )}
                                             {stockData[rec.ticker].metrics.epsGrowth !== null && (
                                               <div>
-                                                <div className="text-gray-500">EPS Growth</div>
+                                                <div className="text-gray-500">
+                                                  EPS Growth {stockData[rec.ticker].metrics.growthPeriod && `(${stockData[rec.ticker].metrics.growthPeriod})`}
+                                                </div>
                                                 <div className={`font-semibold ${stockData[rec.ticker].metrics.epsGrowth! >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                                   {stockData[rec.ticker].metrics.epsGrowth! >= 0 ? '+' : ''}{stockData[rec.ticker].metrics.epsGrowth!.toFixed(1)}%
                                                 </div>
@@ -2776,7 +2779,9 @@ export default function Home() {
                                             )}
                                             {stockData[rec.ticker].metrics.revenueGrowth !== null && (
                                               <div>
-                                                <div className="text-gray-500">Revenue Growth</div>
+                                                <div className="text-gray-500">
+                                                  Revenue Growth {stockData[rec.ticker].metrics.growthPeriod && `(${stockData[rec.ticker].metrics.growthPeriod})`}
+                                                </div>
                                                 <div className={`font-semibold ${stockData[rec.ticker].metrics.revenueGrowth! >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                                   {stockData[rec.ticker].metrics.revenueGrowth! >= 0 ? '+' : ''}{stockData[rec.ticker].metrics.revenueGrowth!.toFixed(1)}%
                                                 </div>

@@ -135,7 +135,8 @@ Return ONLY valid JSON format:
       epsGrowth: null as number | null,
       revenueGrowth: null as number | null,
       profitMargin: ratios?.netProfitMargin || null,
-      dividendYield: ratios?.dividendYieldPercentage || keyMetrics?.dividendYield || null
+      dividendYield: ratios?.dividendYieldPercentage || keyMetrics?.dividendYield || null,
+      growthPeriod: null as string | null
     };
     
     // Calculate growth metrics from income statements
@@ -144,6 +145,20 @@ Return ONLY valid JSON format:
       const previous = incomeStatements[1];
       
       if (latest && previous) {
+        // Determine time period between statements
+        const latestDate = new Date(latest.date);
+        const previousDate = new Date(previous.date);
+        const monthsDiff = Math.round((latestDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+        
+        // Label the period (YoY for ~12 months, QoQ for ~3 months, otherwise just show months)
+        if (monthsDiff >= 10 && monthsDiff <= 14) {
+          metrics.growthPeriod = 'YoY';
+        } else if (monthsDiff >= 2 && monthsDiff <= 4) {
+          metrics.growthPeriod = 'QoQ';
+        } else if (monthsDiff > 0) {
+          metrics.growthPeriod = `${monthsDiff}M`;
+        }
+        
         // Calculate EPS Growth
         if (latest.eps && previous.eps && previous.eps !== 0) {
           metrics.epsGrowth = ((latest.eps - previous.eps) / Math.abs(previous.eps)) * 100;
