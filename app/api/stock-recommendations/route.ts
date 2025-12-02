@@ -285,6 +285,37 @@ The fundamentals data above includes ACTUAL BETA VALUES for each stock. Based on
 
 Use the ACTUAL beta values from fundamentals data to assess this. This is non-negotiable. If beta data is missing for a stock, acknowledge it but prefer stocks with known beta values that match the risk profile.
 
+**COMMODITIES ASSET CLASS - MANDATORY TICKER FORMAT:**
+For the Commodities section, you MUST use commodity ETF tickers, NOT commodity names:
+- Use GLD (SPDR Gold Shares) for gold exposure
+- Use SLV (iShares Silver Trust) for silver exposure  
+- Use IAU (iShares Gold Trust) as alternative gold exposure
+- Use SGOL (Aberdeen Physical Gold Shares) as another gold option
+- Use PPLT (Aberdeen Physical Platinum Shares) for platinum
+- Use PALL (Aberdeen Physical Palladium Shares) for palladium
+- Use DBA (Invesco DB Agriculture Fund) for agriculture
+- Use USO (United States Oil Fund) for oil
+DO NOT use "GOLD", "SILVER", "OIL" as tickers - these will not display correct prices.
+
+**CRYPTOCURRENCIES ASSET CLASS - MANDATORY TICKER FORMAT:**
+For the Cryptocurrencies section, use these exact ticker symbols:
+- BTC for Bitcoin
+- ETH for Ethereum
+- SOL for Solana
+- XMR for Monero
+- LINK for Chainlink
+- ADA for Cardano
+These are the ONLY cryptocurrencies you may recommend. Do not recommend crypto-related stocks (like MSTR, MARA, RIOT) in this section - those belong in Equities.
+
+**CASH ASSET CLASS - MONEY MARKET FUND RECOMMENDATIONS:**
+For the Cash section, recommend money market funds based on current Fed funds rate (shown in market data above):
+- VMMXX (Vanguard Prime Money Market Fund) - Vanguard's flagship money market
+- SPAXX (Fidelity Government Money Market Fund) - Fidelity's default sweep
+- SWVXX (Schwab Value Advantage Money Market Fund) - Schwab's premium option
+- VMFXX (Vanguard Federal Money Market Fund) - Government-backed safety
+- SPRXX (Fidelity Money Market Fund) - Higher yield option
+Explain current yield expectations based on Fed funds rate. Money market funds typically yield close to the Fed funds rate minus a small spread.
+
 **Response Format (JSON only, no markdown formatting):**
 {
   "Equities": {

@@ -3,6 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 // Stock Prices API - Fetches real-time prices for specific tickers
 // Used to display live prices in recommendation UI
 
+// Crypto tickers that need to be routed to crypto quote API
+const CRYPTO_TICKERS = ['BTC', 'ETH', 'XMR', 'LINK', 'SOL', 'ADA'];
+
+// Check if a ticker is a cryptocurrency
+function isCryptoTicker(ticker: string): boolean {
+  return CRYPTO_TICKERS.includes(ticker.toUpperCase());
+}
+
+// Convert crypto ticker to FMP format (BTC -> BTCUSD)
+function getCryptoSymbol(ticker: string): string {
+  return `${ticker.toUpperCase()}USD`;
+}
+
 async function fetchFMP(endpoint: string): Promise<any> {
   const FMP_API_KEY = process.env.FMP_API_KEY;
   if (!FMP_API_KEY) {
@@ -40,10 +53,16 @@ export async function POST(request: NextRequest) {
     const tickersToFetch = tickers.slice(0, 50);
     const pricePromises = tickersToFetch.map(async (ticker) => {
       try {
-        const data = await fetchFMP(`/stable/quote?symbol=${ticker}`);
+        // Check if this is a crypto ticker and use appropriate symbol format
+        const isCrypto = isCryptoTicker(ticker);
+        const symbol = isCrypto ? getCryptoSymbol(ticker) : ticker;
+        
+        console.log(`[Stock Prices] Fetching ${ticker} as ${symbol} (crypto: ${isCrypto})`);
+        
+        const data = await fetchFMP(`/stable/quote?symbol=${symbol}`);
         if (data && data[0]) {
           return {
-            ticker,
+            ticker, // Return original ticker for mapping
             price: data[0].price,
             change: data[0].change,
             changePercentage: data[0].changePercentage,
