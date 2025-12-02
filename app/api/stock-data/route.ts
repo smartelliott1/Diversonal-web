@@ -221,7 +221,14 @@ Return ONLY valid JSON:
 }`;
 
       const grokResponse = await callGrok(prompt);
-      const parsed = JSON.parse(grokResponse);
+      
+      // Strip markdown code fences if present (Grok sometimes wraps JSON in ```json blocks)
+      let jsonStr = grokResponse.trim();
+      if (jsonStr.startsWith('```')) {
+        jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+      }
+      
+      const parsed = JSON.parse(jsonStr);
       
       sentiment = {
         score: parsed.sentiment,
