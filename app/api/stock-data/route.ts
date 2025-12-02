@@ -134,7 +134,7 @@ Return ONLY valid JSON format:
       peRatio: ratios?.priceToEarningsRatio || keyMetrics?.peRatio || null,
       epsGrowth: null as number | null,
       revenueGrowth: null as number | null,
-      profitMargin: ratios?.netProfitMargin || null,
+      profitMargin: ratios?.netProfitMargin ? ratios.netProfitMargin * 100 : null,
       dividendYield: ratios?.dividendYieldPercentage || keyMetrics?.dividendYield || null,
       growthPeriod: null as string | null
     };
