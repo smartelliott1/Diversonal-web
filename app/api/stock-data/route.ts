@@ -75,13 +75,24 @@ export async function POST(request: NextRequest) {
 ${headlinesList}
 
 Based on the overall tone, momentum, and sentiment of ALL these headlines, provide:
-1. A sentiment score from 0-100 (0=Extremely Bearish, 50=Neutral, 100=Extremely Bullish)
+1. A sentiment score from 0-100 where:
+   - 0-30: Extremely Bearish (major negative news, significant concerns)
+   - 31-45: Bearish (mostly negative sentiment, caution advised)
+   - 46-55: Neutral (mixed signals, balanced news)
+   - 56-70: Bullish (mostly positive sentiment, optimistic outlook)
+   - 71-100: Extremely Bullish (overwhelmingly positive, strong momentum)
+
 2. A sentiment label: "Bullish", "Neutral", or "Bearish"
-3. The number (1-${newsArticles.length}) of the MOST impactful/relevant headline to display to the user
+3. The number (1-${newsArticles.length}) of the MOST impactful/relevant headline to display
+
+Be analytical and avoid defaulting to middle values. Consider:
+- Is the news uniformly positive/negative or mixed?
+- Are there major catalysts (earnings beats, product launches, partnerships)?
+- Are there significant risks (lawsuits, departures, regulatory issues)?
 
 Return ONLY valid JSON format:
 {
-  "sentiment": 65,
+  "sentiment": 82,
   "label": "Bullish",
   "headlineNumber": 1
 }`;

@@ -285,7 +285,7 @@ export interface StockFundamentals {
   profile: StockProfile;
   ratios: StockRatios;
   keyMetrics: StockKeyMetrics;
-  incomeStatement: IncomeStatement;
+  incomeStatement: IncomeStatement[];
   analystEstimates: AnalystEstimates | null;
   compensation: ExecutiveCompensation[];
 }
@@ -880,20 +880,20 @@ export async function getStockKeyMetrics(ticker: string): Promise<StockKeyMetric
   }
 }
 
-export async function getStockIncomeStatement(ticker: string): Promise<IncomeStatement | null> {
+export async function getStockIncomeStatement(ticker: string): Promise<IncomeStatement[] | null> {
   const cacheKey = `stock-income-${ticker}`;
-  const cached = getCached<IncomeStatement>(cacheKey);
+  const cached = getCached<IncomeStatement[]>(cacheKey);
   if (cached) {
-    console.log(`[FMP] Using cached income statement for ${ticker}`);
+    console.log(`[FMP] Using cached income statements for ${ticker}`);
     return cached;
   }
   
   try {
-    const data = await fetchFMP(`/stable/income-statement?symbol=${ticker}`);
+    const data = await fetchFMP(`/stable/income-statement?symbol=${ticker}&limit=2`);
     if (!data || data.length === 0) return null;
     
-    const raw = data[0]; // Most recent
-    const income: IncomeStatement = {
+    // Return array of up to 2 most recent statements
+    const statements: IncomeStatement[] = data.slice(0, 2).map((raw: any) => ({
       symbol: raw.symbol,
       date: raw.date,
       revenue: raw.revenue || 0,
@@ -907,12 +907,12 @@ export async function getStockIncomeStatement(ticker: string): Promise<IncomeSta
       epsdiluted: raw.epsdiluted || 0,
       weightedAverageShsOut: raw.weightedAverageShsOut || 0,
       weightedAverageShsOutDil: raw.weightedAverageShsOutDil || 0,
-    };
+    }));
     
-    setCache(cacheKey, income, 1440); // Cache 24 hours
-    return income;
+    setCache(cacheKey, statements, 1440); // Cache 24 hours
+    return statements;
   } catch (error: any) {
-    console.error(`[FMP] Error fetching income statement for ${ticker}:`, error?.message);
+    console.error(`[FMP] Error fetching income statements for ${ticker}:`, error?.message);
     return null;
   }
 }
