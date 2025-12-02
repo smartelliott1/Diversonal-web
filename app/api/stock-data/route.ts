@@ -192,32 +192,44 @@ export async function POST(request: NextRequest) {
 - Revenue Growth${growthPeriod ? ` (${growthPeriod})` : ''}: ${revenueGrowth !== null ? formatPct(revenueGrowth) : 'N/A'}
 - Profit Margin: ${profitMargin !== null ? profitMargin.toFixed(1) + '%' : 'N/A'}`;
       
-      const prompt = `Analyze ${ticker} and calculate a sentiment score based on the following data:
+      const prompt = `Analyze ${ticker} and score each category independently from 0-100:
 ${momentumSection}
 ${fundamentalsSection}
 
 **NEWS HEADLINES (${newsArticles?.length || 0} recent articles):**
 ${headlinesList}
 
-Calculate a sentiment score from 0-100 using these weights:
-- Price Momentum (20%): Is the stock trending up or down across timeframes? Consistent direction = stronger signal.
-- Fundamentals (20%): Is the business healthy? Growing EPS/revenue = bullish. High P/E with weak growth = bearish.
-- News Sentiment (60%): What's the narrative? Major catalysts, risks, or mixed signals?
+Score each category separately using these guidelines:
 
-Scoring Guidelines:
-- 0-20: Extremely Bearish (downtrend + weak fundamentals + negative news)
-- 21-40: Bearish (mostly negative signals across categories)
-- 41-60: Neutral (mixed signals or insufficient data)
-- 61-80: Bullish (uptrend + solid fundamentals + positive news)
-- 81-100: Extremely Bullish (strong momentum + growth + overwhelmingly positive news)
+**MOMENTUM SCORE (0-100):**
+- 0-20: Strong downtrend across all timeframes (consistently negative)
+- 21-40: Mostly declining, weak momentum
+- 41-60: Flat, choppy, or mixed direction
+- 61-80: Mostly rising, positive trend
+- 81-100: Strong uptrend across all timeframes (consistently positive)
 
-Be analytical. Avoid defaulting to 50. If momentum is negative but news is positive, weigh accordingly.
+**FUNDAMENTALS SCORE (0-100):**
+- 0-20: Negative growth, weak margins, severely overvalued
+- 21-40: Declining metrics, concerning trends
+- 41-60: Mixed or average fundamentals
+- 61-80: Solid growth, healthy margins, reasonable valuation
+- 81-100: Exceptional growth, strong margins, attractive valuation
+
+**NEWS SCORE (0-100):**
+- 0-20: Major negative catalysts (lawsuits, fraud, bankruptcy risk, major misses)
+- 21-40: Predominantly negative coverage, downgrades, concerns
+- 41-60: Mixed, routine, or no significant news
+- 61-80: Positive developments, upgrades, good outlook
+- 81-100: Major positive catalysts (breakthrough, acquisition, big beat, expansion)
+
+Be decisive and differentiate - avoid clustering all scores around 50-70. Use the full range.
 
 Return ONLY valid JSON:
 {
-  "sentiment": <0-100>,
-  "label": "<Bullish|Neutral|Bearish>",
-  "headlineNumber": <1-${newsArticles?.length || 1}>
+  "momentumScore": 65,
+  "fundamentalsScore": 45,
+  "newsScore": 78,
+  "headlineNumber": 1
 }`;
 
       const grokResponse = await callGrok(prompt);
@@ -230,10 +242,29 @@ Return ONLY valid JSON:
       
       const parsed = JSON.parse(jsonStr);
       
+      // Calculate weighted average ourselves for consistency
+      const weightedScore = Math.round(
+        (parsed.momentumScore * 0.20) +
+        (parsed.fundamentalsScore * 0.20) +
+        (parsed.newsScore * 0.60)
+      );
+      
+      // Determine label based on weighted score
+      let label: "Bullish" | "Neutral" | "Bearish";
+      if (weightedScore >= 60) {
+        label = "Bullish";
+      } else if (weightedScore <= 40) {
+        label = "Bearish";
+      } else {
+        label = "Neutral";
+      }
+      
       sentiment = {
-        score: parsed.sentiment,
-        label: parsed.label
+        score: weightedScore,
+        label
       };
+      
+      console.log(`[Stock Data] ${ticker} scores - Momentum: ${parsed.momentumScore}, Fundamentals: ${parsed.fundamentalsScore}, News: ${parsed.newsScore} => Weighted: ${weightedScore}`);
       
       // Get the selected headline
       if (newsArticles && newsArticles.length > 0) {
@@ -254,8 +285,6 @@ Return ONLY valid JSON:
           };
         }
       }
-      
-      console.log(`[Stock Data] ${ticker} sentiment: ${sentiment.score} (${sentiment.label})`);
     } catch (error: any) {
       console.error(`[Stock Data] Error analyzing sentiment for ${ticker}:`, error?.message);
       // Use first headline as fallback
