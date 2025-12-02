@@ -297,6 +297,20 @@ For the Commodities section, you MUST use commodity ETF tickers, NOT commodity n
 - Use USO (United States Oil Fund) for oil
 DO NOT use "GOLD", "SILVER", "OIL" as tickers - these will not display correct prices.
 
+**BONDS ASSET CLASS - MANDATORY TICKER FORMAT:**
+For the Bonds section, you MUST use bond ETF tickers:
+- BND (Vanguard Total Bond Market ETF) - Broad market exposure
+- AGG (iShares Core U.S. Aggregate Bond ETF) - Similar broad exposure
+- TLT (iShares 20+ Year Treasury Bond ETF) - Long-duration treasuries, rate sensitive
+- IEF (iShares 7-10 Year Treasury Bond ETF) - Intermediate treasuries
+- SHY (iShares 1-3 Year Treasury Bond ETF) - Short-term, low rate sensitivity
+- LQD (iShares Investment Grade Corporate Bond ETF) - Investment grade corporates
+- HYG (iShares High Yield Corporate Bond ETF) - High yield/junk bonds, higher risk
+- TIP (iShares TIPS Bond ETF) - Inflation-protected treasuries
+- VCIT (Vanguard Intermediate-Term Corporate Bond ETF) - Corporate intermediate
+- VCSH (Vanguard Short-Term Corporate Bond ETF) - Corporate short-term
+Match duration to user's time horizon (short-term = SHY/VCSH, long-term = TLT). Consider rate environment from Fed funds rate data.
+
 **CRYPTOCURRENCIES ASSET CLASS - MANDATORY TICKER FORMAT:**
 For the Cryptocurrencies section, use these exact ticker symbols:
 - BTC for Bitcoin
