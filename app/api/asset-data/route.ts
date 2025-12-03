@@ -673,12 +673,12 @@ Return ONLY valid JSON:
     const parsed = JSON.parse(jsonStr);
     
     // Calculate Fear & Greed score - simplified for these asset classes
-    // Weights: RSI 35%, News 40%, Momentum 25% (no fundamentals)
+    // Weights: RSI 40%, Momentum 35%, News 25% (no fundamentals)
     const rsiScore = rsi !== null ? rsi : 50;
     const fearGreedScore = Math.round(
-      (rsiScore * 0.35) +
-      (parsed.newsScore * 0.40) +
-      (parsed.momentumScore * 0.25)
+      (rsiScore * 0.40) +
+      (parsed.momentumScore * 0.35) +
+      (parsed.newsScore * 0.25)
     );
     
     fearGreed = {
