@@ -189,16 +189,13 @@ export async function POST(request: NextRequest) {
           ).join('\n')
         : 'No recent news available';
       
-      // Build momentum section
+      // Build momentum section (last 3 months only)
       const momentumSection = priceChange ? `
-**PRICE MOMENTUM:**
+**PRICE MOMENTUM (Last 3 Months):**
 - 1 Day: ${formatPct(priceChange["1D"])}
 - 5 Day: ${formatPct(priceChange["5D"])}
 - 1 Month: ${formatPct(priceChange["1M"])}
-- 3 Month: ${formatPct(priceChange["3M"])}
-- 6 Month: ${formatPct(priceChange["6M"])}
-- YTD: ${formatPct(priceChange["ytd"])}
-- 1 Year: ${formatPct(priceChange["1Y"])}` : `
+- 3 Month: ${formatPct(priceChange["3M"])}` : `
 **PRICE MOMENTUM:**
 - Data unavailable`;
       
@@ -226,12 +223,12 @@ ${headlinesList}
 
 Score each category for FEAR vs GREED using the FULL 0-100 range:
 
-**MOMENTUM SCORE (0-100) - How greedy/fearful is price action?**
-- 0-20: EXTREME FEAR - Crash, capitulation, all timeframes deeply negative (example: 9)
-- 21-40: FEAR - Declining across most timeframes, weak price action (example: 32)
+**MOMENTUM SCORE (0-100) - How greedy/fearful is recent price action?**
+- 0-20: EXTREME FEAR - Crash, capitulation, negative across all recent timeframes (example: 9)
+- 21-40: FEAR - Declining over the past 3 months, weak price action (example: 32)
 - 41-60: NEUTRAL - Mixed, choppy, no clear trend
-- 61-80: GREED - Rising across most timeframes, strong momentum (example: 72)
-- 81-100: EXTREME GREED - Parabolic rally, all timeframes strongly positive (example: 88)
+- 61-80: GREED - Rising over the past 3 months, strong momentum (example: 72)
+- 81-100: EXTREME GREED - Parabolic rally, strongly positive across all recent timeframes (example: 88)
 
 **FUNDAMENTALS SCORE (0-100) - Are fundamentals driving fear or greed?**
 - 0-20: EXTREME FEAR - Terrible metrics, losses, collapsing margins (example: 15)
