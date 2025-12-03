@@ -182,13 +182,16 @@ export async function POST(request: NextRequest) {
     let forwardPE: number | null = null;
     let forwardPEFiscalYear: string | null = null;
     
-    console.log(`[Stock Data] Forward PE debug - ticker: ${ticker}, currentPrice: ${currentPrice}, analystEstimates:`, analystEstimates ? { date: analystEstimates.date, epsAvg: analystEstimates.estimatedEpsAvg } : null);
-    
-    if (currentPrice && analystEstimates && analystEstimates.estimatedEpsAvg > 0) {
+    if (currentPrice && analystEstimates) {
+      const currentYear = new Date().getFullYear();
       const estimateDate = new Date(analystEstimates.date);
       const estimateYear = estimateDate.getFullYear();
-      forwardPE = currentPrice / analystEstimates.estimatedEpsAvg;
-      forwardPEFiscalYear = `FY${estimateYear}`;
+      
+      // Only use if estimate is for next 1-2 fiscal years (not 5 years out)
+      if (estimateYear <= currentYear + 2 && analystEstimates.estimatedEpsAvg > 0) {
+        forwardPE = currentPrice / analystEstimates.estimatedEpsAvg;
+        forwardPEFiscalYear = `FY${estimateYear}`;
+      }
     }
     
     // Format helper for percentage display
