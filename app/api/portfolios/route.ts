@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/app/lib/prisma";
+import { sql, generateId } from "@/app/lib/db";
 
 // GET - Fetch user's portfolios
 export async function GET() {
@@ -14,23 +14,12 @@ export async function GET() {
       );
     }
 
-    const portfolios = await prisma.portfolio.findMany({
-      where: { userId: session.user.id },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        createdAt: true,
-        age: true,
-        risk: true,
-        horizon: true,
-        capital: true,
-        goal: true,
-        sectors: true,
-        portfolioData: true,
-        detailedRecommendations: true,
-      },
-    });
+    const portfolios = await sql`
+      SELECT id, name, "createdAt", age, risk, horizon, capital, goal, sectors, "portfolioData", "detailedRecommendations"
+      FROM "Portfolio"
+      WHERE "userId" = ${session.user.id}
+      ORDER BY "createdAt" DESC
+    `;
 
     return NextResponse.json({ portfolios });
   } catch (error) {
@@ -55,23 +44,36 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
+    const portfolioId = generateId();
+    const now = new Date().toISOString();
 
-    const portfolio = await prisma.portfolio.create({
-      data: {
-        userId: session.user.id,
-        name: data.name || `Portfolio ${new Date().toLocaleDateString()}`,
-        age: data.age,
-        risk: data.risk,
-        horizon: data.horizon,
-        capital: data.capital,
-        goal: data.goal,
-        sectors: data.sectors,
-        portfolioData: data.portfolioData,
-        detailedRecommendations: data.detailedRecommendations || null,
-      },
+    await sql`
+      INSERT INTO "Portfolio" (
+        id, "userId", name, "createdAt", "updatedAt", 
+        age, risk, horizon, capital, goal, sectors, 
+        "portfolioData", "detailedRecommendations"
+      )
+      VALUES (
+        ${portfolioId},
+        ${session.user.id},
+        ${data.name || `Portfolio ${new Date().toLocaleDateString()}`},
+        ${now},
+        ${now},
+        ${data.age},
+        ${data.risk},
+        ${data.horizon},
+        ${data.capital},
+        ${data.goal},
+        ${data.sectors},
+        ${JSON.stringify(data.portfolioData)},
+        ${data.detailedRecommendations ? JSON.stringify(data.detailedRecommendations) : null}
+      )
+    `;
+
+    return NextResponse.json({ 
+      success: true, 
+      portfolio: { id: portfolioId, name: data.name } 
     });
-
-    return NextResponse.json({ success: true, portfolio });
   } catch (error) {
     console.error("Error saving portfolio:", error);
     return NextResponse.json(
@@ -103,24 +105,19 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Verify the portfolio belongs to the user
-    const portfolio = await prisma.portfolio.findFirst({
-      where: {
-        id: portfolioId,
-        userId: session.user.id,
-      },
-    });
+    // Verify the portfolio belongs to the user and delete
+    const result = await sql`
+      DELETE FROM "Portfolio"
+      WHERE id = ${portfolioId} AND "userId" = ${session.user.id}
+      RETURNING id
+    `;
 
-    if (!portfolio) {
+    if (result.length === 0) {
       return NextResponse.json(
         { error: "Portfolio not found" },
         { status: 404 }
       );
     }
-
-    await prisma.portfolio.delete({
-      where: { id: portfolioId },
-    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -131,4 +128,3 @@ export async function DELETE(request: Request) {
     );
   }
 }
-

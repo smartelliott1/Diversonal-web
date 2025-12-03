@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/app/lib/prisma";
+import { sql, generateId } from "@/app/lib/db";
 
 export async function POST(request: Request) {
   try {
@@ -22,11 +22,11 @@ export async function POST(request: Request) {
     }
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    const existingUsers = await sql`
+      SELECT id FROM "User" WHERE email = ${email}
+    `;
 
-    if (existingUser) {
+    if (existingUsers.length > 0) {
       return NextResponse.json(
         { error: "An account with this email already exists" },
         { status: 400 }
@@ -37,20 +37,20 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
-    const user = await prisma.user.create({
-      data: {
-        name: name || null,
-        email,
-        password: hashedPassword,
-      },
-    });
+    const userId = generateId();
+    const now = new Date().toISOString();
+    
+    await sql`
+      INSERT INTO "User" (id, name, email, password, "createdAt", "updatedAt")
+      VALUES (${userId}, ${name || null}, ${email}, ${hashedPassword}, ${now}, ${now})
+    `;
 
     return NextResponse.json({
       success: true,
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
+        id: userId,
+        name: name || null,
+        email: email,
       },
     });
   } catch (error) {
@@ -61,4 +61,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
