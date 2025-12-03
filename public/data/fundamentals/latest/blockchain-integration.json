@@ -1,20 +1,20 @@
 {
   "sector": "Blockchain Integration",
   "stockCount": 4,
-  "lastUpdated": "2025-12-02T00:38:55.061Z",
+  "lastUpdated": "2025-12-03T22:20:08.366Z",
   "stocks": {
     "COIN": {
       "profile": {
         "symbol": "COIN",
-        "price": 259.84,
-        "marketCap": 66488412919,
+        "price": 276.92,
+        "marketCap": 70858879717,
         "beta": 3.675,
         "lastDividend": 0,
         "range": "142.58-444.65",
-        "change": -12.98,
-        "changePercentage": -4.75772,
-        "volume": 11881364,
-        "averageVolume": 9717663,
+        "change": 13.66,
+        "changePercentage": 5.18879,
+        "volume": 9003180,
+        "averageVolume": 9801298,
         "companyName": "Coinbase Global, Inc.",
         "currency": "USD",
         "cik": "0001679788",
@@ -285,41 +285,41 @@
       "analystEstimates": {
         "symbol": "COIN",
         "date": "2029-12-31",
-        "revenueLow": 5539824558,
-        "revenueHigh": 7873937305,
+        "revenueLow": 5525335421,
+        "revenueHigh": 7876385229,
         "revenueAvg": 6227000000,
-        "ebitdaLow": 427457315,
-        "ebitdaHigh": 607559331,
+        "ebitdaLow": 426339322,
+        "ebitdaHigh": 607748214,
         "ebitdaAvg": 480480324,
-        "ebitLow": 266867701,
-        "ebitHigh": 379307959,
+        "ebitLow": 266169722,
+        "ebitHigh": 379425882,
         "ebitAvg": 299970723,
-        "netIncomeLow": 735255645,
-        "netIncomeHigh": 1153547060,
+        "netIncomeLow": 732661297,
+        "netIncomeHigh": 1153987197,
         "netIncomeAvg": 858403783,
-        "sgaExpenseLow": 1628188614,
-        "sgaExpenseHigh": 2314198750,
+        "sgaExpenseLow": 1623930167,
+        "sgaExpenseHigh": 2314918210,
         "sgaExpenseAvg": 1830153716,
         "epsAvg": 3.14,
-        "epsHigh": 4.21962,
-        "epsLow": 2.68953,
+        "epsHigh": 4.22123,
+        "epsLow": 2.68004,
         "numAnalystsRevenue": 9,
         "numAnalystsEps": 4
       },
-      "lastUpdated": "2025-12-02T00:38:09.581Z"
+      "lastUpdated": "2025-12-03T22:19:21.744Z"
     },
     "HOOD": {
       "profile": {
         "symbol": "HOOD",
-        "price": 123.24,
-        "marketCap": 109073886244,
+        "price": 133.64,
+        "marketCap": 118278433607,
         "beta": 2.423,
         "lastDividend": 0,
         "range": "29.66-153.86",
-        "change": -5.25,
-        "changePercentage": -4.08592,
-        "volume": 31083128,
-        "averageVolume": 35715926,
+        "change": 7.69,
+        "changePercentage": 6.1056,
+        "volume": 24905322,
+        "averageVolume": 35584446,
         "companyName": "Robinhood Markets, Inc.",
         "currency": "USD",
         "cik": "0001783879",
@@ -611,20 +611,20 @@
         "numAnalystsRevenue": 11,
         "numAnalystsEps": 10
       },
-      "lastUpdated": "2025-12-02T00:38:10.670Z"
+      "lastUpdated": "2025-12-03T22:19:22.947Z"
     },
     "CRCL": {
       "profile": {
         "symbol": "CRCL",
-        "price": 75.94,
-        "marketCap": 17883299767,
+        "price": 86.29,
+        "marketCap": 20320647048,
         "beta": 10.603601,
         "lastDividend": 0,
         "range": "64-298.99",
-        "change": -3.99,
-        "changePercentage": -4.99187,
-        "volume": 16070308,
-        "averageVolume": 13617293,
+        "change": 8.85,
+        "changePercentage": 11.4282,
+        "volume": 20826962,
+        "averageVolume": 13866088,
         "companyName": "Circle Internet Group",
         "currency": "USD",
         "cik": "0001876042",
@@ -916,7 +916,7 @@
         "numAnalystsRevenue": 15,
         "numAnalystsEps": 12
       },
-      "lastUpdated": "2025-12-02T00:38:11.955Z"
+      "lastUpdated": "2025-12-03T22:19:24.150Z"
     },
     "SQ": {
       "profile": {
@@ -1221,7 +1221,7 @@
         "numAnalystsRevenue": 1,
         "numAnalystsEps": 3
       },
-      "lastUpdated": "2025-12-02T00:38:13.060Z"
+      "lastUpdated": "2025-12-03T22:19:25.342Z"
     }
   }
 }
