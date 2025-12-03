@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 // Diversonal Portfolio Allocation Platform
 // AI-powered portfolio optimization with stress testing
 // Recharts is a composable charting library built on React components
@@ -11,6 +12,11 @@ import toast, { Toaster } from "react-hot-toast";
 // PDF generation libraries
 // Using dynamic import to avoid SSR issues
 import html2canvas from "html2canvas";
+// Auth components
+import SignInModal from "./components/auth/SignInModal";
+import SignUpModal from "./components/auth/SignUpModal";
+import ProfileDropdown from "./components/auth/ProfileDropdown";
+import MyPortfoliosModal from "./components/auth/MyPortfoliosModal";
 
 // Type definitions for saved portfolios
 interface PortfolioItem {
@@ -93,6 +99,13 @@ interface SavedPortfolio {
 }
 
 export default function Home() {
+  // Auth state
+  const { data: session, status } = useSession();
+  const [showSignInModal, setShowSignInModal] = useState(false);
+  const [showSignUpModal, setShowSignUpModal] = useState(false);
+  const [showMyPortfoliosModal, setShowMyPortfoliosModal] = useState(false);
+  const [authPromptFeature, setAuthPromptFeature] = useState<string>("");
+
   // View mode state: landing -> form -> results
   const [viewMode, setViewMode] = useState<'landing' | 'form' | 'results'>('landing');
   const [activeResultTab, setActiveResultTab] = useState<'portfolio' | 'stockPicks' | 'stressTest'>('portfolio');
@@ -330,6 +343,46 @@ export default function Home() {
     setPortfolioData(defaultPortfolioData);
     setDetailedRecommendations(null);
     setStressTestResult(null);
+  };
+
+  // Handle protected tab clicks (Stock Picks, Stress Test)
+  const handleProtectedTabClick = (tab: 'stockPicks' | 'stressTest') => {
+    if (!session) {
+      // Show sign-in modal with feature name
+      const featureName = tab === 'stockPicks' ? 'Stock Picks' : 'Stress Test';
+      setAuthPromptFeature(featureName);
+      setShowSignInModal(true);
+      return;
+    }
+    setActiveResultTab(tab);
+  };
+
+  // Auto-save portfolio for signed-in users
+  const savePortfolioToDatabase = async (portfolioDataToSave: PortfolioItem[], formDataToSave: typeof savedFormData) => {
+    if (!session || !formDataToSave) return;
+
+    try {
+      const response = await fetch('/api/portfolios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${formDataToSave.goal} Portfolio`,
+          age: formDataToSave.age,
+          risk: formDataToSave.risk,
+          horizon: formDataToSave.horizon,
+          capital: formDataToSave.capital,
+          goal: formDataToSave.goal,
+          sectors: formDataToSave.sectors,
+          portfolioData: portfolioDataToSave,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Portfolio auto-saved to database');
+      }
+    } catch (error) {
+      console.error('Failed to auto-save portfolio:', error);
+    }
   };
 
   // Export to PDF
@@ -906,13 +959,25 @@ export default function Home() {
       });
       
       // Update portfolio data with AI-generated results
-      setPortfolioData(data.portfolio || defaultPortfolioData);
+      const generatedPortfolio = data.portfolio || defaultPortfolioData;
+      setPortfolioData(generatedPortfolio);
       setPortfolioReasoning(data.reasoning || "");
       setShowResult(true);
       setViewMode('results');
       setActiveResultTab('portfolio');
       
       toast.success("AI-optimized portfolio generated successfully!");
+      
+      // Auto-save for signed-in users
+      const formDataForSave = {
+        age: formData.age,
+        risk: formData.riskTolerance,
+        horizon: formData.timeHorizon,
+        capital: formData.capital,
+        goal: formData.goal,
+        sectors: formData.sectors,
+      };
+      savePortfolioToDatabase(generatedPortfolio, formDataForSave);
       
       // Scroll to top of results
       setTimeout(() => {
@@ -990,6 +1055,18 @@ export default function Home() {
             
             {/* Navigation Items - Right Side */}
             <div className="flex items-center gap-3">
+              {/* Auth: Profile Dropdown or Sign In */}
+              {session ? (
+                <ProfileDropdown onMyPortfoliosClick={() => setShowMyPortfoliosModal(true)} />
+              ) : (
+                <button
+                  onClick={() => setShowSignInModal(true)}
+                  className="px-4 py-2 text-sm font-medium text-[#B4B4B4] hover:text-white transition-colors"
+                >
+                  Sign In
+                </button>
+              )}
+              
               {/* New Portfolio Button */}
               <button
                 onClick={handleNewPortfolio}
@@ -1002,21 +1079,16 @@ export default function Home() {
                 <span className="sm:hidden">New</span>
               </button>
               
-              {/* Saved Portfolios Button */}
-              {savedPortfolios.length > 0 && (
-                <button
-                  onClick={() => setShowSavedPortfolios(!showSavedPortfolios)}
-                  className="group inline-flex items-center gap-2 rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-3 py-2 text-sm font-medium text-[#00FF99] transition-all duration-200 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/20"
-                >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                  </svg>
-                  <span className="hidden sm:inline">Saved</span>
-                  <span className="rounded-sm bg-[#00FF99]/20 px-1.5 py-0.5 text-xs font-semibold">
-                    {savedPortfolios.length}
-                  </span>
-                </button>
-              )}
+              {/* Get Started Button */}
+              <button
+                onClick={() => setViewMode('form')}
+                className="group relative inline-flex items-center gap-2 rounded-sm bg-[#00FF99] px-5 py-2.5 text-sm font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689]"
+              >
+                <span>Get Started</span>
+                <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -1333,16 +1405,31 @@ export default function Home() {
               </h1>
             </button>
             
-            {/* Get Started Button - Right Side */}
-            <button
-              onClick={() => setViewMode('form')}
-              className="group relative inline-flex items-center gap-2 rounded-sm bg-[#00FF99] px-5 py-2.5 text-sm font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689]"
-            >
-              <span>Get Started</span>
-              <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
+            {/* Right Side - Auth + Get Started */}
+            <div className="flex items-center gap-3">
+              {/* Auth: Profile Dropdown or Sign In */}
+              {session ? (
+                <ProfileDropdown onMyPortfoliosClick={() => setShowMyPortfoliosModal(true)} />
+              ) : (
+                <button
+                  onClick={() => setShowSignInModal(true)}
+                  className="px-4 py-2 text-sm font-medium text-[#B4B4B4] hover:text-white transition-colors"
+                >
+                  Sign In
+                </button>
+              )}
+              
+              {/* Get Started Button */}
+              <button
+                onClick={() => setViewMode('form')}
+                className="group relative inline-flex items-center gap-2 rounded-sm bg-[#00FF99] px-5 py-2.5 text-sm font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689]"
+              >
+                <span>Get Started</span>
+                <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -2105,7 +2192,7 @@ export default function Home() {
 
               {/* Stock Picks Tab */}
               <button
-                onClick={() => setActiveResultTab('stockPicks')}
+                onClick={() => handleProtectedTabClick('stockPicks')}
                 className={`group relative overflow-hidden rounded-sm border p-3 text-left transition-all duration-200 ${
                   activeResultTab === 'stockPicks'
                     ? 'border-[#00FF99] bg-[#00FF99]/10'
@@ -2161,7 +2248,7 @@ export default function Home() {
 
               {/* Stress Test Tab */}
               <button
-                onClick={() => setActiveResultTab('stressTest')}
+                onClick={() => handleProtectedTabClick('stressTest')}
                 className={`group relative overflow-hidden rounded-sm border p-3 text-left transition-all duration-200 ${
                   activeResultTab === 'stressTest'
                     ? 'border-[#00FF99] bg-[#00FF99]/10'
@@ -3752,6 +3839,57 @@ export default function Home() {
               secondary: '#171A1F',
             },
           },
+        }}
+      />
+
+      {/* Auth Modals */}
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => {
+          setShowSignInModal(false);
+          setAuthPromptFeature("");
+        }}
+        onSwitchToSignUp={() => {
+          setShowSignInModal(false);
+          setShowSignUpModal(true);
+        }}
+        feature={authPromptFeature}
+      />
+      
+      <SignUpModal
+        isOpen={showSignUpModal}
+        onClose={() => setShowSignUpModal(false)}
+        onSwitchToSignIn={() => {
+          setShowSignUpModal(false);
+          setShowSignInModal(true);
+        }}
+      />
+
+      <MyPortfoliosModal
+        isOpen={showMyPortfoliosModal}
+        onClose={() => setShowMyPortfoliosModal(false)}
+        onLoadPortfolio={(portfolio) => {
+          // Load portfolio data
+          if (portfolio.portfolioData) {
+            setPortfolioData(portfolio.portfolioData);
+          }
+          if (portfolio.detailedRecommendations) {
+            setDetailedRecommendations(portfolio.detailedRecommendations);
+          }
+          // Set form data
+          setSavedFormData({
+            age: portfolio.age,
+            risk: portfolio.risk,
+            horizon: portfolio.horizon,
+            capital: portfolio.capital,
+            goal: portfolio.goal,
+            sectors: portfolio.sectors,
+          });
+          // Switch to results view
+          setViewMode('results');
+          setActiveResultTab('portfolio');
+          setShowResult(true);
+          toast.success(`Loaded: ${portfolio.name}`);
         }}
       />
     </main>
