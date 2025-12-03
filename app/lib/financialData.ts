@@ -904,7 +904,7 @@ export async function getStockIncomeStatement(ticker: string): Promise<IncomeSta
       netIncome: raw.netIncome || 0,
       netIncomeRatio: raw.netIncomeRatio || 0,
       eps: raw.eps || 0,
-      epsdiluted: raw.epsdiluted || 0,
+      epsdiluted: raw.epsDiluted || 0,
       weightedAverageShsOut: raw.weightedAverageShsOut || 0,
       weightedAverageShsOutDil: raw.weightedAverageShsOutDil || 0,
     }));
@@ -960,9 +960,9 @@ export async function getAnalystEstimates(ticker: string): Promise<AnalystEstima
       estimatedSgaExpenseLow: raw.estimatedSgaExpenseLow || 0,
       estimatedSgaExpenseHigh: raw.estimatedSgaExpenseHigh || 0,
       estimatedSgaExpenseAvg: raw.estimatedSgaExpenseAvg || 0,
-      estimatedEpsAvg: raw.estimatedEpsAvg || 0,
-      estimatedEpsHigh: raw.estimatedEpsHigh || 0,
-      estimatedEpsLow: raw.estimatedEpsLow || 0,
+      estimatedEpsAvg: raw.epsAvg || 0,
+      estimatedEpsHigh: raw.epsHigh || 0,
+      estimatedEpsLow: raw.epsLow || 0,
       numberAnalystEstimatedRevenue: raw.numberAnalystEstimatedRevenue || 0,
       numberAnalystsEstimatedEps: raw.numberAnalystsEstimatedEps || 0,
     };
