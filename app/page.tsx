@@ -31,11 +31,6 @@ interface StockRecommendation {
 interface StockData {
   ticker: string;
   assetClass?: string;
-  sentiment?: {
-    score: number;
-    label: "Bullish" | "Neutral" | "Bearish";
-  };
-  // Legacy fearGreed for backward compatibility
   fearGreed?: {
     score: number;
     label: "Extreme Fear" | "Fear" | "Neutral" | "Greed" | "Extreme Greed";
@@ -2735,7 +2730,7 @@ export default function Home() {
                                     </div>
                                   ) : stockData[rec.ticker] ? (
                                     <>
-                                      {/* CASH: Only yield, no sentiment */}
+                                      {/* CASH: Only yield, no Fear & Greed */}
                                       {assetClass === 'Cash' ? (
                                         <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
                                           <h6 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
@@ -2749,21 +2744,21 @@ export default function Home() {
                                           </div>
                                         </div>
                                       ) : assetClass === 'Cryptocurrencies' ? (
-                                        /* CRYPTO: Sentiment + Crypto Metrics + News */
+                                        /* CRYPTO: Fear & Greed + Crypto Metrics + News */
                                         <div className="space-y-4">
                                           <div className="grid grid-cols-5 gap-4">
-                                            {/* Left: Sentiment Gauge (2 columns) */}
+                                            {/* Left: Fear & Greed Gauge (2 columns) */}
                                             <div className="col-span-2">
                                               <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                                Sentiment
+                                                Fear & Greed
                                               </h6>
                                               <div className="flex flex-col items-center">
                                                 <ResponsiveContainer width="100%" height={100}>
                                                   <PieChart>
                                                     <Pie
                                                       data={[
-                                                        { value: stockData[rec.ticker].sentiment?.score || 50 },
-                                                        { value: 100 - (stockData[rec.ticker].sentiment?.score || 50) }
+                                                        { value: stockData[rec.ticker].fearGreed?.score || 50 },
+                                                        { value: 100 - (stockData[rec.ticker].fearGreed?.score || 50) }
                                                       ]}
                                                       cx="50%"
                                                       cy="50%"
@@ -2774,8 +2769,10 @@ export default function Home() {
                                                       dataKey="value"
                                                     >
                                                       <Cell fill={
-                                                        (stockData[rec.ticker].sentiment?.score || 50) >= 60 ? '#10B981' :
-                                                        (stockData[rec.ticker].sentiment?.score || 50) >= 40 ? '#F59E0B' :
+                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 81 ? '#10B981' :
+                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 61 ? '#34D399' :
+                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 41 ? '#F59E0B' :
+                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 21 ? '#F97316' :
                                                         '#EF4444'
                                                       } />
                                                       <Cell fill="#1A1A1A" />
@@ -2784,14 +2781,16 @@ export default function Home() {
                                                 </ResponsiveContainer>
                                                 <div className="text-center -mt-12">
                                                   <div className="text-xl font-bold text-[#E6E6E6]">
-                                                    {stockData[rec.ticker].sentiment?.score || 50}
+                                                    {stockData[rec.ticker].fearGreed?.score || 50}
                                                   </div>
                                                   <div className={`text-xs font-semibold ${
-                                                    stockData[rec.ticker].sentiment?.label === 'Bullish' ? 'text-green-400' :
-                                                    stockData[rec.ticker].sentiment?.label === 'Bearish' ? 'text-red-400' :
-                                                    'text-yellow-400'
+                                                    stockData[rec.ticker].fearGreed?.label === 'Extreme Greed' ? 'text-green-400' :
+                                                    stockData[rec.ticker].fearGreed?.label === 'Greed' ? 'text-emerald-400' :
+                                                    stockData[rec.ticker].fearGreed?.label === 'Neutral' ? 'text-yellow-400' :
+                                                    stockData[rec.ticker].fearGreed?.label === 'Fear' ? 'text-orange-400' :
+                                                    'text-red-400'
                                                   }`}>
-                                                    {stockData[rec.ticker].sentiment?.label || 'Neutral'}
+                                                    {stockData[rec.ticker].fearGreed?.label || 'Neutral'}
                                                   </div>
                                                 </div>
                                               </div>
@@ -2882,20 +2881,20 @@ export default function Home() {
                                           )}
                                         </div>
                                       ) : assetClass === 'Bonds' || assetClass === 'Real Estate' || assetClass === 'Commodities' ? (
-                                        /* BONDS, REAL ESTATE, COMMODITIES: Centered Sentiment + News */
+                                        /* BONDS, REAL ESTATE, COMMODITIES: Centered Fear & Greed + News */
                                         <div className="space-y-4">
-                                          {/* Centered Sentiment Gauge */}
+                                          {/* Centered Fear & Greed Gauge */}
                                           <div className="flex flex-col items-center justify-center">
                                             <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                              Sentiment
+                                              Fear & Greed
                                             </h6>
                                             <div className="flex flex-col items-center">
                                               <ResponsiveContainer width={150} height={100}>
                                                 <PieChart>
                                                   <Pie
                                                     data={[
-                                                      { value: stockData[rec.ticker].sentiment?.score || 50 },
-                                                      { value: 100 - (stockData[rec.ticker].sentiment?.score || 50) }
+                                                      { value: stockData[rec.ticker].fearGreed?.score || 50 },
+                                                      { value: 100 - (stockData[rec.ticker].fearGreed?.score || 50) }
                                                     ]}
                                                     cx="50%"
                                                     cy="50%"
@@ -2906,8 +2905,10 @@ export default function Home() {
                                                     dataKey="value"
                                                   >
                                                     <Cell fill={
-                                                      (stockData[rec.ticker].sentiment?.score || 50) >= 60 ? '#10B981' :
-                                                      (stockData[rec.ticker].sentiment?.score || 50) >= 40 ? '#F59E0B' :
+                                                      (stockData[rec.ticker].fearGreed?.score || 50) >= 81 ? '#10B981' :
+                                                      (stockData[rec.ticker].fearGreed?.score || 50) >= 61 ? '#34D399' :
+                                                      (stockData[rec.ticker].fearGreed?.score || 50) >= 41 ? '#F59E0B' :
+                                                      (stockData[rec.ticker].fearGreed?.score || 50) >= 21 ? '#F97316' :
                                                       '#EF4444'
                                                     } />
                                                     <Cell fill="#1A1A1A" />
@@ -2916,14 +2917,16 @@ export default function Home() {
                                               </ResponsiveContainer>
                                               <div className="text-center -mt-12">
                                                 <div className="text-xl font-bold text-[#E6E6E6]">
-                                                  {stockData[rec.ticker].sentiment?.score || 50}
+                                                  {stockData[rec.ticker].fearGreed?.score || 50}
                                                 </div>
                                                 <div className={`text-xs font-semibold ${
-                                                  stockData[rec.ticker].sentiment?.label === 'Bullish' ? 'text-green-400' :
-                                                  stockData[rec.ticker].sentiment?.label === 'Bearish' ? 'text-red-400' :
-                                                  'text-yellow-400'
+                                                  stockData[rec.ticker].fearGreed?.label === 'Extreme Greed' ? 'text-green-400' :
+                                                  stockData[rec.ticker].fearGreed?.label === 'Greed' ? 'text-emerald-400' :
+                                                  stockData[rec.ticker].fearGreed?.label === 'Neutral' ? 'text-yellow-400' :
+                                                  stockData[rec.ticker].fearGreed?.label === 'Fear' ? 'text-orange-400' :
+                                                  'text-red-400'
                                                 }`}>
-                                                  {stockData[rec.ticker].sentiment?.label || 'Neutral'}
+                                                  {stockData[rec.ticker].fearGreed?.label || 'Neutral'}
                                                 </div>
                                               </div>
                                             </div>
@@ -2952,21 +2955,21 @@ export default function Home() {
                                           )}
                                         </div>
                                       ) : (
-                                        /* EQUITIES: Sentiment + Equity Metrics + News */
+                                        /* EQUITIES: Fear & Greed + Equity Metrics + News */
                                         <div className="space-y-4">
                                           <div className="grid grid-cols-5 gap-4">
-                                            {/* Left: Sentiment Gauge (2 columns) */}
+                                            {/* Left: Fear & Greed Gauge (2 columns) */}
                                             <div className="col-span-2">
                                               <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                                Sentiment
+                                                Fear & Greed
                                               </h6>
                                               <div className="flex flex-col items-center">
                                                 <ResponsiveContainer width="100%" height={100}>
                                                   <PieChart>
                                                     <Pie
                                                       data={[
-                                                        { value: stockData[rec.ticker].sentiment?.score || 50 },
-                                                        { value: 100 - (stockData[rec.ticker].sentiment?.score || 50) }
+                                                        { value: stockData[rec.ticker].fearGreed?.score || 50 },
+                                                        { value: 100 - (stockData[rec.ticker].fearGreed?.score || 50) }
                                                       ]}
                                                       cx="50%"
                                                       cy="50%"
@@ -2977,8 +2980,10 @@ export default function Home() {
                                                       dataKey="value"
                                                     >
                                                       <Cell fill={
-                                                        (stockData[rec.ticker].sentiment?.score || 50) >= 60 ? '#10B981' :
-                                                        (stockData[rec.ticker].sentiment?.score || 50) >= 40 ? '#F59E0B' :
+                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 81 ? '#10B981' :
+                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 61 ? '#34D399' :
+                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 41 ? '#F59E0B' :
+                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 21 ? '#F97316' :
                                                         '#EF4444'
                                                       } />
                                                       <Cell fill="#1A1A1A" />
@@ -2987,14 +2992,16 @@ export default function Home() {
                                                 </ResponsiveContainer>
                                                 <div className="text-center -mt-12">
                                                   <div className="text-xl font-bold text-[#E6E6E6]">
-                                                    {stockData[rec.ticker].sentiment?.score || 50}
+                                                    {stockData[rec.ticker].fearGreed?.score || 50}
                                                   </div>
                                                   <div className={`text-xs font-semibold ${
-                                                    stockData[rec.ticker].sentiment?.label === 'Bullish' ? 'text-green-400' :
-                                                    stockData[rec.ticker].sentiment?.label === 'Bearish' ? 'text-red-400' :
-                                                    'text-yellow-400'
+                                                    stockData[rec.ticker].fearGreed?.label === 'Extreme Greed' ? 'text-green-400' :
+                                                    stockData[rec.ticker].fearGreed?.label === 'Greed' ? 'text-emerald-400' :
+                                                    stockData[rec.ticker].fearGreed?.label === 'Neutral' ? 'text-yellow-400' :
+                                                    stockData[rec.ticker].fearGreed?.label === 'Fear' ? 'text-orange-400' :
+                                                    'text-red-400'
                                                   }`}>
-                                                    {stockData[rec.ticker].sentiment?.label || 'Neutral'}
+                                                    {stockData[rec.ticker].fearGreed?.label || 'Neutral'}
                                                   </div>
                                                 </div>
                                               </div>

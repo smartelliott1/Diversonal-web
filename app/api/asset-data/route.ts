@@ -12,6 +12,7 @@ import {
 
 // Asset Data API
 // Fetches asset-class-specific data for the right column
+// Uses Fear & Greed scoring with RSI + Grok analysis
 
 // Helper to fetch from FMP API
 async function fetchFMP(endpoint: string): Promise<any> {
@@ -33,10 +34,54 @@ async function fetchFMP(endpoint: string): Promise<any> {
   return await response.json();
 }
 
+// Fetch RSI for any ticker
+async function getTickerRSI(ticker: string): Promise<number | null> {
+  try {
+    const data = await fetchFMP(`/stable/technical-indicators/rsi?symbol=${ticker}&periodLength=14&timeframe=1day`);
+    if (data && data[0] && typeof data[0].rsi === 'number') {
+      console.log(`[Asset Data] RSI for ${ticker}: ${data[0].rsi.toFixed(2)}`);
+      return data[0].rsi;
+    }
+    return null;
+  } catch (error: any) {
+    console.error(`[Asset Data] Error fetching RSI for ${ticker}:`, error?.message);
+    return null;
+  }
+}
+
+// Fetch price changes for momentum
+interface PriceChangeData {
+  "1D": number | null;
+  "5D": number | null;
+  "1M": number | null;
+  "3M": number | null;
+}
+
+async function getPriceChange(ticker: string): Promise<PriceChangeData | null> {
+  try {
+    const data = await fetchFMP(`/stable/stock-price-change?symbol=${ticker}`);
+    if (data && data[0]) {
+      return {
+        "1D": data[0]["1D"] ?? null,
+        "5D": data[0]["5D"] ?? null,
+        "1M": data[0]["1M"] ?? null,
+        "3M": data[0]["3M"] ?? null,
+      };
+    }
+    return null;
+  } catch (error: any) {
+    console.error(`[Asset Data] Error fetching price change for ${ticker}:`, error?.message);
+    return null;
+  }
+}
+
 interface AssetDataRequest {
   ticker: string;
   assetClass: string;
 }
+
+// Fear & Greed labels
+type FearGreedLabel = "Extreme Fear" | "Fear" | "Neutral" | "Greed" | "Extreme Greed";
 
 // Response types for different asset classes
 interface EquityMetrics {
@@ -68,9 +113,10 @@ interface CashMetrics {
 interface AssetDataResponse {
   ticker: string;
   assetClass: string;
-  sentiment?: {
+  fearGreed?: {
     score: number;
-    label: "Bullish" | "Neutral" | "Bearish";
+    label: FearGreedLabel;
+    rsi: number | null;
   };
   metrics?: EquityMetrics | CryptoMetrics | CashMetrics;
   headline?: {
@@ -117,7 +163,7 @@ export async function POST(request: NextRequest) {
       return handleEquityAsset(ticker, assetClass);
     }
     
-    // Handle Bonds, Real Estate, Commodities - sentiment + news only
+    // Handle Bonds, Real Estate, Commodities - Fear & Greed + news only
     return handleSimplifiedAsset(ticker, assetClass);
     
   } catch (error: any) {
@@ -131,11 +177,13 @@ export async function POST(request: NextRequest) {
 
 async function handleEquityAsset(ticker: string, assetClass: string): Promise<NextResponse> {
   // Fetch all data in parallel
-  const [newsArticles, ratios, keyMetrics, quoteData] = await Promise.all([
+  const [newsArticles, ratios, keyMetrics, quoteData, priceChange, rsi] = await Promise.all([
     getStockNews(ticker, 10),
     getStockRatios(ticker),
     getStockKeyMetrics(ticker),
     fetchFMP(`/stable/quote?symbol=${ticker}`),
+    getPriceChange(ticker),
+    getTickerRSI(ticker),
   ]);
   
   // Get quote data for SMAs and market cap
@@ -183,13 +231,13 @@ async function handleEquityAsset(ticker: string, assetClass: string): Promise<Ne
     growthPeriod,
   };
   
-  // Analyze sentiment with Grok
-  const { sentiment, selectedHeadline } = await analyzeSentiment(ticker, newsArticles, metrics);
+  // Analyze Fear & Greed with Grok using original formula
+  const { fearGreed, selectedHeadline } = await analyzeFearGreed(ticker, newsArticles, priceChange, metrics, rsi);
   
   const response: AssetDataResponse = {
     ticker,
     assetClass,
-    sentiment,
+    fearGreed,
     metrics,
     headline: selectedHeadline,
   };
@@ -202,11 +250,12 @@ async function handleCryptoAsset(ticker: string, assetClass: string): Promise<Ne
   const cryptoSymbol = ticker.endsWith('USD') ? ticker : `${ticker}USD`;
   
   // Fetch all crypto data in parallel
-  const [cryptoQuote, cryptoRSI, cryptoSMAs, newsArticles] = await Promise.all([
+  const [cryptoQuote, cryptoRSI, cryptoSMAs, newsArticles, priceChange] = await Promise.all([
     getCryptoQuote(cryptoSymbol),
     getCryptoRSI(cryptoSymbol),
     getCryptoSMAs(cryptoSymbol),
     getCryptoNews(cryptoSymbol, 10),
+    getPriceChange(cryptoSymbol),
   ]);
   
   // Build crypto metrics
@@ -221,13 +270,14 @@ async function handleCryptoAsset(ticker: string, assetClass: string): Promise<Ne
     price: cryptoQuote?.price || null,
   };
   
-  // Analyze sentiment with Grok
-  const { sentiment, selectedHeadline } = await analyzeCryptoSentiment(ticker, newsArticles, metrics);
+  // Analyze Fear & Greed with Grok
+  const rsi = cryptoRSI?.rsi || null;
+  const { fearGreed, selectedHeadline } = await analyzeCryptoFearGreed(ticker, newsArticles, priceChange, metrics, rsi);
   
   const response: AssetDataResponse = {
     ticker,
     assetClass,
-    sentiment,
+    fearGreed,
     metrics,
     headline: selectedHeadline,
   };
@@ -236,29 +286,49 @@ async function handleCryptoAsset(ticker: string, assetClass: string): Promise<Ne
 }
 
 async function handleSimplifiedAsset(ticker: string, assetClass: string): Promise<NextResponse> {
-  // For Bonds, Real Estate, Commodities - just sentiment + news
-  // Use stock news endpoint as these are typically ETFs/stocks
-  const newsArticles = await getStockNews(ticker, 10);
+  // For Bonds, Real Estate, Commodities - Fear & Greed + news only
+  const [newsArticles, priceChange, rsi] = await Promise.all([
+    getStockNews(ticker, 10),
+    getPriceChange(ticker),
+    getTickerRSI(ticker),
+  ]);
   
-  // Analyze sentiment with Grok (simplified)
-  const { sentiment, selectedHeadline } = await analyzeSimpleSentiment(ticker, newsArticles, assetClass);
+  // Analyze Fear & Greed with Grok (simplified - news only)
+  const { fearGreed, selectedHeadline } = await analyzeSimpleFearGreed(ticker, newsArticles, priceChange, rsi, assetClass);
   
   const response: AssetDataResponse = {
     ticker,
     assetClass,
-    sentiment,
+    fearGreed,
     headline: selectedHeadline,
   };
   
   return NextResponse.json(response);
 }
 
-async function analyzeSentiment(
+// Format helper for percentage display
+function formatPct(val: number | null | undefined, suffix: string = '%'): string {
+  if (val === null || val === undefined) return 'N/A';
+  return `${val > 0 ? '+' : ''}${val.toFixed(2)}${suffix}`;
+}
+
+// Get Fear & Greed label from score
+function getFearGreedLabel(score: number): FearGreedLabel {
+  if (score <= 20) return "Extreme Fear";
+  if (score <= 40) return "Fear";
+  if (score <= 60) return "Neutral";
+  if (score <= 80) return "Greed";
+  return "Extreme Greed";
+}
+
+async function analyzeFearGreed(
   ticker: string,
   newsArticles: any[],
-  metrics: EquityMetrics
-): Promise<{ sentiment: { score: number; label: "Bullish" | "Neutral" | "Bearish" }; selectedHeadline: any }> {
-  let sentiment = { score: 50, label: "Neutral" as "Bullish" | "Neutral" | "Bearish" };
+  priceChange: PriceChangeData | null,
+  metrics: EquityMetrics,
+  rsi: number | null
+): Promise<{ fearGreed: { score: number; label: FearGreedLabel; rsi: number | null }; selectedHeadline: any }> {
+  let fearGreed = { score: 50, label: "Neutral" as FearGreedLabel, rsi };
   let selectedHeadline = null;
   
   try {
@@ -268,52 +338,96 @@ async function analyzeSentiment(
         ).join('\n')
       : 'No recent news available';
     
-    const formatPct = (val: number | null | undefined, suffix: string = '%'): string => {
-      if (val === null || val === undefined) return 'N/A';
-      return `${val > 0 ? '+' : ''}${val.toFixed(2)}${suffix}`;
-    };
+    // Build momentum section (last 3 months only)
+    const momentumSection = priceChange ? `
+**PRICE MOMENTUM (Last 3 Months):**
+- 1 Day: ${formatPct(priceChange["1D"])}
+- 5 Day: ${formatPct(priceChange["5D"])}
+- 1 Month: ${formatPct(priceChange["1M"])}
+- 3 Month: ${formatPct(priceChange["3M"])}` : `
+**PRICE MOMENTUM:**
+- Data unavailable`;
     
+    // Build fundamentals section
     const fundamentalsSection = `
 **FUNDAMENTALS:**
 - P/E Ratio: ${metrics.peRatio ? metrics.peRatio.toFixed(1) : 'N/A'}
 - Revenue Growth${metrics.growthPeriod ? ` (${metrics.growthPeriod})` : ''}: ${metrics.revenueGrowth !== null ? formatPct(metrics.revenueGrowth) : 'N/A'}
-- Profit Margin: ${metrics.profitMargin !== null ? metrics.profitMargin.toFixed(1) + '%' : 'N/A'}
-- 50-Day SMA: ${metrics.sma50 ? '$' + metrics.sma50.toFixed(2) : 'N/A'}
-- 200-Day SMA: ${metrics.sma200 ? '$' + metrics.sma200.toFixed(2) : 'N/A'}`;
+- Profit Margin: ${metrics.profitMargin !== null ? metrics.profitMargin.toFixed(1) + '%' : 'N/A'}`;
     
-    const prompt = `Analyze ${ticker} and provide a sentiment score from 0-100:
+    const prompt = `Analyze ${ticker} for FEAR & GREED indicators. Score each category from 0-100 where:
+- LOW scores (0-40) = FEAR (panic selling, negative sentiment, weak conditions)
+- MID scores (41-60) = NEUTRAL
+- HIGH scores (61-100) = GREED (aggressive buying, euphoria, strong momentum)
+
+${momentumSection}
 ${fundamentalsSection}
 
 **NEWS HEADLINES (${newsArticles?.length || 0} recent articles):**
 ${headlinesList}
 
-Score guidelines:
-- 0-40: Bearish (negative news, weak fundamentals)
-- 41-60: Neutral (mixed signals)
-- 61-100: Bullish (positive news, strong fundamentals)
+Score each category for FEAR vs GREED using the FULL 0-100 range:
+
+**MOMENTUM SCORE (0-100) - How greedy/fearful is recent price action?**
+- 0-20: EXTREME FEAR - Crash, capitulation, negative across all recent timeframes (example: 9)
+- 21-40: FEAR - Declining over the past 3 months, weak price action (example: 32)
+- 41-60: NEUTRAL - Mixed, choppy, no clear trend
+- 61-80: GREED - Rising over the past 3 months, strong momentum (example: 72)
+- 81-100: EXTREME GREED - Parabolic rally, strongly positive across all recent timeframes (example: 88)
+
+**FUNDAMENTALS SCORE (0-100) - Are fundamentals driving fear or greed?**
+- 0-20: EXTREME FEAR - Terrible metrics, losses, collapsing margins (example: 15)
+- 21-40: FEAR - Declining growth, concerning trends
+- 41-60: NEUTRAL - Average, mixed metrics
+- 61-80: GREED - Strong growth, healthy margins
+- 81-100: EXTREME GREED - Exceptional growth fueling buying frenzy (example: 85)
+
+**NEWS SCORE (0-100) - What sentiment is news driving?**
+- 0-20: EXTREME FEAR - Disaster news, fraud, bankruptcy, major lawsuits (example: 2)
+- 21-40: FEAR - Negative coverage, downgrades, layoffs
+- 41-60: NEUTRAL - Routine news, mixed coverage
+- 61-80: GREED - Positive developments, upgrades, expansion
+- 81-100: EXTREME GREED - Breakthrough news, acquisition, blowout earnings (example: 95)
+
+BE DECISIVE - Use extreme scores (2, 9, 15, 85, 88, 95) when conditions warrant. Avoid clustering around 50-60.
 
 Return ONLY valid JSON:
 {
-  "sentimentScore": 65,
+  "momentumScore": 72,
+  "fundamentalsScore": 58,
+  "newsScore": 45,
   "headlineNumber": 1
 }`;
 
     const grokResponse = await callGrok(prompt);
+    
+    // Strip markdown code fences if present
     let jsonStr = grokResponse.trim();
     if (jsonStr.startsWith('```')) {
       jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
     }
     
     const parsed = JSON.parse(jsonStr);
-    const score = parsed.sentimentScore;
     
-    let label: "Bullish" | "Neutral" | "Bearish";
-    if (score >= 60) label = "Bullish";
-    else if (score <= 40) label = "Bearish";
-    else label = "Neutral";
+    // Calculate Fear & Greed score with RSI as primary indicator
+    // Weights: RSI 35%, News 30%, Momentum 25%, Fundamentals 10%
+    const rsiScore = rsi !== null ? rsi : 50;
+    const fearGreedScore = Math.round(
+      (rsiScore * 0.35) +
+      (parsed.newsScore * 0.30) +
+      (parsed.momentumScore * 0.25) +
+      (parsed.fundamentalsScore * 0.10)
+    );
     
-    sentiment = { score, label };
+    fearGreed = {
+      score: fearGreedScore,
+      label: getFearGreedLabel(fearGreedScore),
+      rsi
+    };
     
+    console.log(`[Asset Data] ${ticker} Fear & Greed - RSI: ${rsi?.toFixed(1) ?? 'N/A'}, Momentum: ${parsed.momentumScore}, News: ${parsed.newsScore}, Fundamentals: ${parsed.fundamentalsScore} => Score: ${fearGreedScore} (${fearGreed.label})`);
+    
+    // Get the selected headline
     if (newsArticles && newsArticles.length > 0) {
       const headlineIndex = (parsed.headlineNumber || 1) - 1;
       const article = newsArticles[headlineIndex] || newsArticles[0];
@@ -325,7 +439,11 @@ Return ONLY valid JSON:
       };
     }
   } catch (error: any) {
-    console.error(`[Asset Data] Error analyzing sentiment for ${ticker}:`, error?.message);
+    console.error(`[Asset Data] Error analyzing Fear & Greed for ${ticker}:`, error?.message);
+    // Use RSI as fallback
+    if (rsi !== null) {
+      fearGreed = { score: Math.round(rsi), label: getFearGreedLabel(Math.round(rsi)), rsi };
+    }
     if (newsArticles && newsArticles.length > 0) {
       selectedHeadline = {
         title: newsArticles[0].title,
@@ -336,15 +454,17 @@ Return ONLY valid JSON:
     }
   }
   
-  return { sentiment, selectedHeadline };
+  return { fearGreed, selectedHeadline };
 }
 
-async function analyzeCryptoSentiment(
+async function analyzeCryptoFearGreed(
   ticker: string,
   newsArticles: any[],
-  metrics: CryptoMetrics
-): Promise<{ sentiment: { score: number; label: "Bullish" | "Neutral" | "Bearish" }; selectedHeadline: any }> {
-  let sentiment = { score: 50, label: "Neutral" as "Bullish" | "Neutral" | "Bearish" };
+  priceChange: PriceChangeData | null,
+  metrics: CryptoMetrics,
+  rsi: number | null
+): Promise<{ fearGreed: { score: number; label: FearGreedLabel; rsi: number | null }; selectedHeadline: any }> {
+  let fearGreed = { score: 50, label: "Neutral" as FearGreedLabel, rsi };
   let selectedHeadline = null;
   
   try {
@@ -362,6 +482,16 @@ async function analyzeCryptoSentiment(
       return `$${val.toFixed(2)}`;
     };
     
+    // Build momentum section
+    const momentumSection = priceChange ? `
+**PRICE MOMENTUM (Last 3 Months):**
+- 1 Day: ${formatPct(priceChange["1D"])}
+- 5 Day: ${formatPct(priceChange["5D"])}
+- 1 Month: ${formatPct(priceChange["1M"])}
+- 3 Month: ${formatPct(priceChange["3M"])}` : `
+**PRICE MOMENTUM:**
+- Data unavailable`;
+    
     const technicalSection = `
 **TECHNICAL INDICATORS:**
 - RSI (14-day): ${metrics.rsi ? metrics.rsi.toFixed(1) : 'N/A'} ${metrics.rsiLabel ? `(${metrics.rsiLabel})` : ''}
@@ -372,38 +502,76 @@ async function analyzeCryptoSentiment(
 - Market Cap: ${metrics.marketCap ? formatNum(metrics.marketCap) : 'N/A'}
 - 24h Volume: ${metrics.volume ? formatNum(metrics.volume) : 'N/A'}`;
     
-    const prompt = `Analyze ${ticker} cryptocurrency and provide a sentiment score from 0-100:
+    const prompt = `Analyze ${ticker} cryptocurrency for FEAR & GREED indicators. Score each category from 0-100 where:
+- LOW scores (0-40) = FEAR (panic selling, capitulation, weak conditions)
+- MID scores (41-60) = NEUTRAL
+- HIGH scores (61-100) = GREED (FOMO buying, euphoria, strong momentum)
+
+${momentumSection}
 ${technicalSection}
 
 **NEWS HEADLINES (${newsArticles?.length || 0} recent articles):**
 ${headlinesList}
 
-Score guidelines:
-- 0-40: Bearish (negative news, oversold conditions, below key SMAs)
-- 41-60: Neutral (mixed signals)
-- 61-100: Bullish (positive news, strong momentum, above key SMAs)
+Score each category for FEAR vs GREED using the FULL 0-100 range:
+
+**MOMENTUM SCORE (0-100) - How greedy/fearful is recent price action?**
+- 0-20: EXTREME FEAR - Crash, capitulation, negative across all recent timeframes (example: 9)
+- 21-40: FEAR - Declining over the past 3 months, weak price action (example: 32)
+- 41-60: NEUTRAL - Mixed, choppy, no clear trend
+- 61-80: GREED - Rising over the past 3 months, strong momentum (example: 72)
+- 81-100: EXTREME GREED - Parabolic rally, strongly positive across all recent timeframes (example: 88)
+
+**FUNDAMENTALS SCORE (0-100) - Are technicals driving fear or greed?**
+- 0-20: EXTREME FEAR - Price below all major SMAs, oversold RSI (example: 15)
+- 21-40: FEAR - Price below key SMAs, weak technicals
+- 41-60: NEUTRAL - Mixed signals, consolidation
+- 61-80: GREED - Price above SMAs, bullish structure
+- 81-100: EXTREME GREED - Price far above all SMAs, overbought RSI (example: 85)
+
+**NEWS SCORE (0-100) - What sentiment is news driving?**
+- 0-20: EXTREME FEAR - Exchange hacks, regulatory crackdowns, major failures (example: 2)
+- 21-40: FEAR - Negative coverage, FUD, bearish outlooks
+- 41-60: NEUTRAL - Routine news, mixed coverage
+- 61-80: GREED - Adoption news, ETF flows, positive developments
+- 81-100: EXTREME GREED - Institutional FOMO, all-time highs, mainstream euphoria (example: 95)
+
+BE DECISIVE - Use extreme scores (2, 9, 15, 85, 88, 95) when conditions warrant. Avoid clustering around 50-60.
 
 Return ONLY valid JSON:
 {
-  "sentimentScore": 65,
+  "momentumScore": 72,
+  "fundamentalsScore": 58,
+  "newsScore": 45,
   "headlineNumber": 1
 }`;
 
     const grokResponse = await callGrok(prompt);
+    
     let jsonStr = grokResponse.trim();
     if (jsonStr.startsWith('```')) {
       jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
     }
     
     const parsed = JSON.parse(jsonStr);
-    const score = parsed.sentimentScore;
     
-    let label: "Bullish" | "Neutral" | "Bearish";
-    if (score >= 60) label = "Bullish";
-    else if (score <= 40) label = "Bearish";
-    else label = "Neutral";
+    // Calculate Fear & Greed score with RSI as primary indicator
+    // Weights: RSI 35%, News 30%, Momentum 25%, Fundamentals 10%
+    const rsiScore = rsi !== null ? rsi : 50;
+    const fearGreedScore = Math.round(
+      (rsiScore * 0.35) +
+      (parsed.newsScore * 0.30) +
+      (parsed.momentumScore * 0.25) +
+      (parsed.fundamentalsScore * 0.10)
+    );
     
-    sentiment = { score, label };
+    fearGreed = {
+      score: fearGreedScore,
+      label: getFearGreedLabel(fearGreedScore),
+      rsi
+    };
+    
+    console.log(`[Asset Data] ${ticker} Crypto Fear & Greed - RSI: ${rsi?.toFixed(1) ?? 'N/A'}, Momentum: ${parsed.momentumScore}, News: ${parsed.newsScore}, Fundamentals: ${parsed.fundamentalsScore} => Score: ${fearGreedScore} (${fearGreed.label})`);
     
     if (newsArticles && newsArticles.length > 0) {
       const headlineIndex = (parsed.headlineNumber || 1) - 1;
@@ -416,7 +584,10 @@ Return ONLY valid JSON:
       };
     }
   } catch (error: any) {
-    console.error(`[Asset Data] Error analyzing crypto sentiment for ${ticker}:`, error?.message);
+    console.error(`[Asset Data] Error analyzing crypto Fear & Greed for ${ticker}:`, error?.message);
+    if (rsi !== null) {
+      fearGreed = { score: Math.round(rsi), label: getFearGreedLabel(Math.round(rsi)), rsi };
+    }
     if (newsArticles && newsArticles.length > 0) {
       selectedHeadline = {
         title: newsArticles[0].title,
@@ -427,15 +598,17 @@ Return ONLY valid JSON:
     }
   }
   
-  return { sentiment, selectedHeadline };
+  return { fearGreed, selectedHeadline };
 }
 
-async function analyzeSimpleSentiment(
+async function analyzeSimpleFearGreed(
   ticker: string,
   newsArticles: any[],
+  priceChange: PriceChangeData | null,
+  rsi: number | null,
   assetClass: string
-): Promise<{ sentiment: { score: number; label: "Bullish" | "Neutral" | "Bearish" }; selectedHeadline: any }> {
-  let sentiment = { score: 50, label: "Neutral" as "Bullish" | "Neutral" | "Bearish" };
+): Promise<{ fearGreed: { score: number; label: FearGreedLabel; rsi: number | null }; selectedHeadline: any }> {
+  let fearGreed = { score: 50, label: "Neutral" as FearGreedLabel, rsi };
   let selectedHeadline = null;
   
   try {
@@ -445,37 +618,76 @@ async function analyzeSimpleSentiment(
         ).join('\n')
       : 'No recent news available';
     
-    const prompt = `Analyze ${ticker} (${assetClass}) and provide a sentiment score from 0-100 based on recent news:
+    // Build momentum section
+    const momentumSection = priceChange ? `
+**PRICE MOMENTUM (Last 3 Months):**
+- 1 Day: ${formatPct(priceChange["1D"])}
+- 5 Day: ${formatPct(priceChange["5D"])}
+- 1 Month: ${formatPct(priceChange["1M"])}
+- 3 Month: ${formatPct(priceChange["3M"])}` : `
+**PRICE MOMENTUM:**
+- Data unavailable`;
+    
+    const prompt = `Analyze ${ticker} (${assetClass}) for FEAR & GREED indicators. Score each category from 0-100 where:
+- LOW scores (0-40) = FEAR (panic selling, negative sentiment)
+- MID scores (41-60) = NEUTRAL
+- HIGH scores (61-100) = GREED (aggressive buying, positive sentiment)
+
+${momentumSection}
 
 **NEWS HEADLINES (${newsArticles?.length || 0} recent articles):**
 ${headlinesList}
 
-Score guidelines:
-- 0-40: Bearish (predominantly negative news)
-- 41-60: Neutral (mixed or routine news)
-- 61-100: Bullish (predominantly positive news)
+Score each category for FEAR vs GREED using the FULL 0-100 range:
+
+**MOMENTUM SCORE (0-100) - How greedy/fearful is recent price action?**
+- 0-20: EXTREME FEAR - Crash, capitulation (example: 9)
+- 21-40: FEAR - Declining, weak action (example: 32)
+- 41-60: NEUTRAL - Mixed, choppy
+- 61-80: GREED - Rising, strong momentum (example: 72)
+- 81-100: EXTREME GREED - Parabolic rally (example: 88)
+
+**NEWS SCORE (0-100) - What sentiment is news driving?**
+- 0-20: EXTREME FEAR - Disaster news, major problems (example: 2)
+- 21-40: FEAR - Negative coverage, concerns
+- 41-60: NEUTRAL - Routine news, mixed coverage
+- 61-80: GREED - Positive developments
+- 81-100: EXTREME GREED - Breakthrough news (example: 95)
+
+BE DECISIVE - Use extreme scores when conditions warrant. Avoid clustering around 50-60.
 
 Return ONLY valid JSON:
 {
-  "sentimentScore": 50,
+  "momentumScore": 55,
+  "newsScore": 50,
   "headlineNumber": 1
 }`;
 
     const grokResponse = await callGrok(prompt);
+    
     let jsonStr = grokResponse.trim();
     if (jsonStr.startsWith('```')) {
       jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
     }
     
     const parsed = JSON.parse(jsonStr);
-    const score = parsed.sentimentScore;
     
-    let label: "Bullish" | "Neutral" | "Bearish";
-    if (score >= 60) label = "Bullish";
-    else if (score <= 40) label = "Bearish";
-    else label = "Neutral";
+    // Calculate Fear & Greed score - simplified for these asset classes
+    // Weights: RSI 35%, News 40%, Momentum 25% (no fundamentals)
+    const rsiScore = rsi !== null ? rsi : 50;
+    const fearGreedScore = Math.round(
+      (rsiScore * 0.35) +
+      (parsed.newsScore * 0.40) +
+      (parsed.momentumScore * 0.25)
+    );
     
-    sentiment = { score, label };
+    fearGreed = {
+      score: fearGreedScore,
+      label: getFearGreedLabel(fearGreedScore),
+      rsi
+    };
+    
+    console.log(`[Asset Data] ${ticker} (${assetClass}) Fear & Greed - RSI: ${rsi?.toFixed(1) ?? 'N/A'}, Momentum: ${parsed.momentumScore}, News: ${parsed.newsScore} => Score: ${fearGreedScore} (${fearGreed.label})`);
     
     if (newsArticles && newsArticles.length > 0) {
       const headlineIndex = (parsed.headlineNumber || 1) - 1;
@@ -488,7 +700,10 @@ Return ONLY valid JSON:
       };
     }
   } catch (error: any) {
-    console.error(`[Asset Data] Error analyzing sentiment for ${ticker}:`, error?.message);
+    console.error(`[Asset Data] Error analyzing Fear & Greed for ${ticker}:`, error?.message);
+    if (rsi !== null) {
+      fearGreed = { score: Math.round(rsi), label: getFearGreedLabel(Math.round(rsi)), rsi };
+    }
     if (newsArticles && newsArticles.length > 0) {
       selectedHeadline = {
         title: newsArticles[0].title,
@@ -499,6 +714,5 @@ Return ONLY valid JSON:
     }
   }
   
-  return { sentiment, selectedHeadline };
+  return { fearGreed, selectedHeadline };
 }
-
