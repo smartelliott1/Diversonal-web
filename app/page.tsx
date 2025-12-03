@@ -1050,9 +1050,9 @@ export default function Home() {
               onClick={handleGoHome}
               className="group flex items-center gap-2 transition-all duration-300 hover:scale-105"
             >
-              <h1 className="animate-glow text-3xl font-bold tracking-[0.3em] text-[#00FF99] uppercase transition-all duration-300 group-hover:text-[#00E689]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+              <h1 className="animate-glow inline-flex items-center text-3xl font-bold tracking-[0.3em] text-[#00FF99] uppercase transition-all duration-300 group-hover:text-[#00E689]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
                 Diversonal
-                <span className="ml-2 text-sm font-bold text-white">BETA</span>
+                <span className="ml-2 text-sm font-bold text-white align-middle">BETA</span>
               </h1>
             </button>
             
@@ -1403,9 +1403,9 @@ export default function Home() {
               onClick={handleGoHome}
               className="group flex items-center gap-2 transition-all duration-300 hover:scale-105"
             >
-              <h1 className="animate-glow text-3xl font-bold tracking-[0.3em] text-[#00FF99] uppercase transition-all duration-300 group-hover:text-[#00E689]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
+              <h1 className="animate-glow inline-flex items-center text-3xl font-bold tracking-[0.3em] text-[#00FF99] uppercase transition-all duration-300 group-hover:text-[#00E689]" style={{ fontFamily: 'var(--font-manrope), sans-serif' }}>
                 Diversonal
-                <span className="ml-2 text-sm font-bold text-white">BETA</span>
+                <span className="ml-2 text-sm font-bold text-white align-middle">BETA</span>
               </h1>
             </button>
             
