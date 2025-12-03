@@ -45,6 +45,8 @@ interface StockData {
   metrics?: {
     // Equity metrics
     peRatio?: number | null;
+    forwardPE?: number | null;
+    forwardPEFiscalYear?: string | null;
     epsGrowth?: number | null;
     revenueGrowth?: number | null;
     profitMargin?: number | null;
@@ -3104,6 +3106,14 @@ export default function Home() {
                                                   <div>
                                                     <div className="text-gray-500">P/E Ratio</div>
                                                     <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.peRatio!.toFixed(2)}</div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.forwardPE !== null && stockData[rec.ticker].metrics?.forwardPE !== undefined && (
+                                                  <div>
+                                                    <div className="text-gray-500">
+                                                      Forward P/E {stockData[rec.ticker].metrics?.forwardPEFiscalYear && `(${stockData[rec.ticker].metrics?.forwardPEFiscalYear})`}
+                                                    </div>
+                                                    <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.forwardPE!.toFixed(2)}</div>
                                                   </div>
                                                 )}
                                                 {stockData[rec.ticker].metrics?.revenueGrowth !== null && stockData[rec.ticker].metrics?.revenueGrowth !== undefined && (

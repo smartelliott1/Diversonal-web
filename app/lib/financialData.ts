@@ -929,7 +929,19 @@ export async function getAnalystEstimates(ticker: string): Promise<AnalystEstima
     const data = await fetchFMP(`/stable/analyst-estimates?symbol=${ticker}&period=annual&page=0&limit=10`);
     if (!data || data.length === 0) return null;
     
-    const raw = data[0]; // Most recent
+    // Find the next fiscal year estimate (current year + 1) for forward PE calculation
+    const nextFY = new Date().getFullYear() + 1;
+    const nextFYEstimate = data.find((estimate: any) => {
+      const estimateYear = new Date(estimate.date).getFullYear();
+      return estimateYear === nextFY;
+    });
+    
+    // Fall back to closest future estimate if next FY not found, then to data[0]
+    const raw = nextFYEstimate || data.find((estimate: any) => {
+      const estimateYear = new Date(estimate.date).getFullYear();
+      return estimateYear > new Date().getFullYear();
+    }) || data[0];
+    
     const estimates: AnalystEstimates = {
       symbol: raw.symbol,
       date: raw.date,

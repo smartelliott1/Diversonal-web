@@ -4,7 +4,9 @@ import {
   getStockNews,
   getStockRatios,
   getStockKeyMetrics,
-  getStockIncomeStatement
+  getStockIncomeStatement,
+  getStockProfile,
+  getAnalystEstimates
 } from "@/app/lib/financialData";
 
 // Stage 3: Stock Data API
@@ -122,13 +124,15 @@ export async function POST(request: NextRequest) {
     console.log(`[Stock Data] Fetching data for ${ticker}`);
     
     // Fetch all data in parallel (including price momentum and RSI)
-    const [newsArticles, ratios, keyMetrics, incomeStatements, priceChange, rsi] = await Promise.all([
+    const [newsArticles, ratios, keyMetrics, incomeStatements, priceChange, rsi, profile, analystEstimates] = await Promise.all([
       getStockNews(ticker, 10),
       getStockRatios(ticker),
       getStockKeyMetrics(ticker),
       getStockIncomeStatement(ticker),
       getStockPriceChange(ticker),
-      getTickerRSI(ticker)
+      getTickerRSI(ticker),
+      getStockProfile(ticker),
+      getAnalystEstimates(ticker)
     ]);
     
     // Calculate growth metrics BEFORE the prompt (so we can include them)
@@ -167,6 +171,24 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    // Calculate real-time trailing PE using current price (more accurate than FMP's stale ratio)
+    const currentPrice = profile?.price;
+    const annualEPS = incomeStatements?.[0]?.epsdiluted;
+    const trailingPE = (currentPrice && annualEPS && annualEPS > 0)
+      ? currentPrice / annualEPS
+      : null;
+    
+    // Calculate forward PE using next fiscal year estimate
+    let forwardPE: number | null = null;
+    let forwardPEFiscalYear: string | null = null;
+    
+    if (currentPrice && analystEstimates && analystEstimates.estimatedEpsAvg > 0) {
+      const estimateDate = new Date(analystEstimates.date);
+      const estimateYear = estimateDate.getFullYear();
+      forwardPE = currentPrice / analystEstimates.estimatedEpsAvg;
+      forwardPEFiscalYear = `FY${estimateYear}`;
+    }
+    
     // Format helper for percentage display
     const formatPct = (val: number | null | undefined, suffix: string = '%'): string => {
       if (val === null || val === undefined) return 'N/A';
@@ -200,12 +222,11 @@ export async function POST(request: NextRequest) {
 - Data unavailable`;
       
       // Build fundamentals section
-      const peRatio = ratios?.priceToEarningsRatio || keyMetrics?.peRatio;
       const profitMargin = ratios?.netProfitMargin ? ratios.netProfitMargin * 100 : null;
       
       const fundamentalsSection = `
 **FUNDAMENTALS:**
-- P/E Ratio: ${peRatio ? peRatio.toFixed(1) : 'N/A'}
+- P/E Ratio: ${trailingPE ? trailingPE.toFixed(1) : 'N/A'}
 - EPS Growth${growthPeriod ? ` (${growthPeriod})` : ''}: ${epsGrowth !== null ? formatPct(epsGrowth) : 'N/A'}
 - Revenue Growth${growthPeriod ? ` (${growthPeriod})` : ''}: ${revenueGrowth !== null ? formatPct(revenueGrowth) : 'N/A'}
 - Profit Margin: ${profitMargin !== null ? profitMargin.toFixed(1) + '%' : 'N/A'}`;
@@ -341,7 +362,9 @@ Return ONLY valid JSON:
     
     // Process metrics for response
     const metrics = {
-      peRatio: ratios?.priceToEarningsRatio || keyMetrics?.peRatio || null,
+      peRatio: trailingPE,  // Real-time PE using current price
+      forwardPE,
+      forwardPEFiscalYear,
       epsGrowth,
       revenueGrowth,
       profitMargin: ratios?.netProfitMargin ? ratios.netProfitMargin * 100 : null,
