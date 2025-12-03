@@ -182,6 +182,8 @@ export async function POST(request: NextRequest) {
     let forwardPE: number | null = null;
     let forwardPEFiscalYear: string | null = null;
     
+    console.log(`[Stock Data] Forward PE debug - ticker: ${ticker}, currentPrice: ${currentPrice}, analystEstimates:`, analystEstimates ? { date: analystEstimates.date, epsAvg: analystEstimates.estimatedEpsAvg } : null);
+    
     if (currentPrice && analystEstimates && analystEstimates.estimatedEpsAvg > 0) {
       const estimateDate = new Date(analystEstimates.date);
       const estimateYear = estimateDate.getFullYear();
