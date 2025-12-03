@@ -30,20 +30,40 @@ interface StockRecommendation {
 
 interface StockData {
   ticker: string;
-  fearGreed: {
+  assetClass?: string;
+  sentiment?: {
+    score: number;
+    label: "Bullish" | "Neutral" | "Bearish";
+  };
+  // Legacy fearGreed for backward compatibility
+  fearGreed?: {
     score: number;
     label: "Extreme Fear" | "Fear" | "Neutral" | "Greed" | "Extreme Greed";
     rsi: number | null;
   };
-  metrics: {
-    peRatio: number | null;
-    epsGrowth: number | null;
-    revenueGrowth: number | null;
-    profitMargin: number | null;
-    dividendYield: number | null;
-    growthPeriod: string | null;
+  metrics?: {
+    // Equity metrics
+    peRatio?: number | null;
+    epsGrowth?: number | null;
+    revenueGrowth?: number | null;
+    profitMargin?: number | null;
+    dividendYield?: number | null;
+    growthPeriod?: string | null;
+    sma50?: number | null;
+    sma200?: number | null;
+    marketCap?: number | null;
+    // Crypto metrics
+    volume?: number | null;
+    rsi?: number | null;
+    rsiLabel?: string | null;
+    sma20Week?: number | null;
+    sma50Week?: number | null;
+    sma200Week?: number | null;
+    price?: number | null;
+    // Cash metrics
+    yield?: number;
   };
-  headline: {
+  headline?: {
     title: string;
     site: string;
     publishedDate: string;
@@ -546,38 +566,44 @@ export default function Home() {
               toast.success("Recommendations generated!");
               console.log("[Stage 2] Stock recommendations loaded");
 
-              // Extract tickers from recommendations
-              const tickers: string[] = [];
+              // Extract tickers with their asset classes from recommendations
+              const tickerMap: { ticker: string; assetClass: string }[] = [];
               Object.keys(data).forEach(assetClass => {
                 const assetData = data[assetClass];
                 if (typeof assetData !== 'string' && assetData.recommendations) {
                   assetData.recommendations.forEach((rec: any) => {
                     if (rec.ticker) {
-                      tickers.push(rec.ticker);
+                      tickerMap.push({ ticker: rec.ticker, assetClass });
                     }
                   });
                 }
               });
 
-              // STAGE 3: Fetch Right Column Data (Prices + Metrics + Fear & Greed + Headlines)
-              if (tickers.length > 0) {
-                console.log(`[Stage 3] Loading data for ${tickers.length} stocks...`);
+              // STAGE 3: Fetch Right Column Data (asset-class-specific)
+              if (tickerMap.length > 0) {
+                console.log(`[Stage 3] Loading data for ${tickerMap.length} assets...`);
                 
                 // Set loading state for all tickers
                 const loadingState: Record<string, boolean> = {};
-                tickers.forEach(ticker => loadingState[ticker] = true);
+                tickerMap.forEach(({ ticker }) => loadingState[ticker] = true);
                 setRightColumnLoading(loadingState);
                 
-                // Fetch stock prices first (fast)
+                // Get unique tickers for price fetching (exclude Cash which doesn't need prices)
+                const priceTickers = tickerMap
+                  .filter(({ assetClass }) => assetClass !== 'Cash')
+                  .map(({ ticker }) => ticker);
+                
+                // Fetch stock prices first (fast) - only for non-cash assets
                 const pricesPromise = (async () => {
+                  if (priceTickers.length === 0) return;
                   try {
-                    console.log(`[Stage 3] Fetching live prices for ${tickers.length} tickers...`);
+                    console.log(`[Stage 3] Fetching live prices for ${priceTickers.length} tickers...`);
                     setStockPricesLoading(true);
                     
                     const pricesResponse = await fetch("/api/stock-prices", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ tickers }),
+                      body: JSON.stringify({ tickers: priceTickers }),
                     });
 
                     if (pricesResponse.ok) {
@@ -592,22 +618,22 @@ export default function Home() {
                   }
                 })();
                 
-                // Fetch stock data for each ticker (metrics, fear & greed, headlines)
-                const dataPromises = tickers.map(async (ticker) => {
+                // Fetch asset data for each ticker using the new asset-data endpoint
+                const dataPromises = tickerMap.map(async ({ ticker, assetClass }) => {
                   try {
-                    const response = await fetch('/api/stock-data', {
+                    const response = await fetch('/api/asset-data', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ ticker })
+                      body: JSON.stringify({ ticker, assetClass })
                     });
                     
                     if (response.ok) {
-                      const data = await response.json();
+                      const responseData = await response.json();
                       
                       // Update state as each ticker completes
-                      setStockData(prev => ({ ...prev, [ticker]: data }));
+                      setStockData(prev => ({ ...prev, [ticker]: { ...responseData, assetClass } }));
                       setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
-                      console.log(`[Stage 3] Data loaded for ${ticker}`);
+                      console.log(`[Stage 3] Data loaded for ${ticker} (${assetClass})`);
                     } else {
                       setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
                     }
@@ -619,7 +645,7 @@ export default function Home() {
                 
                 // Wait for all to complete
                 await Promise.allSettled([pricesPromise, ...dataPromises]);
-                console.log('[Stage 3] All stock data loaded');
+                console.log('[Stage 3] All asset data loaded');
               }
             }
           } catch (parseError) {
@@ -2695,10 +2721,10 @@ export default function Home() {
                                   </div>
                                 </div>
 
-                                {/* Right: Market Data (Fear & Greed, Metrics, News) */}
+                                {/* Right: Market Data - Asset Class Specific */}
                                 <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
                                   {rightColumnLoading[rec.ticker] ? (
-                                    <div className="flex items-center justify-center h-full">
+                                    <div className="flex items-center justify-center h-full min-h-[200px]">
                                       <div className="text-center">
                                         <svg className="h-8 w-8 animate-spin mx-auto mb-2 text-gray-600" fill="none" viewBox="0 0 24 24">
                                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -2708,130 +2734,358 @@ export default function Home() {
                                       </div>
                                     </div>
                                   ) : stockData[rec.ticker] ? (
-                                    <div className="space-y-4">
-                                      {/* Top Row: Fear & Greed Gauge (Left) + Key Metrics (Right) */}
-                                      <div className="grid grid-cols-5 gap-4">
-                                        {/* Left: Fear & Greed Gauge (2 columns) */}
-                                        <div className="col-span-2">
-                                          <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                            Fear & Greed
+                                    <>
+                                      {/* CASH: Only yield, no sentiment */}
+                                      {assetClass === 'Cash' ? (
+                                        <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                          <h6 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                            Current Yield
                                           </h6>
-                                          <div className="flex flex-col items-center">
-                                            <ResponsiveContainer width="100%" height={100}>
-                                              <PieChart>
-                                                <Pie
-                                                  data={[
-                                                    { value: stockData[rec.ticker].fearGreed.score },
-                                                    { value: 100 - stockData[rec.ticker].fearGreed.score }
-                                                  ]}
-                                                  cx="50%"
-                                                  cy="50%"
-                                                  startAngle={180}
-                                                  endAngle={0}
-                                                  innerRadius={35}
-                                                  outerRadius={45}
-                                                  dataKey="value"
-                                                >
-                                                  <Cell fill={
-                                                    stockData[rec.ticker].fearGreed.score >= 81 ? '#10B981' :
-                                                    stockData[rec.ticker].fearGreed.score >= 61 ? '#34D399' :
-                                                    stockData[rec.ticker].fearGreed.score >= 41 ? '#F59E0B' :
-                                                    stockData[rec.ticker].fearGreed.score >= 21 ? '#F97316' :
-                                                    '#EF4444'
-                                                  } />
-                                                  <Cell fill="#1A1A1A" />
-                                                </Pie>
-                                              </PieChart>
-                                            </ResponsiveContainer>
-                                            <div className="text-center -mt-12">
-                                              <div className="text-xl font-bold text-[#E6E6E6]">
-                                                {stockData[rec.ticker].fearGreed.score}
+                                          <div className="text-5xl font-bold text-[#00FF99]">
+                                            ~{stockData[rec.ticker].metrics?.yield || 4}%
+                                          </div>
+                                          <div className="mt-2 text-sm text-gray-400">
+                                            Money Market Fund
+                                          </div>
+                                        </div>
+                                      ) : assetClass === 'Cryptocurrencies' ? (
+                                        /* CRYPTO: Sentiment + Crypto Metrics + News */
+                                        <div className="space-y-4">
+                                          <div className="grid grid-cols-5 gap-4">
+                                            {/* Left: Sentiment Gauge (2 columns) */}
+                                            <div className="col-span-2">
+                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                                Sentiment
+                                              </h6>
+                                              <div className="flex flex-col items-center">
+                                                <ResponsiveContainer width="100%" height={100}>
+                                                  <PieChart>
+                                                    <Pie
+                                                      data={[
+                                                        { value: stockData[rec.ticker].sentiment?.score || 50 },
+                                                        { value: 100 - (stockData[rec.ticker].sentiment?.score || 50) }
+                                                      ]}
+                                                      cx="50%"
+                                                      cy="50%"
+                                                      startAngle={180}
+                                                      endAngle={0}
+                                                      innerRadius={35}
+                                                      outerRadius={45}
+                                                      dataKey="value"
+                                                    >
+                                                      <Cell fill={
+                                                        (stockData[rec.ticker].sentiment?.score || 50) >= 60 ? '#10B981' :
+                                                        (stockData[rec.ticker].sentiment?.score || 50) >= 40 ? '#F59E0B' :
+                                                        '#EF4444'
+                                                      } />
+                                                      <Cell fill="#1A1A1A" />
+                                                    </Pie>
+                                                  </PieChart>
+                                                </ResponsiveContainer>
+                                                <div className="text-center -mt-12">
+                                                  <div className="text-xl font-bold text-[#E6E6E6]">
+                                                    {stockData[rec.ticker].sentiment?.score || 50}
+                                                  </div>
+                                                  <div className={`text-xs font-semibold ${
+                                                    stockData[rec.ticker].sentiment?.label === 'Bullish' ? 'text-green-400' :
+                                                    stockData[rec.ticker].sentiment?.label === 'Bearish' ? 'text-red-400' :
+                                                    'text-yellow-400'
+                                                  }`}>
+                                                    {stockData[rec.ticker].sentiment?.label || 'Neutral'}
+                                                  </div>
+                                                </div>
                                               </div>
-                                              <div className={`text-xs font-semibold ${
-                                                stockData[rec.ticker].fearGreed.label === 'Extreme Greed' ? 'text-green-400' :
-                                                stockData[rec.ticker].fearGreed.label === 'Greed' ? 'text-emerald-400' :
-                                                stockData[rec.ticker].fearGreed.label === 'Neutral' ? 'text-yellow-400' :
-                                                stockData[rec.ticker].fearGreed.label === 'Fear' ? 'text-orange-400' :
-                                                'text-red-400'
-                                              }`}>
-                                                {stockData[rec.ticker].fearGreed.label}
+                                            </div>
+
+                                            {/* Right: Crypto Metrics (3 columns) */}
+                                            <div className="col-span-3">
+                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                                Key Metrics
+                                              </h6>
+                                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                                {stockData[rec.ticker].metrics?.rsi !== null && stockData[rec.ticker].metrics?.rsi !== undefined && (
+                                                  <div>
+                                                    <div className="text-gray-500">RSI (14)</div>
+                                                    <div className={`font-semibold ${
+                                                      stockData[rec.ticker].metrics?.rsiLabel === 'Overbought' ? 'text-red-400' :
+                                                      stockData[rec.ticker].metrics?.rsiLabel === 'Oversold' ? 'text-green-400' :
+                                                      'text-[#E6E6E6]'
+                                                    }`}>
+                                                      {stockData[rec.ticker].metrics!.rsi!.toFixed(1)} ({stockData[rec.ticker].metrics?.rsiLabel})
+                                                    </div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.marketCap && (
+                                                  <div>
+                                                    <div className="text-gray-500">Market Cap</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">
+                                                      ${(stockData[rec.ticker].metrics!.marketCap! / 1e9).toFixed(1)}B
+                                                    </div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.volume && (
+                                                  <div>
+                                                    <div className="text-gray-500">24h Volume</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">
+                                                      ${(stockData[rec.ticker].metrics!.volume! / 1e6).toFixed(1)}M
+                                                    </div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.sma20Week && (
+                                                  <div>
+                                                    <div className="text-gray-500">20 Week SMA</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">
+                                                      ${stockData[rec.ticker].metrics!.sma20Week!.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                                                    </div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.sma50Week && (
+                                                  <div>
+                                                    <div className="text-gray-500">50 Week SMA</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">
+                                                      ${stockData[rec.ticker].metrics!.sma50Week!.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                                                    </div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.sma200Week && (
+                                                  <div>
+                                                    <div className="text-gray-500">200 Week SMA</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">
+                                                      ${stockData[rec.ticker].metrics!.sma200Week!.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                                                    </div>
+                                                  </div>
+                                                )}
                                               </div>
                                             </div>
                                           </div>
-                                        </div>
 
-                                        {/* Right: Key Metrics (3 columns) */}
-                                        <div className="col-span-3">
-                                          <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                            Key Metrics
-                                          </h6>
-                                          <div className="grid grid-cols-2 gap-2 text-xs">
-                                            {stockData[rec.ticker].metrics.peRatio !== null && (
-                                              <div>
-                                                <div className="text-gray-500">P/E Ratio</div>
-                                                <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics.peRatio!.toFixed(2)}</div>
-                                              </div>
-                                            )}
-                                            {stockData[rec.ticker].metrics.epsGrowth !== null && (
-                                              <div>
-                                                <div className="text-gray-500">
-                                                  EPS Growth {stockData[rec.ticker].metrics.growthPeriod && `(${stockData[rec.ticker].metrics.growthPeriod})`}
+                                          {/* Bottom Row: Recent Headline */}
+                                          {stockData[rec.ticker].headline && (
+                                            <div>
+                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                                Recent News
+                                              </h6>
+                                              <a 
+                                                href={stockData[rec.ticker].headline!.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 transition-all hover:border-[#00FF99]/30"
+                                              >
+                                                <div className="text-xs text-gray-300 leading-snug mb-1 line-clamp-2">
+                                                  {stockData[rec.ticker].headline!.title}
                                                 </div>
-                                                <div className={`font-semibold ${stockData[rec.ticker].metrics.epsGrowth! >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                                  {stockData[rec.ticker].metrics.epsGrowth! >= 0 ? '+' : ''}{stockData[rec.ticker].metrics.epsGrowth!.toFixed(1)}%
+                                                <div className="text-xs text-gray-500">
+                                                  {stockData[rec.ticker].headline!.site} • {new Date(stockData[rec.ticker].headline!.publishedDate).toLocaleDateString()}
+                                                </div>
+                                              </a>
+                                            </div>
+                                          )}
+                                        </div>
+                                      ) : assetClass === 'Bonds' || assetClass === 'Real Estate' || assetClass === 'Commodities' ? (
+                                        /* BONDS, REAL ESTATE, COMMODITIES: Centered Sentiment + News */
+                                        <div className="space-y-4">
+                                          {/* Centered Sentiment Gauge */}
+                                          <div className="flex flex-col items-center justify-center">
+                                            <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                              Sentiment
+                                            </h6>
+                                            <div className="flex flex-col items-center">
+                                              <ResponsiveContainer width={150} height={100}>
+                                                <PieChart>
+                                                  <Pie
+                                                    data={[
+                                                      { value: stockData[rec.ticker].sentiment?.score || 50 },
+                                                      { value: 100 - (stockData[rec.ticker].sentiment?.score || 50) }
+                                                    ]}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    startAngle={180}
+                                                    endAngle={0}
+                                                    innerRadius={35}
+                                                    outerRadius={45}
+                                                    dataKey="value"
+                                                  >
+                                                    <Cell fill={
+                                                      (stockData[rec.ticker].sentiment?.score || 50) >= 60 ? '#10B981' :
+                                                      (stockData[rec.ticker].sentiment?.score || 50) >= 40 ? '#F59E0B' :
+                                                      '#EF4444'
+                                                    } />
+                                                    <Cell fill="#1A1A1A" />
+                                                  </Pie>
+                                                </PieChart>
+                                              </ResponsiveContainer>
+                                              <div className="text-center -mt-12">
+                                                <div className="text-xl font-bold text-[#E6E6E6]">
+                                                  {stockData[rec.ticker].sentiment?.score || 50}
+                                                </div>
+                                                <div className={`text-xs font-semibold ${
+                                                  stockData[rec.ticker].sentiment?.label === 'Bullish' ? 'text-green-400' :
+                                                  stockData[rec.ticker].sentiment?.label === 'Bearish' ? 'text-red-400' :
+                                                  'text-yellow-400'
+                                                }`}>
+                                                  {stockData[rec.ticker].sentiment?.label || 'Neutral'}
                                                 </div>
                                               </div>
-                                            )}
-                                            {stockData[rec.ticker].metrics.revenueGrowth !== null && (
-                                              <div>
-                                                <div className="text-gray-500">
-                                                  Revenue Growth {stockData[rec.ticker].metrics.growthPeriod && `(${stockData[rec.ticker].metrics.growthPeriod})`}
-                                                </div>
-                                                <div className={`font-semibold ${stockData[rec.ticker].metrics.revenueGrowth! >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                                  {stockData[rec.ticker].metrics.revenueGrowth! >= 0 ? '+' : ''}{stockData[rec.ticker].metrics.revenueGrowth!.toFixed(1)}%
-                                                </div>
-                                              </div>
-                                            )}
-                                            {stockData[rec.ticker].metrics.profitMargin !== null && (
-                                              <div>
-                                                <div className="text-gray-500">Profit Margin</div>
-                                                <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics.profitMargin!.toFixed(1)}%</div>
-                                              </div>
-                                            )}
-                                            {stockData[rec.ticker].metrics.dividendYield !== null && stockData[rec.ticker].metrics.dividendYield! > 0 && (
-                                              <div>
-                                                <div className="text-gray-500">Dividend Yield</div>
-                                                <div className="text-[#00FF99] font-semibold">{stockData[rec.ticker].metrics.dividendYield!.toFixed(2)}%</div>
-                                              </div>
-                                            )}
+                                            </div>
                                           </div>
-                                        </div>
-                                      </div>
 
-                                      {/* Bottom Row: Recent Headline (Full Width) */}
-                                      {stockData[rec.ticker].headline && (
-                                        <div>
-                                          <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                            Recent News
-                                          </h6>
-                                          <a 
-                                            href={stockData[rec.ticker].headline!.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 transition-all hover:border-[#00FF99]/30"
-                                          >
-                                            <div className="text-xs text-gray-300 leading-snug mb-1 line-clamp-2">
-                                              {stockData[rec.ticker].headline!.title}
+                                          {/* Bottom Row: Recent Headline */}
+                                          {stockData[rec.ticker].headline && (
+                                            <div>
+                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                                Recent News
+                                              </h6>
+                                              <a 
+                                                href={stockData[rec.ticker].headline!.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 transition-all hover:border-[#00FF99]/30"
+                                              >
+                                                <div className="text-xs text-gray-300 leading-snug mb-1 line-clamp-2">
+                                                  {stockData[rec.ticker].headline!.title}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                  {stockData[rec.ticker].headline!.site} • {new Date(stockData[rec.ticker].headline!.publishedDate).toLocaleDateString()}
+                                                </div>
+                                              </a>
                                             </div>
-                                            <div className="text-xs text-gray-500">
-                                              {stockData[rec.ticker].headline!.site} • {new Date(stockData[rec.ticker].headline!.publishedDate).toLocaleDateString()}
+                                          )}
+                                        </div>
+                                      ) : (
+                                        /* EQUITIES: Sentiment + Equity Metrics + News */
+                                        <div className="space-y-4">
+                                          <div className="grid grid-cols-5 gap-4">
+                                            {/* Left: Sentiment Gauge (2 columns) */}
+                                            <div className="col-span-2">
+                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                                Sentiment
+                                              </h6>
+                                              <div className="flex flex-col items-center">
+                                                <ResponsiveContainer width="100%" height={100}>
+                                                  <PieChart>
+                                                    <Pie
+                                                      data={[
+                                                        { value: stockData[rec.ticker].sentiment?.score || 50 },
+                                                        { value: 100 - (stockData[rec.ticker].sentiment?.score || 50) }
+                                                      ]}
+                                                      cx="50%"
+                                                      cy="50%"
+                                                      startAngle={180}
+                                                      endAngle={0}
+                                                      innerRadius={35}
+                                                      outerRadius={45}
+                                                      dataKey="value"
+                                                    >
+                                                      <Cell fill={
+                                                        (stockData[rec.ticker].sentiment?.score || 50) >= 60 ? '#10B981' :
+                                                        (stockData[rec.ticker].sentiment?.score || 50) >= 40 ? '#F59E0B' :
+                                                        '#EF4444'
+                                                      } />
+                                                      <Cell fill="#1A1A1A" />
+                                                    </Pie>
+                                                  </PieChart>
+                                                </ResponsiveContainer>
+                                                <div className="text-center -mt-12">
+                                                  <div className="text-xl font-bold text-[#E6E6E6]">
+                                                    {stockData[rec.ticker].sentiment?.score || 50}
+                                                  </div>
+                                                  <div className={`text-xs font-semibold ${
+                                                    stockData[rec.ticker].sentiment?.label === 'Bullish' ? 'text-green-400' :
+                                                    stockData[rec.ticker].sentiment?.label === 'Bearish' ? 'text-red-400' :
+                                                    'text-yellow-400'
+                                                  }`}>
+                                                    {stockData[rec.ticker].sentiment?.label || 'Neutral'}
+                                                  </div>
+                                                </div>
+                                              </div>
                                             </div>
-                                          </a>
+
+                                            {/* Right: Equity Metrics (3 columns) */}
+                                            <div className="col-span-3">
+                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                                Key Metrics
+                                              </h6>
+                                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                                {stockData[rec.ticker].metrics?.peRatio !== null && stockData[rec.ticker].metrics?.peRatio !== undefined && (
+                                                  <div>
+                                                    <div className="text-gray-500">P/E Ratio</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.peRatio!.toFixed(2)}</div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.revenueGrowth !== null && stockData[rec.ticker].metrics?.revenueGrowth !== undefined && (
+                                                  <div>
+                                                    <div className="text-gray-500">
+                                                      Revenue Growth {stockData[rec.ticker].metrics?.growthPeriod && `(${stockData[rec.ticker].metrics?.growthPeriod})`}
+                                                    </div>
+                                                    <div className={`font-semibold ${stockData[rec.ticker].metrics!.revenueGrowth! >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                      {stockData[rec.ticker].metrics!.revenueGrowth! >= 0 ? '+' : ''}{stockData[rec.ticker].metrics!.revenueGrowth!.toFixed(1)}%
+                                                    </div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.profitMargin !== null && stockData[rec.ticker].metrics?.profitMargin !== undefined && (
+                                                  <div>
+                                                    <div className="text-gray-500">Profit Margin</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.profitMargin!.toFixed(1)}%</div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.dividendYield !== null && stockData[rec.ticker].metrics?.dividendYield !== undefined && stockData[rec.ticker].metrics!.dividendYield! > 0 && (
+                                                  <div>
+                                                    <div className="text-gray-500">Dividend Yield</div>
+                                                    <div className="text-[#00FF99] font-semibold">{stockData[rec.ticker].metrics!.dividendYield!.toFixed(2)}%</div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.sma50 !== null && stockData[rec.ticker].metrics?.sma50 !== undefined && (
+                                                  <div>
+                                                    <div className="text-gray-500">50-Day SMA</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">${stockData[rec.ticker].metrics!.sma50!.toFixed(2)}</div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.sma200 !== null && stockData[rec.ticker].metrics?.sma200 !== undefined && (
+                                                  <div>
+                                                    <div className="text-gray-500">200-Day SMA</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">${stockData[rec.ticker].metrics!.sma200!.toFixed(2)}</div>
+                                                  </div>
+                                                )}
+                                                {stockData[rec.ticker].metrics?.marketCap !== null && stockData[rec.ticker].metrics?.marketCap !== undefined && (
+                                                  <div>
+                                                    <div className="text-gray-500">Market Cap</div>
+                                                    <div className="text-[#E6E6E6] font-semibold">
+                                                      ${stockData[rec.ticker].metrics!.marketCap! >= 1e12 
+                                                        ? (stockData[rec.ticker].metrics!.marketCap! / 1e12).toFixed(2) + 'T'
+                                                        : (stockData[rec.ticker].metrics!.marketCap! / 1e9).toFixed(1) + 'B'}
+                                                    </div>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          {/* Bottom Row: Recent Headline */}
+                                          {stockData[rec.ticker].headline && (
+                                            <div>
+                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                                Recent News
+                                              </h6>
+                                              <a 
+                                                href={stockData[rec.ticker].headline!.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 transition-all hover:border-[#00FF99]/30"
+                                              >
+                                                <div className="text-xs text-gray-300 leading-snug mb-1 line-clamp-2">
+                                                  {stockData[rec.ticker].headline!.title}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                  {stockData[rec.ticker].headline!.site} • {new Date(stockData[rec.ticker].headline!.publishedDate).toLocaleDateString()}
+                                                </div>
+                                              </a>
+                                            </div>
+                                          )}
                                         </div>
                                       )}
-                                    </div>
+                                    </>
                                   ) : (
-                                    <div className="flex items-center justify-center h-full">
+                                    <div className="flex items-center justify-center h-full min-h-[200px]">
                                       <p className="text-sm text-gray-400">No market data available</p>
                                     </div>
                                   )}

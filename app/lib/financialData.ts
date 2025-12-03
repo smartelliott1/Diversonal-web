@@ -1214,6 +1214,147 @@ export async function getCryptoNews(symbol: string, limit: number = 20): Promise
   }
 }
 
+// ============================================================================
+// CRYPTO-SPECIFIC DATA FUNCTIONS
+// ============================================================================
+
+export interface CryptoQuote {
+  symbol: string;
+  name: string;
+  price: number;
+  changePercentage: number;
+  change: number;
+  volume: number;
+  dayLow: number;
+  dayHigh: number;
+  yearHigh: number;
+  yearLow: number;
+  marketCap: number;
+  priceAvg50: number;
+  priceAvg200: number;
+}
+
+export async function getCryptoQuote(symbol: string): Promise<CryptoQuote | null> {
+  const cacheKey = `crypto-quote-${symbol}`;
+  const cached = getCached<CryptoQuote>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached crypto quote for ${symbol}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/quote?symbol=${symbol}`);
+    if (!data || data.length === 0) return null;
+    
+    const raw = data[0];
+    const quote: CryptoQuote = {
+      symbol: raw.symbol,
+      name: raw.name,
+      price: raw.price,
+      changePercentage: raw.changePercentage,
+      change: raw.change,
+      volume: raw.volume,
+      dayLow: raw.dayLow,
+      dayHigh: raw.dayHigh,
+      yearHigh: raw.yearHigh,
+      yearLow: raw.yearLow,
+      marketCap: raw.marketCap,
+      priceAvg50: raw.priceAvg50,
+      priceAvg200: raw.priceAvg200,
+    };
+    
+    setCache(cacheKey, quote, 5); // Cache 5 minutes
+    console.log(`[FMP] Fetched crypto quote for ${symbol}`);
+    return quote;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching crypto quote for ${symbol}:`, error?.message);
+    return null;
+  }
+}
+
+export async function getCryptoRSI(symbol: string): Promise<{ rsi: number; label: string } | null> {
+  const cacheKey = `crypto-rsi-${symbol}`;
+  const cached = getCached<{ rsi: number; label: string }>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached crypto RSI for ${symbol}`);
+    return cached;
+  }
+  
+  try {
+    const data = await fetchFMP(`/stable/technical-indicators/rsi?symbol=${symbol}&periodLength=14&timeframe=1day`);
+    if (!data || data.length === 0) return null;
+    
+    const rsi = data[0].rsi;
+    let label: string;
+    if (rsi >= 70) {
+      label = "Overbought";
+    } else if (rsi <= 30) {
+      label = "Oversold";
+    } else if (rsi >= 60) {
+      label = "Bullish";
+    } else if (rsi <= 40) {
+      label = "Bearish";
+    } else {
+      label = "Neutral";
+    }
+    
+    const result = { rsi, label };
+    setCache(cacheKey, result, 15); // Cache 15 minutes
+    console.log(`[FMP] Fetched crypto RSI for ${symbol}: ${rsi.toFixed(1)} (${label})`);
+    return result;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching crypto RSI for ${symbol}:`, error?.message);
+    return null;
+  }
+}
+
+export interface CryptoSMAs {
+  sma140: number | null;  // 20 Week SMA
+  sma350: number | null;  // 50 Week SMA
+  sma1400: number | null; // 200 Week SMA
+}
+
+export async function getCryptoSMAs(symbol: string): Promise<CryptoSMAs> {
+  const cacheKey = `crypto-smas-${symbol}`;
+  const cached = getCached<CryptoSMAs>(cacheKey);
+  if (cached) {
+    console.log(`[FMP] Using cached crypto SMAs for ${symbol}`);
+    return cached;
+  }
+  
+  const result: CryptoSMAs = {
+    sma140: null,
+    sma350: null,
+    sma1400: null,
+  };
+  
+  try {
+    // Fetch all three SMAs in parallel
+    const [sma140Data, sma350Data, sma1400Data] = await Promise.all([
+      fetchFMP(`/stable/technical-indicators/sma?symbol=${symbol}&periodLength=140&timeframe=1day`),
+      fetchFMP(`/stable/technical-indicators/sma?symbol=${symbol}&periodLength=350&timeframe=1day`),
+      fetchFMP(`/stable/technical-indicators/sma?symbol=${symbol}&periodLength=1400&timeframe=1day`),
+    ]);
+    
+    if (sma140Data && sma140Data.length > 0) {
+      result.sma140 = sma140Data[0].sma;
+    }
+    if (sma350Data && sma350Data.length > 0) {
+      result.sma350 = sma350Data[0].sma;
+    }
+    if (sma1400Data && sma1400Data.length > 0) {
+      result.sma1400 = sma1400Data[0].sma;
+    }
+    
+    setCache(cacheKey, result, 60); // Cache 1 hour
+    console.log(`[FMP] Fetched crypto SMAs for ${symbol}: 20W=${result.sma140?.toFixed(0)}, 50W=${result.sma350?.toFixed(0)}, 200W=${result.sma1400?.toFixed(0)}`);
+    return result;
+  } catch (error: any) {
+    console.error(`[FMP] Error fetching crypto SMAs for ${symbol}:`, error?.message);
+    return result;
+  }
+}
+
 export async function getEarningsCalendar(): Promise<EarningsEvent[]> {
   const cacheKey = "earnings-calendar";
   const cached = getCached<EarningsEvent[]>(cacheKey);
