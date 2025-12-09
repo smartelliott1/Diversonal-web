@@ -1,8 +1,26 @@
-import { neon } from "@neondatabase/serverless";
+import { neon, NeonQueryFunction } from "@neondatabase/serverless";
 
-// Create a SQL query function using Neon's serverless driver
-// This works directly on Vercel without any binary engine issues
-export const sql = neon(process.env.DATABASE_URL!);
+// Lazy-initialized SQL client to avoid build-time errors
+let sqlClient: NeonQueryFunction<false, false> | null = null;
+
+function getSql(): NeonQueryFunction<false, false> {
+  if (!sqlClient) {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error("DATABASE_URL environment variable is not set");
+    }
+    sqlClient = neon(databaseUrl);
+  }
+  return sqlClient;
+}
+
+// Export a tagged template function that lazily initializes the connection
+export const sql: NeonQueryFunction<false, false> = ((
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+) => {
+  return getSql()(strings, ...values);
+}) as NeonQueryFunction<false, false>;
 
 // Helper to generate cuid-like IDs
 export function generateId(): string {
