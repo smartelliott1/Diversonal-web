@@ -312,7 +312,7 @@ export default function Home() {
     <div className="h-screen overflow-y-auto">
       {/* Fixed Navigation Bar for Landing Page */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1A1A1A] border-b border-[#2A2A2A]">
-        <div className="mx-auto px-6">
+        <div className="relative mx-auto px-6">
           <div className="flex h-16 items-center justify-between">
             {/* Logo/Brand - Left Side */}
             <Link
@@ -324,21 +324,6 @@ export default function Home() {
                 <span className="ml-2 text-sm font-black tracking-[0.225em] text-white align-middle">BETA</span>
               </h1>
             </Link>
-            
-            {/* Center - Small Text Links (hidden on mobile) */}
-            <div className="hidden md:flex items-center gap-6">
-              <Link href="/develop" className="text-sm text-[#B4B4B4] hover:text-white transition-colors">
-                Develop a Portfolio
-              </Link>
-              <span className="text-[#3A3A3A]">|</span>
-              <Link href="/optimize" className="text-sm text-[#B4B4B4] hover:text-white transition-colors">
-                Optimize my Portfolio
-              </Link>
-              <span className="text-[#3A3A3A]">|</span>
-              <Link href="/markets" className="text-sm text-[#B4B4B4] hover:text-white transition-colors">
-                TradingView
-              </Link>
-            </div>
             
             {/* Right Side - Auth + Get Started */}
             <div className="flex items-center gap-3">
@@ -365,6 +350,21 @@ export default function Home() {
                 </svg>
               </Link>
             </div>
+          </div>
+          
+          {/* Center links - absolutely positioned, truly centered on screen */}
+          <div className="absolute left-1/2 top-0 h-16 -translate-x-1/2 hidden md:flex items-center gap-6 pointer-events-auto">
+            <Link href="/develop" className="text-sm text-[#B4B4B4] hover:text-white transition-colors">
+              Develop a Portfolio
+            </Link>
+            <span className="text-[#3A3A3A]">|</span>
+            <Link href="/optimize" className="text-sm text-[#B4B4B4] hover:text-white transition-colors">
+              Optimize my Portfolio
+            </Link>
+            <span className="text-[#3A3A3A]">|</span>
+            <Link href="/markets" className="text-sm text-[#B4B4B4] hover:text-white transition-colors">
+              TradingView
+            </Link>
           </div>
         </div>
       </nav>
