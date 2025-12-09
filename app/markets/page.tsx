@@ -1,61 +1,58 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Navigation from "../components/layout/Navigation";
 
 export default function MarketsPage() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || isLoaded) return;
     
     // Clear any existing widget
     containerRef.current.innerHTML = '';
     
+    // Create widget container div
+    const widgetDiv = document.createElement('div');
+    widgetDiv.className = 'tradingview-widget-container__widget';
+    widgetDiv.style.height = '100%';
+    widgetDiv.style.width = '100%';
+    
+    // Create and configure script
     const script = document.createElement('script');
+    script.type = 'text/javascript';
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
     script.async = true;
-    script.innerHTML = JSON.stringify({
-      "allow_symbol_change": true,
-      "calendar": false,
-      "details": false,
-      "hide_side_toolbar": false,
-      "hide_top_toolbar": false,
-      "hide_legend": false,
-      "hide_volume": true,
-      "hotlist": false,
-      "interval": "D",
-      "locale": "en",
-      "save_image": true,
-      "style": "1",
+    script.textContent = JSON.stringify({
+      "autosize": true,
       "symbol": "NASDAQ:AAPL",
-      "theme": "dark",
+      "interval": "D",
       "timezone": "America/Chicago",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
       "backgroundColor": "#0F0F0F",
       "gridColor": "rgba(128, 128, 128, 0.18)",
-      "watchlist": [],
-      "withdateranges": false,
-      "compareSymbols": [],
-      "studies": [],
-      "autosize": true
+      "allow_symbol_change": true,
+      "calendar": false,
+      "hide_volume": true,
+      "support_host": "https://www.tradingview.com"
     });
     
-    const widgetContainer = document.createElement('div');
-    widgetContainer.className = 'tradingview-widget-container__widget';
-    widgetContainer.style.height = 'calc(100% - 32px)';
-    widgetContainer.style.width = '100%';
-    
-    containerRef.current.appendChild(widgetContainer);
+    containerRef.current.appendChild(widgetDiv);
     containerRef.current.appendChild(script);
-  }, []);
+    setIsLoaded(true);
+  }, [isLoaded]);
 
   return (
     <div className="min-h-screen bg-[#0F0F0F]">
       <Navigation />
       
-      <main className="pt-16 h-screen">
+      <main className="pt-16 h-screen flex flex-col">
         <div 
           ref={containerRef}
-          className="tradingview-widget-container h-full w-full"
+          className="tradingview-widget-container flex-1 w-full"
+          style={{ height: 'calc(100vh - 64px)' }}
         />
         
         {/* TradingView Attribution */}
