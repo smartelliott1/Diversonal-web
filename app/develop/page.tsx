@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { flushSync } from "react-dom";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 // Diversonal Portfolio Allocation Platform
@@ -203,6 +202,7 @@ export default function DevelopPage() {
   // Stock count selector state
   const [stockCountSelectorOpen, setStockCountSelectorOpen] = useState(false);
   const [regeneratingAssetClass, setRegeneratingAssetClass] = useState("");
+  const [regeneratingAllocation, setRegeneratingAllocation] = useState(0);
   
   // Per-asset-class loading state
   const [assetClassLoading, setAssetClassLoading] = useState<Record<string, boolean>>({});
@@ -468,19 +468,15 @@ export default function DevelopPage() {
     return normalized;
   };
 
-  // Handle detailed recommendations request - Sequential per-asset-class loading
+  // Handle detailed recommendations request
   const handleGetDetailedRecommendations = async () => {
     // Reset state
     setStreamingText("");
     setParsedAssetClasses([]);
     setPartialRecommendations({} as DetailedRecommendations);
-    setDetailedRecommendations(null);
     setMarketContext(null);
     setStockData({});
     setRightColumnLoading({});
-    setStockPrices({});
-    setAssetClassLoading({});
-    setAssetClassStreamingText({});
 
     // Use saved form data
     const formData = savedFormData || {
@@ -494,14 +490,6 @@ export default function DevelopPage() {
 
     // Filter out asset classes with 0% allocation
     const filteredPortfolio = currentPortfolioData.filter(item => item.value > 0);
-    
-    if (filteredPortfolio.length === 0) {
-      toast.error("No asset classes with allocation to generate recommendations for");
-      return;
-    }
-
-    // Set the first asset class as active tab
-    setActiveTab(filteredPortfolio[0].name);
 
     // STAGE 1: Market Context
     setMarketContextLoading(true);
@@ -523,149 +511,206 @@ export default function DevelopPage() {
     } catch (error: any) {
       console.error("[Stage 1] Error:", error);
       toast.error("Market context unavailable, continuing with recommendations...");
+      // Continue to Stage 2 even if Stage 1 fails
     } finally {
       setMarketContextLoading(false);
     }
 
-    // STAGE 2: Stock Recommendations - Sequential per asset class
+    // STAGE 2: Stock Recommendations
     setDetailPanelLoading(true);
-    
     try {
-      console.log("[Stage 2] Generating recommendations sequentially for each asset class...");
+      console.log("[Stage 2] Fetching stock recommendations...");
+      const response = await fetch("/api/stock-recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          portfolio: filteredPortfolio,
+          formData,
+          marketContext,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(errorData.error || "Failed to generate recommendations");
+      }
+
+      // Check if response is streaming or JSON (queue status)
+      const contentType = response.headers.get("content-type");
       
-      // Initialize empty recommendations object with marketContext placeholder
-      const allRecommendations: DetailedRecommendations = {
-        marketContext: "",
-      };
-
-      // Process each asset class sequentially
-      for (const portfolioItem of filteredPortfolio) {
-        const assetClass = portfolioItem.name;
-        const defaultCount = ASSET_CLASS_LIMITS[assetClass]?.default || 6;
+      if (contentType?.includes("application/json")) {
+        const data = await response.json();
         
-        console.log(`[Stage 2] Generating ${defaultCount} recommendations for ${assetClass}...`);
-        
-        // Set loading state for this asset class
-        setAssetClassLoading(prev => ({ ...prev, [assetClass]: true }));
-        setParsedAssetClasses(prev => [...prev, assetClass]);
-        
-        try {
-          const response = await fetch("/api/asset-class-recommendations", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              assetClass,
-              allocation: portfolioItem.value,
-              breakdown: portfolioItem.breakdown,
-              formData,
-              stockCount: defaultCount,
-            }),
+        // Handle queue response
+        if (data.queued) {
+          toast.loading(data.message || `You're in position ${data.position}. Please wait...`, {
+            duration: 5000,
           });
+          setDetailPanelLoading(false);
+          return;
+        }
+        
+        // Handle error
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        // Handle regular JSON response (fallback)
+        setDetailedRecommendations(data);
+        setIsFirstGeneration(false);
+        
+        if (currentPortfolioData.length > 0) {
+          setActiveTab(currentPortfolioData[0].name);
+        }
+        
+        toast.success("Recommendations generated!");
+      } else if (contentType?.includes("text/event-stream") || contentType?.includes("text/plain")) {
+        // Handle streaming response
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedText = "";
 
-          if (!response.ok) {
-            console.error(`Failed to generate recommendations for ${assetClass}`);
-            setAssetClassLoading(prev => ({ ...prev, [assetClass]: false }));
-            continue;
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value, { stream: true });
+            accumulatedText += chunk;
+            setStreamingText(accumulatedText);
+            
+            // Parse and extract completed asset class sections
+            const detectAndExtractCompleted = (text: string) => {
+              const partial: any = {};
+              const pattern = /"(\w+)":\s*\{[\s\S]*?"recommendations":\s*\[[\s\S]*?\][\s\S]*?"breakdown":\s*\[[\s\S]*?\]\s*\}/g;
+              const matches = [...text.matchAll(pattern)];
+              
+              matches.forEach(match => {
+                const assetClass = match[1];
+                if (assetClass !== 'marketContext') {
+                  try {
+                    const sectionText = `{${match[0]}}`;
+                    const parsed = JSON.parse(sectionText);
+                    partial[assetClass] = parsed[assetClass];
+                  } catch (e) {
+                    // Parsing failed
+                  }
+                }
+              });
+              
+              return partial;
+            };
+            
+            const partialData = detectAndExtractCompleted(accumulatedText);
+            if (Object.keys(partialData).length > 0) {
+              setParsedAssetClasses(Object.keys(partialData));
+              setPartialRecommendations(partialData as DetailedRecommendations);
+            }
           }
 
-          // Handle streaming response
-          const reader = response.body?.getReader();
-          const decoder = new TextDecoder();
-          let accumulatedText = "";
-
-          if (reader) {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
+          // Parse final JSON
+          try {
+            const jsonMatch = accumulatedText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              const data = JSON.parse(jsonMatch[0]);
+              setDetailedRecommendations(data);
+              setIsFirstGeneration(false);
               
-              const chunk = decoder.decode(value, { stream: true });
-              accumulatedText += chunk;
-              setAssetClassStreamingText(prev => ({ ...prev, [assetClass]: accumulatedText }));
-              setStreamingText(accumulatedText); // Also update global streaming for the initial view
-            }
+              if (currentPortfolioData.length > 0) {
+                setActiveTab(currentPortfolioData[0].name);
+              }
+              
+              toast.success("Recommendations generated!");
+              console.log("[Stage 2] Stock recommendations loaded");
 
-            // Parse final JSON for this asset class
-            try {
-              const jsonMatch = accumulatedText.match(/\{[\s\S]*\}/);
-              if (jsonMatch) {
-                const data = JSON.parse(jsonMatch[0]);
-                
-                // Normalize breakdown percentages to sum to 100
-                if (data.breakdown) {
-                  data.breakdown = normalizeBreakdown(data.breakdown);
+              // Extract tickers with their asset classes from recommendations
+              const tickerMap: { ticker: string; assetClass: string }[] = [];
+              Object.keys(data).forEach(assetClass => {
+                const assetData = data[assetClass];
+                if (typeof assetData !== 'string' && assetData.recommendations) {
+                  assetData.recommendations.forEach((rec: any) => {
+                    if (rec.ticker) {
+                      tickerMap.push({ ticker: rec.ticker, assetClass });
+                    }
+                  });
                 }
+              });
+
+              // STAGE 3: Fetch Right Column Data (asset-class-specific)
+              if (tickerMap.length > 0) {
+                console.log(`[Stage 3] Loading data for ${tickerMap.length} assets...`);
                 
-                // Add to all recommendations
-                allRecommendations[assetClass] = data;
+                // Set loading state for all tickers
+                const loadingState: Record<string, boolean> = {};
+                tickerMap.forEach(({ ticker }) => loadingState[ticker] = true);
+                setRightColumnLoading(loadingState);
                 
-                // Use flushSync to force immediate re-render so user sees this asset class immediately
-                flushSync(() => {
-                  setPartialRecommendations(prev => ({
-                    ...prev,
-                    [assetClass]: data,
-                  }));
-                });
+                // Get unique tickers for price fetching (exclude Cash which doesn't need prices)
+                const priceTickers = tickerMap
+                  .filter(({ assetClass }) => assetClass !== 'Cash')
+                  .map(({ ticker }) => ticker);
                 
-                // Fetch prices and data for this asset class's tickers
-                const tickers = data.recommendations?.map((rec: any) => rec.ticker) || [];
-                if (tickers.length > 0) {
-                  // Set loading state for tickers
-                  const tickerLoadingState: Record<string, boolean> = {};
-                  tickers.forEach((ticker: string) => tickerLoadingState[ticker] = true);
-                  setRightColumnLoading(prev => ({ ...prev, ...tickerLoadingState }));
-                  
-                  // Fetch prices (don't await, let it run in background)
-                  if (assetClass !== 'Cash') {
-                    fetch("/api/stock-prices", {
+                // Fetch stock prices first (fast) - only for non-cash assets
+                const pricesPromise = (async () => {
+                  if (priceTickers.length === 0) return;
+                  try {
+                    console.log(`[Stage 3] Fetching live prices for ${priceTickers.length} tickers...`);
+                    setStockPricesLoading(true);
+                    
+                    const pricesResponse = await fetch("/api/stock-prices", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ tickers }),
-                    })
-                      .then(res => res.json())
-                      .then(pricesData => {
-                        setStockPrices(prev => ({ ...prev, ...(pricesData.prices || {}) }));
-                      })
-                      .catch(e => console.error("Error fetching prices:", e));
+                      body: JSON.stringify({ tickers: priceTickers }),
+                    });
+
+                    if (pricesResponse.ok) {
+                      const pricesData = await pricesResponse.json();
+                      setStockPrices(pricesData.prices || {});
+                      console.log("[Stage 3] Live prices loaded for", Object.keys(pricesData.prices || {}).length, "tickers");
+                    }
+                  } catch (pricesError) {
+                    console.error("[Stage 3] Error fetching stock prices:", pricesError);
+                  } finally {
+                    setStockPricesLoading(false);
                   }
-                  
-                  // Fetch asset data for each ticker (parallel)
-                  tickers.forEach((ticker: string) => {
-                    fetch('/api/asset-data', {
+                })();
+                
+                // Fetch asset data for each ticker using the new asset-data endpoint
+                const dataPromises = tickerMap.map(async ({ ticker, assetClass }) => {
+                  try {
+                    const response = await fetch('/api/asset-data', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ ticker, assetClass })
-                    })
-                      .then(res => res.json())
-                      .then(responseData => {
-                        setStockData(prev => ({ ...prev, [ticker]: { ...responseData, assetClass } }));
-                        setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
-                      })
-                      .catch(() => {
-                        setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
-                      });
-                  });
-                }
+                    });
+                    
+                    if (response.ok) {
+                      const responseData = await response.json();
+                      
+                      // Update state as each ticker completes
+                      setStockData(prev => ({ ...prev, [ticker]: { ...responseData, assetClass } }));
+                      setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
+                      console.log(`[Stage 3] Data loaded for ${ticker} (${assetClass})`);
+                    } else {
+                      setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
+                    }
+                  } catch (error) {
+                    console.error(`[Stage 3] Error loading data for ${ticker}:`, error);
+                    setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
+                  }
+                });
                 
-                console.log(`[Stage 2] ${assetClass} recommendations loaded`);
+                // Wait for all to complete
+                await Promise.allSettled([pricesPromise, ...dataPromises]);
+                console.log('[Stage 3] All asset data loaded');
               }
-            } catch (parseError) {
-              console.error(`Error parsing response for ${assetClass}:`, parseError);
             }
+          } catch (parseError) {
+            console.error("Error parsing streamed response:", parseError);
+            throw new Error("Invalid response format");
           }
-        } catch (error) {
-          console.error(`[Stage 2] Error for ${assetClass}:`, error);
-        } finally {
-          setAssetClassLoading(prev => ({ ...prev, [assetClass]: false }));
-          setAssetClassStreamingText(prev => ({ ...prev, [assetClass]: "" }));
         }
       }
-
-      // Set final recommendations
-      setDetailedRecommendations(allRecommendations);
-      setIsFirstGeneration(false);
-      toast.success("All recommendations generated!");
-      console.log("[Stage 2] All asset class recommendations complete");
-      
     } catch (error: any) {
       console.error("[Stage 2] Error:", error);
       toast.error(error?.message || "Failed to generate recommendations. Please try again.");
@@ -2483,6 +2528,7 @@ export default function DevelopPage() {
                             <button
                               onClick={() => {
                                 setRegeneratingAssetClass(assetClass);
+                                setRegeneratingAllocation(portfolioItem.value);
                                 setStockCountSelectorOpen(true);
                               }}
                               className="w-full rounded-lg border border-[#2A2A2A] bg-[#242424] px-5 py-3 text-sm font-medium text-[#B4B4B4] hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all flex items-center justify-center gap-2"
@@ -3204,6 +3250,7 @@ export default function DevelopPage() {
         onClose={() => setStockCountSelectorOpen(false)}
         onSelect={(count) => handleRegenerateAssetClass(regeneratingAssetClass, count)}
         assetClass={regeneratingAssetClass}
+        allocation={regeneratingAllocation}
       />
     </main>
   );

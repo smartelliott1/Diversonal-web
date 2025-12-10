@@ -6,31 +6,53 @@ interface StockCountSelectorProps {
   onClose: () => void;
   onSelect: (count: number) => void;
   assetClass: string;
+  allocation?: number; // Allocation % for smart defaults
 }
 
-// Min/max/default by asset class
-const ASSET_CLASS_LIMITS: Record<string, { min: number; max: number; default: number }> = {
-  "Equities": { min: 1, max: 15, default: 7 },
-  "Bonds": { min: 1, max: 8, default: 5 },
-  "Cryptocurrencies": { min: 1, max: 6, default: 4 },
-  "Commodities": { min: 1, max: 6, default: 4 },
-  "Real Estate": { min: 1, max: 6, default: 4 },
-  "Cash": { min: 1, max: 4, default: 3 },
+// Min/max by asset class (user specified limits)
+const ASSET_CLASS_LIMITS: Record<string, { min: number; max: number }> = {
+  "Equities": { min: 1, max: 15 },
+  "Bonds": { min: 1, max: 5 },
+  "Cryptocurrencies": { min: 1, max: 5 },
+  "Commodities": { min: 1, max: 4 },
+  "Real Estate": { min: 1, max: 4 },
+  "Cash": { min: 1, max: 3 },
 };
+
+// Calculate smart default based on allocation %
+function getSmartDefault(assetClass: string, allocation: number): number {
+  const limits = ASSET_CLASS_LIMITS[assetClass] || ASSET_CLASS_LIMITS["Equities"];
+  
+  let defaultCount: number;
+  if (allocation <= 5) {
+    defaultCount = 1;
+  } else if (allocation <= 15) {
+    defaultCount = 2;
+  } else if (allocation <= 30) {
+    defaultCount = Math.min(4, limits.max);
+  } else {
+    // 31%+: use 5+ picks, capped by max
+    defaultCount = Math.min(assetClass === "Equities" ? 7 : 5, limits.max);
+  }
+  
+  return Math.min(defaultCount, limits.max);
+}
 
 export default function StockCountSelector({ 
   isOpen, 
   onClose, 
   onSelect, 
-  assetClass 
+  assetClass,
+  allocation = 20 // Default to 20% if not provided
 }: StockCountSelectorProps) {
   const limits = ASSET_CLASS_LIMITS[assetClass] || ASSET_CLASS_LIMITS["Equities"];
-  const [count, setCount] = useState(limits.default);
+  const smartDefault = getSmartDefault(assetClass, allocation);
+  const [count, setCount] = useState(smartDefault);
 
-  // Reset count when asset class changes
+  // Reset count when asset class or allocation changes
   useEffect(() => {
-    setCount(limits.default);
-  }, [assetClass, limits.default]);
+    setCount(getSmartDefault(assetClass, allocation));
+  }, [assetClass, allocation]);
 
   // Handle escape key
   useEffect(() => {
@@ -130,7 +152,7 @@ export default function StockCountSelector({
           </div>
           
           <p className="mt-4 text-center text-xs text-[#808080]">
-            Range: {limits.min} – {limits.max} (default: {limits.default})
+            Range: {limits.min} – {limits.max} (suggested: {smartDefault} for {allocation}% allocation)
           </p>
         </div>
         
