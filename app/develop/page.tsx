@@ -16,6 +16,10 @@ import SignUpModal from "../components/auth/SignUpModal";
 import MyPortfoliosModal from "../components/auth/MyPortfoliosModal";
 // Shared navigation
 import Navigation from "../components/layout/Navigation";
+// Chart modal for stock popups
+import ChartModal from "../components/ChartModal";
+// Stock count selector for regeneration
+import StockCountSelector, { ASSET_CLASS_LIMITS } from "../components/StockCountSelector";
 
 // Type definitions for saved portfolios
 interface PortfolioItem {
@@ -189,6 +193,19 @@ export default function DevelopPage() {
   const [goalLength, setGoalLength] = useState(0);
   const portfolioRef = useRef<HTMLDivElement>(null);
   const streamingTextRef = useRef<HTMLDivElement>(null);
+  
+  // Chart modal state
+  const [chartModalOpen, setChartModalOpen] = useState(false);
+  const [chartModalTicker, setChartModalTicker] = useState("");
+  const [chartModalName, setChartModalName] = useState("");
+  
+  // Stock count selector state
+  const [stockCountSelectorOpen, setStockCountSelectorOpen] = useState(false);
+  const [regeneratingAssetClass, setRegeneratingAssetClass] = useState("");
+  
+  // Per-asset-class loading state
+  const [assetClassLoading, setAssetClassLoading] = useState<Record<string, boolean>>({});
+  const [assetClassStreamingText, setAssetClassStreamingText] = useState<Record<string, string>>({});
   
   // Available sectors for selection
   const sectors = ["Technology", "Energy", "Finance", "Healthcare", "Cryptocurrency", "Blockchain Integration", "Real Estate", "Precious Metals", "Aerospace", "Quantum Computing", "AI", "Biotech", "Robotics", "Consumer/Retail"];
@@ -426,15 +443,19 @@ export default function DevelopPage() {
     toast.success("Copied to clipboard!");
   };
 
-  // Handle detailed recommendations request
+  // Handle detailed recommendations request - Sequential per-asset-class loading
   const handleGetDetailedRecommendations = async () => {
     // Reset state
     setStreamingText("");
     setParsedAssetClasses([]);
     setPartialRecommendations({} as DetailedRecommendations);
+    setDetailedRecommendations(null);
     setMarketContext(null);
     setStockData({});
     setRightColumnLoading({});
+    setStockPrices({});
+    setAssetClassLoading({});
+    setAssetClassStreamingText({});
 
     // Use saved form data
     const formData = savedFormData || {
@@ -448,6 +469,14 @@ export default function DevelopPage() {
 
     // Filter out asset classes with 0% allocation
     const filteredPortfolio = currentPortfolioData.filter(item => item.value > 0);
+    
+    if (filteredPortfolio.length === 0) {
+      toast.error("No asset classes with allocation to generate recommendations for");
+      return;
+    }
+
+    // Set the first asset class as active tab
+    setActiveTab(filteredPortfolio[0].name);
 
     // STAGE 1: Market Context
     setMarketContextLoading(true);
@@ -469,212 +498,274 @@ export default function DevelopPage() {
     } catch (error: any) {
       console.error("[Stage 1] Error:", error);
       toast.error("Market context unavailable, continuing with recommendations...");
-      // Continue to Stage 2 even if Stage 1 fails
     } finally {
       setMarketContextLoading(false);
     }
 
-    // STAGE 2: Stock Recommendations
+    // STAGE 2: Stock Recommendations - Sequential per asset class
     setDetailPanelLoading(true);
+    
     try {
-      console.log("[Stage 2] Fetching stock recommendations...");
-      const response = await fetch("/api/stock-recommendations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          portfolio: filteredPortfolio,
-          formData,
-          marketContext,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-        throw new Error(errorData.error || "Failed to generate recommendations");
-      }
-
-      // Check if response is streaming or JSON (queue status)
-      const contentType = response.headers.get("content-type");
+      console.log("[Stage 2] Generating recommendations sequentially for each asset class...");
       
-      if (contentType?.includes("application/json")) {
-        const data = await response.json();
-        
-        // Handle queue response
-        if (data.queued) {
-          toast.loading(data.message || `You're in position ${data.position}. Please wait...`, {
-            duration: 5000,
-          });
-          setDetailPanelLoading(false);
-          return;
-        }
-        
-        // Handle error
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        
-        // Handle regular JSON response (fallback)
-        setDetailedRecommendations(data);
-        setIsFirstGeneration(false);
-        
-        if (currentPortfolioData.length > 0) {
-          setActiveTab(currentPortfolioData[0].name);
-        }
-        
-        toast.success("Recommendations generated!");
-      } else if (contentType?.includes("text/event-stream") || contentType?.includes("text/plain")) {
-        // Handle streaming response
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        let accumulatedText = "";
+      // Initialize empty recommendations object with marketContext placeholder
+      const allRecommendations: DetailedRecommendations = {
+        marketContext: "",
+      };
 
-        if (reader) {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            const chunk = decoder.decode(value, { stream: true });
-            accumulatedText += chunk;
-            setStreamingText(accumulatedText);
-            
-            // Parse and extract completed asset class sections
-            const detectAndExtractCompleted = (text: string) => {
-              const partial: any = {};
-              const pattern = /"(\w+)":\s*\{[\s\S]*?"recommendations":\s*\[[\s\S]*?\][\s\S]*?"breakdown":\s*\[[\s\S]*?\]\s*\}/g;
-              const matches = [...text.matchAll(pattern)];
-              
-              matches.forEach(match => {
-                const assetClass = match[1];
-                if (assetClass !== 'marketContext') {
-                  try {
-                    const sectionText = `{${match[0]}}`;
-                    const parsed = JSON.parse(sectionText);
-                    partial[assetClass] = parsed[assetClass];
-                  } catch (e) {
-                    // Parsing failed
-                  }
-                }
-              });
-              
-              return partial;
-            };
-            
-            const partialData = detectAndExtractCompleted(accumulatedText);
-            if (Object.keys(partialData).length > 0) {
-              setParsedAssetClasses(Object.keys(partialData));
-              setPartialRecommendations(partialData as DetailedRecommendations);
-            }
+      // Process each asset class sequentially
+      for (const portfolioItem of filteredPortfolio) {
+        const assetClass = portfolioItem.name;
+        const defaultCount = ASSET_CLASS_LIMITS[assetClass]?.default || 6;
+        
+        console.log(`[Stage 2] Generating ${defaultCount} recommendations for ${assetClass}...`);
+        
+        // Set loading state for this asset class
+        setAssetClassLoading(prev => ({ ...prev, [assetClass]: true }));
+        setParsedAssetClasses(prev => [...prev, assetClass]);
+        
+        try {
+          const response = await fetch("/api/asset-class-recommendations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              assetClass,
+              allocation: portfolioItem.value,
+              breakdown: portfolioItem.breakdown,
+              formData,
+              stockCount: defaultCount,
+            }),
+          });
+
+          if (!response.ok) {
+            console.error(`Failed to generate recommendations for ${assetClass}`);
+            setAssetClassLoading(prev => ({ ...prev, [assetClass]: false }));
+            continue;
           }
 
-          // Parse final JSON
-          try {
-            const jsonMatch = accumulatedText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              const data = JSON.parse(jsonMatch[0]);
-              setDetailedRecommendations(data);
-              setIsFirstGeneration(false);
-              
-              if (currentPortfolioData.length > 0) {
-                setActiveTab(currentPortfolioData[0].name);
-              }
-              
-              toast.success("Recommendations generated!");
-              console.log("[Stage 2] Stock recommendations loaded");
+          // Handle streaming response
+          const reader = response.body?.getReader();
+          const decoder = new TextDecoder();
+          let accumulatedText = "";
 
-              // Extract tickers with their asset classes from recommendations
-              const tickerMap: { ticker: string; assetClass: string }[] = [];
-              Object.keys(data).forEach(assetClass => {
-                const assetData = data[assetClass];
-                if (typeof assetData !== 'string' && assetData.recommendations) {
-                  assetData.recommendations.forEach((rec: any) => {
-                    if (rec.ticker) {
-                      tickerMap.push({ ticker: rec.ticker, assetClass });
-                    }
-                  });
-                }
-              });
+          if (reader) {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              
+              const chunk = decoder.decode(value, { stream: true });
+              accumulatedText += chunk;
+              setAssetClassStreamingText(prev => ({ ...prev, [assetClass]: accumulatedText }));
+              setStreamingText(accumulatedText); // Also update global streaming for the initial view
+            }
 
-              // STAGE 3: Fetch Right Column Data (asset-class-specific)
-              if (tickerMap.length > 0) {
-                console.log(`[Stage 3] Loading data for ${tickerMap.length} assets...`);
+            // Parse final JSON for this asset class
+            try {
+              const jsonMatch = accumulatedText.match(/\{[\s\S]*\}/);
+              if (jsonMatch) {
+                const data = JSON.parse(jsonMatch[0]);
                 
-                // Set loading state for all tickers
-                const loadingState: Record<string, boolean> = {};
-                tickerMap.forEach(({ ticker }) => loadingState[ticker] = true);
-                setRightColumnLoading(loadingState);
+                // Add to all recommendations
+                allRecommendations[assetClass] = data;
                 
-                // Get unique tickers for price fetching (exclude Cash which doesn't need prices)
-                const priceTickers = tickerMap
-                  .filter(({ assetClass }) => assetClass !== 'Cash')
-                  .map(({ ticker }) => ticker);
+                // Update partial recommendations immediately so UI shows this asset class
+                setPartialRecommendations(prev => ({
+                  ...prev,
+                  [assetClass]: data,
+                }));
                 
-                // Fetch stock prices first (fast) - only for non-cash assets
-                const pricesPromise = (async () => {
-                  if (priceTickers.length === 0) return;
-                  try {
-                    console.log(`[Stage 3] Fetching live prices for ${priceTickers.length} tickers...`);
-                    setStockPricesLoading(true);
-                    
-                    const pricesResponse = await fetch("/api/stock-prices", {
+                // Fetch prices and data for this asset class's tickers
+                const tickers = data.recommendations?.map((rec: any) => rec.ticker) || [];
+                if (tickers.length > 0) {
+                  // Set loading state for tickers
+                  const tickerLoadingState: Record<string, boolean> = {};
+                  tickers.forEach((ticker: string) => tickerLoadingState[ticker] = true);
+                  setRightColumnLoading(prev => ({ ...prev, ...tickerLoadingState }));
+                  
+                  // Fetch prices (don't await, let it run in background)
+                  if (assetClass !== 'Cash') {
+                    fetch("/api/stock-prices", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ tickers: priceTickers }),
-                    });
-
-                    if (pricesResponse.ok) {
-                      const pricesData = await pricesResponse.json();
-                      setStockPrices(pricesData.prices || {});
-                      console.log("[Stage 3] Live prices loaded for", Object.keys(pricesData.prices || {}).length, "tickers");
-                    }
-                  } catch (pricesError) {
-                    console.error("[Stage 3] Error fetching stock prices:", pricesError);
-                  } finally {
-                    setStockPricesLoading(false);
+                      body: JSON.stringify({ tickers }),
+                    })
+                      .then(res => res.json())
+                      .then(pricesData => {
+                        setStockPrices(prev => ({ ...prev, ...(pricesData.prices || {}) }));
+                      })
+                      .catch(e => console.error("Error fetching prices:", e));
                   }
-                })();
-                
-                // Fetch asset data for each ticker using the new asset-data endpoint
-                const dataPromises = tickerMap.map(async ({ ticker, assetClass }) => {
-                  try {
-                    const response = await fetch('/api/asset-data', {
+                  
+                  // Fetch asset data for each ticker (parallel)
+                  tickers.forEach((ticker: string) => {
+                    fetch('/api/asset-data', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ ticker, assetClass })
-                    });
-                    
-                    if (response.ok) {
-                      const responseData = await response.json();
-                      
-                      // Update state as each ticker completes
-                      setStockData(prev => ({ ...prev, [ticker]: { ...responseData, assetClass } }));
-                      setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
-                      console.log(`[Stage 3] Data loaded for ${ticker} (${assetClass})`);
-                    } else {
-                      setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
-                    }
-                  } catch (error) {
-                    console.error(`[Stage 3] Error loading data for ${ticker}:`, error);
-                    setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
-                  }
-                });
+                    })
+                      .then(res => res.json())
+                      .then(responseData => {
+                        setStockData(prev => ({ ...prev, [ticker]: { ...responseData, assetClass } }));
+                        setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
+                      })
+                      .catch(() => {
+                        setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
+                      });
+                  });
+                }
                 
-                // Wait for all to complete
-                await Promise.allSettled([pricesPromise, ...dataPromises]);
-                console.log('[Stage 3] All asset data loaded');
+                console.log(`[Stage 2] ${assetClass} recommendations loaded`);
               }
+            } catch (parseError) {
+              console.error(`Error parsing response for ${assetClass}:`, parseError);
             }
-          } catch (parseError) {
-            console.error("Error parsing streamed response:", parseError);
-            throw new Error("Invalid response format");
           }
+        } catch (error) {
+          console.error(`[Stage 2] Error for ${assetClass}:`, error);
+        } finally {
+          setAssetClassLoading(prev => ({ ...prev, [assetClass]: false }));
+          setAssetClassStreamingText(prev => ({ ...prev, [assetClass]: "" }));
         }
       }
+
+      // Set final recommendations
+      setDetailedRecommendations(allRecommendations);
+      setIsFirstGeneration(false);
+      toast.success("All recommendations generated!");
+      console.log("[Stage 2] All asset class recommendations complete");
+      
     } catch (error: any) {
       console.error("[Stage 2] Error:", error);
       toast.error(error?.message || "Failed to generate recommendations. Please try again.");
     } finally {
       setDetailPanelLoading(false);
       setStreamingText("");
+    }
+  };
+
+  // Handle per-asset-class regeneration
+  const handleRegenerateAssetClass = async (assetClass: string, stockCount: number) => {
+    if (!savedFormData) {
+      toast.error("Please generate a portfolio first");
+      return;
+    }
+
+    // Find the portfolio item for this asset class
+    const portfolioItem = currentPortfolioData.find(item => item.name === assetClass);
+    if (!portfolioItem) {
+      toast.error(`Asset class ${assetClass} not found`);
+      return;
+    }
+
+    // Set loading state for this asset class
+    setAssetClassLoading(prev => ({ ...prev, [assetClass]: true }));
+    setAssetClassStreamingText(prev => ({ ...prev, [assetClass]: "" }));
+
+    try {
+      console.log(`[Regenerate] Generating ${stockCount} recommendations for ${assetClass}...`);
+      
+      const response = await fetch("/api/asset-class-recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assetClass,
+          allocation: portfolioItem.value,
+          breakdown: portfolioItem.breakdown,
+          formData: savedFormData,
+          stockCount,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to regenerate ${assetClass}`);
+      }
+
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          accumulatedText += chunk;
+          setAssetClassStreamingText(prev => ({ ...prev, [assetClass]: accumulatedText }));
+        }
+
+        // Parse final JSON
+        try {
+          const jsonMatch = accumulatedText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const data = JSON.parse(jsonMatch[0]);
+            
+            // Update only this asset class in detailedRecommendations
+            setDetailedRecommendations(prev => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                [assetClass]: data,
+              };
+            });
+            
+            // Fetch stock prices and data for new tickers
+            const newTickers = data.recommendations?.map((rec: any) => rec.ticker) || [];
+            if (newTickers.length > 0) {
+              // Set loading state for new tickers
+              const loadingState: Record<string, boolean> = {};
+              newTickers.forEach((ticker: string) => loadingState[ticker] = true);
+              setRightColumnLoading(prev => ({ ...prev, ...loadingState }));
+              
+              // Fetch prices
+              try {
+                const pricesResponse = await fetch("/api/stock-prices", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ tickers: newTickers }),
+                });
+                if (pricesResponse.ok) {
+                  const pricesData = await pricesResponse.json();
+                  setStockPrices(prev => ({ ...prev, ...pricesData.prices }));
+                }
+              } catch (e) {
+                console.error("Error fetching prices:", e);
+              }
+              
+              // Fetch asset data for each ticker
+              for (const ticker of newTickers) {
+                try {
+                  const dataResponse = await fetch('/api/asset-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker, assetClass })
+                  });
+                  
+                  if (dataResponse.ok) {
+                    const responseData = await dataResponse.json();
+                    setStockData(prev => ({ ...prev, [ticker]: { ...responseData, assetClass } }));
+                  }
+                  setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
+                } catch (e) {
+                  setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
+                }
+              }
+            }
+            
+            toast.success(`Regenerated ${assetClass} recommendations!`);
+          }
+        } catch (parseError) {
+          console.error("Error parsing response:", parseError);
+          throw new Error("Invalid response format");
+        }
+      }
+    } catch (error: any) {
+      console.error(`[Regenerate] Error for ${assetClass}:`, error);
+      toast.error(error?.message || `Failed to regenerate ${assetClass}`);
+    } finally {
+      setAssetClassLoading(prev => ({ ...prev, [assetClass]: false }));
+      setAssetClassStreamingText(prev => ({ ...prev, [assetClass]: "" }));
     }
   };
 
@@ -1407,10 +1498,24 @@ export default function DevelopPage() {
           {activeResultTab === 'portfolio' && (
         <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+            <div className="flex-1">
               <h2 className="text-gradient animate-fade-in text-3xl font-bold sm:text-4xl">Your AI-Optimized Portfolio</h2>
               {portfolioReasoning && (
                 <p className="mt-3 rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-3 text-sm italic text-gray-300 backdrop-blur-sm">{portfolioReasoning}</p>
+              )}
+              {/* Market Context - moved from Stock Picks */}
+              {detailedRecommendations && detailedRecommendations.marketContext && (
+                <div className="mt-4 rounded-lg border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                  <div className="flex items-start gap-3">
+                    <svg className="h-5 w-5 text-[#00FF99] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <div>
+                      <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99] mb-2">Current Market Conditions</h4>
+                      <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
             
@@ -1618,14 +1723,24 @@ export default function DevelopPage() {
             </div>
           )}
 
-          {/* Streaming Text Display - shown during generation */}
+          {/* Streaming Text Display - shown during generation with shimmer effect */}
           {detailPanelLoading && streamingText && (
-            <div className="mb-4 animate-fade-in">
-              <div ref={streamingTextRef} className="max-h-[200px] overflow-y-auto border border-white bg-black p-2.5">
-                <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-white">
-                  {streamingText}
-                  <span className="ml-1 inline-block h-3 w-1 animate-pulse bg-white"></span>
-                </pre>
+            <div className="mb-6 animate-fade-in">
+              <div className="shimmer-stream-container ai-thinking-glow p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#00FF99]/10 border border-[#00FF99]/30">
+                    <svg className="w-4 h-4 text-[#00FF99] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-[#00FF99]">AI Analysis in Progress</span>
+                </div>
+                <div ref={streamingTextRef} className="shimmer-stream max-h-[180px] overflow-y-auto rounded-lg bg-[#0F0F0F]/60 p-3 border border-[#2A2A2A]/50">
+                  <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-[#B4B4B4]">
+                    {streamingText}
+                    <span className="streaming-cursor"></span>
+                  </pre>
+                </div>
               </div>
             </div>
           )}
@@ -1747,22 +1862,7 @@ export default function DevelopPage() {
                         </div>
                       )}
                       
-                      {/* Right: Market Context - 60% */}
-                      {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
-                        <div className="lg:col-span-3 flex flex-col">
-                          <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-5 shadow-sm h-full">
-                            <div className="flex items-start gap-3 h-full">
-                              <svg className="h-5 w-5 text-[#00FF99] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                              </svg>
-                              <div className="flex-1">
-                                <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99] mb-2">Market Context</h4>
-                                <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      {/* Market Context moved to Portfolio tab */}
                     </div>
 
                     {/* TIER 2: Auto-Scrolling Market Indicators Ticker */}
@@ -1884,6 +1984,20 @@ export default function DevelopPage() {
                                       <p className="text-sm text-gray-400 mb-2">{rec.name}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                      {/* Chart Expand Button */}
+                                      <button
+                                        onClick={() => {
+                                          setChartModalTicker(rec.ticker);
+                                          setChartModalName(rec.name);
+                                          setChartModalOpen(true);
+                                        }}
+                                        className="flex items-center justify-center w-8 h-8 rounded-lg border border-[#2A2A2A] bg-[#242424] text-[#808080] hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
+                                        title="View Chart"
+                                      >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                                        </svg>
+                                      </button>
                                       <div className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
                                         rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :
                                         rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
@@ -2311,8 +2425,48 @@ export default function DevelopPage() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <p className="text-sm leading-relaxed text-gray-400">
-                              Based on your risk profile, time horizon, and investment goals, we don't recommend active positions in this asset class at this time.
+                              Based on your risk profile, time horizon, and investment goals, we don&apos;t recommend active positions in this asset class at this time.
                             </p>
+                          </div>
+                        )}
+
+                        {/* Per-Asset-Class Regenerate Button */}
+                        {!detailPanelLoading && !assetClassLoading[assetClass] && portfolioItem.value > 0 && (
+                          <div className="mt-6 pt-6 border-t border-[#2A2A2A]">
+                            {/* Shimmer streaming text during regeneration */}
+                            {assetClassStreamingText[assetClass] && (
+                              <div className="mb-4 shimmer-stream-container ai-thinking-glow p-3 rounded-lg">
+                                <pre className="shimmer-stream text-xs font-mono text-[#B4B4B4] whitespace-pre-wrap max-h-[100px] overflow-y-auto">
+                                  {assetClassStreamingText[assetClass]}
+                                  <span className="streaming-cursor"></span>
+                                </pre>
+                              </div>
+                            )}
+                            <button
+                              onClick={() => {
+                                setRegeneratingAssetClass(assetClass);
+                                setStockCountSelectorOpen(true);
+                              }}
+                              className="w-full rounded-lg border border-[#2A2A2A] bg-[#242424] px-5 py-3 text-sm font-medium text-[#B4B4B4] hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all flex items-center justify-center gap-2"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                              Regenerate {assetClass}
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Loading state for this asset class */}
+                        {assetClassLoading[assetClass] && (
+                          <div className="mt-6 pt-6 border-t border-[#2A2A2A]">
+                            <div className="flex items-center justify-center gap-3 py-4">
+                              <svg className="w-5 h-5 animate-spin text-[#00FF99]" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              <span className="text-sm text-[#00FF99]">Regenerating {assetClass}...</span>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -2320,18 +2474,7 @@ export default function DevelopPage() {
                 );
                 })}
 
-                {/* Regenerate Button */}
-                  {!detailPanelLoading && (
-                    <div className="mt-8 border-t border-gray-700 pt-8">
-                      <button
-                        onClick={handleGetDetailedRecommendations}
-                        disabled={detailPanelLoading}
-                        className="w-full rounded-xl border-2 border-[#00FF99] bg-transparent px-5 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99] hover:text-[#171A1F] disabled:opacity-50"
-                      >
-                        Regenerate Recommendations
-                      </button>
-                    </div>
-                  )}
+                {/* Per-asset-class regenerate buttons are now inside each tab content */}
                 </div>
               )}
             </div>
@@ -3007,6 +3150,22 @@ export default function DevelopPage() {
           setShowResult(true);
           toast.success(`Loaded: ${portfolio.name}`);
         }}
+      />
+
+      {/* Chart Modal for TradingView popup */}
+      <ChartModal
+        isOpen={chartModalOpen}
+        onClose={() => setChartModalOpen(false)}
+        ticker={chartModalTicker}
+        name={chartModalName}
+      />
+
+      {/* Stock Count Selector for regeneration */}
+      <StockCountSelector
+        isOpen={stockCountSelectorOpen}
+        onClose={() => setStockCountSelectorOpen(false)}
+        onSelect={(count) => handleRegenerateAssetClass(regeneratingAssetClass, count)}
+        assetClass={regeneratingAssetClass}
       />
     </main>
   );

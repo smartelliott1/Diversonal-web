@@ -356,7 +356,7 @@ Explain current yield expectations based on Fed funds rate. Money market funds t
 }
 
 **Guidelines:**
-- Provide 3-5 recommendations per asset class (5-7 for Equities)
+- Provide 6-8 recommendations per asset class (7-8 for Equities)
 - Each personalizedFit MUST explain in 2-3 conversational sentences why THIS SPECIFIC STOCK fits the user's unique situation:
   * Reference their age (${formData.age}) and time horizon (${formData.horizon})
   * Explain how the stock's risk profile (beta, volatility) matches their ${formData.risk}/100 risk tolerance

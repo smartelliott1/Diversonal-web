@@ -157,3 +157,88 @@ html {
 .ticker-item:last-child {
   border-right: none;
 }
+
+/* Shimmer Animation for AI Streaming */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes shimmer-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes text-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.shimmer-stream {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-stream::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 255, 153, 0.06) 25%,
+    rgba(0, 255, 153, 0.12) 50%,
+    rgba(0, 255, 153, 0.06) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shimmer-stream-container {
+  background: linear-gradient(135deg, #0F0F0F 0%, #1A1A1A 50%, #0F0F0F 100%);
+  border: 1px solid #2A2A2A;
+  border-radius: 8px;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 153, 0.05),
+    inset 0 0 30px rgba(0, 255, 153, 0.02);
+}
+
+.shimmer-text-line {
+  animation: text-reveal 0.3s ease-out forwards;
+}
+
+.ai-thinking-glow {
+  animation: shimmer-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(0, 255, 153, 0.15);
+}
+
+/* Streaming cursor */
+.streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: #00FF99;
+  animation: shimmer-pulse 0.8s ease-in-out infinite;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+}
