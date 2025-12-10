@@ -303,7 +303,7 @@ ${fundamentalsData}
 **Guidelines:**
 - Generate exactly ${stockCount} recommendations
 - Position sizes: Large (25-35%), Medium (15-25%), Small (5-15%)
-- Breakdown percentages must sum to 100
+- **CRITICAL: Breakdown percentages MUST sum to EXACTLY 100. Double-check your math before responding.**
 - Use varied hex colors for visualization
 - DO NOT include stock prices - they will be fetched separately
 - personalizedFit should directly reference user's profile (age ${formData.age}, ${formData.horizon} horizon, ${formData.risk}/100 risk)`;

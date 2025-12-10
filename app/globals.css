@@ -158,78 +158,47 @@ html {
   border-right: none;
 }
 
-/* Shimmer Animation for AI Streaming */
-@keyframes shimmer {
+/* Shimmer Animation for AI Streaming Text */
+@keyframes shimmer-text {
   0% {
-    background-position: -200% 0;
+    background-position: -200% center;
   }
   100% {
-    background-position: 200% 0;
+    background-position: 200% center;
   }
 }
 
-@keyframes shimmer-pulse {
+@keyframes cursor-blink {
   0%, 100% {
-    opacity: 0.4;
+    opacity: 1;
   }
   50% {
-    opacity: 0.8;
+    opacity: 0.3;
   }
 }
 
-@keyframes text-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.shimmer-stream {
-  position: relative;
-  overflow: hidden;
-}
-
-.shimmer-stream::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+/* Shimmer effect on the text itself */
+.shimmer-text {
   background: linear-gradient(
     90deg,
-    transparent 0%,
-    rgba(0, 255, 153, 0.06) 25%,
-    rgba(0, 255, 153, 0.12) 50%,
-    rgba(0, 255, 153, 0.06) 75%,
-    transparent 100%
+    #808080 0%,
+    #808080 35%,
+    #00FF99 50%,
+    #808080 65%,
+    #808080 100%
   );
   background-size: 200% 100%;
-  animation: shimmer 2s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 1;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 2.5s linear infinite;
 }
 
-.shimmer-stream-container {
-  background: linear-gradient(135deg, #0F0F0F 0%, #1A1A1A 50%, #0F0F0F 100%);
+/* Container for streaming text */
+.streaming-container {
+  background: #0F0F0F;
   border: 1px solid #2A2A2A;
   border-radius: 8px;
-  box-shadow: 
-    0 0 20px rgba(0, 255, 153, 0.05),
-    inset 0 0 30px rgba(0, 255, 153, 0.02);
-}
-
-.shimmer-text-line {
-  animation: text-reveal 0.3s ease-out forwards;
-}
-
-.ai-thinking-glow {
-  animation: shimmer-pulse 1.5s ease-in-out infinite;
-  box-shadow: 0 0 30px rgba(0, 255, 153, 0.15);
 }
 
 /* Streaming cursor */
@@ -238,7 +207,7 @@ html {
   width: 2px;
   height: 1em;
   background: #00FF99;
-  animation: shimmer-pulse 0.8s ease-in-out infinite;
+  animation: cursor-blink 0.8s ease-in-out infinite;
   margin-left: 2px;
   vertical-align: text-bottom;
 }

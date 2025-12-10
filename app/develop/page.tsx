@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { flushSync } from "react-dom";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 // Diversonal Portfolio Allocation Platform
@@ -443,6 +444,30 @@ export default function DevelopPage() {
     toast.success("Copied to clipboard!");
   };
 
+  // Normalize breakdown percentages to sum to 100
+  const normalizeBreakdown = (breakdown: Array<{ name: string; value: number; color: string }>) => {
+    if (!breakdown || breakdown.length === 0) return breakdown;
+    
+    const total = breakdown.reduce((sum, item) => sum + item.value, 0);
+    if (total === 0 || total === 100) return breakdown;
+    
+    // Normalize to 100%
+    const normalized = breakdown.map(item => ({
+      ...item,
+      value: Math.round((item.value / total) * 100)
+    }));
+    
+    // Fix rounding errors by adjusting the largest value
+    const newTotal = normalized.reduce((sum, item) => sum + item.value, 0);
+    if (newTotal !== 100 && normalized.length > 0) {
+      const maxIndex = normalized.reduce((maxI, item, i, arr) => 
+        item.value > arr[maxI].value ? i : maxI, 0);
+      normalized[maxIndex].value += (100 - newTotal);
+    }
+    
+    return normalized;
+  };
+
   // Handle detailed recommendations request - Sequential per-asset-class loading
   const handleGetDetailedRecommendations = async () => {
     // Reset state
@@ -565,14 +590,21 @@ export default function DevelopPage() {
               if (jsonMatch) {
                 const data = JSON.parse(jsonMatch[0]);
                 
+                // Normalize breakdown percentages to sum to 100
+                if (data.breakdown) {
+                  data.breakdown = normalizeBreakdown(data.breakdown);
+                }
+                
                 // Add to all recommendations
                 allRecommendations[assetClass] = data;
                 
-                // Update partial recommendations immediately so UI shows this asset class
-                setPartialRecommendations(prev => ({
-                  ...prev,
-                  [assetClass]: data,
-                }));
+                // Use flushSync to force immediate re-render so user sees this asset class immediately
+                flushSync(() => {
+                  setPartialRecommendations(prev => ({
+                    ...prev,
+                    [assetClass]: data,
+                  }));
+                });
                 
                 // Fetch prices and data for this asset class's tickers
                 const tickers = data.recommendations?.map((rec: any) => rec.ticker) || [];
@@ -700,6 +732,11 @@ export default function DevelopPage() {
           const jsonMatch = accumulatedText.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             const data = JSON.parse(jsonMatch[0]);
+            
+            // Normalize breakdown percentages to sum to 100
+            if (data.breakdown) {
+              data.breakdown = normalizeBreakdown(data.breakdown);
+            }
             
             // Update only this asset class in detailedRecommendations
             setDetailedRecommendations(prev => {
@@ -1498,24 +1535,10 @@ export default function DevelopPage() {
           {activeResultTab === 'portfolio' && (
         <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex-1">
+            <div>
               <h2 className="text-gradient animate-fade-in text-3xl font-bold sm:text-4xl">Your AI-Optimized Portfolio</h2>
               {portfolioReasoning && (
                 <p className="mt-3 rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-3 text-sm italic text-gray-300 backdrop-blur-sm">{portfolioReasoning}</p>
-              )}
-              {/* Market Context - moved from Stock Picks */}
-              {detailedRecommendations && detailedRecommendations.marketContext && (
-                <div className="mt-4 rounded-lg border border-[#2A2A2A] bg-[#1A1A1A] p-4">
-                  <div className="flex items-start gap-3">
-                    <svg className="h-5 w-5 text-[#00FF99] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    <div>
-                      <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99] mb-2">Current Market Conditions</h4>
-                      <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
-                    </div>
-                  </div>
-                </div>
               )}
             </div>
             
@@ -1723,10 +1746,10 @@ export default function DevelopPage() {
             </div>
           )}
 
-          {/* Streaming Text Display - shown during generation with shimmer effect */}
+          {/* Streaming Text Display - shown during generation with shimmer effect on text */}
           {detailPanelLoading && streamingText && (
             <div className="mb-6 animate-fade-in">
-              <div className="shimmer-stream-container ai-thinking-glow p-4">
+              <div className="streaming-container p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#00FF99]/10 border border-[#00FF99]/30">
                     <svg className="w-4 h-4 text-[#00FF99] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1735,8 +1758,8 @@ export default function DevelopPage() {
                   </div>
                   <span className="text-sm font-medium text-[#00FF99]">AI Analysis in Progress</span>
                 </div>
-                <div ref={streamingTextRef} className="shimmer-stream max-h-[180px] overflow-y-auto rounded-lg bg-[#0F0F0F]/60 p-3 border border-[#2A2A2A]/50">
-                  <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-[#B4B4B4]">
+                <div ref={streamingTextRef} className="max-h-[180px] overflow-y-auto rounded-lg bg-[#0F0F0F] p-3 border border-[#2A2A2A]">
+                  <pre className="shimmer-text whitespace-pre-wrap font-mono text-xs leading-relaxed">
                     {streamingText}
                     <span className="streaming-cursor"></span>
                   </pre>
@@ -1862,7 +1885,22 @@ export default function DevelopPage() {
                         </div>
                       )}
                       
-                      {/* Market Context moved to Portfolio tab */}
+                      {/* Right: Market Context - 60% */}
+                      {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
+                        <div className="lg:col-span-3 flex flex-col">
+                          <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-5 shadow-sm h-full">
+                            <div className="flex items-start gap-3 h-full">
+                              <svg className="h-5 w-5 text-[#00FF99] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                              <div className="flex-1">
+                                <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99] mb-2">Market Context</h4>
+                                <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* TIER 2: Auto-Scrolling Market Indicators Ticker */}
@@ -1991,12 +2029,12 @@ export default function DevelopPage() {
                                           setChartModalName(rec.name);
                                           setChartModalOpen(true);
                                         }}
-                                        className="flex items-center justify-center w-8 h-8 rounded-lg border border-[#2A2A2A] bg-[#242424] text-[#808080] hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
-                                        title="View Chart"
+                                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#2A2A2A] bg-[#242424] text-xs text-[#808080] hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
                                       >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                                         </svg>
+                                        <span>Chart</span>
                                       </button>
                                       <div className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
                                         rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :

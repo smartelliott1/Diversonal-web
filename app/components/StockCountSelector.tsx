@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 interface StockCountSelectorProps {
   isOpen: boolean;
@@ -8,14 +8,14 @@ interface StockCountSelectorProps {
   assetClass: string;
 }
 
-// Max limits by asset class
-const ASSET_CLASS_LIMITS: Record<string, { options: number[]; default: number }> = {
-  "Equities": { options: [6, 8, 10, 12, 15], default: 8 },
-  "Bonds": { options: [4, 6, 8], default: 6 },
-  "Cryptocurrencies": { options: [4, 6, 8, 10], default: 6 },
-  "Commodities": { options: [3, 4, 6], default: 4 },
-  "Real Estate": { options: [3, 4, 6], default: 4 },
-  "Cash": { options: [2, 3, 4], default: 2 },
+// Min/max/default by asset class
+const ASSET_CLASS_LIMITS: Record<string, { min: number; max: number; default: number }> = {
+  "Equities": { min: 1, max: 15, default: 7 },
+  "Bonds": { min: 1, max: 8, default: 5 },
+  "Cryptocurrencies": { min: 1, max: 6, default: 4 },
+  "Commodities": { min: 1, max: 6, default: 4 },
+  "Real Estate": { min: 1, max: 6, default: 4 },
+  "Cash": { min: 1, max: 4, default: 3 },
 };
 
 export default function StockCountSelector({ 
@@ -25,6 +25,12 @@ export default function StockCountSelector({
   assetClass 
 }: StockCountSelectorProps) {
   const limits = ASSET_CLASS_LIMITS[assetClass] || ASSET_CLASS_LIMITS["Equities"];
+  const [count, setCount] = useState(limits.default);
+
+  // Reset count when asset class changes
+  useEffect(() => {
+    setCount(limits.default);
+  }, [assetClass, limits.default]);
 
   // Handle escape key
   useEffect(() => {
@@ -41,6 +47,11 @@ export default function StockCountSelector({
     };
   }, [isOpen, onClose]);
 
+  const handleSubmit = () => {
+    onSelect(count);
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -52,7 +63,7 @@ export default function StockCountSelector({
       />
       
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-md bg-[#1A1A1A] rounded-lg border border-[#2A2A2A] shadow-2xl shadow-black/50 overflow-hidden">
+      <div className="relative z-10 w-full max-w-sm bg-[#1A1A1A] rounded-lg border border-[#2A2A2A] shadow-2xl shadow-black/50 overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#2A2A2A]">
           <div className="flex items-center justify-between">
@@ -64,7 +75,7 @@ export default function StockCountSelector({
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-[#E6E6E6]">Regenerate {assetClass}</h2>
-                <p className="text-sm text-[#808080]">How many recommendations?</p>
+                <p className="text-sm text-[#808080]">Choose number of recommendations</p>
               </div>
             </div>
             
@@ -79,41 +90,63 @@ export default function StockCountSelector({
           </div>
         </div>
         
-        {/* Options */}
+        {/* Number Input */}
         <div className="p-6">
-          <div className="grid grid-cols-5 gap-3">
-            {limits.options.map((count) => (
-              <button
-                key={count}
-                onClick={() => {
-                  onSelect(count);
-                  onClose();
-                }}
-                className={`
-                  flex items-center justify-center h-12 rounded-lg border text-lg font-semibold transition-all
-                  ${count === limits.default 
-                    ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99] hover:bg-[#00FF99]/20' 
-                    : 'border-[#2A2A2A] bg-[#242424] text-[#B4B4B4] hover:border-[#3A3A3A] hover:bg-[#2A2A2A] hover:text-white'
-                  }
-                `}
-              >
-                {count}
-              </button>
-            ))}
+          <div className="flex items-center justify-center gap-4">
+            {/* Decrement */}
+            <button
+              onClick={() => setCount(c => Math.max(limits.min, c - 1))}
+              disabled={count <= limits.min}
+              className="flex items-center justify-center w-12 h-12 rounded-lg border border-[#2A2A2A] bg-[#242424] text-[#B4B4B4] hover:border-[#3A3A3A] hover:bg-[#2A2A2A] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+              </svg>
+            </button>
+            
+            {/* Number Display/Input */}
+            <input
+              type="number"
+              min={limits.min}
+              max={limits.max}
+              value={count}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || limits.min;
+                setCount(Math.min(limits.max, Math.max(limits.min, val)));
+              }}
+              className="w-20 h-16 text-center text-3xl font-bold text-[#00FF99] bg-[#0F0F0F] border border-[#2A2A2A] rounded-lg focus:border-[#00FF99] focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            
+            {/* Increment */}
+            <button
+              onClick={() => setCount(c => Math.min(limits.max, c + 1))}
+              disabled={count >= limits.max}
+              className="flex items-center justify-center w-12 h-12 rounded-lg border border-[#2A2A2A] bg-[#242424] text-[#B4B4B4] hover:border-[#3A3A3A] hover:bg-[#2A2A2A] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
           </div>
           
           <p className="mt-4 text-center text-xs text-[#808080]">
-            {limits.default} is the recommended default for {assetClass}
+            Range: {limits.min} – {limits.max} (default: {limits.default})
           </p>
         </div>
         
-        {/* Cancel */}
-        <div className="px-6 pb-6">
+        {/* Actions */}
+        <div className="px-6 pb-6 flex gap-3">
           <button
             onClick={onClose}
-            className="w-full py-2.5 rounded-lg border border-[#2A2A2A] bg-transparent text-sm font-medium text-[#808080] hover:text-white hover:border-[#3A3A3A] transition-all"
+            className="flex-1 py-2.5 rounded-lg border border-[#2A2A2A] bg-transparent text-sm font-medium text-[#808080] hover:text-white hover:border-[#3A3A3A] transition-all"
           >
             Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="flex-1 py-2.5 rounded-lg bg-[#00FF99] text-sm font-semibold text-[#0F0F0F] hover:bg-[#00E689] transition-all"
+          >
+            Regenerate
           </button>
         </div>
       </div>
@@ -122,4 +155,3 @@ export default function StockCountSelector({
 }
 
 export { ASSET_CLASS_LIMITS };
-
