@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
             price: data[0].price,
             change: data[0].change,
             changePercentage: data[0].changePercentage,
+            exchange: data[0].exchange || null, // Include exchange for TradingView chart
             success: true,
           };
         }
@@ -86,6 +87,7 @@ export async function POST(request: NextRequest) {
           price: result.price,
           change: result.change,
           changePercentage: result.changePercentage,
+          exchange: result.exchange,
         };
       }
     });

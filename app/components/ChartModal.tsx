@@ -6,9 +6,10 @@ interface ChartModalProps {
   onClose: () => void;
   ticker: string;
   name?: string;
+  exchange?: string | null;
 }
 
-export default function ChartModal({ isOpen, onClose, ticker, name }: ChartModalProps) {
+export default function ChartModal({ isOpen, onClose, ticker, name, exchange }: ChartModalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,9 +21,15 @@ export default function ChartModal({ isOpen, onClose, ticker, name }: ChartModal
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
     script.async = true;
+    // Determine the correct TradingView symbol with exchange prefix
+    // If exchange is provided, use it; otherwise fall back to NASDAQ
+    const tvSymbol = ticker.includes(':') 
+      ? ticker 
+      : `${exchange || 'NASDAQ'}:${ticker}`;
+    
     script.innerHTML = JSON.stringify({
       "autosize": true,
-      "symbol": ticker.includes(':') ? ticker : `NASDAQ:${ticker}`,
+      "symbol": tvSymbol,
       "interval": "D",
       "timezone": "America/New_York",
       "theme": "dark",
@@ -46,7 +53,7 @@ export default function ChartModal({ isOpen, onClose, ticker, name }: ChartModal
     
     containerRef.current.appendChild(widgetContainer);
     containerRef.current.appendChild(script);
-  }, [isOpen, ticker]);
+  }, [isOpen, ticker, exchange]);
 
   // Handle escape key
   useEffect(() => {

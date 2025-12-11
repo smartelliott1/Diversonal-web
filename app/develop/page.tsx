@@ -184,6 +184,7 @@ export default function DevelopPage() {
     price: number;
     change: number;
     changePercentage: number;
+    exchange: string | null;
   }>>({});
   const [stockPricesLoading, setStockPricesLoading] = useState(false);
   const [streamingText, setStreamingText] = useState<string>("");
@@ -198,6 +199,7 @@ export default function DevelopPage() {
   const [chartModalOpen, setChartModalOpen] = useState(false);
   const [chartModalTicker, setChartModalTicker] = useState("");
   const [chartModalName, setChartModalName] = useState("");
+  const [chartModalExchange, setChartModalExchange] = useState<string | null>(null);
   
   // Stock count selector state
   const [stockCountSelectorOpen, setStockCountSelectorOpen] = useState(false);
@@ -2072,6 +2074,7 @@ export default function DevelopPage() {
                                         onClick={() => {
                                           setChartModalTicker(rec.ticker);
                                           setChartModalName(rec.name);
+                                          setChartModalExchange(stockPrices[rec.ticker]?.exchange || null);
                                           setChartModalOpen(true);
                                         }}
                                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#2A2A2A] bg-[#242424] text-xs text-[#808080] hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
@@ -3242,6 +3245,7 @@ export default function DevelopPage() {
         onClose={() => setChartModalOpen(false)}
         ticker={chartModalTicker}
         name={chartModalName}
+        exchange={chartModalExchange}
       />
 
       {/* Stock Count Selector for regeneration */}
