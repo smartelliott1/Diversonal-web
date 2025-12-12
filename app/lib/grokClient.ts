@@ -3,7 +3,7 @@
 
 const XAI_API_KEY = process.env.XAI_API_KEY;
 const XAI_BASE_URL = "https://api.x.ai/v1";
-const MODEL = "grok-4-1-fast-reasoning";
+const MODEL = "grok-4-1-fast-non-reasoning";
 
 interface GrokMessage {
   role: "system" | "user" | "assistant";
