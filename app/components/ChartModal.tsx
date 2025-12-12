@@ -1,6 +1,17 @@
 "use client";
 import { useEffect, useRef } from "react";
 
+// Crypto tickers that need special TradingView symbol formatting
+const CRYPTO_TICKERS = ['BTC', 'ETH', 'XMR', 'LINK', 'SOL', 'ADA'];
+
+// Get the correct TradingView symbol for cryptocurrencies
+function getCryptoTradingViewSymbol(ticker: string): string {
+  const upperTicker = ticker.toUpperCase();
+  // Monero (XMR) is not on Coinbase due to regulatory reasons, use Kraken
+  if (upperTicker === 'XMR') return 'KRAKEN:XMRUSD';
+  return `COINBASE:${upperTicker}USD`;
+}
+
 interface ChartModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,11 +32,15 @@ export default function ChartModal({ isOpen, onClose, ticker, name, exchange }: 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
     script.async = true;
-    // Determine the correct TradingView symbol with exchange prefix
-    // If exchange is provided, use it; otherwise fall back to NASDAQ
+    
+    // Determine the correct TradingView symbol
+    // Handle crypto tickers specially (they need COINBASE:BTCUSD format)
+    const isCrypto = CRYPTO_TICKERS.includes(ticker.toUpperCase());
     const tvSymbol = ticker.includes(':') 
       ? ticker 
-      : `${exchange || 'NASDAQ'}:${ticker}`;
+      : isCrypto
+        ? getCryptoTradingViewSymbol(ticker)
+        : `${exchange || 'NASDAQ'}:${ticker}`;
     
     script.innerHTML = JSON.stringify({
       "autosize": true,

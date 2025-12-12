@@ -2077,12 +2077,12 @@ export default function DevelopPage() {
                                           setChartModalExchange(stockPrices[rec.ticker]?.exchange || null);
                                           setChartModalOpen(true);
                                         }}
-                                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#2A2A2A] bg-[#242424] text-xs text-[#808080] hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black text-white text-sm font-semibold hover:bg-gray-800 transition-all"
                                       >
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                                         </svg>
-                                        <span>Chart</span>
+                                        <span>View Chart</span>
                                       </button>
                                       <div className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
                                         rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :
