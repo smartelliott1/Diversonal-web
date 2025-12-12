@@ -29,7 +29,7 @@ export default function Navigation({ onMyPortfoliosClick }: NavigationProps) {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1A1A1A] border-b border-[#2A2A2A]">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-[#2A2A2A]">
         <div className="relative mx-auto px-6">
           <div className="flex h-16 items-center justify-between">
             {/* Logo/Brand - Left Side */}

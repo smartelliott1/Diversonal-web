@@ -23,7 +23,7 @@ export default function OptimizePage() {
           </p>
 
           {/* Feature Preview */}
-          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8">
+          <div className="rounded-sm border border-[#2A2A2A] bg-black p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-left p-4 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F]">
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-sm bg-[#00FF99]/10">

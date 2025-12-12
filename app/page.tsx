@@ -39,12 +39,12 @@ export default function Home() {
         >
           {/* Monitor Base/Stand */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full">
-            <div className="mt-4 h-8 w-32 rounded-b-lg bg-gradient-to-b from-[#2A2A2A] to-[#1A1A1A]" style={{ transform: 'translateZ(-20px)' }}></div>
-            <div className="mx-auto h-12 w-20 bg-gradient-to-b from-[#1A1A1A] to-[#0F0F0F]"></div>
+            <div className="mt-4 h-8 w-32 rounded-b-lg bg-gradient-to-b from-[#2A2A2A] to-black" style={{ transform: 'translateZ(-20px)' }}></div>
+            <div className="mx-auto h-12 w-20 bg-gradient-to-b from-black to-[#0F0F0F]"></div>
           </div>
           
           {/* Monitor Bezel */}
-          <div className="relative rounded-lg border-8 border-[#1A1A1A] bg-[#1A1A1A] shadow-2xl" style={{ transform: 'translateZ(10px)' }}>
+          <div className="relative rounded-lg border-8 border-black bg-black shadow-2xl" style={{ transform: 'translateZ(10px)' }}>
             {/* Screen Glow Effect */}
             <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-[#00FF99]/20 via-[#00FF99]/10 to-[#00FF99]/20 opacity-50 blur-xl"></div>
             
@@ -75,14 +75,14 @@ export default function Home() {
                     
                     {/* Allocations */}
                     <div className="flex-1 space-y-3">
-                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-4">
                         <div className="flex items-center gap-3">
                           <div className="h-3 w-3 rounded-sm bg-[#4A4A4A]"></div>
                           <span className="text-sm text-[#B4B4B4]">Equities</span>
                         </div>
                         <span className="text-lg font-semibold text-[#E6E6E6]">40%</span>
                       </div>
-                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-4">
                         <div className="flex items-center gap-3">
                           <div className="h-3 w-3 rounded-sm bg-[#5A5A5A]"></div>
                           <span className="text-sm text-[#B4B4B4]">Bonds</span>
@@ -96,7 +96,7 @@ export default function Home() {
                         </div>
                         <span className="text-lg font-semibold text-[#00FF99]">20%</span>
                       </div>
-                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-4">
                         <div className="flex items-center gap-3">
                           <div className="h-3 w-3 rounded-sm bg-[#808080]"></div>
                           <span className="text-sm text-[#B4B4B4]">Real Estate</span>
@@ -119,7 +119,7 @@ export default function Home() {
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-xl font-bold text-[#E6E6E6]">AAPL</span>
                         <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
@@ -131,7 +131,7 @@ export default function Home() {
                       </div>
                     </div>
                     
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-xl font-bold text-[#E6E6E6]">MSFT</span>
                         <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
@@ -143,7 +143,7 @@ export default function Home() {
                       </div>
                     </div>
                     
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-xl font-bold text-[#E6E6E6]">NVDA</span>
                         <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
@@ -155,7 +155,7 @@ export default function Home() {
                       </div>
                     </div>
                     
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-xl font-bold text-[#E6E6E6]">GOOGL</span>
                         <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
@@ -181,7 +181,7 @@ export default function Home() {
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
                       <div className="mb-3 flex items-center justify-between">
                         <span className="text-lg font-semibold text-[#E6E6E6]">Market Crash (-30%)</span>
                         <span className="text-xl font-bold text-[#D95F5F]">-$8,400</span>
@@ -192,7 +192,7 @@ export default function Home() {
                       <p className="mt-2 text-sm text-[#808080]">Portfolio resilience: Moderate</p>
                     </div>
                     
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
                       <div className="mb-3 flex items-center justify-between">
                         <span className="text-lg font-semibold text-[#E6E6E6]">Rising Interest Rates</span>
                         <span className="text-xl font-bold text-[#D95F5F]">-$2,100</span>
@@ -311,7 +311,7 @@ export default function Home() {
     return (
     <div className="h-screen overflow-y-auto">
       {/* Fixed Navigation Bar for Landing Page */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1A1A1A] border-b border-[#2A2A2A]">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-[#2A2A2A]">
         <div className="relative mx-auto px-6">
           <div className="flex h-16 items-center justify-between">
             {/* Logo/Brand - Left Side */}
@@ -499,13 +499,13 @@ export default function Home() {
                 </li>
               </ul>
             </div>
-            <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+            <div className="rounded-sm border border-[#2A2A2A] bg-black p-6">
               <div className="mb-4 rounded-sm bg-[#0F0F0F] p-4">
                 <div className="mb-4 flex items-center justify-between border-b border-[#2A2A2A] pb-3">
                   <h4 className="text-lg font-semibold text-[#E6E6E6]">Your Portfolio</h4>
                   <div className="flex gap-2">
-                    <div className="h-6 w-6 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A]"></div>
-                    <div className="h-6 w-6 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A]"></div>
+                    <div className="h-6 w-6 rounded-sm border border-[#2A2A2A] bg-black"></div>
+                    <div className="h-6 w-6 rounded-sm border border-[#2A2A2A] bg-black"></div>
                   </div>
                 </div>
                 {/* Mock pie chart */}
@@ -519,21 +519,21 @@ export default function Home() {
                 </div>
                 {/* Mock allocation list */}
                 <div className="mt-6 space-y-2">
-                  <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-2.5">
+                  <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-2.5">
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-2 rounded-sm bg-[#4A4A4A]"></div>
                       <span className="text-sm text-[#B4B4B4]">Equities</span>
                     </div>
                     <span className="text-sm font-medium text-[#E6E6E6]">40%</span>
                   </div>
-                  <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-2.5">
+                  <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-2.5">
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-2 rounded-sm bg-[#5A5A5A]"></div>
                       <span className="text-sm text-[#B4B4B4]">Bonds</span>
                     </div>
                     <span className="text-sm font-medium text-[#E6E6E6]">25%</span>
                   </div>
-                  <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-2.5">
+                  <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-2.5">
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-2 rounded-sm bg-[#00FF99]"></div>
                       <span className="text-sm text-[#B4B4B4]">Commodities</span>
@@ -560,7 +560,7 @@ export default function Home() {
       <section id="stock-picks-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[100px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
-            <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+            <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-black p-6">
               <div className="rounded-sm bg-[#0F0F0F] p-4">
                 <div className="mb-4 flex items-center justify-between border-b border-[#2A2A2A] pb-3">
                   <h4 className="text-base font-semibold text-[#E6E6E6]">Detailed Recommendations</h4>
@@ -568,7 +568,7 @@ export default function Home() {
                 </div>
                 {/* Mock stock recommendations */}
                 <div className="space-y-3">
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-3">
+                  <div className="rounded-sm border border-[#2A2A2A] bg-black p-3">
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-base font-semibold text-[#E6E6E6]">AAPL</span>
@@ -579,7 +579,7 @@ export default function Home() {
                     <p className="text-xs text-[#808080]">Apple Inc.</p>
                     <p className="mt-2 text-sm text-[#B4B4B4]">Strong fundamentals with consistent growth...</p>
                   </div>
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-3">
+                  <div className="rounded-sm border border-[#2A2A2A] bg-black p-3">
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-base font-semibold text-[#E6E6E6]">MSFT</span>
@@ -672,16 +672,16 @@ export default function Home() {
                 </li>
               </ul>
             </div>
-            <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+            <div className="rounded-sm border border-[#2A2A2A] bg-black p-6">
               <div className="rounded-sm bg-[#0F0F0F] p-4">
                 <div className="mb-4">
                   <h4 className="mb-2 text-base font-semibold text-[#E6E6E6]">Stress Test Results</h4>
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-2.5">
+                  <div className="rounded-sm border border-[#2A2A2A] bg-black p-2.5">
                     <p className="text-xs text-[#808080]">Scenario: S&P 500 drops 10% in 2026</p>
                   </div>
                 </div>
                 {/* Mock chart */}
-                <div className="mb-4 h-32 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-3">
+                <div className="mb-4 h-32 rounded-sm border border-[#2A2A2A] bg-black p-3">
                   <svg viewBox="0 0 200 80" className="h-full w-full">
                     <polyline
                       points="0,40 40,35 80,30 120,45 160,55 200,50"
@@ -698,11 +698,11 @@ export default function Home() {
                     <span className="text-lg font-semibold text-[#D95F5F]">-8.3%</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-2 text-center">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-2 text-center">
                       <p className="text-xs text-[#808080]">Equities</p>
                       <p className="text-sm font-medium text-[#D95F5F]">-12%</p>
                     </div>
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-2 text-center">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-2 text-center">
                       <p className="text-xs text-[#808080]">Bonds</p>
                       <p className="text-sm font-medium text-[#00FF99]">+2%</p>
                     </div>
@@ -730,9 +730,9 @@ export default function Home() {
       <section id="save-export-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[230px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
-            <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+            <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-black p-6">
               <div className="rounded-sm bg-[#0F0F0F] p-4">
-                <div className="mb-4 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                <div className="mb-4 rounded-sm border border-[#2A2A2A] bg-black p-4">
                   <h4 className="mb-3 text-base font-semibold text-[#E6E6E6]">Save Portfolio</h4>
                   <div className="mb-3 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5">
                     <p className="text-sm text-[#B4B4B4]">My Retirement Portfolio 2025</p>
@@ -749,19 +749,19 @@ export default function Home() {
                 <div className="space-y-2">
                   <p className="mb-2 text-xs font-medium uppercase text-[#808080]">Export Options</p>
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-3 text-center">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-3 text-center">
                       <svg className="mx-auto mb-1 h-6 w-6 text-[#B4B4B4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                       </svg>
                       <p className="text-xs font-medium text-[#B4B4B4]">PDF</p>
                     </div>
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-3 text-center">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-3 text-center">
                       <svg className="mx-auto mb-1 h-6 w-6 text-[#B4B4B4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                       <p className="text-xs font-medium text-[#B4B4B4]">JSON</p>
                     </div>
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-3 text-center">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-3 text-center">
                       <svg className="mx-auto mb-1 h-6 w-6 text-[#B4B4B4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>

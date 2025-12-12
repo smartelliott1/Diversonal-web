@@ -337,7 +337,6 @@ Explain current yield expectations based on Fed funds rate. Money market funds t
       {
         "ticker": "AAPL",
         "name": "Apple Inc.",
-        "personalizedFit": "Given your ${formData.age} age and ${formData.horizon} time horizon, Apple aligns well with your ${formData.risk}/100 risk tolerance. With your $${formData.capital} portfolio focused on ${formData.goal}, this established tech leader provides the right balance of growth potential and stability. Its beta of 1.15 matches your risk profile while offering exposure to the AI revolution you're seeking in ${formData.sectors.includes('Technology') || formData.sectors.includes('AI') ? 'your preferred tech sector' : 'high-growth sectors'}.",
         "positionSize": "Large",
         "riskLevel": "Moderate"
       }
@@ -351,25 +350,16 @@ Explain current yield expectations based on Fed funds rate. Money market funds t
   "Commodities": { "recommendations": [...], "breakdown": [...] },
   "Real Estate": { "recommendations": [...], "breakdown": [...] },
   "Cryptocurrencies": { "recommendations": [...], "breakdown": [...] },
-  "Cash": { "recommendations": [...], "breakdown": [...] },
-  "marketContext": "Synthesize ALL the market data, news, insider signals, and upcoming events above into 3-5 sentences describing current conditions, sentiment, and key catalysts/risks to watch"
+  "Cash": { "recommendations": [...], "breakdown": [...] }
 }
 
 **Guidelines:**
 - Provide 6-8 recommendations for Equities, 3-5 for other asset classes
-- Each personalizedFit MUST explain in 2-3 conversational sentences why THIS SPECIFIC STOCK fits the user's unique situation:
-  * Reference their age (${formData.age}) and time horizon (${formData.horizon})
-  * Explain how the stock's risk profile (beta, volatility) matches their ${formData.risk}/100 risk tolerance
-  * Connect to their investment capital ($${formData.capital}) and goal (${formData.goal})
-  * Mention alignment with their sector preferences if applicable (${formData.sectors.join(', ')})
-  * Make it personal and conversational - directly address why this fits THEIR situation
-- **DO NOT include technical jargon, just explain the fit in plain language**
 - **DO NOT include stock prices** - they will be fetched and displayed separately in real-time
 - Position sizes: Large (25-35%), Medium (15-25%), Small (5-15%)
 - Risk levels: Based on volatility, beta, drawdown history, and upcoming catalysts
 - Breakdown percentages must sum to 100 per asset class
 - Use varied hex colors for visualization
-- marketContext: Synthesize ALL intelligence (market data, news, insiders, economic/earnings calendars) into 3-5 sentences
 - Match investment style to age/horizon (growth for young, income for older)
 - Use the fundamentals data and market intelligence to ensure recommendations truly fit the user's profile`;
 

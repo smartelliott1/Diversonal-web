@@ -61,7 +61,7 @@ export default function ProfileDropdown({ onMyPortfoliosClick }: ProfileDropdown
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl shadow-2xl overflow-hidden animate-fade-in z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-black border border-[#2A2A2A] rounded-xl shadow-2xl overflow-hidden animate-fade-in z-50">
           {/* User Info */}
           <div className="px-4 py-3 border-b border-[#2A2A2A]">
             <div className="flex items-center gap-3">

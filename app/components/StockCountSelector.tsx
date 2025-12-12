@@ -85,7 +85,7 @@ export default function StockCountSelector({
       />
       
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-sm bg-[#1A1A1A] rounded-lg border border-[#2A2A2A] shadow-2xl shadow-black/50 overflow-hidden">
+      <div className="relative z-10 w-full max-w-sm bg-black rounded-lg border border-[#2A2A2A] shadow-2xl shadow-black/50 overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#2A2A2A]">
           <div className="flex items-center justify-between">

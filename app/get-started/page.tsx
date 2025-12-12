@@ -24,7 +24,7 @@ export default function GetStartedPage() {
             {/* Develop a Portfolio */}
             <Link
               href="/develop"
-              className="group relative overflow-hidden rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 transition-all duration-300 hover:border-[#00FF99]/50 hover:bg-[#1A1A1A]/80"
+              className="group relative overflow-hidden rounded-sm border border-[#2A2A2A] bg-black p-8 transition-all duration-300 hover:border-[#00FF99]/50 hover:bg-black/80"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-[#00FF99]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               
@@ -55,7 +55,7 @@ export default function GetStartedPage() {
             {/* Optimize my Portfolio */}
             <Link
               href="/optimize"
-              className="group relative overflow-hidden rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 transition-all duration-300 hover:border-[#00FF99]/50 hover:bg-[#1A1A1A]/80"
+              className="group relative overflow-hidden rounded-sm border border-[#2A2A2A] bg-black p-8 transition-all duration-300 hover:border-[#00FF99]/50 hover:bg-black/80"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-[#00FF99]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               
@@ -95,7 +95,7 @@ export default function GetStartedPage() {
           <div className="text-center">
             <Link
               href="/markets"
-              className="group inline-flex items-center gap-3 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] px-6 py-4 transition-all duration-200 hover:border-[#3A3A3A] hover:bg-[#242424]"
+              className="group inline-flex items-center gap-3 rounded-sm border border-[#2A2A2A] bg-black px-6 py-4 transition-all duration-200 hover:border-[#3A3A3A] hover:bg-[#242424]"
             >
               <svg className="h-5 w-5 text-[#B4B4B4] group-hover:text-[#E6E6E6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />

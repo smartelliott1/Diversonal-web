@@ -3,7 +3,7 @@
 :root {
   --background: #0F0F0F;
   --foreground: #E6E6E6;
-  --background-secondary: #1A1A1A;
+  --background-secondary: #000000;
   --background-tertiary: #242424;
   --border: #2A2A2A;
   --text-primary: #E6E6E6;
@@ -183,7 +183,7 @@ html {
     90deg,
     #808080 0%,
     #808080 35%,
-    #00FF99 50%,
+    #FFFFFF 50%,
     #808080 65%,
     #808080 100%
   );
@@ -206,7 +206,7 @@ html {
   display: inline-block;
   width: 2px;
   height: 1em;
-  background: #00FF99;
+  background: #FFFFFF;
   animation: cursor-blink 0.8s ease-in-out infinite;
   margin-left: 2px;
   vertical-align: text-bottom;

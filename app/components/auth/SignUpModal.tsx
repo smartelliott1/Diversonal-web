@@ -104,7 +104,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-md mx-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+      <div className="relative w-full max-w-md mx-4 bg-black border border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
         {/* Close button */}
         <button
           onClick={onClose}

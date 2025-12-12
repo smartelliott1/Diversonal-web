@@ -32,7 +32,7 @@ interface PortfolioItem {
 interface StockRecommendation {
   ticker: string;
   name: string;
-  personalizedFit: string;
+  personalizedFit?: string; // Optional - now generated on-demand
   positionSize: "Large" | "Medium" | "Small";
   riskLevel: "Low" | "Moderate" | "High";
 }
@@ -201,6 +201,12 @@ export default function DevelopPage() {
   const [chartModalName, setChartModalName] = useState("");
   const [chartModalExchange, setChartModalExchange] = useState<string | null>(null);
   
+  // Reasoning modal state
+  const [reasoningModalOpen, setReasoningModalOpen] = useState(false);
+  const [reasoningModalStock, setReasoningModalStock] = useState<{ ticker: string; name: string } | null>(null);
+  const [reasoningText, setReasoningText] = useState("");
+  const [reasoningLoading, setReasoningLoading] = useState(false);
+  
   // Stock count selector state
   const [stockCountSelectorOpen, setStockCountSelectorOpen] = useState(false);
   const [regeneratingAssetClass, setRegeneratingAssetClass] = useState("");
@@ -243,6 +249,55 @@ export default function DevelopPage() {
       streamingTextRef.current.scrollTop = streamingTextRef.current.scrollHeight;
     }
   }, [streamingText]);
+
+  // Fetch reasoning when modal opens
+  useEffect(() => {
+    if (reasoningModalOpen && reasoningModalStock && savedFormData) {
+      setReasoningLoading(true);
+      setReasoningText("");
+      
+      const fetchReasoning = async () => {
+        try {
+          const response = await fetch("/api/stock-reasoning", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ticker: reasoningModalStock.ticker,
+              name: reasoningModalStock.name,
+              formData: {
+                age: savedFormData.age,
+                risk: savedFormData.risk,
+                horizon: savedFormData.horizon,
+                capital: savedFormData.capital,
+                goal: savedFormData.goal,
+                sectors: savedFormData.sectors,
+              },
+            }),
+          });
+
+          if (!response.ok) throw new Error("Failed to fetch reasoning");
+          if (!response.body) throw new Error("No response body");
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const text = decoder.decode(value, { stream: true });
+            setReasoningText((prev) => prev + text);
+          }
+        } catch (error) {
+          console.error("Error fetching reasoning:", error);
+          setReasoningText("Unable to generate reasoning. Please try again.");
+        } finally {
+          setReasoningLoading(false);
+        }
+      };
+
+      fetchReasoning();
+    }
+  }, [reasoningModalOpen, reasoningModalStock, savedFormData]);
   
   const handleSectorChange = (sector: string) => {
     setSelectedSectors((prev) =>
@@ -1196,11 +1251,11 @@ export default function DevelopPage() {
       </svg>
       {/* Tooltip */}
       <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-all duration-200 group-hover:opacity-100">
-        <div className="relative min-w-[250px] max-w-md rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] px-3 py-2">
+        <div className="relative min-w-[250px] max-w-md rounded-sm border border-[#2A2A2A] bg-black px-3 py-2">
           <p className="whitespace-normal text-xs leading-relaxed text-[#E6E6E6]">{tooltip}</p>
           {/* Arrow pointing down */}
           <div className="absolute left-1/2 top-full -translate-x-1/2">
-            <div className="border-4 border-transparent border-t-[#1A1A1A]"></div>
+            <div className="border-4 border-transparent border-t-black"></div>
           </div>
         </div>
       </div>
@@ -1230,7 +1285,7 @@ export default function DevelopPage() {
           onSubmit={handleSubmit}
         >
           {/* Investment Profile Section */}
-          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+          <div className="rounded-sm border border-[#2A2A2A] bg-black p-6">
             <h3 className="mb-6 text-center text-xl font-semibold text-[#E6E6E6]">Investment Profile</h3>
             <div className="grid grid-cols-2 gap-5">
           <div className="group">
@@ -1313,7 +1368,7 @@ export default function DevelopPage() {
           </div>
 
           {/* Your Investment Vision Section */}
-          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+          <div className="rounded-sm border border-[#2A2A2A] bg-black p-6">
             <h3 className="mb-6 text-center text-xl font-semibold text-[#E6E6E6]">Your Investment Vision</h3>
             <div className="space-y-4">
               <div className="group">
@@ -1361,7 +1416,7 @@ export default function DevelopPage() {
           </div>
 
           {/* Sector Preferences Section */}
-          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+          <div className="rounded-sm border border-[#2A2A2A] bg-black p-6">
             <h3 className="mb-6 text-center text-xl font-semibold text-[#E6E6E6]">Sector Preferences</h3>
             <div className="space-y-5">
           <div>
@@ -1373,7 +1428,7 @@ export default function DevelopPage() {
               {sectors.map((sector) => (
                 <label
                   key={sector}
-                  className="group flex cursor-pointer items-center gap-2.5 rounded-sm p-2 text-sm text-[#B4B4B4] transition-all duration-200 hover:bg-[#1A1A1A] hover:text-[#E6E6E6]"
+                  className="group flex cursor-pointer items-center gap-2.5 rounded-sm p-2 text-sm text-[#B4B4B4] transition-all duration-200 hover:bg-black hover:text-[#E6E6E6]"
                 >
                   <input
                     type="checkbox"
@@ -1435,7 +1490,7 @@ export default function DevelopPage() {
                 className={`group relative overflow-hidden rounded-sm border p-3 text-left transition-all duration-200 ${
                   activeResultTab === 'portfolio'
                     ? 'border-[#00FF99] bg-[#00FF99]/10'
-                    : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3A3A3A] hover:bg-[#242424]'
+                    : 'border-[#2A2A2A] bg-black hover:border-[#3A3A3A] hover:bg-[#242424]'
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">
@@ -1481,8 +1536,8 @@ export default function DevelopPage() {
                   activeResultTab === 'stockPicks'
                     ? 'border-[#00FF99] bg-[#00FF99]/10'
                     : detailedRecommendations 
-                      ? 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3A3A3A] hover:bg-[#242424]'
-                      : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3A3A3A] hover:bg-[#242424]'
+                      ? 'border-[#2A2A2A] bg-black hover:border-[#3A3A3A] hover:bg-[#242424]'
+                      : 'border-[#2A2A2A] bg-black hover:border-[#3A3A3A] hover:bg-[#242424]'
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">
@@ -1537,8 +1592,8 @@ export default function DevelopPage() {
                   activeResultTab === 'stressTest'
                     ? 'border-[#00FF99] bg-[#00FF99]/10'
                     : stressTestResult
-                      ? 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3A3A3A] hover:bg-[#242424]'
-                      : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3A3A3A] hover:bg-[#242424]'
+                      ? 'border-[#2A2A2A] bg-black hover:border-[#3A3A3A] hover:bg-[#242424]'
+                      : 'border-[#2A2A2A] bg-black hover:border-[#3A3A3A] hover:bg-[#242424]'
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">
@@ -1580,7 +1635,7 @@ export default function DevelopPage() {
 
           {/* Portfolio Tab */}
           {activeResultTab === 'portfolio' && (
-        <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 sm:p-10 md:p-12">
+        <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-black p-8 sm:p-10 md:p-12">
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-gradient animate-fade-in text-3xl font-bold sm:text-4xl">Your AI-Optimized Portfolio</h2>
@@ -1754,19 +1809,22 @@ export default function DevelopPage() {
 
           {/* Stock Picks Tab */}
           {activeResultTab === 'stockPicks' && (
-        <section className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6 sm:p-8">
+        <section className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-black p-6 sm:p-8">
           
           {/* Generate/Regenerate Button */}
           {!detailedRecommendations && (
-            <div className="mb-8 flex flex-col items-center gap-3">
-              <div className="text-center mb-2">
-                <p className="text-sm text-gray-400 mb-1">Get AI-powered stock recommendations tailored to your portfolio</p>
-                <p className="text-xs text-gray-500">Powered by Grok AI • Includes RSI-based Fear & Greed analysis</p>
-              </div>
+            <div className="mb-8 flex flex-col items-center gap-4">
+              {/* Shimmering headers shown only during loading */}
+              {detailPanelLoading && (
+                <div className="text-center mb-2">
+                  <h2 className="text-2xl font-bold mb-2 shimmer-text">AI Analysis in Progress</h2>
+                  <p className="text-base shimmer-text">Generating stock recommendations tailored to your portfolio.</p>
+                </div>
+              )}
               <button
                 onClick={handleGetDetailedRecommendations}
                 disabled={detailPanelLoading}
-                className="group relative inline-flex items-center gap-3 rounded-sm border border-[#00FF99] bg-[#00FF99] px-8 py-4 text-base font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg shadow-[#00FF99]/30"
+                className="group relative inline-flex items-center gap-3 rounded-sm border border-[#00FF99] bg-[#00FF99] px-10 py-5 text-2xl font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg shadow-[#00FF99]/30"
               >
                 {detailPanelLoading && (
                   <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
@@ -1775,19 +1833,14 @@ export default function DevelopPage() {
                 )}
                 {detailPanelLoading ? (
                   <>
-                    <svg className="h-6 w-6 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <svg className="h-7 w-7 animate-spin" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Analyzing Markets...
+                    Analyzing...
                   </>
                 ) : (
-                  <>
-                    <svg className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    Generate Deep Dive Stock Picks
-                  </>
+                  <>Generate</>
                 )}
               </button>
             </div>
@@ -1796,21 +1849,11 @@ export default function DevelopPage() {
           {/* Streaming Text Display - shown during generation with shimmer effect on text */}
           {detailPanelLoading && streamingText && (
             <div className="mb-6 animate-fade-in">
-              <div className="streaming-container p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#00FF99]/10 border border-[#00FF99]/30">
-                    <svg className="w-4 h-4 text-[#00FF99] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-[#00FF99]">AI Analysis in Progress</span>
-                </div>
-                <div ref={streamingTextRef} className="max-h-[180px] overflow-y-auto rounded-lg bg-[#0F0F0F] p-3 border border-[#2A2A2A]">
-                  <pre className="shimmer-text whitespace-pre-wrap font-mono text-xs leading-relaxed">
-                    {streamingText}
-                    <span className="streaming-cursor"></span>
-                  </pre>
-                </div>
+              <div ref={streamingTextRef} className="max-h-[200px] overflow-y-auto rounded-lg bg-black p-4 border-2 border-white/30">
+                <pre className="shimmer-text whitespace-pre-wrap font-mono text-xs leading-relaxed">
+                  {streamingText}
+                  <span className="streaming-cursor"></span>
+                </pre>
               </div>
             </div>
           )}
@@ -1818,17 +1861,17 @@ export default function DevelopPage() {
           {/* Asset Class Tabs */}
           {(detailedRecommendations || (detailPanelLoading && parsedAssetClasses.length > 0)) && (
             <div>
-              <div className="mb-8">
+              <div className="mb-8 flex justify-center">
                 <div className="overflow-x-auto pb-2">
-                  <div className="inline-flex gap-3 rounded-xl border border-gray-700 bg-[#171A1F] p-2 shadow-md">
+                  <div className="inline-flex gap-3 rounded-xl border-2 border-white/30 bg-black p-2 shadow-md">
                     {(detailPanelLoading ? parsedAssetClasses : currentPortfolioData.map(item => item.name)).map((assetClass) => (
                       <button
                         key={assetClass}
                         onClick={() => setActiveTab(assetClass)}
                         className={`flex-shrink-0 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-300 ${
                           activeTab === assetClass
-                            ? 'bg-[#00FF99] text-[#171A1F] shadow-lg shadow-[#00FF99]/30 scale-105'
-                            : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200 hover:scale-102'
+                            ? 'bg-[#00FF99] text-black shadow-lg shadow-[#00FF99]/30 scale-105'
+                            : 'text-white hover:bg-white/10 hover:text-white hover:scale-102'
                         }`}
                       >
                         {assetClass}
@@ -1848,7 +1891,7 @@ export default function DevelopPage() {
                 // Check if this asset class has 0% allocation
                 if (portfolioItem.value === 0) {
                   return (
-                    <div key={assetClass} className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-12 text-center">
+                    <div key={assetClass} className="rounded-sm border border-[#2A2A2A] bg-black p-12 text-center">
                       <svg className="mx-auto mb-4 h-16 w-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -1880,77 +1923,7 @@ export default function DevelopPage() {
                       </div>
                     )}
                     
-                    {/* TIER 1: Top Row - Allocation Breakdown (40%) + Market Context (60%) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
-                      {/* Left: Allocation Breakdown - 40% */}
-                      {data.breakdown && data.breakdown.length > 0 && (
-                        <div className="lg:col-span-2 flex flex-col">
-                          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 shadow-sm h-full">
-                            <h4 className="mb-5 text-lg font-semibold text-gray-100">Allocation Breakdown</h4>
-                          {detailPanelLoading ? (
-                            <div className="flex h-48 items-center justify-center">
-                              <div className="text-center">
-                                <div className="mx-auto mb-3 h-12 w-12 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
-                                <p className="text-xs text-gray-400">Generating...</p>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="h-64">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                  <Pie
-                                    data={data.breakdown}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    label={(entry: any) => `${entry.name}: ${entry.value}%`}
-                                    outerRadius={80}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                  >
-                                    {data.breakdown.map((entry: any, index: number) => (
-                                      <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                  </Pie>
-                                  <Tooltip
-                                    formatter={(value: number) => `${value}%`}
-                                    contentStyle={{
-                                      backgroundColor: '#171A1F',
-                                      border: 'none',
-                                      borderRadius: '12px',
-                                      color: '#00FF99',
-                                      padding: '8px'
-                                    }}
-                                    labelStyle={{ color: '#00FF99', fontSize: '12px' }}
-                                    itemStyle={{ color: '#00FF99', fontSize: '12px' }}
-                                  />
-                                </PieChart>
-                              </ResponsiveContainer>
-                            </div>
-                          )}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Right: Market Context - 60% */}
-                      {detailedRecommendations && detailedRecommendations.marketContext && !detailPanelLoading && (
-                        <div className="lg:col-span-3 flex flex-col">
-                          <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-5 shadow-sm h-full">
-                            <div className="flex items-start gap-3 h-full">
-                              <svg className="h-5 w-5 text-[#00FF99] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                              </svg>
-                              <div className="flex-1">
-                                <h4 className="text-sm font-semibold uppercase tracking-wide text-[#00FF99] mb-2">Market Context</h4>
-                                <p className="text-sm leading-relaxed text-gray-300">{detailedRecommendations.marketContext}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* TIER 2: Auto-Scrolling Market Indicators Ticker */}
+                    {/* Auto-Scrolling Market Indicators Ticker */}
                     {marketContext && !marketContextLoading && (
                       <div className="mb-6 overflow-hidden bg-[#0F0F0F] border border-[#2A2A2A] rounded-sm py-3">
                         <div className="ticker-wrapper">
@@ -2030,262 +2003,113 @@ export default function DevelopPage() {
                     <div>
                       {data.recommendations && data.recommendations.length > 0 ? (
                         detailPanelLoading ? (
-                          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
+                          <div className="rounded-sm border border-[#2A2A2A] bg-black p-8 text-center">
                             <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-gray-700 border-t-[#00FF99]"></div>
                             <p className="text-xs text-gray-400">Analyzing positions...</p>
                           </div>
                         ) : (
                           <div className="space-y-6">
                             {data.recommendations.map((rec: StockRecommendation, index: number) => (
-                              <div key={index} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* Left: Ticker Details */}
-                                <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5 transition-all hover:border-[#00FF99]/30 hover:shadow-md">
-                                  {/* Ticker and Name */}
-                                  <div className="mb-4 flex items-start justify-between">
-                                    <div className="flex-1">
-                                      <div className="mb-2 flex items-center gap-3">
-                                        <h5 className="text-2xl font-bold text-[#00FF99]">{rec.ticker}</h5>
-                                        {/* Live Price Display */}
-                                        {stockPricesLoading ? (
-                                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                                            <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-600 border-t-[#00FF99]"></div>
-                                            Loading price...
+                              <div key={index} className="rounded-lg border-2 border-white/20 bg-black">
+                                <div className="grid grid-cols-1 lg:grid-cols-[1.45fr_2.5fr_0.75fr]">
+                                  {/* Column 1: Ticker Details */}
+                                  <div className="p-4 flex flex-col justify-between">
+                                    {/* Top Row: Ticker/Price on left, View Chart pinned to right */}
+                                    <div>
+                                      <div className="flex items-start justify-between gap-2">
+                                        {/* Left: Ticker + Price + Change */}
+                                        <div>
+                                          <div className="flex items-center gap-3 flex-wrap">
+                                            <h5 className="text-2xl font-bold text-[#00FF99]">{rec.ticker}</h5>
+                                            {stockPricesLoading ? (
+                                              <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-600 border-t-[#00FF99]"></div>
+                                            ) : stockPrices[rec.ticker] ? (
+                                              <>
+                                                <span className="text-lg font-bold text-[#E6E6E6]">
+                                                  ${stockPrices[rec.ticker].price.toFixed(2)}
+                                                </span>
+                                                <span className={`text-xs font-medium ${
+                                                  stockPrices[rec.ticker].changePercentage >= 0 
+                                                    ? 'text-green-400' 
+                                                    : 'text-red-400'
+                                                }`}>
+                                                  {stockPrices[rec.ticker].changePercentage >= 0 ? '↗' : '↘'}{stockPrices[rec.ticker].changePercentage >= 0 ? '+' : ''}{stockPrices[rec.ticker].changePercentage.toFixed(2)}%
+                                                </span>
+                                              </>
+                                            ) : null}
                                           </div>
-                                        ) : stockPrices[rec.ticker] ? (
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-xl font-bold text-[#E6E6E6]">
-                                              ${stockPrices[rec.ticker].price.toFixed(2)}
-                                            </span>
-                                            <span className={`text-sm font-medium ${
-                                              stockPrices[rec.ticker].changePercentage >= 0 
-                                                ? 'text-green-400' 
-                                                : 'text-red-400'
-                                            }`}>
-                                              {stockPrices[rec.ticker].changePercentage >= 0 ? '↗' : '↘'} {stockPrices[rec.ticker].changePercentage >= 0 ? '+' : ''}{stockPrices[rec.ticker].changePercentage.toFixed(2)}%
-                                            </span>
-                                          </div>
-                                        ) : null}
+                                          {/* Company Name */}
+                                          <p className="text-xs text-gray-400 mt-1">{rec.name}</p>
+                                        </div>
+                                        {/* Right: View Chart Button pinned to top-right */}
+                                        <button
+                                          onClick={() => {
+                                            setChartModalTicker(rec.ticker);
+                                            setChartModalName(rec.name);
+                                            setChartModalExchange(stockPrices[rec.ticker]?.exchange || null);
+                                            setChartModalOpen(true);
+                                          }}
+                                          className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 border-[#3A3A3A] bg-black text-base font-semibold text-white hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
+                                        >
+                                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                                          </svg>
+                                          <span>View Chart</span>
+                                        </button>
                                       </div>
-                                      <p className="text-sm text-gray-400 mb-2">{rec.name}</p>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      {/* Chart Expand Button */}
-                                      <button
-                                        onClick={() => {
-                                          setChartModalTicker(rec.ticker);
-                                          setChartModalName(rec.name);
-                                          setChartModalExchange(stockPrices[rec.ticker]?.exchange || null);
-                                          setChartModalOpen(true);
-                                        }}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black text-white text-sm font-semibold hover:bg-gray-800 transition-all"
-                                      >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                                        </svg>
-                                        <span>View Chart</span>
-                                      </button>
-                                      <div className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${
-                                        rec.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30' :
-                                        rec.positionSize === 'Medium' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                        'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-                                      }`}>
-                                        {rec.positionSize}
-                                      </div>
-                                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                                        rec.riskLevel === 'Low' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                                        rec.riskLevel === 'Moderate' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                                        'bg-red-500/20 text-red-400 border border-red-500/30'
-                                      }`}>
-                                        {rec.riskLevel} Risk
-                                      </span>
-                                    </div>
+                                    {/* Row 3: Ask AI Button */}
+                                    <button
+                                      onClick={() => {
+                                        setReasoningModalStock({ ticker: rec.ticker, name: rec.name });
+                                        setReasoningModalOpen(true);
+                                      }}
+                                      className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-[#2A2A2A] bg-black text-sm text-white hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      <span>Ask our AI why</span>
+                                    </button>
                                   </div>
 
-                                  {/* Personalized Fit */}
-                                  <div>
-                                    <h6 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                                      🎯 Why This Fits Your Goals
-                                    </h6>
-                                    <p className="text-sm leading-relaxed text-gray-300">
-                                      {rec.personalizedFit}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {/* Right: Market Data - Asset Class Specific */}
-                                <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-5">
-                                  {rightColumnLoading[rec.ticker] ? (
-                                    <div className="flex items-center justify-center h-full min-h-[200px]">
+                                  {/* Column 2: Fear & Greed + Metrics */}
+                                  <div className="p-4 border-l border-white/10">
+                                    {rightColumnLoading[rec.ticker] ? (
+                                    <div className="flex items-center justify-center h-full">
                                       <div className="text-center">
-                                        <svg className="h-8 w-8 animate-spin mx-auto mb-2 text-gray-600" fill="none" viewBox="0 0 24 24">
+                                        <svg className="h-6 w-6 animate-spin mx-auto mb-2 text-gray-600" fill="none" viewBox="0 0 24 24">
                                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        <p className="text-xs text-gray-400">Loading market data...</p>
+                                        <p className="text-xs text-gray-400">Loading...</p>
                                       </div>
                                     </div>
                                   ) : stockData[rec.ticker] ? (
                                     <>
-                                      {/* CASH: Only yield, no Fear & Greed */}
+                                      {/* CASH: Only yield */}
                                       {assetClass === 'Cash' ? (
-                                        <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                                          <h6 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                        <div className="flex flex-col items-center justify-center h-full">
+                                          <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
                                             Current Yield
                                           </h6>
-                                          <div className="text-5xl font-bold text-[#00FF99]">
+                                          <div className="text-3xl font-bold text-[#00FF99]">
                                             ~{stockData[rec.ticker].metrics?.yield || 4}%
                                           </div>
-                                          <div className="mt-2 text-sm text-gray-400">
+                                          <div className="mt-1 text-xs text-gray-400">
                                             Money Market Fund
                                           </div>
                                         </div>
                                       ) : assetClass === 'Cryptocurrencies' ? (
-                                        /* CRYPTO: Fear & Greed + Crypto Metrics + News */
-                                        <div className="space-y-4">
-                                          <div className="grid grid-cols-5 gap-4">
-                                            {/* Left: Fear & Greed Gauge (2 columns) */}
-                                            <div className="col-span-2">
-                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                                Fear & Greed
-                                              </h6>
-                                              <div className="flex flex-col items-center">
-                                                <ResponsiveContainer width="100%" height={100}>
-                                                  <PieChart>
-                                                    <Pie
-                                                      data={[
-                                                        { value: stockData[rec.ticker].fearGreed?.score || 50 },
-                                                        { value: 100 - (stockData[rec.ticker].fearGreed?.score || 50) }
-                                                      ]}
-                                                      cx="50%"
-                                                      cy="50%"
-                                                      startAngle={180}
-                                                      endAngle={0}
-                                                      innerRadius={35}
-                                                      outerRadius={45}
-                                                      dataKey="value"
-                                                    >
-                                                      <Cell fill={
-                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 81 ? '#10B981' :
-                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 61 ? '#34D399' :
-                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 41 ? '#F59E0B' :
-                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 21 ? '#F97316' :
-                                                        '#EF4444'
-                                                      } />
-                                                      <Cell fill="#1A1A1A" />
-                                                    </Pie>
-                                                  </PieChart>
-                                                </ResponsiveContainer>
-                                                <div className="text-center -mt-12">
-                                                  <div className="text-xl font-bold text-[#E6E6E6]">
-                                                    {stockData[rec.ticker].fearGreed?.score || 50}
-                                                  </div>
-                                                  <div className={`text-xs font-semibold ${
-                                                    stockData[rec.ticker].fearGreed?.label === 'Extreme Greed' ? 'text-green-400' :
-                                                    stockData[rec.ticker].fearGreed?.label === 'Greed' ? 'text-emerald-400' :
-                                                    stockData[rec.ticker].fearGreed?.label === 'Neutral' ? 'text-yellow-400' :
-                                                    stockData[rec.ticker].fearGreed?.label === 'Fear' ? 'text-orange-400' :
-                                                    'text-red-400'
-                                                  }`}>
-                                                    {stockData[rec.ticker].fearGreed?.label || 'Neutral'}
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-
-                                            {/* Right: Crypto Metrics (3 columns) */}
-                                            <div className="col-span-3">
-                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                                Key Metrics
-                                              </h6>
-                                              <div className="grid grid-cols-2 gap-2 text-xs">
-                                                {stockData[rec.ticker].metrics?.rsi !== null && stockData[rec.ticker].metrics?.rsi !== undefined && (
-                                                  <div>
-                                                    <div className="text-gray-500">RSI (14)</div>
-                                                    <div className={`font-semibold ${
-                                                      stockData[rec.ticker].metrics?.rsiLabel === 'Overbought' ? 'text-red-400' :
-                                                      stockData[rec.ticker].metrics?.rsiLabel === 'Oversold' ? 'text-green-400' :
-                                                      'text-[#E6E6E6]'
-                                                    }`}>
-                                                      {stockData[rec.ticker].metrics!.rsi!.toFixed(1)} ({stockData[rec.ticker].metrics?.rsiLabel})
-                                                    </div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.marketCap && (
-                                                  <div>
-                                                    <div className="text-gray-500">Market Cap</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">
-                                                      ${(stockData[rec.ticker].metrics!.marketCap! / 1e9).toFixed(1)}B
-                                                    </div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.volume && (
-                                                  <div>
-                                                    <div className="text-gray-500">24h Volume</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">
-                                                      ${(stockData[rec.ticker].metrics!.volume! / 1e6).toFixed(1)}M
-                                                    </div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.sma20Week && (
-                                                  <div>
-                                                    <div className="text-gray-500">20 Week SMA</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">
-                                                      ${stockData[rec.ticker].metrics!.sma20Week!.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                                                    </div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.sma50Week && (
-                                                  <div>
-                                                    <div className="text-gray-500">50 Week SMA</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">
-                                                      ${stockData[rec.ticker].metrics!.sma50Week!.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                                                    </div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.sma200Week && (
-                                                  <div>
-                                                    <div className="text-gray-500">200 Week SMA</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">
-                                                      ${stockData[rec.ticker].metrics!.sma200Week!.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                                                    </div>
-                                                  </div>
-                                                )}
-                                              </div>
-                                            </div>
-                                          </div>
-
-                                          {/* Bottom Row: Recent Headline */}
-                                          {stockData[rec.ticker].headline && (
-                                            <div>
-                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                                Recent News
-                                              </h6>
-                                              <a 
-                                                href={stockData[rec.ticker].headline!.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="block rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 transition-all hover:border-[#00FF99]/30"
-                                              >
-                                                <div className="text-xs text-gray-300 leading-snug mb-1 line-clamp-2">
-                                                  {stockData[rec.ticker].headline!.title}
-                                                </div>
-                                                <div className="text-xs text-gray-500">
-                                                  {stockData[rec.ticker].headline!.site} • {new Date(stockData[rec.ticker].headline!.publishedDate).toLocaleDateString()}
-                                                </div>
-                                              </a>
-                                            </div>
-                                          )}
-                                        </div>
-                                      ) : assetClass === 'Bonds' || assetClass === 'Real Estate' || assetClass === 'Commodities' ? (
-                                        /* BONDS, REAL ESTATE, COMMODITIES: Centered Fear & Greed + News */
-                                        <div className="space-y-4">
-                                          {/* Centered Fear & Greed Gauge */}
-                                          <div className="flex flex-col items-center justify-center">
-                                            <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                        /* CRYPTO: Fear & Greed + Crypto Metrics */
+                                        <div className="grid grid-cols-5 gap-3">
+                                          {/* Fear & Greed Gauge */}
+                                          <div className="col-span-2">
+                                            <h6 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
                                               Fear & Greed
                                             </h6>
                                             <div className="flex flex-col items-center">
-                                              <ResponsiveContainer width={150} height={100}>
+                                              <ResponsiveContainer width="100%" height={80}>
                                                 <PieChart>
                                                   <Pie
                                                     data={[
@@ -2296,8 +2120,8 @@ export default function DevelopPage() {
                                                     cy="50%"
                                                     startAngle={180}
                                                     endAngle={0}
-                                                    innerRadius={35}
-                                                    outerRadius={45}
+                                                    innerRadius={28}
+                                                    outerRadius={38}
                                                     dataKey="value"
                                                   >
                                                     <Cell fill={
@@ -2307,12 +2131,12 @@ export default function DevelopPage() {
                                                       (stockData[rec.ticker].fearGreed?.score || 50) >= 21 ? '#F97316' :
                                                       '#EF4444'
                                                     } />
-                                                    <Cell fill="#1A1A1A" />
+                                                    <Cell fill="#000000" />
                                                   </Pie>
                                                 </PieChart>
                                               </ResponsiveContainer>
-                                              <div className="text-center -mt-12">
-                                                <div className="text-xl font-bold text-[#E6E6E6]">
+                                              <div className="text-center -mt-10">
+                                                <div className="text-lg font-bold text-[#E6E6E6]">
                                                   {stockData[rec.ticker].fearGreed?.score || 50}
                                                 </div>
                                                 <div className={`text-xs font-semibold ${
@@ -2327,186 +2151,244 @@ export default function DevelopPage() {
                                               </div>
                                             </div>
                                           </div>
-
-                                          {/* Bottom Row: Recent Headline */}
-                                          {stockData[rec.ticker].headline && (
-                                            <div>
-                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                                Recent News
-                                              </h6>
-                                              <a 
-                                                href={stockData[rec.ticker].headline!.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="block rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 transition-all hover:border-[#00FF99]/30"
-                                              >
-                                                <div className="text-xs text-gray-300 leading-snug mb-1 line-clamp-2">
-                                                  {stockData[rec.ticker].headline!.title}
+                                          {/* Crypto Metrics */}
+                                          <div className="col-span-3">
+                                            <h6 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                              Key Metrics
+                                            </h6>
+                                            <div className="grid grid-cols-2 gap-1 text-xs">
+                                              {stockData[rec.ticker].metrics?.marketCap && (
+                                                <div>
+                                                  <div className="text-gray-500">Market Cap</div>
+                                                  <div className="text-[#E6E6E6] font-semibold">
+                                                    ${(stockData[rec.ticker].metrics!.marketCap! / 1e9).toFixed(1)}B
+                                                  </div>
                                                 </div>
-                                                <div className="text-xs text-gray-500">
-                                                  {stockData[rec.ticker].headline!.site} • {new Date(stockData[rec.ticker].headline!.publishedDate).toLocaleDateString()}
+                                              )}
+                                              {stockData[rec.ticker].metrics?.volume && (
+                                                <div>
+                                                  <div className="text-gray-500">24h Vol</div>
+                                                  <div className="text-[#E6E6E6] font-semibold">
+                                                    ${(stockData[rec.ticker].metrics!.volume! / 1e6).toFixed(1)}M
+                                                  </div>
                                                 </div>
-                                              </a>
+                                              )}
                                             </div>
-                                          )}
+                                          </div>
                                         </div>
-                                      ) : (
-                                        /* EQUITIES: Fear & Greed + Equity Metrics + News */
-                                        <div className="space-y-4">
-                                          <div className="grid grid-cols-5 gap-4">
-                                            {/* Left: Fear & Greed Gauge (2 columns) */}
-                                            <div className="col-span-2">
-                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                                Fear & Greed
-                                              </h6>
-                                              <div className="flex flex-col items-center">
-                                                <ResponsiveContainer width="100%" height={100}>
-                                                  <PieChart>
-                                                    <Pie
-                                                      data={[
-                                                        { value: stockData[rec.ticker].fearGreed?.score || 50 },
-                                                        { value: 100 - (stockData[rec.ticker].fearGreed?.score || 50) }
-                                                      ]}
-                                                      cx="50%"
-                                                      cy="50%"
-                                                      startAngle={180}
-                                                      endAngle={0}
-                                                      innerRadius={35}
-                                                      outerRadius={45}
-                                                      dataKey="value"
-                                                    >
-                                                      <Cell fill={
-                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 81 ? '#10B981' :
-                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 61 ? '#34D399' :
-                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 41 ? '#F59E0B' :
-                                                        (stockData[rec.ticker].fearGreed?.score || 50) >= 21 ? '#F97316' :
-                                                        '#EF4444'
-                                                      } />
-                                                      <Cell fill="#1A1A1A" />
-                                                    </Pie>
-                                                  </PieChart>
-                                                </ResponsiveContainer>
-                                                <div className="text-center -mt-12">
-                                                  <div className="text-xl font-bold text-[#E6E6E6]">
-                                                    {stockData[rec.ticker].fearGreed?.score || 50}
-                                                  </div>
-                                                  <div className={`text-xs font-semibold ${
-                                                    stockData[rec.ticker].fearGreed?.label === 'Extreme Greed' ? 'text-green-400' :
-                                                    stockData[rec.ticker].fearGreed?.label === 'Greed' ? 'text-emerald-400' :
-                                                    stockData[rec.ticker].fearGreed?.label === 'Neutral' ? 'text-yellow-400' :
-                                                    stockData[rec.ticker].fearGreed?.label === 'Fear' ? 'text-orange-400' :
-                                                    'text-red-400'
-                                                  }`}>
-                                                    {stockData[rec.ticker].fearGreed?.label || 'Neutral'}
-                                                  </div>
-                                                </div>
+                                      ) : assetClass === 'Bonds' || assetClass === 'Real Estate' || assetClass === 'Commodities' ? (
+                                        /* BONDS, REAL ESTATE, COMMODITIES: Centered Fear & Greed */
+                                        <div className="flex flex-col items-center justify-center">
+                                          <h6 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                            Fear & Greed
+                                          </h6>
+                                          <div className="flex flex-col items-center">
+                                            <ResponsiveContainer width={120} height={80}>
+                                              <PieChart>
+                                                <Pie
+                                                  data={[
+                                                    { value: stockData[rec.ticker].fearGreed?.score || 50 },
+                                                    { value: 100 - (stockData[rec.ticker].fearGreed?.score || 50) }
+                                                  ]}
+                                                  cx="50%"
+                                                  cy="50%"
+                                                  startAngle={180}
+                                                  endAngle={0}
+                                                  innerRadius={28}
+                                                  outerRadius={38}
+                                                  dataKey="value"
+                                                >
+                                                  <Cell fill={
+                                                    (stockData[rec.ticker].fearGreed?.score || 50) >= 81 ? '#10B981' :
+                                                    (stockData[rec.ticker].fearGreed?.score || 50) >= 61 ? '#34D399' :
+                                                    (stockData[rec.ticker].fearGreed?.score || 50) >= 41 ? '#F59E0B' :
+                                                    (stockData[rec.ticker].fearGreed?.score || 50) >= 21 ? '#F97316' :
+                                                    '#EF4444'
+                                                  } />
+                                                  <Cell fill="#000000" />
+                                                </Pie>
+                                              </PieChart>
+                                            </ResponsiveContainer>
+                                            <div className="text-center -mt-10">
+                                              <div className="text-lg font-bold text-[#E6E6E6]">
+                                                {stockData[rec.ticker].fearGreed?.score || 50}
                                               </div>
-                                            </div>
-
-                                            {/* Right: Equity Metrics (3 columns) */}
-                                            <div className="col-span-3">
-                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                                Key Metrics
-                                              </h6>
-                                              <div className="grid grid-cols-2 gap-2 text-xs">
-                                                {stockData[rec.ticker].metrics?.peRatio !== null && stockData[rec.ticker].metrics?.peRatio !== undefined && (
-                                                  <div>
-                                                    <div className="text-gray-500">P/E Ratio</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.peRatio!.toFixed(2)}</div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.forwardPE !== null && stockData[rec.ticker].metrics?.forwardPE !== undefined && (
-                                                  <div>
-                                                    <div className="text-gray-500">
-                                                      Forward P/E {stockData[rec.ticker].metrics?.forwardPEFiscalYear && `(${stockData[rec.ticker].metrics?.forwardPEFiscalYear})`}
-                                                    </div>
-                                                    <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.forwardPE!.toFixed(2)}</div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.revenueGrowth !== null && stockData[rec.ticker].metrics?.revenueGrowth !== undefined && (
-                                                  <div>
-                                                    <div className="text-gray-500">
-                                                      Revenue Growth {stockData[rec.ticker].metrics?.growthPeriod && `(${stockData[rec.ticker].metrics?.growthPeriod})`}
-                                                    </div>
-                                                    <div className={`font-semibold ${stockData[rec.ticker].metrics!.revenueGrowth! >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                                      {stockData[rec.ticker].metrics!.revenueGrowth! >= 0 ? '+' : ''}{stockData[rec.ticker].metrics!.revenueGrowth!.toFixed(1)}%
-                                                    </div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.profitMargin !== null && stockData[rec.ticker].metrics?.profitMargin !== undefined && (
-                                                  <div>
-                                                    <div className="text-gray-500">Profit Margin</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.profitMargin!.toFixed(1)}%</div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.dividendYield !== null && stockData[rec.ticker].metrics?.dividendYield !== undefined && stockData[rec.ticker].metrics!.dividendYield! > 0 && (
-                                                  <div>
-                                                    <div className="text-gray-500">Dividend Yield</div>
-                                                    <div className="text-[#00FF99] font-semibold">{stockData[rec.ticker].metrics!.dividendYield!.toFixed(2)}%</div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.sma50 !== null && stockData[rec.ticker].metrics?.sma50 !== undefined && (
-                                                  <div>
-                                                    <div className="text-gray-500">50-Day SMA</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">${stockData[rec.ticker].metrics!.sma50!.toFixed(2)}</div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.sma200 !== null && stockData[rec.ticker].metrics?.sma200 !== undefined && (
-                                                  <div>
-                                                    <div className="text-gray-500">200-Day SMA</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">${stockData[rec.ticker].metrics!.sma200!.toFixed(2)}</div>
-                                                  </div>
-                                                )}
-                                                {stockData[rec.ticker].metrics?.marketCap !== null && stockData[rec.ticker].metrics?.marketCap !== undefined && (
-                                                  <div>
-                                                    <div className="text-gray-500">Market Cap</div>
-                                                    <div className="text-[#E6E6E6] font-semibold">
-                                                      ${stockData[rec.ticker].metrics!.marketCap! >= 1e12 
-                                                        ? (stockData[rec.ticker].metrics!.marketCap! / 1e12).toFixed(2) + 'T'
-                                                        : (stockData[rec.ticker].metrics!.marketCap! / 1e9).toFixed(1) + 'B'}
-                                                    </div>
-                                                  </div>
-                                                )}
+                                              <div className={`text-xs font-semibold ${
+                                                stockData[rec.ticker].fearGreed?.label === 'Extreme Greed' ? 'text-green-400' :
+                                                stockData[rec.ticker].fearGreed?.label === 'Greed' ? 'text-emerald-400' :
+                                                stockData[rec.ticker].fearGreed?.label === 'Neutral' ? 'text-yellow-400' :
+                                                stockData[rec.ticker].fearGreed?.label === 'Fear' ? 'text-orange-400' :
+                                                'text-red-400'
+                                              }`}>
+                                                {stockData[rec.ticker].fearGreed?.label || 'Neutral'}
                                               </div>
                                             </div>
                                           </div>
-
-                                          {/* Bottom Row: Recent Headline */}
-                                          {stockData[rec.ticker].headline && (
-                                            <div>
-                                              <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                                Recent News
-                                              </h6>
-                                              <a 
-                                                href={stockData[rec.ticker].headline!.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="block rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 transition-all hover:border-[#00FF99]/30"
-                                              >
-                                                <div className="text-xs text-gray-300 leading-snug mb-1 line-clamp-2">
-                                                  {stockData[rec.ticker].headline!.title}
+                                        </div>
+                                      ) : (
+                                        /* EQUITIES: Fear & Greed + Equity Metrics */
+                                        <div className="grid grid-cols-5 gap-3">
+                                          {/* Fear & Greed Gauge */}
+                                          <div className="col-span-2">
+                                            <h6 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                              Fear & Greed
+                                            </h6>
+                                            <div className="flex flex-col items-center">
+                                              <ResponsiveContainer width="100%" height={80}>
+                                                <PieChart>
+                                                  <Pie
+                                                    data={[
+                                                      { value: stockData[rec.ticker].fearGreed?.score || 50 },
+                                                      { value: 100 - (stockData[rec.ticker].fearGreed?.score || 50) }
+                                                    ]}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    startAngle={180}
+                                                    endAngle={0}
+                                                    innerRadius={28}
+                                                    outerRadius={38}
+                                                    dataKey="value"
+                                                  >
+                                                    <Cell fill={
+                                                      (stockData[rec.ticker].fearGreed?.score || 50) >= 81 ? '#10B981' :
+                                                      (stockData[rec.ticker].fearGreed?.score || 50) >= 61 ? '#34D399' :
+                                                      (stockData[rec.ticker].fearGreed?.score || 50) >= 41 ? '#F59E0B' :
+                                                      (stockData[rec.ticker].fearGreed?.score || 50) >= 21 ? '#F97316' :
+                                                      '#EF4444'
+                                                    } />
+                                                    <Cell fill="#000000" />
+                                                  </Pie>
+                                                </PieChart>
+                                              </ResponsiveContainer>
+                                              <div className="text-center -mt-10">
+                                                <div className="text-lg font-bold text-[#E6E6E6]">
+                                                  {stockData[rec.ticker].fearGreed?.score || 50}
                                                 </div>
-                                                <div className="text-xs text-gray-500">
-                                                  {stockData[rec.ticker].headline!.site} • {new Date(stockData[rec.ticker].headline!.publishedDate).toLocaleDateString()}
+                                                <div className={`text-xs font-semibold ${
+                                                  stockData[rec.ticker].fearGreed?.label === 'Extreme Greed' ? 'text-green-400' :
+                                                  stockData[rec.ticker].fearGreed?.label === 'Greed' ? 'text-emerald-400' :
+                                                  stockData[rec.ticker].fearGreed?.label === 'Neutral' ? 'text-yellow-400' :
+                                                  stockData[rec.ticker].fearGreed?.label === 'Fear' ? 'text-orange-400' :
+                                                  'text-red-400'
+                                                }`}>
+                                                  {stockData[rec.ticker].fearGreed?.label || 'Neutral'}
                                                 </div>
-                                              </a>
+                                              </div>
                                             </div>
-                                          )}
+                                          </div>
+                                          {/* Equity Metrics */}
+                                          <div className="col-span-3">
+                                            <h6 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                              Key Metrics
+                                            </h6>
+                                            <div className="grid grid-cols-4 gap-x-3 gap-y-1 text-xs">
+                                              {stockData[rec.ticker].metrics?.peRatio !== null && stockData[rec.ticker].metrics?.peRatio !== undefined && (
+                                                <div>
+                                                  <div className="text-gray-500">P/E</div>
+                                                  <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.peRatio!.toFixed(1)}</div>
+                                                </div>
+                                              )}
+                                              {stockData[rec.ticker].metrics?.forwardPE !== null && stockData[rec.ticker].metrics?.forwardPE !== undefined && (
+                                                <div>
+                                                  <div className="text-gray-500">Fwd P/E</div>
+                                                  <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.forwardPE!.toFixed(1)}</div>
+                                                </div>
+                                              )}
+                                              {stockData[rec.ticker].metrics?.revenueGrowth !== null && stockData[rec.ticker].metrics?.revenueGrowth !== undefined && (
+                                                <div>
+                                                  <div className="text-gray-500">Rev Growth</div>
+                                                  <div className={`font-semibold ${stockData[rec.ticker].metrics!.revenueGrowth! >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                    {stockData[rec.ticker].metrics!.revenueGrowth! >= 0 ? '+' : ''}{stockData[rec.ticker].metrics!.revenueGrowth!.toFixed(1)}%
+                                                  </div>
+                                                </div>
+                                              )}
+                                              {stockData[rec.ticker].metrics?.profitMargin !== null && stockData[rec.ticker].metrics?.profitMargin !== undefined && (
+                                                <div>
+                                                  <div className="text-gray-500">Margin</div>
+                                                  <div className="text-[#E6E6E6] font-semibold">{stockData[rec.ticker].metrics!.profitMargin!.toFixed(1)}%</div>
+                                                </div>
+                                              )}
+                                              {stockData[rec.ticker].metrics?.dividendYield !== null && stockData[rec.ticker].metrics?.dividendYield !== undefined && stockData[rec.ticker].metrics!.dividendYield! > 0 && (
+                                                <div>
+                                                  <div className="text-gray-500">Div Yield</div>
+                                                  <div className="text-[#00FF99] font-semibold">{stockData[rec.ticker].metrics!.dividendYield!.toFixed(2)}%</div>
+                                                </div>
+                                              )}
+                                              {stockData[rec.ticker].metrics?.sma50 !== null && stockData[rec.ticker].metrics?.sma50 !== undefined && (
+                                                <div>
+                                                  <div className="text-gray-500">50D SMA</div>
+                                                  <div className="text-[#E6E6E6] font-semibold">${stockData[rec.ticker].metrics!.sma50!.toFixed(0)}</div>
+                                                </div>
+                                              )}
+                                              {stockData[rec.ticker].metrics?.sma200 !== null && stockData[rec.ticker].metrics?.sma200 !== undefined && (
+                                                <div>
+                                                  <div className="text-gray-500">200D SMA</div>
+                                                  <div className="text-[#E6E6E6] font-semibold">${stockData[rec.ticker].metrics!.sma200!.toFixed(0)}</div>
+                                                </div>
+                                              )}
+                                              {stockData[rec.ticker].metrics?.marketCap !== null && stockData[rec.ticker].metrics?.marketCap !== undefined && (
+                                                <div>
+                                                  <div className="text-gray-500">Mkt Cap</div>
+                                                  <div className="text-[#E6E6E6] font-semibold">
+                                                    ${stockData[rec.ticker].metrics!.marketCap! >= 1e12 
+                                                      ? (stockData[rec.ticker].metrics!.marketCap! / 1e12).toFixed(1) + 'T'
+                                                      : (stockData[rec.ticker].metrics!.marketCap! / 1e9).toFixed(0) + 'B'}
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
                                         </div>
                                       )}
                                     </>
                                   ) : (
-                                    <div className="flex items-center justify-center h-full min-h-[200px]">
-                                      <p className="text-sm text-gray-400">No market data available</p>
+                                    <div className="flex items-center justify-center h-full">
+                                      <p className="text-xs text-gray-400">No data</p>
                                     </div>
-                                  )}
+                                    )}
+                                  </div>
+
+                                  {/* Column 3: Recent News */}
+                                  <div className="p-4 border-l border-white/10">
+                                    {rightColumnLoading[rec.ticker] ? (
+                                      <div className="flex items-center justify-center h-full">
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-[#00FF99]"></div>
+                                      </div>
+                                    ) : stockData[rec.ticker]?.headline ? (
+                                      <div>
+                                        <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                          Recent News
+                                        </h6>
+                                        <a 
+                                          href={stockData[rec.ticker].headline!.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="group block transition-all"
+                                        >
+                                          <div className="text-sm text-gray-200 leading-snug line-clamp-3 group-hover:text-[#00FF99] group-hover:underline underline-offset-2">
+                                            {stockData[rec.ticker].headline!.title}
+                                            <svg className="inline-block w-3 h-3 ml-1 opacity-50 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                          </div>
+                                          <div className="mt-2 text-xs text-gray-500">
+                                            {stockData[rec.ticker].headline!.site} • {new Date(stockData[rec.ticker].headline!.publishedDate).toLocaleDateString()}
+                                          </div>
+                                        </a>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center justify-center h-full">
+                                        <p className="text-xs text-gray-500">No news</p>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             ))}
                           </div>
                         )
                         ) : (
-                          <div className="rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
+                          <div className="rounded-sm border border-[#2A2A2A] bg-black p-8 text-center">
                             <svg className="mx-auto mb-3 h-12 w-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -2571,7 +2453,7 @@ export default function DevelopPage() {
 
           {/* Stress Test Tab */}
           {activeResultTab === 'stressTest' && (
-        <section className="animate-fade-in mx-auto max-w-[1600px] rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-4 sm:p-6">
+        <section className="animate-fade-in mx-auto max-w-[1600px] rounded-sm border border-[#2A2A2A] bg-black p-4 sm:p-6">
           <h3 className="text-gradient mb-4 text-2xl font-bold">Stress Testing</h3>
           <p className="mb-6 text-sm text-gray-300">
             Test portfolio performance under various market scenarios
@@ -3078,7 +2960,7 @@ export default function DevelopPage() {
       {showSavedPortfolios && savedPortfolios.length > 0 && (
         <div className="fixed inset-0 z-50 overflow-auto bg-black/80 p-4">
           <div className="mx-auto max-w-4xl animate-fade-in">
-            <div className="mb-8 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+            <div className="mb-8 rounded-sm border border-[#2A2A2A] bg-black p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-gradient text-2xl font-bold">Saved Portfolios</h2>
                 <button
@@ -3127,7 +3009,7 @@ export default function DevelopPage() {
       {/* Save Dialog */}
       {showSaveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-          <div className="w-full max-w-md animate-fade-in rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] p-8">
+          <div className="w-full max-w-md animate-fade-in rounded-sm border border-[#2A2A2A] bg-black p-8">
             <h3 className="text-gradient mb-6 text-2xl font-bold">Save Portfolio</h3>
             <input
               type="text"
@@ -3247,6 +3129,50 @@ export default function DevelopPage() {
         name={chartModalName}
         exchange={chartModalExchange}
       />
+
+      {/* Reasoning Modal */}
+      {reasoningModalOpen && reasoningModalStock && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg bg-black border border-[#2A2A2A] rounded-lg shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
+              <div className="flex items-center gap-3">
+                <span className="text-xl font-bold text-[#00FF99]">{reasoningModalStock.ticker}</span>
+                <span className="text-sm text-gray-400">{reasoningModalStock.name}</span>
+              </div>
+              <button
+                onClick={() => {
+                  setReasoningModalOpen(false);
+                  setReasoningModalStock(null);
+                  setReasoningText("");
+                }}
+                className="p-1 text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Content */}
+            <div className="p-5">
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400 flex items-center gap-2">
+                🎯 Why This Fits Your Goals
+              </h3>
+              {reasoningLoading && !reasoningText ? (
+                <div className="flex items-center gap-3">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-600 border-t-[#00FF99]"></div>
+                  <span className="text-sm text-gray-400">Analyzing fit...</span>
+                </div>
+              ) : (
+                <p className="text-sm leading-relaxed text-gray-300">
+                  {reasoningText || "No reasoning available."}
+                  {reasoningLoading && <span className="inline-block w-2 h-4 ml-1 bg-[#00FF99] animate-pulse"></span>}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stock Count Selector for regeneration */}
       <StockCountSelector

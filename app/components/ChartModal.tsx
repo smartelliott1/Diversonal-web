@@ -100,7 +100,7 @@ export default function ChartModal({ isOpen, onClose, ticker, name, exchange }: 
       {/* Modal */}
       <div className="relative z-10 w-[90vw] h-[85vh] bg-[#0F0F0F] rounded-lg border border-[#2A2A2A] shadow-2xl shadow-black/50 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#2A2A2A] bg-[#1A1A1A]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#2A2A2A] bg-black">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#00FF99]/10 border border-[#00FF99]/20">
               <svg className="w-5 h-5 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +130,7 @@ export default function ChartModal({ isOpen, onClose, ticker, name, exchange }: 
         />
         
         {/* Footer Attribution */}
-        <div className="px-6 py-2 border-t border-[#2A2A2A] bg-[#1A1A1A]">
+        <div className="px-6 py-2 border-t border-[#2A2A2A] bg-black">
           <a 
             href="https://www.tradingview.com/" 
             target="_blank" 

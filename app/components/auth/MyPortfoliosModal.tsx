@@ -108,7 +108,7 @@ export default function MyPortfoliosModal({ isOpen, onClose, onLoadPortfolio }: 
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-2xl mx-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden animate-fade-in max-h-[80vh] flex flex-col">
+      <div className="relative w-full max-w-2xl mx-4 bg-black border border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden animate-fade-in max-h-[80vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#2A2A2A]">
           <h2 className="text-xl font-semibold text-white">My Portfolios</h2>
@@ -166,13 +166,13 @@ export default function MyPortfoliosModal({ isOpen, onClose, onLoadPortfolio }: 
                       
                       {/* Portfolio Details */}
                       <div className="flex flex-wrap gap-2">
-                        <span className="px-2 py-1 bg-[#1A1A1A] rounded-lg text-xs text-[#B4B4B4]">
+                        <span className="px-2 py-1 bg-black rounded-lg text-xs text-[#B4B4B4]">
                           {formatCapital(portfolio.capital)}
                         </span>
-                        <span className="px-2 py-1 bg-[#1A1A1A] rounded-lg text-xs text-[#B4B4B4]">
+                        <span className="px-2 py-1 bg-black rounded-lg text-xs text-[#B4B4B4]">
                           {getRiskLabel(portfolio.risk)} Risk
                         </span>
-                        <span className="px-2 py-1 bg-[#1A1A1A] rounded-lg text-xs text-[#B4B4B4]">
+                        <span className="px-2 py-1 bg-black rounded-lg text-xs text-[#B4B4B4]">
                           {portfolio.horizon}
                         </span>
                       </div>
