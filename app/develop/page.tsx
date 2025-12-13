@@ -203,9 +203,36 @@ export default function DevelopPage() {
   
   // Reasoning modal state
   const [reasoningModalOpen, setReasoningModalOpen] = useState(false);
-  const [reasoningModalStock, setReasoningModalStock] = useState<{ ticker: string; name: string } | null>(null);
+  const [reasoningModalStock, setReasoningModalStock] = useState<{ 
+    ticker: string; 
+    name: string; 
+    assetClass?: string; 
+    allocationPercent?: number;
+  } | null>(null);
   const [reasoningText, setReasoningText] = useState("");
   const [reasoningLoading, setReasoningLoading] = useState(false);
+  const [matchScores, setMatchScores] = useState<{
+    overallMatch: number;
+    criteria: {
+      riskTolerance: { score: number; note: string };
+      timeHorizon: { score: number; note: string };
+      investmentGoal: { score: number; note: string };
+      age: { score: number; note: string };
+    };
+    sectors: Array<{ name: string; score: number }>;
+  } | null>(null);
+  
+  // Chat state for reasoning modal
+  const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  
+  // Cache for modal data per ticker (persists when modal closes)
+  const [stockModalCache, setStockModalCache] = useState<Record<string, {
+    matchScores: typeof matchScores;
+    reasoningText: string;
+    chatHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
+  }>>({});
   
   // Stock count selector state
   const [stockCountSelectorOpen, setStockCountSelectorOpen] = useState(false);
@@ -250,13 +277,32 @@ export default function DevelopPage() {
     }
   }, [streamingText]);
 
-  // Fetch reasoning when modal opens
+  // Fetch reasoning when modal opens (or restore from cache)
   useEffect(() => {
     if (reasoningModalOpen && reasoningModalStock && savedFormData) {
+      const ticker = reasoningModalStock.ticker;
+      
+      // Check if we have cached data for this ticker
+      if (stockModalCache[ticker]) {
+        // Restore from cache - no API call needed
+        const cached = stockModalCache[ticker];
+        setMatchScores(cached.matchScores);
+        setReasoningText(cached.reasoningText);
+        setChatHistory(cached.chatHistory);
+        setReasoningLoading(false);
+        return;
+      }
+      
+      // No cache - fetch fresh data
       setReasoningLoading(true);
       setReasoningText("");
+      setMatchScores(null);
+      setChatHistory([]);
       
       const fetchReasoning = async () => {
+        let finalScores: typeof matchScores = null;
+        let finalReasoning = "";
+        
         try {
           const response = await fetch("/api/stock-reasoning", {
             method: "POST",
@@ -264,6 +310,8 @@ export default function DevelopPage() {
             body: JSON.stringify({
               ticker: reasoningModalStock.ticker,
               name: reasoningModalStock.name,
+              allocationPercent: reasoningModalStock.allocationPercent,
+              assetClass: reasoningModalStock.assetClass,
               formData: {
                 age: savedFormData.age,
                 risk: savedFormData.risk,
@@ -277,27 +325,155 @@ export default function DevelopPage() {
 
           if (!response.ok) throw new Error("Failed to fetch reasoning");
           if (!response.body) throw new Error("No response body");
-
+          
+          // Parse hybrid stream: JSON scores first, then delimiter, then streamed reasoning
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
-
+          let buffer = "";
+          let scoresReceived = false;
+          let accumulatedReasoning = "";
+          
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            const text = decoder.decode(value, { stream: true });
-            setReasoningText((prev) => prev + text);
+            
+            buffer += decoder.decode(value, { stream: true });
+            
+            const delimiterIndex = buffer.indexOf("\n---REASONING---\n");
+            
+            if (!scoresReceived && delimiterIndex !== -1) {
+              const scoresJson = buffer.substring(0, delimiterIndex);
+              try {
+                const scores = JSON.parse(scoresJson);
+                finalScores = {
+                  overallMatch: scores.overallMatch,
+                  criteria: scores.criteria,
+                  sectors: scores.sectors || [],
+                };
+                setMatchScores(finalScores);
+                setReasoningLoading(false);
+              } catch (e) {
+                console.error("Failed to parse scores JSON:", e);
+              }
+              scoresReceived = true;
+              
+              accumulatedReasoning = buffer.substring(delimiterIndex + "\n---REASONING---\n".length);
+              setReasoningText(accumulatedReasoning);
+              buffer = "";
+            } else if (scoresReceived) {
+              accumulatedReasoning += buffer;
+              setReasoningText(accumulatedReasoning);
+              buffer = "";
+            }
           }
+          
+          if (buffer && scoresReceived) {
+            accumulatedReasoning += buffer;
+            setReasoningText(accumulatedReasoning);
+          }
+          
+          finalReasoning = accumulatedReasoning;
+          
+          // Cache the results
+          setStockModalCache(prev => ({
+            ...prev,
+            [ticker]: {
+              matchScores: finalScores,
+              reasoningText: finalReasoning,
+              chatHistory: [],
+            }
+          }));
         } catch (error) {
           console.error("Error fetching reasoning:", error);
           setReasoningText("Unable to generate reasoning. Please try again.");
-        } finally {
           setReasoningLoading(false);
         }
       };
 
       fetchReasoning();
     }
-  }, [reasoningModalOpen, reasoningModalStock, savedFormData]);
+  }, [reasoningModalOpen, reasoningModalStock, savedFormData, stockModalCache]);
+  
+  // Save chat history to cache when it changes
+  useEffect(() => {
+    if (reasoningModalStock && chatHistory.length > 0) {
+      const ticker = reasoningModalStock.ticker;
+      setStockModalCache(prev => ({
+        ...prev,
+        [ticker]: {
+          ...prev[ticker],
+          chatHistory: chatHistory,
+        }
+      }));
+    }
+  }, [chatHistory, reasoningModalStock]);
+  
+  // Handle sending a chat message (accepts optional direct message for suggested questions)
+  const handleSendChatMessage = async (directMessage?: string) => {
+    const messageToSend = directMessage || chatInput.trim();
+    if (!messageToSend || !reasoningModalStock || !savedFormData || chatLoading) return;
+    
+    const userMessage = messageToSend;
+    setChatInput("");
+    setChatLoading(true);
+    
+    // Add user message to history
+    const newHistory = [...chatHistory, { role: 'user' as const, content: userMessage }];
+    setChatHistory(newHistory);
+    
+    try {
+      const response = await fetch("/api/stock-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticker: reasoningModalStock.ticker,
+          name: reasoningModalStock.name,
+          message: userMessage,
+          chatHistory: chatHistory,
+          matchScores: matchScores,
+          allocationPercent: reasoningModalStock.allocationPercent,
+          assetClass: reasoningModalStock.assetClass,
+          formData: {
+            age: savedFormData.age,
+            risk: savedFormData.risk,
+            horizon: savedFormData.horizon,
+            capital: savedFormData.capital,
+            goal: savedFormData.goal,
+            sectors: savedFormData.sectors,
+          },
+        }),
+      });
+
+      if (!response.ok || !response.body) throw new Error("Failed to send message");
+      
+      // Stream the response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedResponse = "";
+      
+      // Add placeholder for assistant response
+      setChatHistory(prev => [...prev, { role: 'assistant', content: "" }]);
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        accumulatedResponse += decoder.decode(value, { stream: true });
+        
+        // Update the last message (assistant's response)
+        setChatHistory(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'assistant', content: accumulatedResponse };
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error("Error sending chat message:", error);
+      setChatHistory(prev => [...prev, { role: 'assistant', content: "Sorry, I couldn't process that. Please try again." }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
   
   const handleSectorChange = (sector: string) => {
     setSelectedSectors((prev) =>
@@ -2061,7 +2237,12 @@ export default function DevelopPage() {
                                     {/* Row 3: Ask AI Button */}
                                     <button
                                       onClick={() => {
-                                        setReasoningModalStock({ ticker: rec.ticker, name: rec.name });
+                                        setReasoningModalStock({ 
+                                          ticker: rec.ticker, 
+                                          name: rec.name,
+                                          assetClass: assetClass,
+                                          allocationPercent: portfolioItem.value
+                                        });
                                         setReasoningModalOpen(true);
                                       }}
                                       className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-[#2A2A2A] bg-black text-sm text-white hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
@@ -3133,7 +3314,7 @@ export default function DevelopPage() {
       {/* Reasoning Modal */}
       {reasoningModalOpen && reasoningModalStock && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="relative w-full max-w-lg bg-black border border-[#2A2A2A] rounded-lg shadow-2xl">
+          <div className="relative w-full max-w-2xl bg-black border border-[#2A2A2A] rounded-lg shadow-2xl">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
               <div className="flex items-center gap-3">
@@ -3142,9 +3323,23 @@ export default function DevelopPage() {
               </div>
               <button
                 onClick={() => {
+                  // Save current state to cache before closing
+                  if (reasoningModalStock) {
+                    setStockModalCache(prev => ({
+                      ...prev,
+                      [reasoningModalStock.ticker]: {
+                        matchScores,
+                        reasoningText,
+                        chatHistory,
+                      }
+                    }));
+                  }
                   setReasoningModalOpen(false);
                   setReasoningModalStock(null);
                   setReasoningText("");
+                  setMatchScores(null);
+                  setChatHistory([]);
+                  setChatInput("");
                 }}
                 className="p-1 text-gray-400 hover:text-white transition-colors"
               >
@@ -3155,18 +3350,220 @@ export default function DevelopPage() {
             </div>
             {/* Content */}
             <div className="p-5">
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400 flex items-center gap-2">
-                🎯 Why This Fits Your Goals
-              </h3>
-              {reasoningLoading && !reasoningText ? (
-                <div className="flex items-center gap-3">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-600 border-t-[#00FF99]"></div>
-                  <span className="text-sm text-gray-400">Analyzing fit...</span>
+              {/* Scores Section - Loading or Bars */}
+              {reasoningLoading && !matchScores ? (
+                <div className="flex flex-col items-center justify-center py-8 gap-3">
+                  <div className="h-8 w-8 animate-spin rounded-full border-3 border-gray-600 border-t-[#00FF99]"></div>
+                  <span className="text-sm text-gray-400">Analyzing match...</span>
                 </div>
+              ) : matchScores ? (
+                <>
+                  {/* Overall Match Rating */}
+                  <div className="mb-6 text-center">
+                    <div className="inline-flex items-center justify-center w-24 h-24 rounded-full border-4 border-[#00FF99]/30 bg-black">
+                      <div className="text-center">
+                        <span className="text-3xl font-bold text-[#00FF99]">{matchScores.overallMatch}</span>
+                        <span className="text-lg text-[#00FF99]">%</span>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-xs uppercase tracking-wide text-gray-400">Overall Match</p>
+                  </div>
+
+                  {/* Match Criteria Bars */}
+                  <div className="space-y-3 mb-6">
+                    {/* Risk Tolerance */}
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs text-gray-400">Risk Tolerance</span>
+                        <span className="text-xs font-semibold text-white">{matchScores.criteria.riskTolerance.score}%</span>
+                      </div>
+                      <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                            matchScores.criteria.riskTolerance.score >= 80 ? 'bg-[#00FF99]' :
+                            matchScores.criteria.riskTolerance.score >= 60 ? 'bg-yellow-400' :
+                            matchScores.criteria.riskTolerance.score >= 40 ? 'bg-orange-400' : 'bg-red-400'
+                          }`}
+                          style={{ width: `${matchScores.criteria.riskTolerance.score}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Time Horizon */}
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs text-gray-400">Time Horizon</span>
+                        <span className="text-xs font-semibold text-white">{matchScores.criteria.timeHorizon.score}%</span>
+                      </div>
+                      <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                            matchScores.criteria.timeHorizon.score >= 80 ? 'bg-[#00FF99]' :
+                            matchScores.criteria.timeHorizon.score >= 60 ? 'bg-yellow-400' :
+                            matchScores.criteria.timeHorizon.score >= 40 ? 'bg-orange-400' : 'bg-red-400'
+                          }`}
+                          style={{ width: `${matchScores.criteria.timeHorizon.score}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Investment Goal */}
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs text-gray-400">Investment Goal</span>
+                        <span className="text-xs font-semibold text-white">{matchScores.criteria.investmentGoal.score}%</span>
+                      </div>
+                      <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                            matchScores.criteria.investmentGoal.score >= 80 ? 'bg-[#00FF99]' :
+                            matchScores.criteria.investmentGoal.score >= 60 ? 'bg-yellow-400' :
+                            matchScores.criteria.investmentGoal.score >= 40 ? 'bg-orange-400' : 'bg-red-400'
+                          }`}
+                          style={{ width: `${matchScores.criteria.investmentGoal.score}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Age Alignment */}
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs text-gray-400">Age Alignment</span>
+                        <span className="text-xs font-semibold text-white">{matchScores.criteria.age.score}%</span>
+                      </div>
+                      <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                            matchScores.criteria.age.score >= 80 ? 'bg-[#00FF99]' :
+                            matchScores.criteria.age.score >= 60 ? 'bg-yellow-400' :
+                            matchScores.criteria.age.score >= 40 ? 'bg-orange-400' : 'bg-red-400'
+                          }`}
+                          style={{ width: `${matchScores.criteria.age.score}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Sector Alignment - only show if there are relevant sectors */}
+                    {matchScores.sectors && matchScores.sectors.length > 0 && (
+                      <>
+                        {matchScores.sectors.map((sector, idx) => (
+                          <div key={idx}>
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-xs text-gray-400">{sector.name}</span>
+                              <span className="text-xs font-semibold text-white">{sector.score}%</span>
+                            </div>
+                            <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                                  sector.score >= 80 ? 'bg-[#00FF99]' :
+                                  sector.score >= 60 ? 'bg-yellow-400' :
+                                  sector.score >= 40 ? 'bg-orange-400' : 'bg-red-400'
+                                }`}
+                                style={{ width: `${sector.score}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+
+                  {/* Conversation Area - Modern LLM Style */}
+                  <div className="mt-6 space-y-4 max-h-[300px] overflow-y-auto pr-1">
+                    {/* Initial AI Reasoning */}
+                    <div className="animate-fade-in">
+                      <p className={`text-sm leading-relaxed text-gray-300 ${
+                        reasoningText && !reasoningText.endsWith('.') && !reasoningText.endsWith('!') && !reasoningText.endsWith('?') 
+                          ? 'shimmer-text' 
+                          : ''
+                      }`}>
+                        {reasoningText || <span className="text-gray-500">Thinking...</span>}
+                      </p>
+                    </div>
+
+                    {/* Chat Messages */}
+                    {chatHistory.map((msg, idx) => (
+                      <div
+                        key={idx}
+                        className="animate-fade-in"
+                        style={{ animationDelay: `${idx * 50}ms` }}
+                      >
+                        {msg.role === 'user' ? (
+                          <div className="flex justify-end">
+                            <p className="text-sm text-[#00FF99]/80 bg-[#00FF99]/10 rounded-lg px-3 py-2 max-w-[85%]">
+                              {msg.content}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className={`text-sm leading-relaxed text-gray-300 ${
+                            chatLoading && idx === chatHistory.length - 1 && !msg.content.endsWith('.') && !msg.content.endsWith('!') && !msg.content.endsWith('?')
+                              ? 'shimmer-text'
+                              : ''
+                          }`}>
+                            {msg.content || (
+                              <span className="inline-flex items-center gap-1.5 text-gray-500">
+                                <span className="w-1 h-1 bg-gray-500 rounded-full animate-pulse"></span>
+                                <span className="w-1 h-1 bg-gray-500 rounded-full animate-pulse" style={{ animationDelay: '200ms' }}></span>
+                                <span className="w-1 h-1 bg-gray-500 rounded-full animate-pulse" style={{ animationDelay: '400ms' }}></span>
+                              </span>
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Suggested Questions - Only show when no chat history */}
+                  {chatHistory.length === 0 && reasoningText && reasoningText.length > 50 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {[
+                        "What's the downside risk?",
+                        "Compare to similar investments",
+                        "How does this fit my timeline?"
+                      ].map((question, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleSendChatMessage(question)}
+                          className="px-3 py-1.5 text-xs rounded-full border border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99] transition-colors"
+                        >
+                          {question}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Chat Input */}
+                  <div className="mt-4 pt-4 border-t border-[#2A2A2A]/50">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendChatMessage()}
+                        placeholder="Ask a follow-up question..."
+                        className="flex-1 px-3 py-2 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A] text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00FF99]/30 transition-colors"
+                        disabled={chatLoading}
+                      />
+                      <button
+                        onClick={() => handleSendChatMessage()}
+                        disabled={!chatInput.trim() || chatLoading}
+                        className="px-4 py-2 rounded-lg bg-[#00FF99] text-black text-sm font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {chatLoading ? (
+                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          'Send'
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </>
               ) : (
-                <p className="text-sm leading-relaxed text-gray-300">
-                  {reasoningText || "No reasoning available."}
-                  {reasoningLoading && <span className="inline-block w-2 h-4 ml-1 bg-[#00FF99] animate-pulse"></span>}
+                <p className="text-sm text-gray-400 text-center py-4">
+                  Unable to load match analysis.
                 </p>
               )}
             </div>
