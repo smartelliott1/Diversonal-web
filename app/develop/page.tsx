@@ -392,7 +392,8 @@ export default function DevelopPage() {
 
       fetchReasoning();
     }
-  }, [reasoningModalOpen, reasoningModalStock, savedFormData, stockModalCache]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reasoningModalOpen, reasoningModalStock, savedFormData]); // Note: stockModalCache intentionally excluded to prevent infinite loop
   
   // Save chat history to cache when it changes
   useEffect(() => {
@@ -469,7 +470,12 @@ export default function DevelopPage() {
       }
     } catch (error) {
       console.error("Error sending chat message:", error);
-      setChatHistory(prev => [...prev, { role: 'assistant', content: "Sorry, I couldn't process that. Please try again." }]);
+      // Update the placeholder message instead of appending a new one
+      setChatHistory(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: 'assistant', content: "Sorry, I couldn't process that. Please try again." };
+        return updated;
+      });
     } finally {
       setChatLoading(false);
     }
@@ -3496,7 +3502,7 @@ export default function DevelopPage() {
                           </div>
                         ) : (
                           <p className={`text-sm leading-relaxed text-gray-300 ${
-                            chatLoading && idx === chatHistory.length - 1 && !msg.content.endsWith('.') && !msg.content.endsWith('!') && !msg.content.endsWith('?')
+                            chatLoading && idx === chatHistory.length - 1 && !(msg.content?.endsWith('.') || msg.content?.endsWith('!') || msg.content?.endsWith('?'))
                               ? 'shimmer-text'
                               : ''
                           }`}>
