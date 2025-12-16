@@ -194,6 +194,7 @@ export default function DevelopPage() {
   const [goalLength, setGoalLength] = useState(0);
   const portfolioRef = useRef<HTMLDivElement>(null);
   const streamingTextRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   
   // Chart modal state
   const [chartModalOpen, setChartModalOpen] = useState(false);
@@ -238,6 +239,15 @@ export default function DevelopPage() {
   const [stockCountSelectorOpen, setStockCountSelectorOpen] = useState(false);
   const [regeneratingAssetClass, setRegeneratingAssetClass] = useState("");
   const [regeneratingAllocation, setRegeneratingAllocation] = useState(0);
+  
+  // Allocation modal state
+  const [allocationModalOpen, setAllocationModalOpen] = useState(false);
+  const [allocationReasoningText, setAllocationReasoningText] = useState("");
+  const [allocationReasoningLoading, setAllocationReasoningLoading] = useState(false);
+  const [allocationChatHistory, setAllocationChatHistory] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const [allocationChatInput, setAllocationChatInput] = useState("");
+  const [allocationChatLoading, setAllocationChatLoading] = useState(false);
+  const allocationChatContainerRef = useRef<HTMLDivElement>(null);
   
   // Per-asset-class loading state
   const [assetClassLoading, setAssetClassLoading] = useState<Record<string, boolean>>({});
@@ -409,6 +419,13 @@ export default function DevelopPage() {
     }
   }, [chatHistory, reasoningModalStock]);
   
+  // Auto-scroll chat container when messages change
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
+  
   // Handle sending a chat message (accepts optional direct message for suggested questions)
   const handleSendChatMessage = async (directMessage?: string) => {
     const messageToSend = directMessage || chatInput.trim();
@@ -478,6 +495,119 @@ export default function DevelopPage() {
       });
     } finally {
       setChatLoading(false);
+    }
+  };
+  
+  // Fetch allocation reasoning when portfolio tab is active and data is loaded
+  useEffect(() => {
+    if (activeResultTab === 'portfolio' && savedFormData && portfolioData.length > 0 && !allocationReasoningText && !allocationReasoningLoading) {
+      setAllocationReasoningLoading(true);
+      
+      fetch("/api/allocation-reasoning", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          portfolioData: portfolioData,
+          formData: {
+            age: savedFormData.age,
+            risk: savedFormData.risk,
+            horizon: savedFormData.horizon,
+            capital: savedFormData.capital,
+            goal: savedFormData.goal,
+            sectors: savedFormData.sectors,
+          },
+        }),
+      })
+        .then(async (response) => {
+          if (!response.ok || !response.body) throw new Error("Failed to fetch reasoning");
+          
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let accumulated = "";
+          
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            accumulated += decoder.decode(value, { stream: true });
+            setAllocationReasoningText(accumulated);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching allocation reasoning:", error);
+          setAllocationReasoningText("Unable to load reasoning. Please try again.");
+        })
+        .finally(() => {
+          setAllocationReasoningLoading(false);
+        });
+    }
+  }, [activeResultTab, savedFormData, portfolioData, allocationReasoningText, allocationReasoningLoading]);
+  
+  // Auto-scroll allocation chat container
+  useEffect(() => {
+    if (allocationChatContainerRef.current) {
+      allocationChatContainerRef.current.scrollTop = allocationChatContainerRef.current.scrollHeight;
+    }
+  }, [allocationChatHistory, allocationReasoningText]);
+  
+  // Handle sending allocation chat message
+  const handleSendAllocationChatMessage = async (directMessage?: string) => {
+    const messageToSend = directMessage || allocationChatInput.trim();
+    if (!messageToSend || !savedFormData || allocationChatLoading) return;
+    
+    setAllocationChatInput("");
+    setAllocationChatLoading(true);
+    
+    const newHistory = [...allocationChatHistory, { role: 'user' as const, content: messageToSend }];
+    setAllocationChatHistory(newHistory);
+    
+    try {
+      const response = await fetch("/api/allocation-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: messageToSend,
+          chatHistory: allocationChatHistory,
+          portfolioData: portfolioData,
+          formData: {
+            age: savedFormData.age,
+            risk: savedFormData.risk,
+            horizon: savedFormData.horizon,
+            capital: savedFormData.capital,
+            goal: savedFormData.goal,
+            sectors: savedFormData.sectors,
+          },
+        }),
+      });
+      
+      if (!response.ok || !response.body) throw new Error("Failed to send message");
+      
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedResponse = "";
+      
+      setAllocationChatHistory(prev => [...prev, { role: 'assistant', content: "" }]);
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        accumulatedResponse += decoder.decode(value, { stream: true });
+        
+        setAllocationChatHistory(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'assistant', content: accumulatedResponse };
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error("Error sending allocation chat message:", error);
+      setAllocationChatHistory(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: 'assistant', content: "Sorry, I couldn't process that. Please try again." };
+        return updated;
+      });
+    } finally {
+      setAllocationChatLoading(false);
     }
   };
   
@@ -1675,8 +1805,32 @@ export default function DevelopPage() {
                     : 'border-[#2A2A2A] bg-black hover:border-[#3A3A3A] hover:bg-[#242424]'
                 }`}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className={`rounded-sm p-2 transition-all ${
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className={`text-base font-semibold transition-colors ${
+                        activeResultTab === 'portfolio' ? 'text-[#00FF99]' : 'text-[#E6E6E6]'
+                      }`}>
+                        Your Allocation
+                      </h4>
+                  {activeResultTab === 'portfolio' && (
+                    <div className="rounded-sm bg-[#00FF99] p-1">
+                      <svg className="h-3 w-3 text-[#0F0F0F]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                    <p className="text-xs text-[#808080]">
+                  View your optimized portfolio breakdown across asset classes
+                </p>
+                {activeResultTab !== 'portfolio' && (
+                      <div className="text-xs text-[#00FF99] font-medium mt-1">
+                    Click to view →
+                  </div>
+                )}
+                  </div>
+                  <div className={`rounded-sm p-2 transition-all flex-shrink-0 ${
                     activeResultTab === 'portfolio' 
                       ? 'bg-[#00FF99]/20' 
                       : 'bg-[#242424]'
@@ -1688,27 +1842,7 @@ export default function DevelopPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
                     </svg>
                   </div>
-                  {activeResultTab === 'portfolio' && (
-                    <div className="rounded-sm bg-[#00FF99] p-1">
-                      <svg className="h-3 w-3 text-[#0F0F0F]" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  )}
                 </div>
-                <h4 className={`text-base font-semibold mb-1 transition-colors ${
-                  activeResultTab === 'portfolio' ? 'text-[#00FF99]' : 'text-[#E6E6E6]'
-                }`}>
-                  Your Allocation
-                </h4>
-                <p className="text-xs text-[#808080] mb-2">
-                  View your optimized portfolio breakdown across asset classes
-                </p>
-                {activeResultTab !== 'portfolio' && (
-                  <div className="text-xs text-[#00FF99] font-medium">
-                    Click to view →
-                  </div>
-                )}
               </button>
 
               {/* Stock Picks Tab */}
@@ -1722,18 +1856,14 @@ export default function DevelopPage() {
                       : 'border-[#2A2A2A] bg-black hover:border-[#3A3A3A] hover:bg-[#242424]'
                 }`}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className={`rounded-sm p-2 transition-all ${
-                    activeResultTab === 'stockPicks' 
-                      ? 'bg-[#00FF99]/20' 
-                      : 'bg-[#242424]'
-                  }`}>
-                    <svg className={`h-5 w-5 transition-colors ${
-                      activeResultTab === 'stockPicks' ? 'text-[#00FF99]' : 'text-[#808080]'
-                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className={`text-base font-semibold transition-colors ${
+                        activeResultTab === 'stockPicks' ? 'text-[#00FF99]' : 'text-[#E6E6E6]'
+                      }`}>
+                        Discover Stock Picks
+                      </h4>
                   {activeResultTab === 'stockPicks' && (
                     <div className="rounded-sm bg-[#00FF99] p-1">
                       <svg className="h-3 w-3 text-[#0F0F0F]" fill="currentColor" viewBox="0 0 20 20">
@@ -1747,24 +1877,32 @@ export default function DevelopPage() {
                     </span>
                   )}
                 </div>
-                <h4 className={`text-base font-semibold mb-1 transition-colors ${
-                  activeResultTab === 'stockPicks' ? 'text-[#00FF99]' : 'text-[#E6E6E6]'
-                }`}>
-                  Discover Stock Picks
-                </h4>
-                <p className="text-xs text-[#808080] mb-2">
+                    <p className="text-xs text-[#808080]">
                   Get AI-powered specific ticker recommendations with analysis
                 </p>
                 {activeResultTab !== 'stockPicks' && !detailedRecommendations && (
-                  <div className="text-xs text-[#00FF99] font-medium">
+                      <div className="text-xs text-[#00FF99] font-medium mt-1">
                     Generate detailed picks →
                   </div>
                 )}
                 {activeResultTab !== 'stockPicks' && detailedRecommendations && (
-                  <div className="text-xs text-[#00FF99] font-medium">
+                      <div className="text-xs text-[#00FF99] font-medium mt-1">
                     View stock picks →
                   </div>
                 )}
+                  </div>
+                  <div className={`rounded-sm p-2 transition-all flex-shrink-0 ${
+                    activeResultTab === 'stockPicks' 
+                      ? 'bg-[#00FF99]/20' 
+                      : 'bg-[#242424]'
+                  }`}>
+                    <svg className={`h-5 w-5 transition-colors ${
+                      activeResultTab === 'stockPicks' ? 'text-[#00FF99]' : 'text-[#808080]'
+                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                </div>
               </button>
 
               {/* Stress Test Tab */}
@@ -1778,8 +1916,32 @@ export default function DevelopPage() {
                       : 'border-[#2A2A2A] bg-black hover:border-[#3A3A3A] hover:bg-[#242424]'
                 }`}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className={`rounded-sm p-2 transition-all ${
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className={`text-base font-semibold transition-colors ${
+                        activeResultTab === 'stressTest' ? 'text-[#00FF99]' : 'text-[#E6E6E6]'
+                      }`}>
+                        Test Resilience
+                      </h4>
+                  {activeResultTab === 'stressTest' && (
+                    <div className="rounded-sm bg-[#00FF99] p-1">
+                      <svg className="h-3 w-3 text-[#0F0F0F]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                    <p className="text-xs text-[#808080]">
+                  See how your portfolio performs in market crisis scenarios
+                </p>
+                {activeResultTab !== 'stressTest' && (
+                      <div className="text-xs text-[#00FF99] font-medium mt-1">
+                    Run stress test →
+                  </div>
+                )}
+                  </div>
+                  <div className={`rounded-sm p-2 transition-all flex-shrink-0 ${
                     activeResultTab === 'stressTest' 
                       ? 'bg-[#00FF99]/20' 
                       : 'bg-[#242424]'
@@ -1790,202 +1952,252 @@ export default function DevelopPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                   </div>
-                  {activeResultTab === 'stressTest' && (
-                    <div className="rounded-sm bg-[#00FF99] p-1">
-                      <svg className="h-3 w-3 text-[#0F0F0F]" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  )}
                 </div>
-                <h4 className={`text-base font-semibold mb-1 transition-colors ${
-                  activeResultTab === 'stressTest' ? 'text-[#00FF99]' : 'text-[#E6E6E6]'
-                }`}>
-                  Test Resilience
-                </h4>
-                <p className="text-xs text-[#808080] mb-2">
-                  See how your portfolio performs in market crisis scenarios
-                </p>
-                {activeResultTab !== 'stressTest' && (
-                  <div className="text-xs text-[#00FF99] font-medium">
-                    Run stress test →
-                  </div>
-                )}
               </button>
             </div>
           </div>
 
           {/* Portfolio Tab */}
           {activeResultTab === 'portfolio' && (
-        <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-black p-8 sm:p-10 md:p-12">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-gradient animate-fade-in text-3xl font-bold sm:text-4xl">Your AI-Optimized Portfolio</h2>
-              {portfolioReasoning && (
-                <p className="mt-3 rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-3 text-sm italic text-gray-300 backdrop-blur-sm">{portfolioReasoning}</p>
-              )}
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setShowSaveDialog(true)}
-                className="btn-ripple group inline-flex items-center gap-2 rounded-xl border-2 border-[#00FF99]/50 bg-gradient-to-br from-[#00FF99]/10 to-[#00D4FF]/10 px-4 py-2.5 text-sm font-semibold text-[#00FF99] shadow-lg shadow-[#00FF99]/20 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-[#00FF99] hover:bg-[#00FF99] hover:text-[#171A1F] hover:shadow-xl hover:shadow-[#00FF99]/30"
-              >
-                <svg className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                </svg>
-                Save
-              </button>
-              <button
-                onClick={handleExportPDF}
-                className="btn-ripple group inline-flex items-center gap-2 rounded-xl border-2 border-gray-500/50 bg-gradient-to-br from-gray-700/30 to-gray-800/30 px-4 py-2.5 text-sm font-semibold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gray-700 hover:text-white hover:shadow-xl"
-              >
-                <svg className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                PDF
-              </button>
-              <button
-                onClick={handleExportJSON}
-                className="btn-ripple group inline-flex items-center gap-2 rounded-xl border-2 border-gray-500/50 bg-gradient-to-br from-gray-700/30 to-gray-800/30 px-4 py-2.5 text-sm font-semibold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gray-700 hover:text-white hover:shadow-xl"
-              >
-                <svg className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                JSON
-              </button>
-              <button
-                onClick={handleCopyToClipboard}
-                className="btn-ripple group inline-flex items-center gap-2 rounded-xl border-2 border-gray-500/50 bg-gradient-to-br from-gray-700/30 to-gray-800/30 px-4 py-2.5 text-sm font-semibold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:bg-gray-700 hover:text-white hover:shadow-xl"
-              >
-                <svg className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Copy
-              </button>
-            </div>
-          </div>
-          <ul className="mb-8 space-y-3">
-            {currentPortfolioData.map((item, index) => (
-              <li 
-                key={index}
-                className="group flex items-center justify-between rounded-xl border border-white/10 bg-gradient-to-r from-[#1C1F26]/80 to-[#171A1F]/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#00FF99]/30 hover:shadow-xl hover:shadow-[#00FF99]/10"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="h-4 w-4 rounded-full shadow-lg transition-all duration-300 group-hover:scale-125 group-hover:shadow-xl" 
-                    style={{ backgroundColor: item.color, boxShadow: `0 0 12px ${item.color}80` }}
-                  ></div>
-                  <div>
-                    <strong className="text-lg text-gray-100 transition-colors duration-300 group-hover:text-[#00FF99]">{item.name}</strong>
-                    {item.breakdown && <span className="ml-2 text-sm text-gray-400"> ({item.breakdown})</span>}
+        <section id="portfolio-result" ref={portfolioRef} className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-black p-5 sm:p-6">
+          {/* Top Section: Asset Classes + Profile Sidebar */}
+          <div className="flex gap-6">
+            {/* Asset Classes - 2/3 width */}
+            <div className="flex-1 space-y-2">
+              {currentPortfolioData.map((item, index) => (
+                <div 
+                  key={index}
+                  className="group rounded-lg border border-[#2A2A2A] bg-[#0F0F0F] px-4 py-3 transition-all duration-300 hover:border-[#00FF99]/30"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Left side: Asset class name and breakdown */}
+                    <div className="flex items-center gap-2.5 w-[45%] min-w-0">
+                      <div 
+                        className="h-3 w-3 flex-shrink-0 rounded-full" 
+                        style={{ backgroundColor: item.color, boxShadow: `0 0 8px ${item.color}60` }}
+                      />
+                      <div className="min-w-0">
+                        <strong className="text-sm text-white">{item.name}</strong>
+                        {item.breakdown && (
+                          <p className="text-xs text-gray-500 truncate">({item.breakdown})</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Right side: Horizontal bar and percentage */}
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="flex-1 h-2.5 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div 
+                          className="h-full rounded-full transition-all duration-1000 ease-out"
+                          style={{ 
+                            width: `${item.value}%`, 
+                            backgroundColor: item.color,
+                          }}
+                        />
+                      </div>
+                      <span className="text-base font-bold text-[#00FF99] w-16 text-right">{item.value}%</span>
+                    </div>
                   </div>
                 </div>
-                <span className="text-xl font-bold text-[#00FF99]">{item.value}%</span>
-              </li>
-            ))}
-          </ul>
-
-          {/* Asset Allocation Chart */}
-          {/* Recharts provides responsive, accessible charts that work well in React/Next.js */}
-          {/* The ResponsiveContainer automatically adjusts to parent size for mobile compatibility */}
-          <div className="mt-8">
-            <h3 className="text-gradient mb-6 text-2xl font-bold">Asset Allocation</h3>
-            
-            {/* Pie Chart - Mobile-friendly and visually appealing */}
-            <div className="mb-8 h-64 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-6 sm:h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={currentPortfolioData as any}
-                    cx="45%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={120}
-                    fill="#8884d8"
-                    dataKey="value"
-                    animationBegin={0}
-                    animationDuration={800}
-                  >
-                    {/* Customize colors here - each Cell represents a slice */}
-                    {/* TODO: Adjust colors to match your brand guidelines if needed */}
-                    {currentPortfolioData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} strokeWidth={2} />
-                    ))}
-                  </Pie>
-                  <Legend 
-                    verticalAlign="middle" 
-                    align="right"
-                    layout="vertical"
-                    iconType="circle"
-                    iconSize={14}
-                    wrapperStyle={{
-                      paddingLeft: '20px',
-                      fontSize: '14px',
-                      lineHeight: '28px'
-                    }}
-                    formatter={(value: string) => {
-                      const item = currentPortfolioData.find((d: any) => d.name === value);
-                      return item ? `${value}: ${item.value}%` : value;
-                    }}
-                  />
-                  <Tooltip 
-                    formatter={(value: number) => `${value}%`}
-                    contentStyle={{ 
-                      backgroundColor: 'rgba(23, 26, 31, 0.95)', 
-                      border: '1px solid rgba(0, 255, 153, 0.3)', 
-                      borderRadius: '12px',
-                      color: '#00FF99',
-                      backdropFilter: 'blur(8px)',
-                      boxShadow: '0 8px 32px rgba(0, 255, 153, 0.2)'
-                    }}
-                    labelStyle={{ color: '#00FF99', fontWeight: 'bold' }}
-                    itemStyle={{ color: '#00FF99' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+              ))}
             </div>
 
-            {/* Bar Chart - Alternative visualization */}
-            <div className="h-64 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-6 sm:h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barChartData} margin={{ top: 30, right: 30, left: 20, bottom: 30 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis 
-                    dataKey="name" 
-                    tick={{ fill: '#9ca3af', fontSize: 11 }}
-                    height={60}
-                  />
-                  <YAxis 
-                    tick={{ fill: '#9ca3af', fontSize: 12 }}
-                    label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft', dy: 80, fill: '#9ca3af' }}
-                  />
-                  <Tooltip 
-                    formatter={(value: number) => `${value}%`}
-                    contentStyle={{ 
-                      backgroundColor: 'rgba(23, 26, 31, 0.95)', 
-                      border: '1px solid rgba(0, 255, 153, 0.3)', 
-                      borderRadius: '12px',
-                      color: '#00FF99',
-                      backdropFilter: 'blur(8px)',
-                      boxShadow: '0 8px 32px rgba(0, 255, 153, 0.2)'
-                    }}
-                    labelStyle={{ color: '#00FF99', fontWeight: 'bold' }}
-                    itemStyle={{ color: '#00FF99' }}
-                  />
-                  <Bar dataKey="percentage" radius={[8, 8, 0, 0]} animationBegin={0} animationDuration={800}>
-                    {/* Customize bar colors - using Diversonal green for highest value */}
-                    {/* TODO: Adjust bar colors based on your brand palette */}
-                    {barChartData.map((entry, index) => (
-                      <Cell key={`bar-cell-${index}`} fill={currentPortfolioData[index].color} stroke={currentPortfolioData[index].color} strokeWidth={2} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {/* Profile Sidebar - 1/3 width */}
+            {savedFormData && (
+              <div className="w-[280px] flex-shrink-0 rounded-lg border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                <h3 className="text-sm font-bold text-white mb-3">Your Profile</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">Risk Tolerance</span>
+                    <span className="text-sm font-medium text-white">{savedFormData.risk}/100</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">Time Horizon</span>
+                    <span className="text-sm font-medium text-white">{savedFormData.horizon || '—'}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">Age</span>
+                    <span className="text-sm font-medium text-white">{savedFormData.age || '—'}</span>
+                  </div>
+                  {savedFormData.sectors && savedFormData.sectors.length > 0 && (
+                    <div>
+                      <span className="text-xs text-gray-400 block mb-1.5">Sectors</span>
+                      <div className="flex flex-wrap gap-1">
+                        {savedFormData.sectors.map((sector, idx) => (
+                          <span key={idx} className="text-[10px] px-1.5 py-0.5 rounded bg-[#1A1A1A] text-gray-400 border border-[#2A2A2A]">
+                            {sector}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {savedFormData.goal && (
+                    <div className="pt-2 border-t border-[#2A2A2A]">
+                      <span className="text-xs text-gray-400 block mb-1">Goal</span>
+                      <p className="text-sm text-white leading-snug">{savedFormData.goal}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* AI Chat Section */}
+          <div className="mt-5 pt-5 border-t border-[#2A2A2A]">
+            {/* Conversation Area */}
+            <div ref={allocationChatContainerRef} className="space-y-6 max-h-[400px] overflow-y-auto px-8">
+              {/* Initial AI Reasoning */}
+              {allocationReasoningLoading && !allocationReasoningText ? (
+                <div className="flex items-center gap-3 py-4 px-16">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-600 border-t-[#00FF99]"></div>
+                  <span className="text-base text-gray-400">Analyzing your allocation...</span>
+                </div>
+              ) : allocationReasoningText ? (
+                <div className="animate-fade-in px-16">
+                  <div className={`text-base leading-relaxed text-gray-300 ${
+                    allocationReasoningText && !allocationReasoningText.endsWith('.') && !allocationReasoningText.endsWith('!') && !allocationReasoningText.endsWith('?') 
+                      ? 'shimmer-text' 
+                      : ''
+                  }`}>
+                    {allocationReasoningText.split('\n').map((line, lineIdx) => {
+                      // Check for **bold** subtitle
+                      const boldMatch = line.match(/^\*\*(.+?)\*\*$/);
+                      if (boldMatch) {
+                        return (
+                          <h4 key={lineIdx} className="text-white font-semibold mt-4 mb-2 text-[15px]">
+                            {boldMatch[1]}
+                          </h4>
+                        );
+                      }
+                      // Check for bullet point
+                      if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
+                        return (
+                          <div key={lineIdx} className="flex items-start gap-2.5 ml-1 mb-1.5">
+                            <span className="text-[#00FF99] mt-1.5">•</span>
+                            <span className="text-gray-300">{line.replace(/^[•\-]\s*/, '')}</span>
+                          </div>
+                        );
+                      }
+                      // Regular paragraph
+                      if (line.trim()) {
+                        return <p key={lineIdx} className="mb-2">{line}</p>;
+                      }
+                      return null;
+                    })}
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Chat Messages */}
+              {allocationChatHistory.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className="animate-fade-in px-16"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
+                  {msg.role === 'user' ? (
+                    <div className="flex justify-end">
+                      <p className="text-base text-[#00FF99]/90 bg-[#00FF99]/10 rounded-xl px-4 py-2.5 max-w-[85%]">
+                        {msg.content}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className={`text-base leading-relaxed text-gray-300 ${
+                      allocationChatLoading && idx === allocationChatHistory.length - 1 && !(msg.content?.endsWith('.') || msg.content?.endsWith('!') || msg.content?.endsWith('?'))
+                        ? 'shimmer-text'
+                        : ''
+                    }`}>
+                      {msg.content ? (
+                        msg.content.split('\n').map((line, lineIdx) => {
+                          // Check for **bold** subtitle
+                          const boldMatch = line.match(/^\*\*(.+?)\*\*$/);
+                          if (boldMatch) {
+                            return (
+                              <h4 key={lineIdx} className="text-white font-semibold mt-4 mb-2 text-[15px]">
+                                {boldMatch[1]}
+                              </h4>
+                            );
+                          }
+                          // Check for bullet point
+                          if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
+                            return (
+                              <div key={lineIdx} className="flex items-start gap-2.5 ml-1 mb-1.5">
+                                <span className="text-[#00FF99] mt-1.5">•</span>
+                                <span className="text-gray-300">{line.replace(/^[•\-]\s*/, '')}</span>
+                              </div>
+                            );
+                          }
+                          // Regular paragraph
+                          if (line.trim()) {
+                            return <p key={lineIdx} className="mb-2">{line}</p>;
+                          }
+                          return null;
+                        })
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-gray-500">
+                          <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-pulse"></span>
+                          <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-pulse" style={{ animationDelay: '200ms' }}></span>
+                          <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-pulse" style={{ animationDelay: '400ms' }}></span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Suggested Questions - Only show when no chat history and reasoning is loaded */}
+            {allocationChatHistory.length === 0 && allocationReasoningText && allocationReasoningText.length > 50 && (
+              <div className="mt-6 px-16 flex flex-wrap gap-3">
+                {[
+                  "Why so much in equities?",
+                  "How does my age affect this?",
+                  "What if I want more crypto?"
+                ].map((question, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSendAllocationChatMessage(question)}
+                    className="px-4 py-2 text-sm rounded-full border border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99] transition-colors"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Chat Input */}
+            {allocationReasoningText && (
+              <div className="mt-6 pt-5 px-16 border-t border-[#2A2A2A]/50">
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={allocationChatInput}
+                    onChange={(e) => setAllocationChatInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendAllocationChatMessage()}
+                    placeholder="Ask a follow-up question..."
+                    className="flex-1 px-5 py-3.5 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] text-base text-white placeholder-gray-500 focus:outline-none focus:border-[#00FF99]/30 transition-colors"
+                    disabled={allocationChatLoading}
+                  />
+                  <button
+                    onClick={() => handleSendAllocationChatMessage()}
+                    disabled={!allocationChatInput.trim() || allocationChatLoading}
+                    className="px-6 py-3.5 rounded-xl bg-[#00FF99] text-black text-base font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {allocationChatLoading ? (
+                      <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      'Send'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
         </section>
           )}
 
@@ -2044,7 +2256,7 @@ export default function DevelopPage() {
           {(detailedRecommendations || (detailPanelLoading && parsedAssetClasses.length > 0)) && (
             <div>
               <div className="mb-8 flex justify-center">
-                <div className="overflow-x-auto pb-2">
+                <div className="overflow-x-auto pb-0">
                   <div className="inline-flex gap-3 rounded-xl border-2 border-white/30 bg-black p-2 shadow-md">
                     {(detailPanelLoading ? parsedAssetClasses : currentPortfolioData.map(item => item.name)).map((assetClass) => (
                       <button
@@ -2603,7 +2815,7 @@ export default function DevelopPage() {
                                 setRegeneratingAllocation(portfolioItem.value);
                                 setStockCountSelectorOpen(true);
                               }}
-                              className="w-full rounded-lg border border-[#2A2A2A] bg-[#242424] px-5 py-3 text-sm font-medium text-[#B4B4B4] hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all flex items-center justify-center gap-2"
+                              className="w-full rounded-lg border border-[#00FF99] bg-black px-5 py-3 text-sm font-medium text-[#00FF99] hover:bg-[#00FF99]/10 transition-all flex items-center justify-center gap-2"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -3475,7 +3687,7 @@ export default function DevelopPage() {
                   </div>
 
                   {/* Conversation Area - Modern LLM Style */}
-                  <div className="mt-6 space-y-4 max-h-[300px] overflow-y-auto pr-1">
+                  <div ref={chatContainerRef} className="mt-6 space-y-4 max-h-[240px] overflow-y-auto pr-1">
                     {/* Initial AI Reasoning */}
                     <div className="animate-fade-in">
                       <p className={`text-sm leading-relaxed text-gray-300 ${
