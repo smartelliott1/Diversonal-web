@@ -110,7 +110,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown, no code blocks, no extra te
         "Authorization": `Bearer ${XAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "grok-3-fast",
+        model: "grok-4-1-fast-non-reasoning",
         messages: [
           { role: "system", content: "You are a financial analysis AI. Always respond with valid JSON only." },
           { role: "user", content: scoresPrompt }
@@ -175,7 +175,7 @@ Start speaking directly - no JSON, no formatting, no prefixes.`;
         "Authorization": `Bearer ${XAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "grok-3-fast",
+        model: "grok-4-1-fast-non-reasoning",
         messages: [
           { role: "system", content: "You are a friendly financial advisor. Speak directly and conversationally." },
           { role: "user", content: reasoningPrompt }

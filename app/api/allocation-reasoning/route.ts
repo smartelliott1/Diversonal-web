@@ -104,7 +104,7 @@ Given your profile, here's why this allocation works for you.
         "Authorization": `Bearer ${XAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "grok-3-fast",
+        model: "grok-4-1-fast-non-reasoning",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: "Please explain why you've recommended this allocation for my portfolio." }

@@ -120,7 +120,7 @@ CONVERSATION RULES:
         "Authorization": `Bearer ${XAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "grok-3-fast",
+        model: "grok-4-1-fast-non-reasoning",
         messages,
         temperature: 0.7,
         max_tokens: 500,
