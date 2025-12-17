@@ -76,6 +76,10 @@ export const CACHE_KEYS = {
   PORTFOLIO_STATE: 'diversonal-portfolio-state',
   MY_PORTFOLIOS: 'diversonal-my-portfolios',
   PORTFOLIO_HISTORY: 'diversonal-portfolio-history',
+  // Full state restoration keys
+  STOCK_MODAL_CACHE: 'diversonal-stock-modal-cache',
+  ALLOCATION_CHAT: 'diversonal-allocation-chat',
+  LOADED_PORTFOLIO_ID: 'diversonal-loaded-portfolio-id',
 } as const;
 
 // TTL values in minutes

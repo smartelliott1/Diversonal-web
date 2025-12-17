@@ -139,6 +139,11 @@ export default function DevelopPage() {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [portfolioData, setPortfolioData] = useState<PortfolioItem[]>([]);
+  
+  // Auto-save state
+  const [currentPortfolioId, setCurrentPortfolioId] = useState<string | null>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSaveRef = useRef<string>("");  // Track last saved state to avoid duplicate saves
   const [portfolioReasoning, setPortfolioReasoning] = useState("");
   const [stressTestScenario, setStressTestScenario] = useState("");
   const [stressTestLoading, setStressTestLoading] = useState(false);
@@ -289,6 +294,14 @@ export default function DevelopPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Restore loaded portfolio ID (for auto-save updates)
+    const loadedPortfolioId = sessionCache.get<string>(CACHE_KEYS.LOADED_PORTFOLIO_ID);
+    if (loadedPortfolioId) {
+      setCurrentPortfolioId(loadedPortfolioId);
+      sessionCache.remove(CACHE_KEYS.LOADED_PORTFOLIO_ID); // Clear after reading
+      console.log("[Cache] Restored portfolio ID:", loadedPortfolioId);
+    }
+
     // Restore recommendations
     const cachedRecommendations = sessionCache.get<DetailedRecommendations>(CACHE_KEYS.STOCK_RECOMMENDATIONS);
     if (cachedRecommendations) {
@@ -316,6 +329,30 @@ export default function DevelopPage() {
     if (cachedMarketContext) {
       setMarketContext(cachedMarketContext);
       console.log("[Cache] Restored market context from session cache");
+    }
+
+    // Restore stock modal cache (per-ticker chat history and reasoning)
+    const cachedStockModalCache = sessionCache.get<typeof stockModalCache>(CACHE_KEYS.STOCK_MODAL_CACHE);
+    if (cachedStockModalCache) {
+      setStockModalCache(cachedStockModalCache);
+      sessionCache.remove(CACHE_KEYS.STOCK_MODAL_CACHE); // Clear after reading
+      console.log("[Cache] Restored stock modal cache from session cache");
+    }
+
+    // Restore allocation chat history
+    const cachedAllocationChat = sessionCache.get<{
+      chatHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
+      reasoningText: string;
+    }>(CACHE_KEYS.ALLOCATION_CHAT);
+    if (cachedAllocationChat) {
+      if (cachedAllocationChat.chatHistory) {
+        setAllocationChatHistory(cachedAllocationChat.chatHistory);
+      }
+      if (cachedAllocationChat.reasoningText) {
+        setAllocationReasoningText(cachedAllocationChat.reasoningText);
+      }
+      sessionCache.remove(CACHE_KEYS.ALLOCATION_CHAT); // Clear after reading
+      console.log("[Cache] Restored allocation chat from session cache");
     }
   }, []);
 
@@ -438,6 +475,94 @@ export default function DevelopPage() {
       console.log("[Cache] Restored portfolio state from session cache");
     }
   }, []);
+
+  // Refresh prices and Fear & Greed when portfolio is loaded from cache
+  const refreshPricesAndMetrics = async () => {
+    if (!detailedRecommendations) return;
+    
+    // Extract all tickers from recommendations
+    const tickers: { ticker: string; assetClass: string }[] = [];
+    Object.keys(detailedRecommendations).forEach(assetClass => {
+      const assetData = detailedRecommendations[assetClass];
+      if (typeof assetData !== 'string' && assetData?.recommendations) {
+        assetData.recommendations.forEach((rec: any) => {
+          if (rec.ticker) {
+            tickers.push({ ticker: rec.ticker, assetClass });
+          }
+        });
+      }
+    });
+
+    if (tickers.length === 0) return;
+
+    console.log(`[Refresh] Updating prices and metrics for ${tickers.length} tickers...`);
+
+    // Refresh stock prices
+    const priceTickers = tickers
+      .filter(({ assetClass }) => assetClass !== 'Cash')
+      .map(({ ticker }) => ticker);
+
+    if (priceTickers.length > 0) {
+      try {
+        setStockPricesLoading(true);
+        const pricesResponse = await fetch("/api/stock-prices", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tickers: priceTickers }),
+        });
+
+        if (pricesResponse.ok) {
+          const pricesData = await pricesResponse.json();
+          setStockPrices(pricesData.prices || {});
+          console.log("[Refresh] Prices updated for", Object.keys(pricesData.prices || {}).length, "tickers");
+        }
+      } catch (error) {
+        console.error("[Refresh] Error updating prices:", error);
+      } finally {
+        setStockPricesLoading(false);
+      }
+    }
+
+    // Refresh Fear & Greed metrics for each ticker
+    const loadingState: Record<string, boolean> = {};
+    tickers.forEach(({ ticker }) => loadingState[ticker] = true);
+    setRightColumnLoading(loadingState);
+
+    await Promise.all(
+      tickers.map(async ({ ticker, assetClass }) => {
+        try {
+          const response = await fetch('/api/asset-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticker, assetClass })
+          });
+
+          if (response.ok) {
+            const responseData = await response.json();
+            setStockData(prev => ({ ...prev, [ticker]: { ...responseData, assetClass } }));
+          }
+        } catch (error) {
+          console.error(`[Refresh] Error updating ${ticker}:`, error);
+        } finally {
+          setRightColumnLoading(prev => ({ ...prev, [ticker]: false }));
+        }
+      })
+    );
+
+    console.log("[Refresh] All metrics updated");
+  };
+
+  // Trigger refresh when portfolio is loaded from My Portfolios
+  useEffect(() => {
+    // Only refresh if we have a loaded portfolio ID and recommendations
+    if (currentPortfolioId && detailedRecommendations && showResult) {
+      // Small delay to let UI render first
+      const timer = setTimeout(() => {
+        refreshPricesAndMetrics();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentPortfolioId]); // Only trigger when portfolio ID changes
 
   // Auto-scroll streaming text to bottom as it arrives
   useEffect(() => {
@@ -870,33 +995,143 @@ export default function DevelopPage() {
     setActiveResultTab(tab);
   };
 
-  // Auto-save portfolio for signed-in users
-  const savePortfolioToDatabase = async (portfolioDataToSave: PortfolioItem[], formDataToSave: typeof savedFormData) => {
+  // Get all saveable state as a single object
+  const getSaveableState = () => ({
+    portfolioData,
+    detailedRecommendations,
+    stockModalCache,
+    allocationChatHistory,
+    allocationReasoningText,
+    stockData,
+    marketContext,
+    activeTab,
+  });
+
+  // Auto-save portfolio for signed-in users (creates new or updates existing)
+  const savePortfolioToDatabase = async (
+    portfolioDataToSave: PortfolioItem[], 
+    formDataToSave: typeof savedFormData,
+    isInitialSave = false
+  ) => {
     if (!session || !formDataToSave) return;
 
-    try {
-      const response = await fetch('/api/portfolios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `${formDataToSave.goal} Portfolio`,
-          age: formDataToSave.age,
-          risk: formDataToSave.risk,
-          horizon: formDataToSave.horizon,
-          capital: formDataToSave.capital,
-          goal: formDataToSave.goal,
-          sectors: formDataToSave.sectors,
-          portfolioData: portfolioDataToSave,
-        }),
-      });
+    // Create a hash of current state to avoid duplicate saves
+    const stateHash = JSON.stringify(getSaveableState());
+    if (stateHash === lastSaveRef.current && !isInitialSave) {
+      console.log('[Auto-save] Skipping - no changes detected');
+      return;
+    }
 
-      if (response.ok) {
-        console.log('Portfolio auto-saved to database');
+    try {
+      const saveData = {
+        name: `${formDataToSave.goal?.slice(0, 30) || 'My'} Portfolio`,
+        age: formDataToSave.age,
+        risk: formDataToSave.risk,
+        horizon: formDataToSave.horizon,
+        capital: formDataToSave.capital,
+        goal: formDataToSave.goal,
+        sectors: formDataToSave.sectors,
+        portfolioData: portfolioDataToSave,
+        detailedRecommendations,
+        stockModalCache,
+        allocationChatHistory,
+        allocationReasoning: allocationReasoningText,
+        stockData,
+        marketContext,
+        activeTab,
+      };
+
+      if (currentPortfolioId) {
+        // Update existing portfolio
+        const response = await fetch('/api/portfolios', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: currentPortfolioId, ...saveData }),
+        });
+
+        if (response.ok) {
+          lastSaveRef.current = stateHash;
+          console.log('[Auto-save] Portfolio updated');
+        }
+      } else {
+        // Create new portfolio
+        const response = await fetch('/api/portfolios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(saveData),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentPortfolioId(data.portfolio.id);
+          lastSaveRef.current = stateHash;
+          console.log('[Auto-save] New portfolio created:', data.portfolio.id);
+        }
       }
     } catch (error) {
-      console.error('Failed to auto-save portfolio:', error);
+      console.error('[Auto-save] Failed:', error);
     }
   };
+
+  // Debounced auto-save - triggers 5 seconds after last change
+  const triggerAutoSave = () => {
+    if (!session || !savedFormData || portfolioData.length === 0) return;
+    
+    // Clear existing timer
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+    
+    // Set new timer
+    autoSaveTimerRef.current = setTimeout(() => {
+      savePortfolioToDatabase(portfolioData, savedFormData);
+    }, 5000); // 5 second debounce
+  };
+
+  // Auto-save when relevant state changes
+  useEffect(() => {
+    if (showResult && savedFormData && portfolioData.length > 0) {
+      triggerAutoSave();
+    }
+    
+    // Cleanup timer on unmount
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [
+    portfolioData, 
+    detailedRecommendations, 
+    stockModalCache, 
+    allocationChatHistory, 
+    allocationReasoningText,
+    activeTab,
+  ]);
+
+  // Save on page unload (beforeunload)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (session && savedFormData && portfolioData.length > 0 && currentPortfolioId) {
+        // Use sendBeacon for reliable save on page close
+        const saveData = {
+          id: currentPortfolioId,
+          portfolioData,
+          detailedRecommendations,
+          stockModalCache,
+          allocationChatHistory,
+          allocationReasoning: allocationReasoningText,
+          stockData,
+          marketContext,
+          activeTab,
+        };
+        navigator.sendBeacon('/api/portfolios', JSON.stringify(saveData));
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [session, savedFormData, portfolioData, currentPortfolioId, detailedRecommendations, stockModalCache, allocationChatHistory, allocationReasoningText, stockData, marketContext, activeTab]);
 
   // Export to PDF
   const handleExportPDF = async () => {
@@ -1595,6 +1830,15 @@ export default function DevelopPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    
+    // Reset portfolio ID for new generation (will create new record)
+    setCurrentPortfolioId(null);
+    lastSaveRef.current = "";
+    
+    // Clear any existing chat history for fresh start
+    setStockModalCache({});
+    setAllocationChatHistory([]);
+    setAllocationReasoningText("");
     
     try {
       // Collect form data

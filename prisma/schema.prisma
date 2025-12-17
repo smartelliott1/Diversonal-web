@@ -86,6 +86,14 @@ model Portfolio {
   // Manual save vs auto-save distinction
   isManuallySaved Boolean @default(false) // true = shows in Developed Portfolios, false = History only
 
+  // Full state persistence for seamless restore
+  stockModalCache      Json?   // Per-ticker chat history and reasoning
+  allocationChatHistory Json?  // Allocation section chat history
+  allocationReasoning  String? // Allocation reasoning text
+  stockData            Json?   // Fear & Greed scores and metrics snapshot
+  marketContext        Json?   // Market data at time of generation
+  activeTab            String? // Which asset class tab was selected
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])

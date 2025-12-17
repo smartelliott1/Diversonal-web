@@ -22,6 +22,13 @@ interface SavedPortfolio {
   portfolioData: Array<{ name: string; value: number; color: string; breakdown?: string }>;
   detailedRecommendations?: any;
   isManuallySaved?: boolean;
+  // Full state persistence fields
+  stockModalCache?: any;
+  allocationChatHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  allocationReasoning?: string;
+  stockData?: any;
+  marketContext?: any;
+  activeTab?: string;
 }
 
 type TabType = 'developed' | 'optimized' | 'history';
@@ -173,7 +180,10 @@ export default function MyPortfoliosPage() {
 
   // Handle load portfolio - navigate to develop page with portfolio data
   const handleLoadPortfolio = (portfolio: SavedPortfolio) => {
-    // Store in session cache for the develop page to pick up
+    // Store portfolio ID so develop page can update it
+    sessionCache.set(CACHE_KEYS.LOADED_PORTFOLIO_ID, portfolio.id);
+
+    // Store form state
     sessionCache.set(CACHE_KEYS.FORM_STATE, {
       selectedSectors: portfolio.sectors,
       riskTolerance: portfolio.risk,
@@ -187,16 +197,41 @@ export default function MyPortfoliosPage() {
       },
     });
     
+    // Store portfolio state
     sessionCache.set(CACHE_KEYS.PORTFOLIO_STATE, {
       portfolioData: portfolio.portfolioData,
-      portfolioReasoning: "",
+      portfolioReasoning: portfolio.allocationReasoning || "",
       showResult: true,
-      activeTab: portfolio.portfolioData[0]?.name || "Equities",
+      activeTab: portfolio.activeTab || portfolio.portfolioData[0]?.name || "Equities",
       activeResultTab: 'portfolio',
     });
 
+    // Store recommendations
     if (portfolio.detailedRecommendations) {
       sessionCache.set(CACHE_KEYS.STOCK_RECOMMENDATIONS, portfolio.detailedRecommendations, CACHE_TTL.RECOMMENDATIONS);
+    }
+
+    // Store stock modal cache (per-ticker chat history)
+    if (portfolio.stockModalCache) {
+      sessionCache.set(CACHE_KEYS.STOCK_MODAL_CACHE, portfolio.stockModalCache);
+    }
+
+    // Store allocation chat history
+    if (portfolio.allocationChatHistory || portfolio.allocationReasoning) {
+      sessionCache.set(CACHE_KEYS.ALLOCATION_CHAT, {
+        chatHistory: portfolio.allocationChatHistory || [],
+        reasoningText: portfolio.allocationReasoning || "",
+      });
+    }
+
+    // Store stock data (will be refreshed, but useful for initial display)
+    if (portfolio.stockData) {
+      sessionCache.set(CACHE_KEYS.STOCK_DATA, portfolio.stockData, CACHE_TTL.STOCK_DATA);
+    }
+
+    // Store market context (will be refreshed)
+    if (portfolio.marketContext) {
+      sessionCache.set(CACHE_KEYS.MARKET_CONTEXT, portfolio.marketContext, CACHE_TTL.MARKET_CONTEXT);
     }
 
     router.push('/develop');

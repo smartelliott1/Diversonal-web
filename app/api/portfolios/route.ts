@@ -20,21 +20,29 @@ export async function GET(request: Request) {
 
     let portfolios;
     
+    // Full field list including state persistence fields
+    const selectFields = `
+      id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors, 
+      "portfolioData", "detailedRecommendations", "isManuallySaved",
+      "stockModalCache", "allocationChatHistory", "allocationReasoning",
+      "stockData", "marketContext", "activeTab"
+    `;
+    
     if (filter === "saved") {
       // Only manually saved portfolios (for Developed Portfolios tab)
       portfolios = await sql`
-        SELECT id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors, "portfolioData", "detailedRecommendations", "isManuallySaved"
+        SELECT ${sql.unsafe(selectFields)}
         FROM "Portfolio"
         WHERE "userId" = ${session.user.id} AND "isManuallySaved" = true
-        ORDER BY "createdAt" DESC
+        ORDER BY "updatedAt" DESC
       `;
     } else {
       // All portfolios (for History tab or default)
       portfolios = await sql`
-        SELECT id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors, "portfolioData", "detailedRecommendations", "isManuallySaved"
+        SELECT ${sql.unsafe(selectFields)}
         FROM "Portfolio"
         WHERE "userId" = ${session.user.id}
-        ORDER BY "createdAt" DESC
+        ORDER BY "updatedAt" DESC
       `;
     }
 
@@ -70,7 +78,9 @@ export async function POST(request: Request) {
       INSERT INTO "Portfolio" (
         id, "userId", name, "createdAt", "updatedAt", 
         age, risk, horizon, capital, goal, sectors, 
-        "portfolioData", "detailedRecommendations", "isManuallySaved"
+        "portfolioData", "detailedRecommendations", "isManuallySaved",
+        "stockModalCache", "allocationChatHistory", "allocationReasoning",
+        "stockData", "marketContext", "activeTab"
       )
       VALUES (
         ${portfolioId},
@@ -86,7 +96,13 @@ export async function POST(request: Request) {
         ${data.sectors},
         ${JSON.stringify(data.portfolioData)},
         ${data.detailedRecommendations ? JSON.stringify(data.detailedRecommendations) : null},
-        ${isManuallySaved}
+        ${isManuallySaved},
+        ${data.stockModalCache ? JSON.stringify(data.stockModalCache) : null},
+        ${data.allocationChatHistory ? JSON.stringify(data.allocationChatHistory) : null},
+        ${data.allocationReasoning || null},
+        ${data.stockData ? JSON.stringify(data.stockData) : null},
+        ${data.marketContext ? JSON.stringify(data.marketContext) : null},
+        ${data.activeTab || null}
       )
     `;
 
@@ -98,6 +114,66 @@ export async function POST(request: Request) {
     console.error("Error saving portfolio:", error);
     return NextResponse.json(
       { error: "Failed to save portfolio" },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - Update an existing portfolio (for auto-save)
+export async function PUT(request: Request) {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const data = await request.json();
+    const { id: portfolioId, ...updateData } = data;
+
+    if (!portfolioId) {
+      return NextResponse.json(
+        { error: "Portfolio ID required" },
+        { status: 400 }
+      );
+    }
+
+    const now = new Date().toISOString();
+
+    // Update the portfolio with all provided fields
+    const result = await sql`
+      UPDATE "Portfolio"
+      SET 
+        "updatedAt" = ${now},
+        "portfolioData" = COALESCE(${updateData.portfolioData ? JSON.stringify(updateData.portfolioData) : null}, "portfolioData"),
+        "detailedRecommendations" = COALESCE(${updateData.detailedRecommendations ? JSON.stringify(updateData.detailedRecommendations) : null}, "detailedRecommendations"),
+        "stockModalCache" = COALESCE(${updateData.stockModalCache ? JSON.stringify(updateData.stockModalCache) : null}, "stockModalCache"),
+        "allocationChatHistory" = COALESCE(${updateData.allocationChatHistory ? JSON.stringify(updateData.allocationChatHistory) : null}, "allocationChatHistory"),
+        "allocationReasoning" = COALESCE(${updateData.allocationReasoning || null}, "allocationReasoning"),
+        "stockData" = COALESCE(${updateData.stockData ? JSON.stringify(updateData.stockData) : null}, "stockData"),
+        "marketContext" = COALESCE(${updateData.marketContext ? JSON.stringify(updateData.marketContext) : null}, "marketContext"),
+        "activeTab" = COALESCE(${updateData.activeTab || null}, "activeTab"),
+        "isManuallySaved" = COALESCE(${updateData.isManuallySaved}, "isManuallySaved"),
+        "name" = COALESCE(${updateData.name || null}, "name")
+      WHERE id = ${portfolioId} AND "userId" = ${session.user.id}
+      RETURNING id
+    `;
+
+    if (result.length === 0) {
+      return NextResponse.json(
+        { error: "Portfolio not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, portfolioId });
+  } catch (error) {
+    console.error("Error updating portfolio:", error);
+    return NextResponse.json(
+      { error: "Failed to update portfolio" },
       { status: 500 }
     );
   }
