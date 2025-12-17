@@ -1575,7 +1575,7 @@ export default function DevelopPage() {
   );
 
   return (
-    <main className="relative bg-[#0F0F0F] min-h-screen overflow-hidden px-4 py-8">
+    <main className="relative bg-black min-h-screen overflow-hidden px-4 py-8">
       
       {/* Navigation */}
       <Navigation onMyPortfoliosClick={() => setShowMyPortfoliosModal(true)} />
