@@ -20,18 +20,13 @@ export async function GET(request: Request) {
 
     let portfolios;
     
-    // Full field list including state persistence fields
-    const selectFields = `
-      id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors, 
-      "portfolioData", "detailedRecommendations", "isManuallySaved",
-      "stockModalCache", "allocationChatHistory", "allocationReasoning",
-      "stockData", "marketContext", "activeTab"
-    `;
-    
     if (filter === "saved") {
       // Only manually saved portfolios (for Developed Portfolios tab)
       portfolios = await sql`
-        SELECT ${sql.unsafe(selectFields)}
+        SELECT id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors, 
+               "portfolioData", "detailedRecommendations", "isManuallySaved",
+               "stockModalCache", "allocationChatHistory", "allocationReasoning",
+               "stockData", "marketContext", "activeTab"
         FROM "Portfolio"
         WHERE "userId" = ${session.user.id} AND "isManuallySaved" = true
         ORDER BY "updatedAt" DESC
@@ -39,7 +34,10 @@ export async function GET(request: Request) {
     } else {
       // All portfolios (for History tab or default)
       portfolios = await sql`
-        SELECT ${sql.unsafe(selectFields)}
+        SELECT id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors, 
+               "portfolioData", "detailedRecommendations", "isManuallySaved",
+               "stockModalCache", "allocationChatHistory", "allocationReasoning",
+               "stockData", "marketContext", "activeTab"
         FROM "Portfolio"
         WHERE "userId" = ${session.user.id}
         ORDER BY "updatedAt" DESC
