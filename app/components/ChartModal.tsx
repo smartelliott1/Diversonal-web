@@ -54,6 +54,7 @@ export default function ChartModal({ isOpen, onClose, ticker, name, exchange }: 
       "calendar": false,
       "support_host": "https://www.tradingview.com",
       "hide_top_toolbar": false,
+      "hide_side_toolbar": false,
       "hide_legend": false,
       "save_image": true,
       "backgroundColor": "rgba(15, 15, 15, 1)",
