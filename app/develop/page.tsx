@@ -144,6 +144,7 @@ export default function DevelopPage() {
   const [currentPortfolioId, setCurrentPortfolioId] = useState<string | null>(null);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastSaveRef = useRef<string>("");  // Track last saved state to avoid duplicate saves
+  const hasRestoredFromCacheRef = useRef(false);  // Prevent cache overwrite before restore
   const [portfolioReasoning, setPortfolioReasoning] = useState("");
   const [stressTestScenario, setStressTestScenario] = useState("");
   const [stressTestLoading, setStressTestLoading] = useState(false);
@@ -375,6 +376,11 @@ export default function DevelopPage() {
   // Cache form state for persistence (selectedSectors and riskTolerance)
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Don't overwrite cache until we've had a chance to restore
+    if (!hasRestoredFromCacheRef.current) return;
+    // Only cache if we have meaningful data
+    if (!savedFormData && selectedSectors.length === 0) return;
+    
     const formState = {
       selectedSectors,
       riskTolerance,
@@ -426,11 +432,16 @@ export default function DevelopPage() {
       }
       console.log("[Cache] Restored form state from session cache");
     }
+    
+    // Mark restore as complete so caching effects can start working
+    hasRestoredFromCacheRef.current = true;
   }, []);
 
   // Cache portfolio state for persistence
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Don't overwrite cache until we've had a chance to restore
+    if (!hasRestoredFromCacheRef.current) return;
     // Only save if we have actual portfolio data (not just showing results without data)
     if (portfolioData.length > 0 || showResult) {
       const portfolioState = {
