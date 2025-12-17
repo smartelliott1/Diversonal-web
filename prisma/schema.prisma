@@ -82,6 +82,9 @@ model Portfolio {
   // Portfolio results (stored as JSON)
   portfolioData            Json // Array of portfolio items with name, value, color, breakdown
   detailedRecommendations  Json? // Full recommendations object
+  
+  // Manual save vs auto-save distinction
+  isManuallySaved Boolean @default(false) // true = shows in Developed Portfolios, false = History only
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

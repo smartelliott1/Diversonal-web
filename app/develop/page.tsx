@@ -20,6 +20,10 @@ import Navigation from "../components/layout/Navigation";
 import ChartModal from "../components/ChartModal";
 // Stock count selector for regeneration
 import StockCountSelector, { ASSET_CLASS_LIMITS } from "../components/StockCountSelector";
+// Session cache for persisting data across navigations
+import { sessionCache, CACHE_KEYS, CACHE_TTL } from "../lib/sessionCache";
+// Save portfolio modal
+import SavePortfolioModal from "../components/SavePortfolioModal";
 
 // Type definitions for saved portfolios
 interface PortfolioItem {
@@ -133,6 +137,7 @@ export default function DevelopPage() {
   const [showSavedPortfolios, setShowSavedPortfolios] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const [portfolioData, setPortfolioData] = useState<PortfolioItem[]>([]);
   const [portfolioReasoning, setPortfolioReasoning] = useState("");
   const [stressTestScenario, setStressTestScenario] = useState("");
@@ -277,6 +282,160 @@ export default function DevelopPage() {
           console.error("Error loading saved portfolios:", e);
         }
       }
+    }
+  }, []);
+
+  // Restore cached recommendations, stockData, and stockPrices on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Restore recommendations
+    const cachedRecommendations = sessionCache.get<DetailedRecommendations>(CACHE_KEYS.STOCK_RECOMMENDATIONS);
+    if (cachedRecommendations) {
+      setDetailedRecommendations(cachedRecommendations);
+      setIsFirstGeneration(false);
+      console.log("[Cache] Restored recommendations from session cache");
+    }
+
+    // Restore stock data
+    const cachedStockData = sessionCache.get<Record<string, StockData>>(CACHE_KEYS.STOCK_DATA);
+    if (cachedStockData) {
+      setStockData(cachedStockData);
+      console.log("[Cache] Restored stock data from session cache");
+    }
+
+    // Restore stock prices
+    const cachedStockPrices = sessionCache.get<Record<string, { price: number; change: number; changePercentage: number; exchange: string | null }>>(CACHE_KEYS.STOCK_PRICES);
+    if (cachedStockPrices) {
+      setStockPrices(cachedStockPrices);
+      console.log("[Cache] Restored stock prices from session cache");
+    }
+
+    // Restore market context
+    const cachedMarketContext = sessionCache.get<typeof marketContext>(CACHE_KEYS.MARKET_CONTEXT);
+    if (cachedMarketContext) {
+      setMarketContext(cachedMarketContext);
+      console.log("[Cache] Restored market context from session cache");
+    }
+  }, []);
+
+  // Cache stockData whenever it changes (with data)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (Object.keys(stockData).length > 0) {
+      sessionCache.set(CACHE_KEYS.STOCK_DATA, stockData, CACHE_TTL.STOCK_DATA);
+    }
+  }, [stockData]);
+
+  // Cache stockPrices whenever they change (with data)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (Object.keys(stockPrices).length > 0) {
+      sessionCache.set(CACHE_KEYS.STOCK_PRICES, stockPrices, CACHE_TTL.STOCK_PRICES);
+    }
+  }, [stockPrices]);
+
+  // Cache form state for persistence (selectedSectors and riskTolerance)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const formState = {
+      selectedSectors,
+      riskTolerance,
+      savedFormData,
+    };
+    sessionCache.set(CACHE_KEYS.FORM_STATE, formState, CACHE_TTL.FORM_STATE);
+  }, [selectedSectors, riskTolerance, savedFormData]);
+
+  // Restore form state on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const cachedFormState = sessionCache.get<{
+      selectedSectors: string[];
+      riskTolerance: number;
+      savedFormData: typeof savedFormData;
+    }>(CACHE_KEYS.FORM_STATE);
+
+    if (cachedFormState) {
+      if (cachedFormState.selectedSectors) {
+        setSelectedSectors(cachedFormState.selectedSectors);
+      }
+      if (cachedFormState.riskTolerance !== undefined) {
+        setRiskTolerance(cachedFormState.riskTolerance);
+      }
+      if (cachedFormState.savedFormData) {
+        const formData = cachedFormState.savedFormData;
+        setSavedFormData(formData);
+        // Also restore the form input values (uncontrolled inputs)
+        setTimeout(() => {
+          const ageInput = document.getElementById("age") as HTMLInputElement;
+          const horizonSelect = document.getElementById("horizon") as HTMLSelectElement;
+          const capitalInput = document.getElementById("capital") as HTMLInputElement;
+          const goalInput = document.getElementById("goal") as HTMLInputElement;
+          
+          if (ageInput && formData.age) {
+            ageInput.value = formData.age;
+          }
+          if (horizonSelect && formData.horizon) {
+            horizonSelect.value = formData.horizon;
+          }
+          if (capitalInput && formData.capital) {
+            capitalInput.value = formData.capital;
+          }
+          if (goalInput && formData.goal) {
+            goalInput.value = formData.goal;
+          }
+        }, 100); // Small delay to ensure DOM is ready
+      }
+      console.log("[Cache] Restored form state from session cache");
+    }
+  }, []);
+
+  // Cache portfolio state for persistence
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    // Only save if we have actual portfolio data (not just showing results without data)
+    if (portfolioData.length > 0 || showResult) {
+      const portfolioState = {
+        portfolioData,
+        portfolioReasoning,
+        showResult,
+        activeTab,
+        activeResultTab,
+      };
+      sessionCache.set(CACHE_KEYS.PORTFOLIO_STATE, portfolioState, CACHE_TTL.PORTFOLIO_STATE);
+    }
+  }, [portfolioData, portfolioReasoning, showResult, activeTab, activeResultTab]);
+
+  // Restore portfolio state on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const cachedPortfolioState = sessionCache.get<{
+      portfolioData: PortfolioItem[];
+      portfolioReasoning: string;
+      showResult: boolean;
+      activeTab: string;
+      activeResultTab: 'portfolio' | 'stockPicks' | 'stressTest';
+    }>(CACHE_KEYS.PORTFOLIO_STATE);
+
+    if (cachedPortfolioState) {
+      if (cachedPortfolioState.portfolioData && cachedPortfolioState.portfolioData.length > 0) {
+        setPortfolioData(cachedPortfolioState.portfolioData);
+      }
+      if (cachedPortfolioState.portfolioReasoning) {
+        setPortfolioReasoning(cachedPortfolioState.portfolioReasoning);
+      }
+      if (cachedPortfolioState.showResult !== undefined) {
+        setShowResult(cachedPortfolioState.showResult);
+      }
+      if (cachedPortfolioState.activeTab) {
+        setActiveTab(cachedPortfolioState.activeTab);
+      }
+      if (cachedPortfolioState.activeResultTab) {
+        setActiveResultTab(cachedPortfolioState.activeResultTab);
+      }
+      console.log("[Cache] Restored portfolio state from session cache");
     }
   }, []);
 
@@ -876,7 +1035,9 @@ export default function DevelopPage() {
 
       const contextData = await contextResponse.json();
       setMarketContext(contextData);
-      console.log("[Stage 1] Market context loaded:", contextData);
+      // Cache market context for prefetch and restoration
+      sessionCache.set(CACHE_KEYS.MARKET_CONTEXT, contextData, CACHE_TTL.MARKET_CONTEXT);
+      console.log("[Stage 1] Market context loaded and cached:", contextData);
     } catch (error: any) {
       console.error("[Stage 1] Error:", error);
       toast.error("Market context unavailable, continuing with recommendations...");
@@ -1072,6 +1233,10 @@ export default function DevelopPage() {
                 // Wait for all to complete
                 await Promise.allSettled([pricesPromise, ...dataPromises]);
                 console.log('[Stage 3] All asset data loaded');
+
+                // Cache the loaded data for session persistence
+                sessionCache.set(CACHE_KEYS.STOCK_RECOMMENDATIONS, data, CACHE_TTL.RECOMMENDATIONS);
+                console.log('[Cache] Saved recommendations to session cache');
               }
             }
           } catch (parseError) {
@@ -2255,7 +2420,7 @@ export default function DevelopPage() {
           {/* Asset Class Tabs */}
           {(detailedRecommendations || (detailPanelLoading && parsedAssetClasses.length > 0)) && (
             <div>
-              <div className="mb-8 flex justify-center">
+              <div className="mb-8 flex items-center justify-center gap-4">
                 <div className="overflow-x-auto pb-0">
                   <div className="inline-flex gap-3 rounded-xl border-2 border-white/30 bg-black p-2 shadow-md">
                     {(detailPanelLoading ? parsedAssetClasses : currentPortfolioData.map(item => item.name)).map((assetClass) => (
@@ -2273,6 +2438,17 @@ export default function DevelopPage() {
                     ))}
                   </div>
                 </div>
+                
+                {/* Save Button */}
+                <button
+                  onClick={() => setShowSaveModal(true)}
+                  className="flex items-center gap-2 rounded-xl border-2 border-[#00FF99]/50 bg-black px-5 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99]/10 hover:border-[#00FF99] hover:scale-105"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  </svg>
+                  Save
+                </button>
               </div>
 
               {/* Recommendations Content */}
@@ -3527,6 +3703,20 @@ export default function DevelopPage() {
         ticker={chartModalTicker}
         name={chartModalName}
         exchange={chartModalExchange}
+      />
+
+      {/* Save Portfolio Modal */}
+      <SavePortfolioModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        portfolioData={currentPortfolioData}
+        formData={savedFormData}
+        detailedRecommendations={detailedRecommendations}
+        portfolioRef={portfolioRef}
+        onSaveSuccess={() => {
+          // Invalidate the portfolios cache so My Portfolios page refetches
+          sessionCache.remove(CACHE_KEYS.MY_PORTFOLIOS);
+        }}
       />
 
       {/* Reasoning Modal */}

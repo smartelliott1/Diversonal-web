@@ -1,12 +1,13 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProfileDropdown from "../auth/ProfileDropdown";
 import SignInModal from "../auth/SignInModal";
 import SignUpModal from "../auth/SignUpModal";
 import MyPortfoliosModal from "../auth/MyPortfoliosModal";
+import { sessionCache, CACHE_KEYS, CACHE_TTL } from "../../lib/sessionCache";
 
 interface NavigationProps {
   onMyPortfoliosClick?: () => void;
@@ -18,12 +19,43 @@ export default function Navigation({ onMyPortfoliosClick }: NavigationProps) {
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showMyPortfoliosModal, setShowMyPortfoliosModal] = useState(false);
+  
+  // Track if we're already prefetching to avoid duplicate requests
+  const isPrefetching = useRef(false);
 
   const handleMyPortfoliosClick = () => {
     if (onMyPortfoliosClick) {
       onMyPortfoliosClick();
     } else {
       setShowMyPortfoliosModal(true);
+    }
+  };
+
+  // Prefetch market context when hovering over "Develop a Portfolio"
+  const handleDevelopHover = async () => {
+    // Skip if already on develop page, already prefetching, or already cached
+    if (pathname === '/develop' || isPrefetching.current) return;
+    if (sessionCache.has(CACHE_KEYS.MARKET_CONTEXT)) return;
+
+    isPrefetching.current = true;
+    
+    try {
+      console.log("[Prefetch] Prefetching market context on hover...");
+      const response = await fetch('/api/market-context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formData: {} }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        sessionCache.set(CACHE_KEYS.MARKET_CONTEXT, data, CACHE_TTL.MARKET_CONTEXT);
+        console.log("[Prefetch] Market context cached for faster page load");
+      }
+    } catch (error) {
+      console.error("[Prefetch] Error prefetching market context:", error);
+    } finally {
+      isPrefetching.current = false;
     }
   };
 
@@ -57,23 +89,55 @@ export default function Navigation({ onMyPortfoliosClick }: NavigationProps) {
                 </button>
               )}
               
-              {/* Get Started Button */}
-              <Link
-                href="/get-started"
-                className="group relative inline-flex items-center gap-2 rounded-sm bg-[#00FF99] px-5 py-2.5 text-sm font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689]"
-              >
-                <span>Get Started</span>
-                <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
+              {/* Contextual Action Button - changes based on current page */}
+              {pathname === '/develop' ? (
+                <button
+                  onClick={() => {
+                    // Clear cached state and reload for fresh start
+                    sessionCache.remove(CACHE_KEYS.FORM_STATE);
+                    sessionCache.remove(CACHE_KEYS.PORTFOLIO_STATE);
+                    sessionCache.remove(CACHE_KEYS.STOCK_RECOMMENDATIONS);
+                    sessionCache.remove(CACHE_KEYS.STOCK_DATA);
+                    sessionCache.remove(CACHE_KEYS.STOCK_PRICES);
+                    window.location.reload();
+                  }}
+                  className="group relative inline-flex items-center gap-2 rounded-sm bg-[#00FF99] px-5 py-2.5 text-sm font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689]"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>New Portfolio</span>
+                </button>
+              ) : pathname === '/' ? (
+                <Link
+                  href="/get-started"
+                  className="group relative inline-flex items-center gap-2 rounded-sm bg-[#00FF99] px-5 py-2.5 text-sm font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689]"
+                >
+                  <span>Get Started</span>
+                  <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </Link>
+              ) : null}
             </div>
           </div>
           
           {/* Center links - absolutely positioned, truly centered on screen */}
           <div className="absolute left-1/2 top-0 h-16 -translate-x-1/2 hidden md:flex items-center gap-6 pointer-events-auto">
             <Link 
-              href="/develop" 
+              href="/my-portfolios"
+              className={`text-sm transition-colors ${
+                pathname === '/my-portfolios' 
+                  ? 'text-[#00FF99] font-medium' 
+                  : 'text-[#B4B4B4] hover:text-white'
+              }`}
+            >
+              My Portfolios
+            </Link>
+            <span className="text-[#3A3A3A]">|</span>
+            <Link 
+              href="/develop"
+              onMouseEnter={handleDevelopHover}
               className={`text-sm transition-colors ${
                 pathname === '/develop' 
                   ? 'text-[#00FF99] font-medium' 
