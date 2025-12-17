@@ -56,11 +56,12 @@ export async function POST(request: NextRequest) {
     const allocationContext = allocationPercent !== undefined && assetClass ? `
 **Position Context:**
 - Asset Class: ${assetClass}
-- Portfolio Allocation: ${allocationPercent}% of total portfolio
-- This is a ${allocationPercent < 10 ? 'small strategic' : allocationPercent < 25 ? 'moderate' : 'major'} position
+- This Stock's Portfolio Weight: ${allocationPercent}% of total portfolio
+- Position Size: ${allocationPercent < 5 ? 'Small' : allocationPercent < 15 ? 'Moderate' : 'Large'} individual position
 
-IMPORTANT: A ${allocationPercent}% allocation in ${assetClass} is intentional portfolio design.
-${allocationPercent < 10 ? `For small allocations like this ${allocationPercent}%, this represents strategic diversification or a safety buffer, NOT a primary growth driver. Do NOT suggest the client should look elsewhere or that this is a poor choice. Instead, explain why having a small ${assetClass.toLowerCase()} position makes sense for risk management and portfolio balance.` : ''}
+IMPORTANT: ${ticker} represents ${allocationPercent}% of the total portfolio (not the entire ${assetClass} allocation). 
+This is ONE of multiple holdings within ${assetClass}. Be specific about this individual stock's weight.
+${allocationPercent < 5 ? `For smaller positions like this ${allocationPercent}%, explain how it provides targeted exposure or diversification within ${assetClass}.` : ''}
 ` : '';
 
     // ========== PHASE 1: Get scores (non-streaming, fast) ==========
@@ -162,7 +163,9 @@ IMPORTANT: Return ONLY the JSON object, no markdown, no code blocks, no extra te
 - Investment Goal: ${formData.goal}
 - Sector Preferences: ${formData.sectors.join(", ") || "None specified"}
 ${allocationContext}
-Write a conversational 3-4 sentence explanation using "you" and "your". Be friendly and personal. ${allocationPercent && allocationPercent < 10 ? `Emphasize why a small ${allocationPercent}% ${assetClass?.toLowerCase() || 'position'} is a smart strategic choice for portfolio balance.` : ''}
+Write a conversational 3-4 sentence explanation using "you" and "your". Be friendly and personal. 
+${allocationPercent ? `When mentioning this stock's allocation, say it's approximately ${allocationPercent}% of their total portfolio.` : ''}
+${allocationPercent && allocationPercent < 8 ? `Explain why a ${allocationPercent}% position in ${ticker} provides focused exposure without overconcentration.` : ''}
 
 Start speaking directly - no JSON, no formatting, no prefixes.`;
 

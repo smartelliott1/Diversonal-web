@@ -91,6 +91,17 @@ interface DetailedRecommendations {
   marketContext: string;
 }
 
+// Ticker weight information for AI reasoning
+interface TickerWeight {
+  ticker: string;
+  name: string;
+  assetClass: string;
+  assetClassAllocation: number;  // e.g., 45.7% for Equities
+  weightInAssetClass: number;    // e.g., 33.3% of Equities
+  weightInPortfolio: number;     // e.g., 15.2% of total portfolio
+  positionSize: "Large" | "Medium" | "Small";
+}
+
 interface SavedPortfolio {
   id: string;
   name: string;
@@ -260,6 +271,10 @@ export default function DevelopPage() {
   const [allocationChatLoading, setAllocationChatLoading] = useState(false);
   const allocationChatContainerRef = useRef<HTMLDivElement>(null);
   const hasLoadedAllocationReasoningRef = useRef(false);  // Prevent re-fetching reasoning
+
+  // Ticker weights modal state
+  const [weightsModalOpen, setWeightsModalOpen] = useState(false);
+  const [tickerWeights, setTickerWeights] = useState<Record<string, TickerWeight>>({});
   
   // Per-asset-class loading state
   const [assetClassLoading, setAssetClassLoading] = useState<Record<string, boolean>>({});
@@ -576,6 +591,51 @@ export default function DevelopPage() {
       return () => clearTimeout(timer);
     }
   }, [currentPortfolioId]); // Only trigger when portfolio ID changes
+
+  // Calculate ticker weights whenever recommendations or portfolio data changes
+  useEffect(() => {
+    if (!detailedRecommendations || portfolioData.length === 0) return;
+
+    const weights: Record<string, TickerWeight> = {};
+
+    // Position size weight multipliers (relative importance)
+    const sizeWeights = { Large: 3, Medium: 2, Small: 1 };
+
+    portfolioData.forEach(portfolioItem => {
+      const assetClass = portfolioItem.name;
+      const assetClassAllocation = portfolioItem.value;
+      const assetData = detailedRecommendations[assetClass];
+
+      if (typeof assetData === 'string' || !assetData?.recommendations) return;
+
+      const recommendations = assetData.recommendations;
+      
+      // Calculate total weight points for this asset class
+      const totalWeightPoints = recommendations.reduce((sum: number, rec: StockRecommendation) => {
+        return sum + (sizeWeights[rec.positionSize] || 2);
+      }, 0);
+
+      // Calculate individual weights
+      recommendations.forEach((rec: StockRecommendation) => {
+        const weightPoints = sizeWeights[rec.positionSize] || 2;
+        const weightInAssetClass = (weightPoints / totalWeightPoints) * 100;
+        const weightInPortfolio = (weightInAssetClass / 100) * assetClassAllocation;
+
+        weights[rec.ticker] = {
+          ticker: rec.ticker,
+          name: rec.name,
+          assetClass,
+          assetClassAllocation,
+          weightInAssetClass: Math.round(weightInAssetClass * 10) / 10,
+          weightInPortfolio: Math.round(weightInPortfolio * 10) / 10,
+          positionSize: rec.positionSize,
+        };
+      });
+    });
+
+    setTickerWeights(weights);
+    console.log('[Weights] Calculated ticker weights:', Object.keys(weights).length, 'tickers');
+  }, [detailedRecommendations, portfolioData]);
 
   // Auto-scroll streaming text to bottom as it arrives
   useEffect(() => {
@@ -2689,7 +2749,11 @@ export default function DevelopPage() {
           {/* Asset Class Tabs */}
           {(detailedRecommendations || (detailPanelLoading && parsedAssetClasses.length > 0)) && (
             <div>
-              <div className="mb-8 flex items-center justify-center gap-4">
+              <div className="mb-8 flex items-center justify-between gap-4">
+                {/* Left spacer for balance */}
+                <div className="w-[280px] hidden lg:block" />
+                
+                {/* Center: Asset class tabs */}
                 <div className="overflow-x-auto pb-0">
                   <div className="inline-flex gap-3 rounded-xl border-2 border-white/30 bg-black p-2 shadow-md">
                     {(detailPanelLoading ? parsedAssetClasses : currentPortfolioData.map(item => item.name)).map((assetClass) => (
@@ -2708,16 +2772,30 @@ export default function DevelopPage() {
                   </div>
                 </div>
                 
-                {/* Save Button */}
-                <button
-                  onClick={() => setShowSaveModal(true)}
-                  className="flex items-center gap-2 rounded-xl border-2 border-[#00FF99]/50 bg-black px-5 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99]/10 hover:border-[#00FF99] hover:scale-105"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                  </svg>
-                  Save
-                </button>
+                {/* Right: View Weights + Save Portfolio buttons */}
+                <div className="flex items-center gap-3 w-[280px] justify-end">
+                  {/* View Weights Button */}
+                  <button
+                    onClick={() => setWeightsModalOpen(true)}
+                    className="flex items-center gap-2 rounded-xl border-2 border-white/30 bg-black px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/50 hover:scale-105"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Weights
+                  </button>
+                  
+                  {/* Save Portfolio Button */}
+                  <button
+                    onClick={() => setShowSaveModal(true)}
+                    className="flex items-center gap-2 rounded-xl border-2 border-[#00FF99]/50 bg-black px-4 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99]/10 hover:border-[#00FF99] hover:scale-105"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    </svg>
+                    Save Portfolio
+                  </button>
+                </div>
               </div>
 
               {/* Recommendations Content */}
@@ -2900,11 +2978,12 @@ export default function DevelopPage() {
                                     {/* Row 3: Ask AI Button */}
                                     <button
                                       onClick={() => {
+                                        const weight = tickerWeights[rec.ticker];
                                         setReasoningModalStock({ 
                                           ticker: rec.ticker, 
                                           name: rec.name,
                                           assetClass: assetClass,
-                                          allocationPercent: portfolioItem.value
+                                          allocationPercent: weight?.weightInPortfolio || portfolioItem.value / (data.recommendations?.length || 1)
                                         });
                                         setReasoningModalOpen(true);
                                       }}
@@ -4243,6 +4322,128 @@ export default function DevelopPage() {
                   Unable to load match analysis.
                 </p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Weights Modal */}
+      {weightsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl bg-black border border-[#2A2A2A] rounded-lg shadow-2xl max-h-[85vh] overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#00FF99]/10">
+                  <svg className="w-5 h-5 text-[#00FF99]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">{activeTab} Weight Breakdown</h3>
+                  <p className="text-xs text-gray-400">Position weights based on size allocation</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setWeightsModalOpen(false)}
+                className="p-1 text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(85vh-80px)]">
+              {/* Asset Class Summary */}
+              <div className="mb-6 p-4 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-400">Total {activeTab} Allocation</span>
+                  <span className="text-lg font-bold text-[#00FF99]">
+                    {currentPortfolioData.find(p => p.name === activeTab)?.value || 0}%
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-[#00FF99] rounded-full transition-all duration-500"
+                    style={{ width: `${currentPortfolioData.find(p => p.name === activeTab)?.value || 0}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Individual Ticker Weights */}
+              <div className="space-y-4">
+                {Object.values(tickerWeights)
+                  .filter(w => w.assetClass === activeTab)
+                  .sort((a, b) => b.weightInPortfolio - a.weightInPortfolio)
+                  .map((weight) => (
+                    <div key={weight.ticker} className="p-4 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A]">
+                      {/* Ticker Header */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <span className="text-lg font-bold text-[#00FF99]">{weight.ticker}</span>
+                          <span className="ml-2 text-sm text-gray-400">{weight.name}</span>
+                        </div>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          weight.positionSize === 'Large' ? 'bg-[#00FF99]/20 text-[#00FF99]' :
+                          weight.positionSize === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-blue-500/20 text-blue-400'
+                        }`}>
+                          {weight.positionSize}
+                        </span>
+                      </div>
+
+                      {/* Weight in Asset Class */}
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-400">Weight in {activeTab}</span>
+                          <span className="text-sm font-semibold text-white">{weight.weightInAssetClass}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-[#00FF99] rounded-full transition-all duration-500"
+                            style={{ width: `${weight.weightInAssetClass}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Weight in Total Portfolio */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-400">Weight in Total Portfolio</span>
+                          <span className="text-sm font-semibold text-[#00FF99]">{weight.weightInPortfolio}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-[#00FF99] to-[#00CC7A] rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min(weight.weightInPortfolio * 2, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+
+              {/* Empty State */}
+              {Object.values(tickerWeights).filter(w => w.assetClass === activeTab).length === 0 && (
+                <div className="text-center py-8">
+                  <svg className="w-12 h-12 mx-auto text-gray-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <p className="text-sm text-gray-400">Weights will be calculated after stock picks load</p>
+                </div>
+              )}
+
+              {/* Legend */}
+              <div className="mt-6 pt-4 border-t border-[#2A2A2A]">
+                <p className="text-xs text-gray-500 mb-2">Position Size Weights:</p>
+                <div className="flex gap-4 text-xs text-gray-400">
+                  <span><span className="text-[#00FF99]">●</span> Large = 50%</span>
+                  <span><span className="text-yellow-400">●</span> Medium = 33%</span>
+                  <span><span className="text-blue-400">●</span> Small = 17%</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
