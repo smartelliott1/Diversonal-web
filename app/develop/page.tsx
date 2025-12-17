@@ -4415,7 +4415,7 @@ export default function DevelopPage() {
                         <div className="w-full h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-gradient-to-r from-[#00FF99] to-[#00CC7A] rounded-full transition-all duration-500"
-                            style={{ width: `${Math.min(weight.weightInPortfolio * 2, 100)}%` }}
+                            style={{ width: `${weight.weightInPortfolio}%` }}
                           />
                         </div>
                       </div>
