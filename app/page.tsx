@@ -49,7 +49,7 @@ export default function Home() {
             <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-[#00FF99]/20 via-[#00FF99]/10 to-[#00FF99]/20 opacity-50 blur-xl"></div>
             
             {/* Screen Content Container */}
-            <div className="relative overflow-hidden rounded-sm bg-[#0F0F0F] aspect-[16/10]">
+            <div className="relative overflow-hidden rounded-sm bg-black aspect-[16/10]">
               {/* Feature 0: Portfolio Optimization */}
               <div className={`feature-screen absolute inset-0 p-8 transition-opacity duration-700 ${currentFeature === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <div className="h-full flex flex-col">
@@ -370,7 +370,7 @@ export default function Home() {
       </nav>
 
       {/* Ticker Stream - Below Navigation */}
-      <div className="fixed top-16 left-0 right-0 z-40 overflow-hidden bg-[#0F0F0F] border-b border-[#2A2A2A] py-3">
+      <div className="fixed top-16 left-0 right-0 z-40 overflow-hidden bg-black border-b border-[#2A2A2A] py-3">
         {landingTickerLoading ? (
           <div className="text-center text-xs text-[#808080]">Loading market data...</div>
         ) : (
@@ -465,7 +465,7 @@ export default function Home() {
       </section>
 
       {/* Portfolio Generation Feature Section */}
-      <section id="portfolio-generation-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[180px] pb-20">
+      <section id="portfolio-generation-section" className="flex min-h-screen items-center bg-black pt-[180px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div>
@@ -500,7 +500,7 @@ export default function Home() {
               </ul>
             </div>
             <div className="rounded-sm border border-[#2A2A2A] bg-black p-6">
-              <div className="mb-4 rounded-sm bg-[#0F0F0F] p-4">
+              <div className="mb-4 rounded-sm bg-black p-4">
                 <div className="mb-4 flex items-center justify-between border-b border-[#2A2A2A] pb-3">
                   <h4 className="text-lg font-semibold text-[#E6E6E6]">Your Portfolio</h4>
                   <div className="flex gap-2">
@@ -557,11 +557,11 @@ export default function Home() {
       </section>
 
       {/* Stock Picks Feature Section */}
-      <section id="stock-picks-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[100px] pb-20">
+      <section id="stock-picks-section" className="flex min-h-screen items-center bg-black pt-[100px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-black p-6">
-              <div className="rounded-sm bg-[#0F0F0F] p-4">
+              <div className="rounded-sm bg-black p-4">
                 <div className="mb-4 flex items-center justify-between border-b border-[#2A2A2A] pb-3">
                   <h4 className="text-base font-semibold text-[#E6E6E6]">Detailed Recommendations</h4>
                   <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2.5 py-1 text-xs font-medium text-[#00FF99]">Live Data</div>
@@ -638,7 +638,7 @@ export default function Home() {
       </section>
 
       {/* Stress Testing Feature Section */}
-      <section id="stress-testing-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[180px] pb-20">
+      <section id="stress-testing-section" className="flex min-h-screen items-center bg-black pt-[180px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div>
@@ -673,7 +673,7 @@ export default function Home() {
               </ul>
             </div>
             <div className="rounded-sm border border-[#2A2A2A] bg-black p-6">
-              <div className="rounded-sm bg-[#0F0F0F] p-4">
+              <div className="rounded-sm bg-black p-4">
                 <div className="mb-4">
                   <h4 className="mb-2 text-base font-semibold text-[#E6E6E6]">Stress Test Results</h4>
                   <div className="rounded-sm border border-[#2A2A2A] bg-black p-2.5">
@@ -727,14 +727,14 @@ export default function Home() {
       </section>
 
       {/* Save & Export Feature Section */}
-      <section id="save-export-section" className="flex min-h-screen items-center bg-[#0F0F0F] pt-[230px] pb-20">
+      <section id="save-export-section" className="flex min-h-screen items-center bg-black pt-[230px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-black p-6">
-              <div className="rounded-sm bg-[#0F0F0F] p-4">
+              <div className="rounded-sm bg-black p-4">
                 <div className="mb-4 rounded-sm border border-[#2A2A2A] bg-black p-4">
                   <h4 className="mb-3 text-base font-semibold text-[#E6E6E6]">Save Portfolio</h4>
-                  <div className="mb-3 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5">
+                  <div className="mb-3 rounded-sm border border-[#2A2A2A] bg-black px-3 py-2.5">
                     <p className="text-sm text-[#B4B4B4]">My Retirement Portfolio 2025</p>
                   </div>
                   <div className="flex gap-2">
@@ -827,7 +827,7 @@ export default function Home() {
   };
 
   return (
-    <main className="relative bg-[#0F0F0F] h-screen overflow-hidden">
+    <main className="relative bg-black h-screen overflow-hidden">
       <LandingSection />
       
       {/* Auth Modals */}
