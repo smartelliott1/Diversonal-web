@@ -354,6 +354,10 @@ export default function Home() {
           
           {/* Center links - absolutely positioned, truly centered on screen */}
           <div className="absolute left-1/2 top-0 h-16 -translate-x-1/2 hidden md:flex items-center gap-6 pointer-events-auto">
+            <Link href="/my-portfolios" className="text-sm text-[#B4B4B4] hover:text-white transition-colors">
+              My Portfolios
+            </Link>
+            <span className="text-[#3A3A3A]">|</span>
             <Link href="/develop" className="text-sm text-[#B4B4B4] hover:text-white transition-colors">
               Develop a Portfolio
             </Link>
