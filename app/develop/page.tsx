@@ -2750,8 +2750,18 @@ export default function DevelopPage() {
           {(detailedRecommendations || (detailPanelLoading && parsedAssetClasses.length > 0)) && (
             <div>
               <div className="mb-8 flex items-center justify-between gap-4">
-                {/* Left spacer for balance */}
-                <div className="w-[280px] hidden lg:block" />
+                {/* Left: Individual Weights Button */}
+                <div className="flex items-center gap-3 w-[200px]">
+                  <button
+                    onClick={() => setWeightsModalOpen(true)}
+                    className="flex items-center gap-2 rounded-xl border-2 border-white/30 bg-black px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/50 hover:scale-105"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Individual Weights
+                  </button>
+                </div>
                 
                 {/* Center: Asset class tabs */}
                 <div className="overflow-x-auto pb-0">
@@ -2772,20 +2782,8 @@ export default function DevelopPage() {
                   </div>
                 </div>
                 
-                {/* Right: View Weights + Save Portfolio buttons */}
-                <div className="flex items-center gap-3 w-[280px] justify-end">
-                  {/* View Weights Button */}
-                  <button
-                    onClick={() => setWeightsModalOpen(true)}
-                    className="flex items-center gap-2 rounded-xl border-2 border-white/30 bg-black px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/50 hover:scale-105"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    Weights
-                  </button>
-                  
-                  {/* Save Portfolio Button */}
+                {/* Right: Save Portfolio Button */}
+                <div className="flex items-center gap-3 w-[200px] justify-end">
                   <button
                     onClick={() => setShowSaveModal(true)}
                     className="flex items-center gap-2 rounded-xl border-2 border-[#00FF99]/50 bg-black px-4 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99]/10 hover:border-[#00FF99] hover:scale-105"
@@ -4434,16 +4432,6 @@ export default function DevelopPage() {
                   <p className="text-sm text-gray-400">Weights will be calculated after stock picks load</p>
                 </div>
               )}
-
-              {/* Legend */}
-              <div className="mt-6 pt-4 border-t border-[#2A2A2A]">
-                <p className="text-xs text-gray-500 mb-2">Position Size Weights:</p>
-                <div className="flex gap-4 text-xs text-gray-400">
-                  <span><span className="text-[#00FF99]">●</span> Large = 50%</span>
-                  <span><span className="text-yellow-400">●</span> Medium = 33%</span>
-                  <span><span className="text-blue-400">●</span> Small = 17%</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
