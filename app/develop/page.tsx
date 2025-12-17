@@ -2218,7 +2218,7 @@ export default function DevelopPage() {
               <button
                 onClick={handleGetDetailedRecommendations}
                 disabled={detailPanelLoading}
-                className="group relative inline-flex items-center gap-3 rounded-sm border border-[#00FF99] bg-[#00FF99] px-10 py-5 text-2xl font-semibold text-[#0F0F0F] transition-all duration-200 hover:bg-[#00E689] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg shadow-[#00FF99]/30"
+                className="group relative inline-flex items-center gap-3 rounded-lg border-2 border-[#00FF99] bg-black px-8 py-4 text-xl font-semibold text-[#00FF99] transition-all duration-300 hover:bg-[#00FF99]/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {detailPanelLoading && (
                   <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
