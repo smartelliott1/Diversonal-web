@@ -259,6 +259,7 @@ export default function DevelopPage() {
   const [allocationChatInput, setAllocationChatInput] = useState("");
   const [allocationChatLoading, setAllocationChatLoading] = useState(false);
   const allocationChatContainerRef = useRef<HTMLDivElement>(null);
+  const hasLoadedAllocationReasoningRef = useRef(false);  // Prevent re-fetching reasoning
   
   // Per-asset-class loading state
   const [assetClassLoading, setAssetClassLoading] = useState<Record<string, boolean>>({});
@@ -351,6 +352,7 @@ export default function DevelopPage() {
       }
       if (cachedAllocationChat.reasoningText) {
         setAllocationReasoningText(cachedAllocationChat.reasoningText);
+        hasLoadedAllocationReasoningRef.current = true; // Mark as loaded to prevent re-fetch
       }
       sessionCache.remove(CACHE_KEYS.ALLOCATION_CHAT); // Clear after reading
       console.log("[Cache] Restored allocation chat from session cache");
@@ -794,48 +796,59 @@ export default function DevelopPage() {
   };
   
   // Fetch allocation reasoning when portfolio tab is active and data is loaded
+  // Only fetch once per portfolio session - reasoning is saved and restored from DB
   useEffect(() => {
-    if (activeResultTab === 'portfolio' && savedFormData && portfolioData.length > 0 && !allocationReasoningText && !allocationReasoningLoading) {
-      setAllocationReasoningLoading(true);
-      
-      fetch("/api/allocation-reasoning", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          portfolioData: portfolioData,
-          formData: {
-            age: savedFormData.age,
-            risk: savedFormData.risk,
-            horizon: savedFormData.horizon,
-            capital: savedFormData.capital,
-            goal: savedFormData.goal,
-            sectors: savedFormData.sectors,
-          },
-        }),
-      })
-        .then(async (response) => {
-          if (!response.ok || !response.body) throw new Error("Failed to fetch reasoning");
-          
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let accumulated = "";
-          
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            accumulated += decoder.decode(value, { stream: true });
-            setAllocationReasoningText(accumulated);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching allocation reasoning:", error);
-          setAllocationReasoningText("Unable to load reasoning. Please try again.");
-        })
-        .finally(() => {
-          setAllocationReasoningLoading(false);
-        });
+    // Skip if already loaded/fetched for this portfolio, or if reasoning exists
+    if (hasLoadedAllocationReasoningRef.current) return;
+    if (allocationReasoningText) {
+      hasLoadedAllocationReasoningRef.current = true;
+      return;
     }
-  }, [activeResultTab, savedFormData, portfolioData, allocationReasoningText, allocationReasoningLoading]);
+    if (activeResultTab !== 'portfolio' || !savedFormData || portfolioData.length === 0 || allocationReasoningLoading) return;
+    
+    // Mark as loading to prevent duplicate fetches
+    hasLoadedAllocationReasoningRef.current = true;
+    setAllocationReasoningLoading(true);
+    
+    fetch("/api/allocation-reasoning", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        portfolioData: portfolioData,
+        formData: {
+          age: savedFormData.age,
+          risk: savedFormData.risk,
+          horizon: savedFormData.horizon,
+          capital: savedFormData.capital,
+          goal: savedFormData.goal,
+          sectors: savedFormData.sectors,
+        },
+      }),
+    })
+      .then(async (response) => {
+        if (!response.ok || !response.body) throw new Error("Failed to fetch reasoning");
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulated = "";
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          accumulated += decoder.decode(value, { stream: true });
+          setAllocationReasoningText(accumulated);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching allocation reasoning:", error);
+        setAllocationReasoningText("Unable to load reasoning. Please try again.");
+        // Reset flag on error so user can retry
+        hasLoadedAllocationReasoningRef.current = false;
+      })
+      .finally(() => {
+        setAllocationReasoningLoading(false);
+      });
+  }, [activeResultTab, savedFormData, portfolioData, allocationReasoningLoading]);
   
   // Auto-scroll allocation chat container
   useEffect(() => {
@@ -1850,6 +1863,7 @@ export default function DevelopPage() {
     setStockModalCache({});
     setAllocationChatHistory([]);
     setAllocationReasoningText("");
+    hasLoadedAllocationReasoningRef.current = false;  // Allow fresh fetch for new portfolio
     
     try {
       // Collect form data
