@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import Anthropic from "@anthropic-ai/sdk";
 import { getComprehensiveMarketContext } from "@/app/lib/financialData";
 
-// Using Grok 4-1 Fast Reasoning for financial stress testing analysis
-// Chain-of-thought reasoning enables accurate numerical calculations
-const XAI_API_KEY = process.env.XAI_API_KEY;
-const XAI_BASE_URL = "https://api.x.ai/v1";
-const MODEL = "grok-4-1-fast-reasoning";
+// Using Claude Sonnet 4.5 for financial stress testing analysis
+// Excellent at analytical reasoning and accurate numerical calculations
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const MODEL = "claude-sonnet-4-5-20250929";
 
 interface StressTestRequest {
   scenario: string;
@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
       .map((item) => item.name);
 
     // If no API key, use fallback algorithm
-    if (!XAI_API_KEY) {
-      console.warn("XAI_API_KEY not set, using fallback algorithm");
+    if (!ANTHROPIC_API_KEY) {
+      console.warn("ANTHROPIC_API_KEY not set, using fallback algorithm");
       console.log("Environment check - NODE_ENV:", process.env.NODE_ENV);
       return NextResponse.json({
         ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses, monthsToSimulate),
@@ -80,8 +80,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log("XAI_API_KEY found, attempting to call Grok API");
-    console.log("API Key length:", XAI_API_KEY?.length || 0);
+    console.log("ANTHROPIC_API_KEY found, attempting to call Claude API");
+    console.log("API Key length:", ANTHROPIC_API_KEY?.length || 0);
+
+    const anthropic = new Anthropic({
+      apiKey: ANTHROPIC_API_KEY,
+    });
 
     // Construct portfolio summary
     const portfolioSummary = portfolio
@@ -174,39 +178,29 @@ Example format:
 
     let responseText: string;
     try {
-      console.log(`Attempting to call Grok with model: ${MODEL}`);
+      console.log(`Attempting to call Claude with model: ${MODEL}`);
       
-      const response = await fetch(`${XAI_BASE_URL}/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${XAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-          temperature: 0,
-          max_tokens: 2000,
-        }),
+      const response = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: 2000,
+        temperature: 0,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("[Grok] API Error:", errorText);
-        throw new Error(`Grok API error: ${response.status} - ${errorText}`);
+      const content = response.content[0];
+      if (content.type !== "text") {
+        throw new Error("Unexpected response type from Claude");
       }
-
-      const data = await response.json();
-      responseText = data.choices[0].message.content;
-      console.log(`Grok API call successful with model: ${MODEL}`);
+      responseText = content.text;
+      console.log(`Claude API call successful with model: ${MODEL}`);
       
     } catch (apiError: any) {
-      console.error("Grok API call failed. Error:", apiError);
+      console.error("Claude API call failed. Error:", apiError);
       console.error("Error details:", {
         message: apiError?.message,
         status: apiError?.status,
@@ -215,7 +209,7 @@ Example format:
       // Fallback to algorithm
       return NextResponse.json({
         ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses, monthsToSimulate),
-        reasoning: "Generated using Diversonal's proprietary stress testing algorithm (Grok API unavailable - please verify XAI_API_KEY)",
+        reasoning: "Generated using Diversonal's proprietary stress testing algorithm (Claude API unavailable - please verify ANTHROPIC_API_KEY)",
       });
     }
 
