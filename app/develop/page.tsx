@@ -4380,7 +4380,7 @@ export default function DevelopPage() {
 
             {/* Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(85vh-80px)]">
-              {/* Asset Class Summary */}
+              {/* Asset Class Summary - Bold Header */}
               {(() => {
                 const assetClassPercent = currentPortfolioData.find(p => p.name === activeTab)?.value || 0;
                 const totalCapital = savedFormData?.capital 
@@ -4389,29 +4389,29 @@ export default function DevelopPage() {
                 const assetClassDollars = (assetClassPercent / 100) * totalCapital;
                 
                 return (
-                  <div className="mb-6 p-4 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A]">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <span className="text-sm text-gray-400">Total {activeTab} Allocation</span>
-                        {totalCapital > 0 && (
-                          <span className="ml-2 text-lg font-bold text-white">
-                            ${assetClassDollars.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-lg font-bold text-[#00FF99]">
+                  <div className="mb-8 pb-6 border-b border-[#2A2A2A]">
+                    <p className="text-xs font-medium text-[#00FF99] uppercase tracking-widest mb-3">
+                      {activeTab} Allocation
+                    </p>
+                    <div className="flex items-baseline gap-4 mb-4">
+                      {totalCapital > 0 && (
+                        <span className="text-3xl font-bold text-white">
+                          ${assetClassDollars.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      )}
+                      <span className="text-2xl font-bold text-[#00FF99]">
                         {assetClassPercent}%
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-[#00FF99] rounded-full transition-all duration-500"
                         style={{ width: `${assetClassPercent}%` }}
                       />
                     </div>
                     {totalCapital > 0 && (
-                      <p className="mt-2 text-xs text-gray-500">
-                        Based on ${totalCapital.toLocaleString()} total investment
+                      <p className="mt-3 text-xs text-gray-500">
+                        of ${totalCapital.toLocaleString()} total portfolio
                       </p>
                     )}
                   </div>
