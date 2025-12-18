@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { getComprehensiveMarketContext } from "@/app/lib/financialData";
 
-// Using Claude 3.5 Sonnet for financial stress testing analysis
-// Claude excels at analytical reasoning and understanding complex financial scenarios
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+// Using Grok 4-1 Fast (non-reasoning) for financial stress testing analysis
+// Fast, cost-effective, and excellent at structured JSON output
+const XAI_API_KEY = process.env.XAI_API_KEY;
+const XAI_BASE_URL = "https://api.x.ai/v1";
+const MODEL = "grok-4-1-fast-non-reasoning";
 
 interface StressTestRequest {
   scenario: string;
@@ -70,8 +71,8 @@ export async function POST(request: NextRequest) {
       .map((item) => item.name);
 
     // If no API key, use fallback algorithm
-    if (!ANTHROPIC_API_KEY) {
-      console.warn("ANTHROPIC_API_KEY not set, using fallback algorithm");
+    if (!XAI_API_KEY) {
+      console.warn("XAI_API_KEY not set, using fallback algorithm");
       console.log("Environment check - NODE_ENV:", process.env.NODE_ENV);
       return NextResponse.json({
         ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses, monthsToSimulate),
@@ -79,12 +80,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log("ANTHROPIC_API_KEY found, attempting to call Claude API");
-    console.log("API Key length:", ANTHROPIC_API_KEY?.length || 0);
-
-    const anthropic = new Anthropic({
-      apiKey: ANTHROPIC_API_KEY,
-    });
+    console.log("XAI_API_KEY found, attempting to call Grok API");
+    console.log("API Key length:", XAI_API_KEY?.length || 0);
 
     // Construct portfolio summary
     const portfolioSummary = portfolio
@@ -175,84 +172,57 @@ Example format:
 - Values should reflect realistic market recovery patterns when applicable
 - Consider that different scenarios have different recovery trajectories`;
 
-    let response;
+    let responseText: string;
     try {
-      // Try Claude models - Anthropic API model identifier format
-      // Based on Anthropic API docs, correct formats are:
-      // - claude-sonnet-4-20250514 (Sonnet 4.x)
-      // - claude-opus-4-20250514 (Opus 4.x)
-      // - claude-3-5-haiku-20241022 (Haiku 3.5)
-      // Try in order of preference (best for financial analysis first)
-      const modelsToTry = [
-        "claude-sonnet-4-20250514", // Claude Sonnet 4.x (latest, best for analysis)
-        "claude-opus-4-20250514", // Claude Opus 4.x (alternative, very capable)
-        "claude-3-5-haiku-20241022", // Claude Haiku 3.5 (faster, less capable)
-        "claude-3-5-sonnet-20241022", // Sonnet 3.5 (fallback)
-        "claude-3-opus-20240229", // Opus 3 (fallback)
-      ];
+      console.log(`Attempting to call Grok with model: ${MODEL}`);
       
-      let lastError: any = null;
-      
-      for (const modelName of modelsToTry) {
-        try {
-          console.log(`Attempting to call Claude with model: ${modelName}`);
-          response = await anthropic.messages.create({
-            model: modelName,
-            max_tokens: 2000,
-            temperature: 0.3,
-            messages: [
-              {
-                role: "user",
-                content: prompt,
-              },
-            ],
-          });
-          console.log(`Claude API call successful with model: ${modelName}`);
-          break; // Success, exit the loop
-        } catch (modelError: any) {
-          lastError = modelError;
-          const errorMsg = modelError?.message || JSON.stringify(modelError);
-          console.warn(`Model ${modelName} failed:`, errorMsg);
-          // Log full error details for debugging
-          if (modelError?.error) {
-            console.warn(`Error details for ${modelName}:`, JSON.stringify(modelError.error, null, 2));
-          }
-          // Continue to next model
-        }
+      const response = await fetch(`${XAI_BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${XAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 2000,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("[Grok] API Error:", errorText);
+        throw new Error(`Grok API error: ${response.status} - ${errorText}`);
       }
-      
-      // If all models failed, throw the last error
-      if (!response) {
-        throw lastError || new Error("All Claude models failed");
-      }
+
+      const data = await response.json();
+      responseText = data.choices[0].message.content;
+      console.log(`Grok API call successful with model: ${MODEL}`);
       
     } catch (apiError: any) {
-      console.error("All Claude models failed. Final error:", apiError);
+      console.error("Grok API call failed. Error:", apiError);
       console.error("Error details:", {
         message: apiError?.message,
         status: apiError?.status,
-        statusCode: apiError?.statusCode,
-        type: apiError?.type,
-        error: apiError?.error,
       });
       
       // Fallback to algorithm
       return NextResponse.json({
         ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses, monthsToSimulate),
-        reasoning: "Generated using Diversonal's proprietary stress testing algorithm (Claude API unavailable - please verify API key and model access in Anthropic console)",
+        reasoning: "Generated using Diversonal's proprietary stress testing algorithm (Grok API unavailable - please verify XAI_API_KEY)",
       });
-    }
-
-    const content = response.content[0];
-    
-    if (content.type !== "text") {
-      throw new Error("Unexpected response type from Claude");
     }
 
     let stressTestResult;
     try {
       // Extract JSON from response
-      const text = content.text;
+      const text = responseText;
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error("No JSON found in response");
