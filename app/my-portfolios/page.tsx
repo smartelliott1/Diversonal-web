@@ -51,6 +51,10 @@ export default function MyPortfoliosPage() {
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
+  // Rename state
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [newName, setNewName] = useState("");
+  
   // Expanded portfolio for viewing details
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -178,6 +182,49 @@ export default function MyPortfoliosPage() {
     }
   };
 
+  // Handle rename portfolio
+  const handleRename = async (portfolioId: string) => {
+    if (!newName.trim()) {
+      setRenamingId(null);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/portfolios", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: portfolioId, name: newName.trim() }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to rename portfolio");
+      }
+
+      // Update local state
+      const updatePortfolio = (p: SavedPortfolio) => 
+        p.id === portfolioId ? { ...p, name: newName.trim() } : p;
+      
+      const updatedSaved = savedPortfolios.map(updatePortfolio);
+      const updatedAll = allPortfolios.map(updatePortfolio);
+      
+      setSavedPortfolios(updatedSaved);
+      setAllPortfolios(updatedAll);
+      sessionCache.set(CACHE_KEYS.MY_PORTFOLIOS, updatedSaved, CACHE_TTL.MY_PORTFOLIOS);
+      sessionCache.set(CACHE_KEYS.PORTFOLIO_HISTORY, updatedAll, CACHE_TTL.PORTFOLIO_HISTORY);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to rename portfolio");
+    } finally {
+      setRenamingId(null);
+      setNewName("");
+    }
+  };
+
+  // Start renaming a portfolio
+  const startRename = (portfolio: SavedPortfolio) => {
+    setRenamingId(portfolio.id);
+    setNewName(portfolio.name);
+  };
+
   // Handle load portfolio - navigate to develop page with portfolio data
   const handleLoadPortfolio = (portfolio: SavedPortfolio) => {
     // Store portfolio ID so develop page can update it
@@ -293,12 +340,54 @@ export default function MyPortfoliosPage() {
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1">
-                <h3 className="text-white font-semibold text-lg truncate">
-                  {portfolio.name}
-                </h3>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${riskInfo.color} bg-current/10`}>
-                  {riskInfo.label}
-                </span>
+                {renamingId === portfolio.id ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleRename(portfolio.id);
+                        if (e.key === 'Escape') {
+                          setRenamingId(null);
+                          setNewName("");
+                        }
+                      }}
+                      autoFocus
+                      className="flex-1 px-3 py-1.5 bg-[#1A1A1A] border border-[#00FF99]/50 rounded-lg text-white text-lg font-semibold focus:outline-none focus:border-[#00FF99]"
+                    />
+                    <button
+                      onClick={() => handleRename(portfolio.id)}
+                      className="p-1.5 text-[#00FF99] hover:bg-[#00FF99]/10 rounded-lg transition-colors"
+                      title="Save"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setRenamingId(null);
+                        setNewName("");
+                      }}
+                      className="p-1.5 text-[#808080] hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                      title="Cancel"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <h3 className="text-white font-semibold text-lg truncate">
+                    {portfolio.name}
+                  </h3>
+                )}
+                {renamingId !== portfolio.id && (
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${riskInfo.color} bg-current/10`}>
+                    {riskInfo.label}
+                  </span>
+                )}
               </div>
               <p className="text-[#808080] text-sm">
                 {getTimeAgo(portfolio.createdAt)}
@@ -320,6 +409,15 @@ export default function MyPortfoliosPage() {
               >
                 <svg className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => startRename(portfolio)}
+                className="p-2 text-[#808080] hover:text-[#00FF99] transition-colors"
+                title="Rename"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
               <button
