@@ -1801,6 +1801,21 @@ export default function DevelopPage() {
       name: "Stagflation",
       description: "Hypothetical stagflation scenario: Model 1970s-style conditions - high inflation (6-8%) combined with economic stagnation. Equities struggle (-15 to -25%), bonds suffer from inflation (-10%). Commodities and gold surge (+20-40%) as inflation hedges. Real estate mixed. Cash loses purchasing power. Crypto uncertain - could go either way. Prolonged difficult environment.",
       year: "Scenario"
+    },
+    {
+      name: "AI Bubble Burst",
+      description: "Hypothetical AI bubble burst scenario: Model a dot-com style correction focused on AI/tech. AI-related stocks (NVDA, AMD, MSFT, GOOGL, META) crash 50-70%. Broader S&P 500 drops 25-35% due to tech weighting. Non-tech value stocks decline less (-10-15%). Bonds rally as safe haven (+5-8%). Crypto crashes hard (-40-60%) as risk appetite vanishes. Gold stable to positive. Recovery takes 2-3 years as valuations reset. Tech-heavy portfolios devastated, diversified portfolios fare better.",
+      year: "Scenario"
+    },
+    {
+      name: "Dovish Fed Pivot",
+      description: "Hypothetical dovish Fed scenario: Model aggressive Fed rate cuts (200-300 bps over 12 months) due to economic slowdown fears. Initial market uncertainty, then strong rally. Equities surge (+20-30%) as cheap money returns. Growth/tech stocks lead gains. Bonds rally significantly (+10-15%) as yields fall. Real estate recovers strongly. Crypto explodes (+100-200%) in risk-on environment. Gold rises on dollar weakness. Dollar weakens against major currencies. V-shaped market response once cuts begin.",
+      year: "Scenario"
+    },
+    {
+      name: "Dollar Crisis",
+      description: "Hypothetical US dollar crisis: Model loss of confidence in USD as reserve currency. Dollar index drops 20-30%. Import prices spike causing inflation surge. Fed forced to raise rates aggressively despite recession. Equities crash (-30-40%) in dollar terms but mixed in foreign currency. US bonds sell off sharply (-15-20%) as foreign holders dump Treasuries. Gold and commodities explode (+40-60%) as dollar alternatives. Crypto potentially benefits as dollar hedge (+50-100%). Foreign equities outperform US. Real estate volatile. Severe economic disruption.",
+      year: "Scenario"
     }
   ];
 
