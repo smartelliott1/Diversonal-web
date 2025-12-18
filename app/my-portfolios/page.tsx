@@ -479,44 +479,60 @@ export default function MyPortfoliosPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 p-1 bg-[#1A1A1A] rounded-xl mb-8 w-fit">
+          <div className="flex gap-3 mb-8">
             <button
               onClick={() => setActiveTab('developed')}
-              className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all border-2 ${
                 activeTab === 'developed'
-                  ? 'bg-[#00FF99] text-black'
-                  : 'text-[#808080] hover:text-white'
+                  ? 'bg-[#00FF99] text-black border-[#00FF99]'
+                  : 'bg-[#1A1A1A] text-[#B4B4B4] border-[#2A2A2A] hover:border-[#00FF99]/50 hover:text-white'
               }`}
             >
-              Developed Portfolios
-              {portfolios.length > 0 && activeTab === 'developed' && (
-                <span className="ml-2 px-2 py-0.5 bg-black/20 rounded-full text-xs">
-                  {portfolios.length}
-                </span>
-              )}
+              Saved Developments
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                activeTab === 'developed'
+                  ? 'bg-black/20 text-black'
+                  : 'bg-[#2A2A2A] text-[#808080]'
+              }`}>
+                {savedPortfolios.length}
+              </span>
             </button>
             <button
               onClick={() => setActiveTab('optimized')}
-              className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all border-2 ${
                 activeTab === 'optimized'
-                  ? 'bg-[#00FF99] text-black'
-                  : 'text-[#808080] hover:text-white'
+                  ? 'bg-[#00FF99] text-black border-[#00FF99]'
+                  : 'bg-[#1A1A1A] text-[#B4B4B4] border-[#2A2A2A] hover:border-[#00FF99]/50 hover:text-white'
               }`}
             >
-              Optimized Portfolios
+              Saved Optimizations
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                activeTab === 'optimized'
+                  ? 'bg-black/20 text-black'
+                  : 'bg-[#2A2A2A] text-[#808080]'
+              }`}>
+                0
+              </span>
               <span className="px-1.5 py-0.5 bg-[#2A2A2A] rounded text-[10px] text-[#808080] uppercase tracking-wider">
                 Soon
               </span>
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all border-2 ${
                 activeTab === 'history'
-                  ? 'bg-[#00FF99] text-black'
-                  : 'text-[#808080] hover:text-white'
+                  ? 'bg-[#00FF99] text-black border-[#00FF99]'
+                  : 'bg-[#1A1A1A] text-[#B4B4B4] border-[#2A2A2A] hover:border-[#00FF99]/50 hover:text-white'
               }`}
             >
-              History
+              All History
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                activeTab === 'history'
+                  ? 'bg-black/20 text-black'
+                  : 'bg-[#2A2A2A] text-[#808080]'
+              }`}>
+                {allPortfolios.length}
+              </span>
             </button>
           </div>
 
