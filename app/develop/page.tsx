@@ -3657,7 +3657,7 @@ export default function DevelopPage() {
                 <div className="lg:col-span-3 space-y-4">
                   {/* Portfolio Value Chart */}
                   {stressTestResult.portfolioValue && stressTestResult.portfolioValue.length > 0 && (
-                    <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                    <div className="rounded-lg border-2 border-white/20 bg-black p-4">
                       <div className="mb-3 flex items-center justify-between">
                         <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-400">Timeline</h4>
                         <div className={`rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
@@ -3769,7 +3769,7 @@ export default function DevelopPage() {
                   )}
 
                   {/* Analysis Card - Below Chart */}
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                  <div className="rounded-lg border-2 border-white/20 bg-black p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Analysis</h4>
                     <p className="text-sm leading-relaxed text-gray-300">
                       {stressTestResult.analysis}
@@ -3779,81 +3779,45 @@ export default function DevelopPage() {
 
                 {/* RIGHT COLUMN - Metrics & Controls (40%) */}
                 <div className="lg:col-span-2 space-y-4">
-                  {/* Key Metrics Card */}
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                  {/* Key Metrics Card - Horizontal Layout */}
+                  <div className="rounded-lg border-2 border-white/20 bg-black p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Metrics</h4>
-                    <div className={`mb-3 rounded-lg border p-3 text-center ${
-                      stressTestResult.percentageChange < 0 
-                        ? 'border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10' 
-                        : 'border-green-500/50 bg-gradient-to-br from-green-500/20 to-green-600/10'
-                    }`}>
-                      <div className={`text-2xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-500' : 'text-green-500'}`}>
-                        {stressTestResult.percentageChange > 0 ? '+' : ''}{stressTestResult.percentageChange.toFixed(1)}%
+                    <div className="flex items-center gap-4">
+                      {/* Left: Percentage Change */}
+                      <div className={`flex-shrink-0 rounded-lg border px-4 py-3 text-center ${
+                        stressTestResult.percentageChange < 0 
+                          ? 'border-red-500/50 bg-red-500/10' 
+                          : 'border-green-500/50 bg-green-500/10'
+                      }`}>
+                        <div className={`text-2xl font-bold ${stressTestResult.percentageChange < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                          {stressTestResult.percentageChange > 0 ? '+' : ''}{stressTestResult.percentageChange.toFixed(1)}%
+                        </div>
+                        <div className="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-500">Change</div>
                       </div>
-                      <div className="mt-1 text-[10px] font-medium uppercase tracking-wide text-gray-400">Change</div>
-                    </div>
-                    <div className="space-y-1.5 text-xs">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Initial:</span>
-                        <span className="font-semibold text-gray-200">${(stressTestResult.portfolioValue[0] / 1000).toFixed(1)}k</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Final:</span>
-                        <span className="font-semibold text-gray-200">${(stressTestResult.finalValue / 1000).toFixed(1)}k</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Duration:</span>
-                        <span className="font-semibold text-gray-200">{stressTestResult.portfolioValue.length - 1}mo</span>
+                      {/* Right: Stats */}
+                      <div className="flex-1 space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Initial:</span>
+                          <span className="font-semibold text-gray-200">${(stressTestResult.portfolioValue[0] / 1000).toFixed(1)}k</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Final:</span>
+                          <span className="font-semibold text-gray-200">${(stressTestResult.finalValue / 1000).toFixed(1)}k</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Duration:</span>
+                          <span className="font-semibold text-gray-200">{stressTestResult.portfolioValue.length - 1}mo</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Asset Impact with Filtering */}
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Asset Impact</h4>
-                      <button
-                        onClick={() => {
-                          if (stressTestResult.impact) {
-                            const allAssets = Object.keys(stressTestResult.impact);
-                            setVisibleAssetClasses(
-                              visibleAssetClasses.length === allAssets.length ? [] : allAssets
-                            );
-                          }
-                        }}
-                        className="text-[10px] text-[#00FF99] hover:underline"
-                      >
-                        {visibleAssetClasses.length === Object.keys(stressTestResult.impact || {}).length ? 'Hide' : 'All'}
-                      </button>
-                    </div>
-                    
-                    {/* Filter Toggles */}
-                    <div className="mb-2 flex flex-wrap gap-1">
-                      {stressTestResult.impact && Object.keys(stressTestResult.impact).map((asset) => (
-                        <button
-                          key={asset}
-                          onClick={() => {
-                            setVisibleAssetClasses(prev =>
-                              prev.includes(asset)
-                                ? prev.filter(a => a !== asset)
-                                : [...prev, asset]
-                            );
-                          }}
-                          className={`rounded-full px-2 py-0.5 text-[10px] font-medium transition-all duration-300 ${
-                            visibleAssetClasses.includes(asset)
-                              ? 'bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/50'
-                              : 'bg-gray-700/50 text-gray-500 border border-gray-600'
-                          }`}
-                        >
-                          {asset}
-                        </button>
-                      ))}
-                    </div>
-
+                  {/* Asset Impact */}
+                  <div className="rounded-lg border-2 border-white/20 bg-black p-4">
+                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Asset Impact</h4>
                     {/* Asset Cards */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {stressTestResult.impact && Object.entries(stressTestResult.impact)
-                        .filter(([asset]) => visibleAssetClasses.includes(asset))
                         .map(([asset, impact]: [string, any]) => {
                           // Handle both old format (number) and new format (object with high/low/end)
                           const isOldFormat = typeof impact === 'number';
