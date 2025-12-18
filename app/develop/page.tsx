@@ -169,6 +169,7 @@ export default function DevelopPage() {
   const [activeHistoryIndex, setActiveHistoryIndex] = useState<number>(0);
   const [visibleAssetClasses, setVisibleAssetClasses] = useState<string[]>([]);
   const [stressTestTimeHorizon, setStressTestTimeHorizon] = useState<number>(12);
+  const [isScenarioSectionCollapsed, setIsScenarioSectionCollapsed] = useState(false);
   const [scenarioBuilderParams, setScenarioBuilderParams] = useState({
     marketMovement: 0,
     inflation: 2,
@@ -1953,6 +1954,7 @@ export default function DevelopPage() {
       };
       
       setStressTestResult(resultWithMeta);
+      setIsScenarioSectionCollapsed(true); // Collapse input section to show results
       
       // Add to history (keep last 10, persisted to localStorage)
       setStressTestHistory(prev => {
@@ -3489,84 +3491,99 @@ export default function DevelopPage() {
             </div>
           )}
 
-          {/* Quick Scenarios - Always visible */}
-          <div className="mb-6">
-            {/* Historical Events */}
-            <div className="mb-4">
-              <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Historical Events</p>
-              <div className="flex flex-wrap gap-2">
-                {historicalScenarios.filter(s => s.year !== "Scenario").map((event, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setSelectedScenarioPreset({ name: event.name, prompt: event.description });
-                      setStressTestScenario("");
-                    }}
-                    disabled={stressTestLoading}
-                    className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
-                      selectedScenarioPreset?.name === event.name
-                        ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
-                        : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    {event.name}
-                  </button>
-                ))}
+          {/* Collapsible Scenario Input Section */}
+          {stressTestResult && isScenarioSectionCollapsed ? (
+            /* Collapsed state - just show expand button */
+            <button
+              onClick={() => setIsScenarioSectionCollapsed(false)}
+              className="mb-6 w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#2A2A2A] bg-[#1A1A1A] text-gray-400 hover:text-[#00FF99] hover:border-[#00FF99]/30 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+              <span className="text-sm font-medium">Run Another Test</span>
+            </button>
+          ) : (
+            /* Expanded state - show full scenario section */
+            <>
+              {/* Quick Scenarios */}
+              <div className="mb-6">
+                {/* Historical Events */}
+                <div className="mb-4">
+                  <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Historical Events</p>
+                  <div className="flex flex-wrap gap-2">
+                    {historicalScenarios.filter(s => s.year !== "Scenario").map((event, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setSelectedScenarioPreset({ name: event.name, prompt: event.description });
+                          setStressTestScenario("");
+                        }}
+                        disabled={stressTestLoading}
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
+                          selectedScenarioPreset?.name === event.name
+                            ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
+                            : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        {event.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Hypothetical */}
+                <div>
+                  <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Hypothetical</p>
+                  <div className="flex flex-wrap gap-2">
+                    {historicalScenarios.filter(s => s.year === "Scenario").map((event, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setSelectedScenarioPreset({ name: event.name, prompt: event.description });
+                          setStressTestScenario("");
+                        }}
+                        disabled={stressTestLoading}
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
+                          selectedScenarioPreset?.name === event.name
+                            ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
+                            : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        {event.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            {/* Hypothetical */}
-            <div>
-              <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Hypothetical</p>
-              <div className="flex flex-wrap gap-2">
-                {historicalScenarios.filter(s => s.year === "Scenario").map((event, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setSelectedScenarioPreset({ name: event.name, prompt: event.description });
-                      setStressTestScenario("");
-                    }}
-                    disabled={stressTestLoading}
-                    className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
-                      selectedScenarioPreset?.name === event.name
-                        ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
-                        : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    {event.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
 
-          {/* Previous Tests History */}
-          {stressTestHistory.length > 0 && (
-            <div className="mb-6">
-              <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Previous Tests</p>
-              <div className="flex flex-wrap gap-2">
-                {stressTestHistory.map((test, index) => (
-                  <button
-                    key={test.timestamp}
-                    onClick={() => loadHistoricalTest(index)}
-                    className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 flex items-center gap-2 ${
-                      index === activeHistoryIndex && stressTestResult
-                        ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
-                        : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
-                    }`}
-                  >
-                    <span>{test.scenarioName?.slice(0, 20)}{test.scenarioName?.length > 20 ? '...' : ''}</span>
-                    <span className={`font-semibold ${test.percentageChange < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                      {test.percentageChange > 0 ? '+' : ''}{test.percentageChange?.toFixed(1)}%
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+              {/* Previous Tests History */}
+              {stressTestHistory.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Previous Tests</p>
+                  <div className="flex flex-wrap gap-2">
+                    {stressTestHistory.map((test, index) => (
+                      <button
+                        key={test.timestamp}
+                        onClick={() => loadHistoricalTest(index)}
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 flex items-center gap-2 ${
+                          index === activeHistoryIndex && stressTestResult
+                            ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
+                            : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
+                        }`}
+                      >
+                        <span>{test.scenarioName?.slice(0, 20)}{test.scenarioName?.length > 20 ? '...' : ''}</span>
+                        <span className={`font-semibold ${test.percentageChange < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                          {test.percentageChange > 0 ? '+' : ''}{test.percentageChange?.toFixed(1)}%
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {/* Chat Input Area */}
-          <div className="mb-8 pt-6 border-t border-[#2A2A2A]/50">
+              {/* Chat Input Area */}
+              <div className="mb-8 pt-6 border-t border-[#2A2A2A]/50">
             {/* Selected Preset Display */}
             {selectedScenarioPreset && (
               <div className="mb-4 flex items-center gap-2">
@@ -3628,6 +3645,8 @@ export default function DevelopPage() {
               </button>
             </div>
           </div>
+            </>
+          )}
 
           {/* Results Section */}
           {stressTestResult && (
