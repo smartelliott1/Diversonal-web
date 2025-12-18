@@ -3771,9 +3771,9 @@ export default function DevelopPage() {
                   {/* Key Metrics Card - Horizontal Layout */}
                   <div className="rounded-lg border-2 border-white/20 bg-black p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Metrics</h4>
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-8">
                       {/* Left: Percentage Change - Wider */}
-                      <div className={`flex-shrink-0 rounded-lg border px-6 py-3 text-center ${
+                      <div className={`flex-shrink-0 rounded-lg border px-8 py-3 text-center ${
                         stressTestResult.percentageChange < 0 
                           ? 'border-red-500/50 bg-red-500/10' 
                           : 'border-green-500/50 bg-green-500/10'
@@ -3815,7 +3815,7 @@ export default function DevelopPage() {
 
               {/* Asset Impact - Full Width Below, Centered Grid */}
               <div className="mt-4 rounded-lg border-2 border-white/20 bg-black p-4">
-                <div className="flex flex-wrap justify-center gap-5">
+                <div className="flex flex-wrap justify-center gap-6">
                   {stressTestResult.impact && Object.entries(stressTestResult.impact)
                     .map(([asset, impact]: [string, any]) => {
                       const isOldFormat = typeof impact === 'number';
@@ -3826,7 +3826,7 @@ export default function DevelopPage() {
                       return (
                         <div 
                           key={asset} 
-                          className="w-[170px] rounded-lg border border-white/10 bg-black p-4 transition-all duration-300 hover:border-[#00FF99]/30"
+                          className="flex-1 min-w-[160px] max-w-[200px] rounded-lg border border-white/10 bg-black p-4 transition-all duration-300 hover:border-[#00FF99]/30"
                         >
                           <div className="mb-3 text-center">
                             <span className="text-sm font-semibold capitalize text-gray-200">{asset}</span>
@@ -3865,7 +3865,7 @@ export default function DevelopPage() {
                     <div key={item.name}>
                       <div className="mb-1 flex items-center justify-between text-xs">
                         <span className="font-medium text-gray-500">{item.name}</span>
-                        <div className="flex items-center">
+                        <span className="text-sm font-semibold text-[#00FF99] tabular-nums">
                           <input
                             type="number"
                             min="0"
@@ -3875,10 +3875,9 @@ export default function DevelopPage() {
                               const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
                               updateTempAllocation(index, val);
                             }}
-                            className="w-10 bg-transparent text-right text-sm font-semibold text-[#00FF99] focus:outline-none focus:bg-white/5 rounded"
-                          />
-                          <span className="text-[#00FF99] font-semibold ml-0.5">%</span>
-                        </div>
+                            className="w-8 bg-transparent text-right font-semibold text-[#00FF99] focus:outline-none focus:bg-white/5 rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />%
+                        </span>
                       </div>
                       <input
                         type="range"
