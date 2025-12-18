@@ -3655,13 +3655,6 @@ export default function DevelopPage() {
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
                 {/* LEFT COLUMN - Chart (60%) */}
                 <div className="lg:col-span-3 space-y-4">
-                  {/* Analysis Card */}
-                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
-                    <p className="rounded-lg border border-[#00FF99]/20 bg-[#00FF99]/5 p-3 text-xs leading-relaxed text-gray-300 backdrop-blur-sm">
-                      {stressTestResult.analysis}
-                    </p>
-                  </div>
-
                   {/* Portfolio Value Chart */}
                   {stressTestResult.portfolioValue && stressTestResult.portfolioValue.length > 0 && (
                     <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
@@ -3774,6 +3767,14 @@ export default function DevelopPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Analysis Card - Below Chart */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Analysis</h4>
+                    <p className="text-sm leading-relaxed text-gray-300">
+                      {stressTestResult.analysis}
+                    </p>
+                  </div>
                 </div>
 
                 {/* RIGHT COLUMN - Metrics & Controls (40%) */}
