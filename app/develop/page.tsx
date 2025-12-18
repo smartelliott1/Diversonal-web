@@ -3771,9 +3771,9 @@ export default function DevelopPage() {
                   {/* Key Metrics Card - Horizontal Layout */}
                   <div className="rounded-lg border-2 border-white/20 bg-black p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Metrics</h4>
-                    <div className="flex items-center gap-8">
+                    <div className="flex items-center gap-10">
                       {/* Left: Percentage Change - Wider */}
-                      <div className={`flex-shrink-0 rounded-lg border px-8 py-3 text-center ${
+                      <div className={`flex-shrink-0 rounded-lg border px-10 py-3 text-center ${
                         stressTestResult.percentageChange < 0 
                           ? 'border-red-500/50 bg-red-500/10' 
                           : 'border-green-500/50 bg-green-500/10'
