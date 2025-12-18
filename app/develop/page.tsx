@@ -3771,9 +3771,9 @@ export default function DevelopPage() {
                   {/* Key Metrics Card - Horizontal Layout */}
                   <div className="rounded-lg border-2 border-white/20 bg-black p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Metrics</h4>
-                    <div className="flex items-center gap-4">
-                      {/* Left: Percentage Change */}
-                      <div className={`flex-shrink-0 rounded-lg border px-4 py-3 text-center ${
+                    <div className="flex items-center gap-6">
+                      {/* Left: Percentage Change - Wider */}
+                      <div className={`flex-shrink-0 rounded-lg border px-6 py-3 text-center ${
                         stressTestResult.percentageChange < 0 
                           ? 'border-red-500/50 bg-red-500/10' 
                           : 'border-green-500/50 bg-green-500/10'
@@ -3783,19 +3783,21 @@ export default function DevelopPage() {
                         </div>
                         <div className="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-500">Change</div>
                       </div>
-                      {/* Right: Stats */}
-                      <div className="flex-1 space-y-1 text-sm">
+                      {/* Right: Stats - Initial, Low/High, Final */}
+                      <div className="flex-1 space-y-1.5 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-500">Initial:</span>
                           <span className="font-semibold text-gray-200">${(stressTestResult.portfolioValue[0] / 1000).toFixed(1)}k</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Final:</span>
-                          <span className="font-semibold text-gray-200">${(stressTestResult.finalValue / 1000).toFixed(1)}k</span>
+                          <span className="text-gray-500">Low / High:</span>
+                          <span className="font-semibold text-gray-200">
+                            ${(Math.min(...stressTestResult.portfolioValue) / 1000).toFixed(1)}k / ${(Math.max(...stressTestResult.portfolioValue) / 1000).toFixed(1)}k
+                          </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Duration:</span>
-                          <span className="font-semibold text-gray-200">{stressTestResult.portfolioValue.length - 1}mo</span>
+                          <span className="text-gray-500">Final:</span>
+                          <span className="font-semibold text-gray-200">${(stressTestResult.finalValue / 1000).toFixed(1)}k</span>
                         </div>
                       </div>
                     </div>
@@ -3813,7 +3815,7 @@ export default function DevelopPage() {
 
               {/* Asset Impact - Full Width Below, Centered Grid */}
               <div className="mt-4 rounded-lg border-2 border-white/20 bg-black p-4">
-                <div className="flex flex-wrap justify-center gap-3">
+                <div className="flex flex-wrap justify-center gap-5">
                   {stressTestResult.impact && Object.entries(stressTestResult.impact)
                     .map(([asset, impact]: [string, any]) => {
                       const isOldFormat = typeof impact === 'number';
@@ -3863,7 +3865,7 @@ export default function DevelopPage() {
                     <div key={item.name}>
                       <div className="mb-1 flex items-center justify-between text-xs">
                         <span className="font-medium text-gray-500">{item.name}</span>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center">
                           <input
                             type="number"
                             min="0"
@@ -3873,9 +3875,9 @@ export default function DevelopPage() {
                               const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
                               updateTempAllocation(index, val);
                             }}
-                            className="w-12 bg-transparent text-right text-sm font-semibold text-[#00FF99] focus:outline-none focus:bg-white/5 rounded px-1"
+                            className="w-10 bg-transparent text-right text-sm font-semibold text-[#00FF99] focus:outline-none focus:bg-white/5 rounded"
                           />
-                          <span className="text-[#00FF99] font-semibold">%</span>
+                          <span className="text-[#00FF99] font-semibold ml-0.5">%</span>
                         </div>
                       </div>
                       <input
