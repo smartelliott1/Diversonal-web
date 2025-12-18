@@ -1730,51 +1730,51 @@ export default function DevelopPage() {
     }
   };
 
-  // Historical event templates with real data
+  // Historical event templates with detailed prompts for accurate AI modeling
   const historicalScenarios = [
     {
       name: "2008 Financial Crisis",
-      description: "Market drops 37%, credit freeze",
+      description: "2008 Financial Crisis: Model the complete trajectory - initial 37% S&P 500 crash over 17 months, credit markets freeze, housing market collapse. Bonds rally as safe haven (+5-10%). Equities bottom in March 2009, slow recovery taking 4+ years to reach prior highs. Real estate drops 30%+. Gold rises as crisis hedge.",
       year: "2008"
     },
     {
       name: "2020 COVID-19",
-      description: "S&P 500 drops 34% in 33 days",
+      description: "2020 COVID-19 Pandemic: Model the exact historical pattern - rapid 34% crash in just 33 days (Feb-Mar 2020), followed by aggressive V-shaped recovery. By month 6, markets fully recovered. Massive stimulus drives bull run. Crypto explodes 500-1000% over 18 months. Tech stocks lead recovery. Bonds stable. By end of period, portfolio should be significantly UP from starting point.",
       year: "2020"
     },
     {
       name: "2022 Inflation Surge",
-      description: "8.5% inflation, bond sell-off",
+      description: "2022 Inflation Surge: Model high inflation (8.5% CPI) with aggressive Fed rate hikes. Bonds suffer worst year in decades (-13%). Equities drop 20-25%. Growth/tech stocks hit hardest (-33%). Commodities and energy outperform (+30%). Real estate mixed - REITs down due to rates. Crypto crashes 65%+. Slow grind, no V-recovery within 12 months.",
       year: "2022"
     },
     {
       name: "Dot-com Bubble",
-      description: "Tech crash 78%",
+      description: "2000-2002 Dot-com Crash: Model the tech bubble burst - NASDAQ drops 78% over 2.5 years. S&P 500 down 49%. Prolonged bear market with multiple false recoveries. Tech devastated, value stocks outperform relatively. Bonds perform well as safe haven. Recovery takes until 2007 to reach prior highs. No V-shape - grinding multi-year decline.",
       year: "2000-02"
     },
     {
       name: "1987 Black Monday",
-      description: "Dow drops 22.6% in one day",
+      description: "1987 Black Monday: Model the fastest crash in history - Dow drops 22.6% in a single day (Oct 19). However, markets stabilize quickly. V-shaped recovery over following months. By 2 years later, markets fully recovered and hitting new highs. Bonds rally during crash. Short-term devastation but rapid recovery.",
       year: "1987"
     },
     {
       name: "Bull Market 2010s",
-      description: "S&P 500 gains 250%+",
+      description: "2010-2019 Bull Market: Model the longest bull run in history. S&P 500 gains 250%+ over the decade. Steady upward trajectory with minor pullbacks (2011, 2015, 2018 each -10 to -20% but quick recoveries). Tech leads gains. Low inflation, low rates environment. Crypto emerges mid-decade with massive gains. Bonds provide steady low returns. Model consistent growth.",
       year: "2010-19"
     },
     {
-      name: "S&P 500 drops 10%",
-      description: "Moderate market decline",
+      name: "Moderate Correction",
+      description: "Hypothetical 10% market correction: Model a standard market pullback - S&P 500 drops 10% over 2-3 months, then stabilizes and begins recovery. Typical correction pattern. Bonds flat to slightly positive. Crypto drops 20-25% (2x equity beta). Recovery begins by month 4-5, likely V-shaped. Portfolio ends period down 3-7% depending on allocation.",
       year: "Scenario"
     },
     {
-      name: "Bull market +20%",
-      description: "Strong market rally",
+      name: "Strong Bull Rally",
+      description: "Hypothetical bull market rally: Model sustained market optimism - S&P 500 gains 20%+ over the period. Risk-on environment. Equities lead, crypto potentially gains 40-60%. Bonds flat or slightly negative (rates may rise). Real estate gains moderately. Commodities mixed. Steady upward trajectory with normal volatility.",
       year: "Scenario"
     },
     {
-      name: "Rising rates & inflation",
-      description: "High inflation environment",
+      name: "Stagflation",
+      description: "Hypothetical stagflation scenario: Model 1970s-style conditions - high inflation (6-8%) combined with economic stagnation. Equities struggle (-15 to -25%), bonds suffer from inflation (-10%). Commodities and gold surge (+20-40%) as inflation hedges. Real estate mixed. Cash loses purchasing power. Crypto uncertain - could go either way. Prolonged difficult environment.",
       year: "Scenario"
     }
   ];
