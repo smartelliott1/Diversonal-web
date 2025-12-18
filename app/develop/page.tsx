@@ -4381,27 +4381,75 @@ export default function DevelopPage() {
             {/* Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(85vh-80px)]">
               {/* Asset Class Summary */}
-              <div className="mb-6 p-4 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-400">Total {activeTab} Allocation</span>
-                  <span className="text-lg font-bold text-[#00FF99]">
-                    {currentPortfolioData.find(p => p.name === activeTab)?.value || 0}%
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-[#00FF99] rounded-full transition-all duration-500"
-                    style={{ width: `${currentPortfolioData.find(p => p.name === activeTab)?.value || 0}%` }}
-                  />
-                </div>
-              </div>
+              {(() => {
+                const assetClassPercent = currentPortfolioData.find(p => p.name === activeTab)?.value || 0;
+                const totalCapital = savedFormData?.capital 
+                  ? parseFloat(savedFormData.capital.replace(/[^0-9.]/g, '')) 
+                  : 0;
+                const assetClassDollars = (assetClassPercent / 100) * totalCapital;
+                
+                return (
+                  <div className="mb-6 p-4 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A]">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <span className="text-sm text-gray-400">Total {activeTab} Allocation</span>
+                        {totalCapital > 0 && (
+                          <span className="ml-2 text-lg font-bold text-white">
+                            ${assetClassDollars.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-lg font-bold text-[#00FF99]">
+                        {assetClassPercent}%
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-[#00FF99] rounded-full transition-all duration-500"
+                        style={{ width: `${assetClassPercent}%` }}
+                      />
+                    </div>
+                    {totalCapital > 0 && (
+                      <p className="mt-2 text-xs text-gray-500">
+                        Based on ${totalCapital.toLocaleString()} total investment
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Individual Ticker Weights */}
               <div className="space-y-4">
                 {Object.values(tickerWeights)
                   .filter(w => w.assetClass === activeTab)
                   .sort((a, b) => b.weightInPortfolio - a.weightInPortfolio)
-                  .map((weight) => (
+                  .map((weight) => {
+                    // Calculate dollar allocation and position size
+                    const totalCapital = savedFormData?.capital 
+                      ? parseFloat(savedFormData.capital.replace(/[^0-9.]/g, '')) 
+                      : 0;
+                    const dollarAllocation = (weight.weightInPortfolio / 100) * totalCapital;
+                    const tickerPrice = stockPrices[weight.ticker]?.price;
+                    const isCrypto = weight.assetClass === 'Cryptocurrencies';
+                    const isEquity = weight.assetClass === 'Equities';
+                    
+                    // Calculate units/shares if we have a price
+                    let positionDisplay = '';
+                    if (tickerPrice && tickerPrice > 0) {
+                      const units = dollarAllocation / tickerPrice;
+                      if (isCrypto) {
+                        // Crypto: show with more decimals and ticker symbol
+                        positionDisplay = `${units < 1 ? units.toFixed(6) : units.toFixed(4)} ${weight.ticker}`;
+                      } else if (isEquity) {
+                        // Stocks: show shares with 2 decimals
+                        positionDisplay = `${units.toFixed(2)} shares`;
+                      } else {
+                        // Other tradeables (ETFs, REITs, etc.)
+                        positionDisplay = `${units.toFixed(2)} units`;
+                      }
+                    }
+                    
+                    return (
                     <div key={weight.ticker} className="p-4 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A]">
                       {/* Ticker Header */}
                       <div className="flex items-center justify-between mb-3">
@@ -4417,6 +4465,35 @@ export default function DevelopPage() {
                           {weight.positionSize}
                         </span>
                       </div>
+
+                      {/* Dollar Allocation & Position Size */}
+                      {totalCapital > 0 && (
+                        <div className="mb-4 p-3 rounded-lg bg-[#0A0A0A] border border-[#2A2A2A]">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-xs text-gray-500 block mb-0.5">Your Allocation</span>
+                              <span className="text-xl font-bold text-white">
+                                ${dollarAllocation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                            {positionDisplay && (
+                              <div className="text-right">
+                                <span className="text-xs text-gray-500 block mb-0.5">Position</span>
+                                <span className="text-lg font-semibold text-[#00FF99]">
+                                  {positionDisplay}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          {tickerPrice && (
+                            <div className="mt-2 pt-2 border-t border-[#2A2A2A]">
+                              <span className="text-xs text-gray-500">
+                                @ ${tickerPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per {isCrypto ? 'coin' : 'share'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Weight in Asset Class */}
                       <div className="mb-3">
@@ -4446,7 +4523,8 @@ export default function DevelopPage() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );
+                  })}
               </div>
 
               {/* Empty State */}
