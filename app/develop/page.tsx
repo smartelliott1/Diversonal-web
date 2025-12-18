@@ -3442,45 +3442,15 @@ export default function DevelopPage() {
 
           {/* Stress Test Tab */}
           {activeResultTab === 'stressTest' && (
-        <section className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-black p-6 sm:p-8">
+        <section className="animate-fade-in mx-auto max-w-[1800px] rounded-lg border border-[#2A2A2A] bg-black p-4 sm:p-6">
           
-          {/* Time Horizon - Hidden when results exist */}
-          {!stressTestResult && (
-            <div className="mb-8 flex items-start justify-end">
-              {/* Compact Time Horizon */}
-              <div className="flex items-center gap-4 rounded-xl border border-[#2A2A2A] bg-[#1A1A1A] px-4 py-3">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Duration</span>
-                <div className="flex items-center gap-2">
-                  {[6, 12, 18, 24].map((months) => (
-                    <button
-                      key={months}
-                      onClick={() => setStressTestTimeHorizon(months)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        stressTestTimeHorizon === months
-                          ? 'bg-[#00FF99] text-black'
-                          : 'text-gray-400 hover:text-white hover:bg-white/10'
-                      }`}
-                    >
-                      {months}mo
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Streaming Analysis Display - shown during loading */}
           {stressTestLoading && (
-            <div className="mb-8 animate-fade-in">
-              <div className="rounded-xl border-2 border-white/20 bg-black p-6">
-                <div className="flex items-center gap-3 mb-4">
+            <div className="mb-4 animate-fade-in">
+              <div className="rounded-lg border border-white/10 bg-[#0a0a0a] p-4">
+                <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-[#00FF99] rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium text-gray-400">Analyzing scenario...</span>
-                </div>
-                <div className="shimmer-text text-base leading-relaxed text-gray-300">
-                  Running stress test simulation for your portfolio under the selected scenario. 
-                  Calculating asset class impacts, recovery patterns, and risk metrics...
-                  <span className="streaming-cursor"></span>
+                  <span className="text-sm text-gray-400">Analyzing scenario...</span>
                 </div>
               </div>
             </div>
@@ -3488,10 +3458,10 @@ export default function DevelopPage() {
 
           {/* Collapsible Scenario Input Section */}
           {stressTestResult && isScenarioSectionCollapsed ? (
-            /* Collapsed state - styled like regenerate button */
+            /* Collapsed state - compact button */
             <button
               onClick={() => setIsScenarioSectionCollapsed(false)}
-              className="mb-6 w-full rounded-lg border border-[#00FF99] bg-black px-5 py-3 text-sm font-medium text-[#00FF99] hover:bg-[#00FF99]/10 transition-all flex items-center justify-center gap-2"
+              className="mb-4 w-full rounded-lg border border-[#00FF99] bg-black px-4 py-2.5 text-sm font-medium text-[#00FF99] hover:bg-[#00FF99]/10 transition-all flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -3499,148 +3469,164 @@ export default function DevelopPage() {
               <span>Run Another Test</span>
             </button>
           ) : (
-            /* Expanded state - show full scenario section */
-            <>
-              {/* Quick Scenarios */}
-              <div className="mb-6">
-                {/* Historical Events */}
-                <div className="mb-4">
-                  <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Historical Events</p>
-                  <div className="flex flex-wrap gap-2">
-                    {historicalScenarios.filter(s => s.year !== "Scenario").map((event, index) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          setSelectedScenarioPreset({ name: event.name, prompt: event.description });
-                          setStressTestScenario("");
-                        }}
-                        disabled={stressTestLoading}
-                        className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
-                          selectedScenarioPreset?.name === event.name
-                            ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
-                            : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        {event.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Hypothetical */}
-                <div>
-                  <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Hypothetical</p>
-                  <div className="flex flex-wrap gap-2">
-                    {historicalScenarios.filter(s => s.year === "Scenario").map((event, index) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          setSelectedScenarioPreset({ name: event.name, prompt: event.description });
-                          setStressTestScenario("");
-                        }}
-                        disabled={stressTestLoading}
-                        className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
-                          selectedScenarioPreset?.name === event.name
-                            ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
-                            : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        {event.name}
-                      </button>
-                    ))}
-                  </div>
+            /* Expanded state - COMPACT REDESIGN */
+            <div className="space-y-3">
+              {/* Row 1: Title + Duration */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-white">Stress Test</h3>
+                <div className="flex items-center gap-1 rounded-lg border border-[#2A2A2A] bg-[#111] p-1">
+                  {[6, 12, 18, 24].map((months) => (
+                    <button
+                      key={months}
+                      onClick={() => setStressTestTimeHorizon(months)}
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                        stressTestTimeHorizon === months
+                          ? 'bg-[#00FF99] text-black'
+                          : 'text-gray-500 hover:text-white'
+                      }`}
+                    >
+                      {months}mo
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Previous Tests History */}
+              {/* Row 2: All Scenario Pills in One Row */}
+              <div className="flex flex-wrap gap-1.5">
+                {/* Historical - outlined style */}
+                {historicalScenarios.filter(s => s.year !== "Scenario").map((event, index) => (
+                  <button
+                    key={`hist-${index}`}
+                    onClick={() => {
+                      // One-click run for scenarios
+                      setSelectedScenarioPreset({ name: event.name, prompt: event.description });
+                      setStressTestScenario("");
+                      handleStressTest(event.description);
+                    }}
+                    disabled={stressTestLoading}
+                    className={`px-2.5 py-1 text-xs rounded-md border transition-all ${
+                      selectedScenarioPreset?.name === event.name
+                        ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
+                        : 'border-[#333] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
+                    } disabled:opacity-50`}
+                  >
+                    {event.name}
+                  </button>
+                ))}
+                <span className="text-gray-600 px-1">|</span>
+                {/* Hypothetical - filled style */}
+                {historicalScenarios.filter(s => s.year === "Scenario").map((event, index) => (
+                  <button
+                    key={`hypo-${index}`}
+                    onClick={() => {
+                      // One-click run for scenarios
+                      setSelectedScenarioPreset({ name: event.name, prompt: event.description });
+                      setStressTestScenario("");
+                      handleStressTest(event.description);
+                    }}
+                    disabled={stressTestLoading}
+                    className={`px-2.5 py-1 text-xs rounded-md transition-all ${
+                      selectedScenarioPreset?.name === event.name
+                        ? 'bg-[#00FF99] text-black'
+                        : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#00FF99]/20 hover:text-[#00FF99]'
+                    } disabled:opacity-50`}
+                  >
+                    {event.name}
+                  </button>
+                ))}
+              </div>
+
+              {/* Row 3: Previous Tests (compact inline) */}
               {stressTestHistory.length > 0 && (
-                <div className="mb-6">
-                  <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Previous Tests</p>
-                  <div className="flex flex-wrap gap-2">
-                    {stressTestHistory.map((test, index) => (
+                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                  <span className="text-[10px] uppercase tracking-wide text-gray-600 flex-shrink-0">Recent:</span>
+                  <div className="flex gap-1.5">
+                    {stressTestHistory.slice(0, 5).map((test, index) => (
                       <button
                         key={test.timestamp}
                         onClick={() => loadHistoricalTest(index)}
-                        className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 flex items-center gap-2 ${
+                        className={`px-2 py-1 text-xs rounded border transition-all flex items-center gap-1.5 whitespace-nowrap ${
                           index === activeHistoryIndex && stressTestResult
-                            ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
-                            : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
+                            ? 'border-[#00FF99]/50 bg-[#00FF99]/10'
+                            : 'border-[#222] bg-[#111] hover:border-[#333]'
                         }`}
                       >
-                        <span>{test.scenarioName?.slice(0, 20)}{test.scenarioName?.length > 20 ? '...' : ''}</span>
+                        <span className="text-gray-400 max-w-[80px] truncate">{test.scenarioName}</span>
                         <span className={`font-semibold ${test.percentageChange < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                          {test.percentageChange > 0 ? '+' : ''}{test.percentageChange?.toFixed(1)}%
+                          {test.percentageChange > 0 ? '+' : ''}{test.percentageChange?.toFixed(0)}%
                         </span>
                       </button>
                     ))}
                   </div>
+                  {stressTestHistory.length > 0 && (
+                    <button
+                      onClick={() => {
+                        setStressTestHistory([]);
+                        localStorage.removeItem('stressTestHistory');
+                      }}
+                      className="text-[10px] text-gray-600 hover:text-red-400 transition-colors flex-shrink-0"
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
               )}
 
-              {/* Chat Input Area */}
-              <div className="mb-8 pt-6 border-t border-[#2A2A2A]/50">
-            {/* Input Row with Inline Pill */}
-            <div className="flex gap-3">
-              {/* Input Container - styled like input but contains pill + actual input */}
-              <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] focus-within:border-[#00FF99]/30 transition-colors">
-                {/* Inline Pill for Selected Scenario */}
-                {selectedScenarioPreset && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#00FF99]/15 border border-[#00FF99]/30 text-sm font-medium text-[#00FF99] whitespace-nowrap flex-shrink-0">
-                    {selectedScenarioPreset.name}
-                    <button
-                      onClick={() => setSelectedScenarioPreset(null)}
-                      className="hover:text-white transition-colors"
-                    >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </span>
-                )}
-                {/* Actual Text Input */}
-                <input
-                  id="stress-scenario"
-                  type="text"
-                  value={stressTestScenario}
-                  onChange={(e) => {
-                    setStressTestScenario(e.target.value);
-                    if (e.target.value) setSelectedScenarioPreset(null);
+              {/* Row 4: Custom Input */}
+              <div className="flex gap-2">
+                <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg bg-[#111] border border-[#222] focus-within:border-[#00FF99]/30 transition-colors">
+                  {selectedScenarioPreset && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#00FF99]/15 text-xs font-medium text-[#00FF99] whitespace-nowrap">
+                      {selectedScenarioPreset.name}
+                      <button onClick={() => setSelectedScenarioPreset(null)} className="hover:text-white">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  )}
+                  <input
+                    id="stress-scenario"
+                    type="text"
+                    value={stressTestScenario}
+                    onChange={(e) => {
+                      setStressTestScenario(e.target.value);
+                      if (e.target.value) setSelectedScenarioPreset(null);
+                    }}
+                    placeholder={selectedScenarioPreset ? "Add context..." : "Or describe a custom scenario..."}
+                    className="flex-1 bg-transparent text-sm text-white placeholder-gray-600 focus:outline-none min-w-0"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !stressTestLoading && (selectedScenarioPreset || stressTestScenario.trim())) {
+                        const scenarioToRun = selectedScenarioPreset 
+                          ? (stressTestScenario.trim() ? `${selectedScenarioPreset.prompt} Additional context: ${stressTestScenario}` : selectedScenarioPreset.prompt)
+                          : stressTestScenario;
+                        handleStressTest(scenarioToRun);
+                      }
+                    }}
+                    disabled={stressTestLoading}
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    const scenarioToRun = selectedScenarioPreset 
+                      ? (stressTestScenario.trim() ? `${selectedScenarioPreset.prompt} Additional context: ${stressTestScenario}` : selectedScenarioPreset.prompt)
+                      : stressTestScenario;
+                    handleStressTest(scenarioToRun);
                   }}
-                  placeholder={selectedScenarioPreset ? "Add context (optional)..." : "Describe a custom scenario..."}
-                  className="flex-1 bg-transparent text-base text-white placeholder-gray-500 focus:outline-none min-w-0"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !stressTestLoading && (selectedScenarioPreset || stressTestScenario.trim())) {
-                      const scenarioToRun = selectedScenarioPreset 
-                        ? (stressTestScenario.trim() ? `${selectedScenarioPreset.prompt} Additional context: ${stressTestScenario}` : selectedScenarioPreset.prompt)
-                        : stressTestScenario;
-                      handleStressTest(scenarioToRun);
-                    }
-                  }}
-                  disabled={stressTestLoading}
-                />
+                  disabled={stressTestLoading || (!selectedScenarioPreset && !stressTestScenario.trim())}
+                  className="px-4 py-2 rounded-lg bg-[#00FF99] text-black text-sm font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {stressTestLoading ? (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    'Test'
+                  )}
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  const scenarioToRun = selectedScenarioPreset 
-                    ? (stressTestScenario.trim() ? `${selectedScenarioPreset.prompt} Additional context: ${stressTestScenario}` : selectedScenarioPreset.prompt)
-                    : stressTestScenario;
-                  handleStressTest(scenarioToRun);
-                }}
-                disabled={stressTestLoading || (!selectedScenarioPreset && !stressTestScenario.trim())}
-                className="px-6 py-3.5 rounded-xl bg-[#00FF99] text-black text-base font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {stressTestLoading ? (
-                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                ) : (
-                  'Run Test'
-                )}
-              </button>
             </div>
-          </div>
-            </>
           )}
 
           {/* Results Section */}
