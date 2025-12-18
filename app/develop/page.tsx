@@ -3865,7 +3865,7 @@ export default function DevelopPage() {
                     <div key={item.name}>
                       <div className="mb-1 flex items-center justify-between text-xs">
                         <span className="font-medium text-gray-500">{item.name}</span>
-                        <span className="text-sm font-semibold text-[#00FF99] tabular-nums">
+                        <div className="flex items-center gap-0.5">
                           <input
                             type="number"
                             min="0"
@@ -3875,9 +3875,10 @@ export default function DevelopPage() {
                               const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
                               updateTempAllocation(index, val);
                             }}
-                            className="w-8 bg-transparent text-right font-semibold text-[#00FF99] focus:outline-none focus:bg-white/5 rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          />%
-                        </span>
+                            className="w-12 px-1.5 py-0.5 bg-[#1a1a1a] border border-[#333] rounded text-right text-sm font-semibold text-[#00FF99] focus:outline-none focus:border-[#00FF99]/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                          <span className="text-sm font-semibold text-[#00FF99]">%</span>
+                        </div>
                       </div>
                       <input
                         type="range"
