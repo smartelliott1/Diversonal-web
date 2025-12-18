@@ -425,7 +425,7 @@ export default function MyPortfoliosPage() {
     return (
       <>
         <Navigation />
-        <main className="min-h-screen bg-[#0F0F0F] pt-24 px-6">
+        <main className="min-h-screen bg-black pt-24 px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center py-20">
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#1A1A1A] flex items-center justify-center">
@@ -470,7 +470,7 @@ export default function MyPortfoliosPage() {
   return (
     <>
       <Navigation />
-      <main className="min-h-screen bg-[#0F0F0F] pt-24 px-6 pb-12">
+      <main className="min-h-screen bg-black pt-24 px-6 pb-12">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
