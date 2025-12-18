@@ -3444,14 +3444,8 @@ export default function DevelopPage() {
           {activeResultTab === 'stressTest' && (
         <section className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-black p-6 sm:p-8">
           
-          {/* Header with Time Horizon */}
-          <div className="mb-8 flex items-start justify-between">
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-2">Stress Testing</h3>
-              <p className="text-sm text-gray-400">
-                Test portfolio performance under various market scenarios
-              </p>
-            </div>
+          {/* Time Horizon */}
+          <div className="mb-8 flex items-start justify-end">
             
             {/* Compact Time Horizon */}
             <div className="flex items-center gap-4 rounded-xl border border-[#2A2A2A] bg-[#1A1A1A] px-4 py-3">
@@ -3828,7 +3822,7 @@ export default function DevelopPage() {
                           return (
                           <div 
                             key={asset} 
-                            className="rounded border border-white/10 bg-gradient-to-br from-[#1C1F26]/60 to-[#171A1F]/60 p-2 transition-all duration-300 hover:border-[#00FF99]/30"
+                            className="rounded-lg border border-white/10 bg-black p-2 transition-all duration-300 hover:border-[#00FF99]/30"
                           >
                             <div className="mb-1.5">
                               <span className="text-xs font-medium capitalize text-gray-400">{asset}</span>
