@@ -3469,17 +3469,112 @@ export default function DevelopPage() {
               <span>Run Another Test</span>
             </button>
           ) : (
-            /* Expanded state - COMPACT REDESIGN */
-            <div className={`space-y-3 ${stressTestResult ? 'mb-6 pb-4 border-b border-[#2A2A2A]' : ''}`}>
-              {/* Row 1: Title + Duration */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">Stress Test</h3>
-                <div className="flex items-center gap-1 rounded-lg border border-[#2A2A2A] bg-[#111] p-1">
+            /* Expanded state - IMPROVED COMPACT DESIGN */
+            <div className={`space-y-4 ${stressTestResult ? 'mb-6 pb-4 border-b border-[#2A2A2A]' : ''}`}>
+              {/* Header: Title + Subtitle */}
+              <div>
+                <h3 className="text-xl font-semibold text-white">Stress Test</h3>
+                <p className="text-sm text-gray-500 mt-0.5">Simulate how your portfolio performs under market scenarios</p>
+              </div>
+
+              {/* Quick Scenarios - With Labels */}
+              <div className="space-y-3">
+                {/* Historical Events */}
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Historical Events</p>
+                  <div className="flex flex-wrap gap-2">
+                    {historicalScenarios.filter(s => s.year !== "Scenario").map((event, index) => (
+                      <button
+                        key={`hist-${index}`}
+                        onClick={() => {
+                          setSelectedScenarioPreset({ name: event.name, prompt: event.description });
+                          setStressTestScenario("");
+                          handleStressTest(event.description);
+                        }}
+                        disabled={stressTestLoading}
+                        className={`px-3 py-1.5 text-sm rounded-lg border transition-all ${
+                          selectedScenarioPreset?.name === event.name
+                            ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
+                            : 'border-[#333] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
+                        } disabled:opacity-50`}
+                      >
+                        {event.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Hypothetical Scenarios */}
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Hypothetical Scenarios</p>
+                  <div className="flex flex-wrap gap-2">
+                    {historicalScenarios.filter(s => s.year === "Scenario").map((event, index) => (
+                      <button
+                        key={`hypo-${index}`}
+                        onClick={() => {
+                          setSelectedScenarioPreset({ name: event.name, prompt: event.description });
+                          setStressTestScenario("");
+                          handleStressTest(event.description);
+                        }}
+                        disabled={stressTestLoading}
+                        className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+                          selectedScenarioPreset?.name === event.name
+                            ? 'bg-[#00FF99] text-black'
+                            : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#00FF99]/20 hover:text-[#00FF99]'
+                        } disabled:opacity-50`}
+                      >
+                        {event.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Previous Tests */}
+              {stressTestHistory.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs uppercase tracking-wide text-gray-500">Recent Tests</p>
+                    <button
+                      onClick={() => {
+                        setStressTestHistory([]);
+                        localStorage.removeItem('stressTestHistory');
+                      }}
+                      className="text-xs text-gray-600 hover:text-red-400 transition-colors"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {stressTestHistory.slice(0, 5).map((test, index) => (
+                      <button
+                        key={test.timestamp}
+                        onClick={() => loadHistoricalTest(index)}
+                        className={`px-3 py-1.5 text-sm rounded-lg border transition-all flex items-center gap-2 ${
+                          index === activeHistoryIndex && stressTestResult
+                            ? 'border-[#00FF99]/50 bg-[#00FF99]/10'
+                            : 'border-[#222] bg-[#111] hover:border-[#333]'
+                        }`}
+                      >
+                        <span className="text-gray-400 max-w-[120px] truncate">{test.scenarioName}</span>
+                        <span className={`font-semibold ${test.percentageChange < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                          {test.percentageChange > 0 ? '+' : ''}{test.percentageChange?.toFixed(1)}%
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Custom Input Row - Duration on left */}
+              <div className="flex gap-3 items-center">
+                {/* Duration Selector */}
+                <div className="flex items-center gap-1 rounded-lg border border-[#2A2A2A] bg-[#111] p-1 flex-shrink-0">
                   {[6, 12, 18, 24].map((months) => (
                     <button
                       key={months}
                       onClick={() => setStressTestTimeHorizon(months)}
-                      className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                      className={`px-2.5 py-1.5 rounded-md text-sm font-medium transition-all ${
                         stressTestTimeHorizon === months
                           ? 'bg-[#00FF99] text-black'
                           : 'text-gray-500 hover:text-white'
@@ -3489,97 +3584,14 @@ export default function DevelopPage() {
                     </button>
                   ))}
                 </div>
-              </div>
 
-              {/* Row 2: All Scenario Pills in One Row */}
-              <div className="flex flex-wrap gap-1.5">
-                {/* Historical - outlined style */}
-                {historicalScenarios.filter(s => s.year !== "Scenario").map((event, index) => (
-                  <button
-                    key={`hist-${index}`}
-                    onClick={() => {
-                      // One-click run for scenarios
-                      setSelectedScenarioPreset({ name: event.name, prompt: event.description });
-                      setStressTestScenario("");
-                      handleStressTest(event.description);
-                    }}
-                    disabled={stressTestLoading}
-                    className={`px-2.5 py-1 text-xs rounded-md border transition-all ${
-                      selectedScenarioPreset?.name === event.name
-                        ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
-                        : 'border-[#333] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
-                    } disabled:opacity-50`}
-                  >
-                    {event.name}
-                  </button>
-                ))}
-                <span className="text-gray-600 px-1">|</span>
-                {/* Hypothetical - filled style */}
-                {historicalScenarios.filter(s => s.year === "Scenario").map((event, index) => (
-                  <button
-                    key={`hypo-${index}`}
-                    onClick={() => {
-                      // One-click run for scenarios
-                      setSelectedScenarioPreset({ name: event.name, prompt: event.description });
-                      setStressTestScenario("");
-                      handleStressTest(event.description);
-                    }}
-                    disabled={stressTestLoading}
-                    className={`px-2.5 py-1 text-xs rounded-md transition-all ${
-                      selectedScenarioPreset?.name === event.name
-                        ? 'bg-[#00FF99] text-black'
-                        : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#00FF99]/20 hover:text-[#00FF99]'
-                    } disabled:opacity-50`}
-                  >
-                    {event.name}
-                  </button>
-                ))}
-              </div>
-
-              {/* Row 3: Previous Tests (compact inline) */}
-              {stressTestHistory.length > 0 && (
-                <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                  <span className="text-[10px] uppercase tracking-wide text-gray-600 flex-shrink-0">Recent:</span>
-                  <div className="flex gap-1.5">
-                    {stressTestHistory.slice(0, 5).map((test, index) => (
-                      <button
-                        key={test.timestamp}
-                        onClick={() => loadHistoricalTest(index)}
-                        className={`px-2 py-1 text-xs rounded border transition-all flex items-center gap-1.5 whitespace-nowrap ${
-                          index === activeHistoryIndex && stressTestResult
-                            ? 'border-[#00FF99]/50 bg-[#00FF99]/10'
-                            : 'border-[#222] bg-[#111] hover:border-[#333]'
-                        }`}
-                      >
-                        <span className="text-gray-400 max-w-[80px] truncate">{test.scenarioName}</span>
-                        <span className={`font-semibold ${test.percentageChange < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                          {test.percentageChange > 0 ? '+' : ''}{test.percentageChange?.toFixed(0)}%
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                  {stressTestHistory.length > 0 && (
-                    <button
-                      onClick={() => {
-                        setStressTestHistory([]);
-                        localStorage.removeItem('stressTestHistory');
-                      }}
-                      className="text-[10px] text-gray-600 hover:text-red-400 transition-colors flex-shrink-0"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {/* Row 4: Custom Input */}
-              <div className="flex gap-2">
-                <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg bg-[#111] border border-[#222] focus-within:border-[#00FF99]/30 transition-colors">
+                {/* Input Box */}
+                <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#111] border border-[#222] focus-within:border-[#00FF99]/30 transition-colors">
                   {selectedScenarioPreset && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#00FF99]/15 text-xs font-medium text-[#00FF99] whitespace-nowrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#00FF99]/15 text-sm font-medium text-[#00FF99] whitespace-nowrap">
                       {selectedScenarioPreset.name}
                       <button onClick={() => setSelectedScenarioPreset(null)} className="hover:text-white">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
@@ -3593,8 +3605,8 @@ export default function DevelopPage() {
                       setStressTestScenario(e.target.value);
                       if (e.target.value) setSelectedScenarioPreset(null);
                     }}
-                    placeholder={selectedScenarioPreset ? "Add context..." : "Or describe a custom scenario..."}
-                    className="flex-1 bg-transparent text-sm text-white placeholder-gray-600 focus:outline-none min-w-0"
+                    placeholder={selectedScenarioPreset ? "Add context (optional)..." : "Or describe a custom scenario..."}
+                    className="flex-1 bg-transparent text-base text-white placeholder-gray-500 focus:outline-none min-w-0"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !stressTestLoading && (selectedScenarioPreset || stressTestScenario.trim())) {
                         const scenarioToRun = selectedScenarioPreset 
@@ -3614,15 +3626,15 @@ export default function DevelopPage() {
                     handleStressTest(scenarioToRun);
                   }}
                   disabled={stressTestLoading || (!selectedScenarioPreset && !stressTestScenario.trim())}
-                  className="px-4 py-2 rounded-lg bg-[#00FF99] text-black text-sm font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-5 py-2.5 rounded-lg bg-[#00FF99] text-black text-sm font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {stressTestLoading ? (
-                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                   ) : (
-                    'Test'
+                    'Run Test'
                   )}
                 </button>
               </div>
