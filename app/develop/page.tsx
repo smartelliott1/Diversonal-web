@@ -3444,29 +3444,30 @@ export default function DevelopPage() {
           {activeResultTab === 'stressTest' && (
         <section className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-black p-6 sm:p-8">
           
-          {/* Time Horizon */}
-          <div className="mb-8 flex items-start justify-end">
-            
-            {/* Compact Time Horizon */}
-            <div className="flex items-center gap-4 rounded-xl border border-[#2A2A2A] bg-[#1A1A1A] px-4 py-3">
-              <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Duration</span>
-              <div className="flex items-center gap-2">
-                {[6, 12, 18, 24].map((months) => (
-                  <button
-                    key={months}
-                    onClick={() => setStressTestTimeHorizon(months)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      stressTestTimeHorizon === months
-                        ? 'bg-[#00FF99] text-black'
-                        : 'text-gray-400 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    {months}mo
-                  </button>
-                ))}
+          {/* Time Horizon - Hidden when results exist */}
+          {!stressTestResult && (
+            <div className="mb-8 flex items-start justify-end">
+              {/* Compact Time Horizon */}
+              <div className="flex items-center gap-4 rounded-xl border border-[#2A2A2A] bg-[#1A1A1A] px-4 py-3">
+                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Duration</span>
+                <div className="flex items-center gap-2">
+                  {[6, 12, 18, 24].map((months) => (
+                    <button
+                      key={months}
+                      onClick={() => setStressTestTimeHorizon(months)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        stressTestTimeHorizon === months
+                          ? 'bg-[#00FF99] text-black'
+                          : 'text-gray-400 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      {months}mo
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Streaming Analysis Display - shown during loading */}
           {stressTestLoading && (
@@ -3761,17 +3762,9 @@ export default function DevelopPage() {
                       </div>
                     </div>
                   )}
-
-                  {/* Analysis Card - Below Chart */}
-                  <div className="rounded-lg border-2 border-white/20 bg-black p-4">
-                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Analysis</h4>
-                    <p className="text-sm leading-relaxed text-gray-300">
-                      {stressTestResult.analysis}
-                    </p>
-                  </div>
                 </div>
 
-                {/* RIGHT COLUMN - Metrics & Controls (40%) */}
+                {/* RIGHT COLUMN - Metrics & Analysis (40%) */}
                 <div className="lg:col-span-2 space-y-4">
                   {/* Key Metrics Card - Horizontal Layout */}
                   <div className="rounded-lg border-2 border-white/20 bg-black p-4">
@@ -3806,51 +3799,58 @@ export default function DevelopPage() {
                     </div>
                   </div>
 
-                  {/* Asset Impact */}
+                  {/* Analysis Card - Now in Right Column */}
                   <div className="rounded-lg border-2 border-white/20 bg-black p-4">
-                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Asset Impact</h4>
-                    {/* Asset Cards */}
-                    <div className="space-y-2">
-                      {stressTestResult.impact && Object.entries(stressTestResult.impact)
-                        .map(([asset, impact]: [string, any]) => {
-                          // Handle both old format (number) and new format (object with high/low/end)
-                          const isOldFormat = typeof impact === 'number';
-                          const impactData = isOldFormat 
-                            ? { high: impact, low: impact, end: impact }
-                            : impact;
-                          
-                          return (
-                          <div 
-                            key={asset} 
-                            className="rounded-lg border border-white/10 bg-black p-2 transition-all duration-300 hover:border-[#00FF99]/30"
-                          >
-                            <div className="mb-1.5">
-                              <span className="text-xs font-medium capitalize text-gray-400">{asset}</span>
+                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Analysis</h4>
+                    <p className="text-sm leading-relaxed text-gray-300">
+                      {stressTestResult.analysis}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Asset Impact - Full Width Below, Centered Grid */}
+              <div className="mt-4 rounded-lg border-2 border-white/20 bg-black p-4">
+                <h4 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-400">Asset Impact</h4>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {stressTestResult.impact && Object.entries(stressTestResult.impact)
+                    .map(([asset, impact]: [string, any]) => {
+                      const isOldFormat = typeof impact === 'number';
+                      const impactData = isOldFormat 
+                        ? { high: impact, low: impact, end: impact }
+                        : impact;
+                      
+                      return (
+                        <div 
+                          key={asset} 
+                          className="w-[140px] rounded-lg border border-white/10 bg-black p-3 transition-all duration-300 hover:border-[#00FF99]/30"
+                        >
+                          <div className="mb-2 text-center">
+                            <span className="text-xs font-semibold capitalize text-gray-300">{asset}</span>
+                          </div>
+                          <div className="space-y-1 text-[11px]">
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-500">High:</span>
+                              <span className={`font-semibold ${impactData.high >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                {impactData.high > 0 ? '+' : ''}{impactData.high.toFixed(1)}%
+                              </span>
                             </div>
-                            <div className="space-y-0.5 text-[10px]">
-                              <div className="flex items-center justify-between">
-                                <span className="text-gray-500">High:</span>
-                                <span className={`font-semibold ${impactData.high >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                  {impactData.high > 0 ? '+' : ''}{impactData.high.toFixed(1)}%
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-gray-500">Low:</span>
-                                <span className={`font-semibold ${impactData.low >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                  {impactData.low > 0 ? '+' : ''}{impactData.low.toFixed(1)}%
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between border-t border-white/10 pt-0.5">
-                                <span className="font-medium text-gray-400">End:</span>
-                                <span className={`font-bold text-sm ${impactData.end >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                  {impactData.end > 0 ? '+' : ''}{impactData.end.toFixed(1)}%
-                                </span>
-                              </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-500">Low:</span>
+                              <span className={`font-semibold ${impactData.low >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                {impactData.low > 0 ? '+' : ''}{impactData.low.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between border-t border-white/10 pt-1 mt-1">
+                              <span className="font-medium text-gray-400">End:</span>
+                              <span className={`font-bold text-sm ${impactData.end >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {impactData.end > 0 ? '+' : ''}{impactData.end.toFixed(1)}%
+                              </span>
                             </div>
                           </div>
-                        )})}
-                    </div>
-                  </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
 
