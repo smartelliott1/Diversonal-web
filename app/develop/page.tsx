@@ -3584,46 +3584,46 @@ export default function DevelopPage() {
 
               {/* Chat Input Area */}
               <div className="mb-8 pt-6 border-t border-[#2A2A2A]/50">
-            {/* Selected Preset Display */}
-            {selectedScenarioPreset && (
-              <div className="mb-4 flex items-center gap-2">
-                <span className="text-xs text-gray-500">Selected:</span>
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00FF99]/10 border border-[#00FF99]/30 text-sm font-medium text-[#00FF99]">
-                  {selectedScenarioPreset.name}
-                  <button
-                    onClick={() => setSelectedScenarioPreset(null)}
-                    className="hover:text-white transition-colors"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </span>
-              </div>
-            )}
-            
-            {/* Input Row */}
+            {/* Input Row with Inline Pill */}
             <div className="flex gap-3">
-              <input
-                id="stress-scenario"
-                type="text"
-                value={stressTestScenario}
-                onChange={(e) => {
-                  setStressTestScenario(e.target.value);
-                  if (e.target.value) setSelectedScenarioPreset(null);
-                }}
-                placeholder={selectedScenarioPreset ? "Add additional context (optional)..." : "Describe a custom scenario..."}
-                className="flex-1 px-5 py-3.5 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] text-base text-white placeholder-gray-500 focus:outline-none focus:border-[#00FF99]/30 transition-colors"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !stressTestLoading && (selectedScenarioPreset || stressTestScenario.trim())) {
-                    const scenarioToRun = selectedScenarioPreset 
-                      ? (stressTestScenario.trim() ? `${selectedScenarioPreset.prompt} Additional context: ${stressTestScenario}` : selectedScenarioPreset.prompt)
-                      : stressTestScenario;
-                    handleStressTest(scenarioToRun);
-                  }
-                }}
-                disabled={stressTestLoading}
-              />
+              {/* Input Container - styled like input but contains pill + actual input */}
+              <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] focus-within:border-[#00FF99]/30 transition-colors">
+                {/* Inline Pill for Selected Scenario */}
+                {selectedScenarioPreset && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#00FF99]/15 border border-[#00FF99]/30 text-sm font-medium text-[#00FF99] whitespace-nowrap flex-shrink-0">
+                    {selectedScenarioPreset.name}
+                    <button
+                      onClick={() => setSelectedScenarioPreset(null)}
+                      className="hover:text-white transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                )}
+                {/* Actual Text Input */}
+                <input
+                  id="stress-scenario"
+                  type="text"
+                  value={stressTestScenario}
+                  onChange={(e) => {
+                    setStressTestScenario(e.target.value);
+                    if (e.target.value) setSelectedScenarioPreset(null);
+                  }}
+                  placeholder={selectedScenarioPreset ? "Add context (optional)..." : "Describe a custom scenario..."}
+                  className="flex-1 bg-transparent text-base text-white placeholder-gray-500 focus:outline-none min-w-0"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !stressTestLoading && (selectedScenarioPreset || stressTestScenario.trim())) {
+                      const scenarioToRun = selectedScenarioPreset 
+                        ? (stressTestScenario.trim() ? `${selectedScenarioPreset.prompt} Additional context: ${stressTestScenario}` : selectedScenarioPreset.prompt)
+                        : stressTestScenario;
+                      handleStressTest(scenarioToRun);
+                    }
+                  }}
+                  disabled={stressTestLoading}
+                />
+              </div>
               <button
                 onClick={() => {
                   const scenarioToRun = selectedScenarioPreset 
