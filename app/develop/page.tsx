@@ -3444,18 +3444,6 @@ export default function DevelopPage() {
           {activeResultTab === 'stressTest' && (
         <section className="animate-fade-in mx-auto max-w-[1800px] rounded-lg border border-[#2A2A2A] bg-black p-4 sm:p-6">
           
-          {/* Streaming Analysis Display - shown during loading */}
-          {stressTestLoading && (
-            <div className="mb-4 animate-fade-in">
-              <div className="rounded-lg border border-white/10 bg-[#0a0a0a] p-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-[#00FF99] rounded-full animate-pulse"></div>
-                  <span className="text-sm text-gray-400">Analyzing scenario...</span>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Collapsible Scenario Input Section */}
           {stressTestResult && isScenarioSectionCollapsed ? (
             /* Collapsed state - compact button */
@@ -3489,7 +3477,6 @@ export default function DevelopPage() {
                         onClick={() => {
                           setSelectedScenarioPreset({ name: event.name, prompt: event.description });
                           setStressTestScenario("");
-                          handleStressTest(event.description);
                         }}
                         disabled={stressTestLoading}
                         className={`px-3 py-1.5 text-sm rounded-lg border transition-all ${
@@ -3514,7 +3501,6 @@ export default function DevelopPage() {
                         onClick={() => {
                           setSelectedScenarioPreset({ name: event.name, prompt: event.description });
                           setStressTestScenario("");
-                          handleStressTest(event.description);
                         }}
                         disabled={stressTestLoading}
                         className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
@@ -3569,6 +3555,7 @@ export default function DevelopPage() {
               {/* Custom Input Row - Duration on left */}
               <div className="flex gap-3 items-center">
                 {/* Duration Selector */}
+                <span className="text-xs uppercase tracking-wide text-gray-500 flex-shrink-0">Timeframe</span>
                 <div className="flex items-center gap-1 rounded-lg border border-[#2A2A2A] bg-[#111] p-1 flex-shrink-0">
                   {[6, 12, 18, 24].map((months) => (
                     <button
@@ -3637,6 +3624,23 @@ export default function DevelopPage() {
                     'Run Test'
                   )}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* Streaming Analysis Display - shown during loading */}
+          {stressTestLoading && (
+            <div className="my-6 animate-fade-in">
+              <div className="rounded-xl border-2 border-white/20 bg-black p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-2 h-2 bg-[#00FF99] rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium text-gray-400">Analyzing scenario...</span>
+                </div>
+                <div className="shimmer-text text-base leading-relaxed text-gray-300">
+                  Running stress test simulation for your portfolio under the selected scenario. 
+                  Calculating asset class impacts, recovery patterns, and risk metrics...
+                  <span className="streaming-cursor"></span>
+                </div>
               </div>
             </div>
           )}
