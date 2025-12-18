@@ -3901,8 +3901,8 @@ export default function DevelopPage() {
                 <div className="flex items-center justify-center gap-4">
                   <button
                     onClick={() => {
-                      if (portfolioAllocation) {
-                        setTempPortfolioAllocation(portfolioAllocation.map(item => ({ ...item })));
+                      if (currentPortfolioData && currentPortfolioData.length > 0) {
+                        setTempPortfolioAllocation(JSON.parse(JSON.stringify(currentPortfolioData)));
                       }
                     }}
                     className="rounded-lg border border-white/20 bg-transparent px-4 py-2 text-xs font-medium text-gray-400 hover:text-white hover:border-white/40 transition-all"
