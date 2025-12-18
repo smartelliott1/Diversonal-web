@@ -4084,7 +4084,7 @@ export default function DevelopPage() {
         portfolioData={currentPortfolioData}
         formData={savedFormData}
         detailedRecommendations={detailedRecommendations}
-        portfolioRef={portfolioRef}
+        stockPrices={stockPrices}
         onSaveSuccess={() => {
           // Invalidate the portfolios cache so My Portfolios page refetches
           sessionCache.remove(CACHE_KEYS.MY_PORTFOLIOS);

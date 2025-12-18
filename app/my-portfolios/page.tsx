@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Navigation from "../components/layout/Navigation";
 import SignInModal from "../components/auth/SignInModal";
 import SignUpModal from "../components/auth/SignUpModal";
+import SavePortfolioModal from "../components/SavePortfolioModal";
 import { sessionCache, CACHE_KEYS, CACHE_TTL } from "../lib/sessionCache";
 
 interface SavedPortfolio {
@@ -57,6 +58,9 @@ export default function MyPortfoliosPage() {
   
   // Expanded portfolio for viewing details
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Export PDF state
+  const [exportingPortfolio, setExportingPortfolio] = useState<SavedPortfolio | null>(null);
 
   // Get the active portfolios based on current tab
   const portfolios = activeTab === 'developed' ? savedPortfolios : allPortfolios;
@@ -421,6 +425,15 @@ export default function MyPortfoliosPage() {
                 </svg>
               </button>
               <button
+                onClick={() => setExportingPortfolio(portfolio)}
+                className="p-2 text-[#808080] hover:text-[#00FF99] transition-colors"
+                title="Export PDF"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </button>
+              <button
                 onClick={() => handleDelete(portfolio.id)}
                 disabled={deletingId === portfolio.id}
                 className="p-2 text-[#808080] hover:text-red-400 transition-colors disabled:opacity-50"
@@ -778,6 +791,26 @@ export default function MyPortfoliosPage() {
           )}
         </div>
       </main>
+
+      {/* Export PDF Modal */}
+      {exportingPortfolio && (
+        <SavePortfolioModal
+          isOpen={true}
+          onClose={() => setExportingPortfolio(null)}
+          portfolioData={exportingPortfolio.portfolioData}
+          formData={{
+            age: exportingPortfolio.age,
+            risk: exportingPortfolio.risk,
+            horizon: exportingPortfolio.horizon,
+            capital: exportingPortfolio.capital,
+            goal: exportingPortfolio.goal,
+            sectors: exportingPortfolio.sectors,
+          }}
+          detailedRecommendations={exportingPortfolio.detailedRecommendations}
+          exportOnly={true}
+          portfolioName={exportingPortfolio.name}
+        />
+      )}
     </>
   );
 }

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
-import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 interface PortfolioItem {
@@ -11,6 +10,13 @@ interface PortfolioItem {
   value: number;
   color: string;
   breakdown?: string;
+}
+
+interface StockPrice {
+  price: number;
+  change: number;
+  changePercentage: number;
+  exchange: string | null;
 }
 
 interface SavePortfolioModalProps {
@@ -26,8 +32,11 @@ interface SavePortfolioModalProps {
     sectors: string[];
   } | null;
   detailedRecommendations: any;
-  portfolioRef?: React.RefObject<HTMLDivElement | null>;
+  stockPrices?: Record<string, StockPrice>;
   onSaveSuccess?: () => void;
+  // For standalone export (from My Portfolios page)
+  exportOnly?: boolean;
+  portfolioName?: string;
 }
 
 export default function SavePortfolioModal({
@@ -36,14 +45,30 @@ export default function SavePortfolioModal({
   portfolioData,
   formData,
   detailedRecommendations,
-  portfolioRef,
+  stockPrices,
   onSaveSuccess,
+  exportOnly = false,
+  portfolioName = '',
 }: SavePortfolioModalProps) {
   const { data: session } = useSession();
-  const [saveName, setSaveName] = useState("");
+  const [saveName, setSaveName] = useState(portfolioName);
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [activeOption, setActiveOption] = useState<'save' | 'pdf'>('save');
+  const [activeOption, setActiveOption] = useState<'save' | 'pdf'>(exportOnly ? 'pdf' : 'save');
+
+  // Update saveName when portfolioName changes
+  useEffect(() => {
+    if (portfolioName) {
+      setSaveName(portfolioName);
+    }
+  }, [portfolioName]);
+
+  // Set to PDF tab when exportOnly mode
+  useEffect(() => {
+    if (exportOnly) {
+      setActiveOption('pdf');
+    }
+  }, [exportOnly]);
 
   const handleSaveToAccount = async () => {
     if (!session) {
@@ -98,8 +123,8 @@ export default function SavePortfolioModal({
   };
 
   const handleExportPDF = async () => {
-    if (!portfolioRef?.current) {
-      toast.error("Unable to export - portfolio view not found");
+    if (!portfolioData || portfolioData.length === 0) {
+      toast.error("No portfolio data to export");
       return;
     }
 
@@ -107,52 +132,286 @@ export default function SavePortfolioModal({
     const loadingToast = toast.loading("Generating PDF...");
 
     try {
-      // Capture the portfolio section
-      const canvas = await html2canvas(portfolioRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#0F0F0F',
-        logging: false,
-      });
-
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
-        orientation: 'landscape',
+        orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       });
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 10;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 20;
+      let yPos = margin;
 
-      // Add header
-      pdf.setFillColor(15, 15, 15);
-      pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-      
+      // Helper function to convert hex to RGB
+      const hexToRgb = (hex: string) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+        } : { r: 128, g: 128, b: 128 };
+      };
+
+      // Background
+      pdf.setFillColor(10, 10, 10);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+      // ===== HEADER =====
       pdf.setTextColor(0, 255, 153);
-      pdf.setFontSize(24);
-      pdf.text('DIVERSONAL', 14, 15);
+      pdf.setFontSize(28);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('DIVERSONAL', margin, yPos + 8);
       
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(12);
-      pdf.text('AI-Powered Portfolio Allocation', 14, 22);
-      
-      pdf.setTextColor(128, 128, 128);
+      pdf.setTextColor(180, 180, 180);
       pdf.setFontSize(10);
-      pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('AI-Powered Portfolio Allocation', margin, yPos + 16);
+      
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFontSize(9);
+      pdf.text(`Generated: ${new Date().toLocaleDateString('en-US', { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+      })}`, margin, yPos + 23);
 
-      // Add the captured image
-      pdf.addImage(imgData, 'PNG', imgX, 35, imgWidth * ratio * 0.9, imgHeight * ratio * 0.9);
+      yPos += 35;
 
-      // Add footer
-      pdf.setTextColor(128, 128, 128);
-      pdf.setFontSize(8);
-      pdf.text('This report is for informational purposes only and does not constitute financial advice.', 14, pdfHeight - 10);
+      // Divider line
+      pdf.setDrawColor(40, 40, 40);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 10;
+
+      // ===== INVESTOR PROFILE =====
+      if (formData) {
+        pdf.setTextColor(0, 255, 153);
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('INVESTOR PROFILE', margin, yPos);
+        yPos += 8;
+
+        const profileItems = [
+          { label: 'Age', value: formData.age },
+          { label: 'Risk Tolerance', value: `${formData.risk}/100 (${formData.risk >= 70 ? 'Aggressive' : formData.risk >= 40 ? 'Moderate' : 'Conservative'})` },
+          { label: 'Time Horizon', value: formData.horizon },
+          { label: 'Capital', value: `$${parseFloat(formData.capital.replace(/[^0-9.]/g, '')).toLocaleString()}` },
+          { label: 'Goal', value: formData.goal.length > 60 ? formData.goal.substring(0, 60) + '...' : formData.goal },
+        ];
+
+        pdf.setFontSize(10);
+        profileItems.forEach((item) => {
+          pdf.setTextColor(100, 100, 100);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`${item.label}:`, margin, yPos);
+          pdf.setTextColor(220, 220, 220);
+          pdf.text(item.value, margin + 35, yPos);
+          yPos += 6;
+        });
+
+        if (formData.sectors.length > 0) {
+          pdf.setTextColor(100, 100, 100);
+          pdf.text('Sectors:', margin, yPos);
+          pdf.setTextColor(220, 220, 220);
+          pdf.text(formData.sectors.slice(0, 4).join(', ') + (formData.sectors.length > 4 ? '...' : ''), margin + 35, yPos);
+          yPos += 6;
+        }
+
+        yPos += 8;
+      }
+
+      // ===== PORTFOLIO ALLOCATION =====
+      pdf.setTextColor(0, 255, 153);
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('PORTFOLIO ALLOCATION', margin, yPos);
+      yPos += 10;
+
+      // Draw horizontal bar chart for allocation
+      const barHeight = 12;
+      const barWidth = pageWidth - (margin * 2);
+      
+      // Background bar
+      pdf.setFillColor(30, 30, 30);
+      pdf.roundedRect(margin, yPos, barWidth, barHeight, 2, 2, 'F');
+
+      // Colored segments
+      let xOffset = margin;
+      portfolioData.forEach((item) => {
+        const segmentWidth = (item.value / 100) * barWidth;
+        if (segmentWidth > 0) {
+          const rgb = hexToRgb(item.color);
+          pdf.setFillColor(rgb.r, rgb.g, rgb.b);
+          pdf.rect(xOffset, yPos, segmentWidth, barHeight, 'F');
+          xOffset += segmentWidth;
+        }
+      });
+
+      yPos += barHeight + 10;
+
+      // Asset class breakdown table
+      pdf.setFontSize(10);
+      portfolioData.forEach((item) => {
+        // Color dot
+        const rgb = hexToRgb(item.color);
+        pdf.setFillColor(rgb.r, rgb.g, rgb.b);
+        pdf.circle(margin + 3, yPos - 1.5, 2.5, 'F');
+
+        // Asset class name
+        pdf.setTextColor(220, 220, 220);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(item.name, margin + 10, yPos);
+
+        // Percentage
+        pdf.setTextColor(0, 255, 153);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`${item.value}%`, pageWidth - margin - 15, yPos);
+
+        // Dollar amount if we have capital
+        if (formData?.capital) {
+          const capital = parseFloat(formData.capital.replace(/[^0-9.]/g, ''));
+          const amount = (item.value / 100) * capital;
+          pdf.setTextColor(150, 150, 150);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`$${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, pageWidth - margin - 45, yPos);
+        }
+
+        yPos += 8;
+      });
+
+      yPos += 5;
+
+      // ===== STOCK RECOMMENDATIONS =====
+      if (detailedRecommendations && Object.keys(detailedRecommendations).length > 0) {
+        // Check if we need a new page
+        if (yPos > pageHeight - 80) {
+          pdf.addPage();
+          pdf.setFillColor(10, 10, 10);
+          pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+          yPos = margin;
+        }
+
+        pdf.setTextColor(0, 255, 153);
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('RECOMMENDED HOLDINGS', margin, yPos);
+        yPos += 10;
+
+        // Calculate total capital
+        const totalCapital = formData?.capital 
+          ? parseFloat(formData.capital.replace(/[^0-9.]/g, '')) 
+          : 0;
+
+        Object.entries(detailedRecommendations).forEach(([assetClass, data]: [string, any]) => {
+          if (!data?.recommendations || data.recommendations.length === 0) return;
+
+          // Get asset class allocation percentage
+          const assetClassAllocation = portfolioData.find(p => p.name === assetClass)?.value || 0;
+          const assetClassDollars = (assetClassAllocation / 100) * totalCapital;
+          const numRecs = data.recommendations.length;
+
+          // Calculate weights for each ticker based on position size
+          let totalWeight = 0;
+          const tickerWeights: Record<string, number> = {};
+          data.recommendations.forEach((rec: any) => {
+            const weight = rec.positionSize === 'Large' ? 3 : rec.positionSize === 'Medium' ? 2 : 1;
+            tickerWeights[rec.ticker] = weight;
+            totalWeight += weight;
+          });
+
+          // Check if we need a new page
+          if (yPos > pageHeight - 50) {
+            pdf.addPage();
+            pdf.setFillColor(10, 10, 10);
+            pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+            yPos = margin;
+          }
+
+          // Asset class header with total
+          pdf.setTextColor(180, 180, 180);
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(assetClass.toUpperCase(), margin, yPos);
+          if (totalCapital > 0) {
+            pdf.setTextColor(100, 100, 100);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(`$${assetClassDollars.toLocaleString(undefined, { maximumFractionDigits: 0 })} total`, margin + 50, yPos);
+          }
+          yPos += 8;
+
+          // Tickers
+          const isCrypto = assetClass === 'Cryptocurrencies';
+          
+          data.recommendations.slice(0, 8).forEach((rec: any) => {
+            if (yPos > pageHeight - 15) {
+              pdf.addPage();
+              pdf.setFillColor(10, 10, 10);
+              pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+              yPos = margin;
+            }
+
+            // Calculate this ticker's allocation
+            const tickerWeight = tickerWeights[rec.ticker] || 1;
+            const tickerShare = totalWeight > 0 ? tickerWeight / totalWeight : 1 / numRecs;
+            const tickerDollars = tickerShare * assetClassDollars;
+
+            // Ticker symbol
+            pdf.setTextColor(0, 255, 153);
+            pdf.setFontSize(9);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(rec.ticker, margin + 5, yPos);
+
+            // Company name (truncated)
+            pdf.setTextColor(150, 150, 150);
+            pdf.setFont('helvetica', 'normal');
+            const maxNameLength = stockPrices ? 25 : 35;
+            const name = rec.name.length > maxNameLength ? rec.name.substring(0, maxNameLength) + '...' : rec.name;
+            pdf.text(name, margin + 22, yPos);
+
+            // Dollar allocation
+            if (totalCapital > 0) {
+              pdf.setTextColor(220, 220, 220);
+              pdf.setFont('helvetica', 'bold');
+              pdf.text(`$${tickerDollars.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, margin + 95, yPos);
+            }
+
+            // Share/unit count if we have price data
+            if (stockPrices && stockPrices[rec.ticker] && totalCapital > 0) {
+              const price = stockPrices[rec.ticker].price;
+              if (price > 0) {
+                const units = tickerDollars / price;
+                pdf.setTextColor(0, 255, 153);
+                pdf.setFont('helvetica', 'normal');
+                const unitText = isCrypto 
+                  ? `${units < 1 ? units.toFixed(6) : units.toFixed(4)} ${rec.ticker}`
+                  : `${units.toFixed(2)} shares`;
+                pdf.text(unitText, margin + 125, yPos);
+              }
+            }
+
+            // Position size badge
+            const sizeColor = rec.positionSize === 'Large' ? { r: 0, g: 255, b: 153 } : 
+                             rec.positionSize === 'Medium' ? { r: 234, g: 179, b: 8 } : 
+                             { r: 59, g: 130, b: 246 };
+            pdf.setTextColor(sizeColor.r, sizeColor.g, sizeColor.b);
+            pdf.text(rec.positionSize || 'Medium', pageWidth - margin - 15, yPos);
+
+            yPos += 6;
+          });
+
+          yPos += 6;
+        });
+      }
+
+      // ===== FOOTER =====
+      pdf.setTextColor(80, 80, 80);
+      pdf.setFontSize(7);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(
+        'This report is for informational purposes only and does not constitute financial advice. Past performance does not guarantee future results.',
+        margin, 
+        pageHeight - 10
+      );
+      pdf.text('Generated by Diversonal • diversonal.com', margin, pageHeight - 6);
 
       // Download
       const fileName = saveName.trim() 
