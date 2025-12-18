@@ -2,14 +2,18 @@
 
 import { useState, useRef, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import SettingsModal from "./SettingsModal";
 
 interface ProfileDropdownProps {
-  onMyPortfoliosClick: () => void;
+  onMyPortfoliosClick?: () => void;  // Now optional - we'll navigate directly
 }
 
 export default function ProfileDropdown({ onMyPortfoliosClick }: ProfileDropdownProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -92,7 +96,7 @@ export default function ProfileDropdown({ onMyPortfoliosClick }: ProfileDropdown
             <button
               onClick={() => {
                 setIsOpen(false);
-                onMyPortfoliosClick();
+                router.push('/my-portfolios');
               }}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-[#E6E6E6] hover:bg-[#2A2A2A] transition-colors"
             >
@@ -103,7 +107,10 @@ export default function ProfileDropdown({ onMyPortfoliosClick }: ProfileDropdown
             </button>
 
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                setShowSettingsModal(true);
+              }}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-[#E6E6E6] hover:bg-[#2A2A2A] transition-colors"
             >
               <svg className="w-5 h-5 text-[#808080]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -128,6 +135,12 @@ export default function ProfileDropdown({ onMyPortfoliosClick }: ProfileDropdown
           </div>
         </div>
       )}
+
+      {/* Settings Modal */}
+      <SettingsModal 
+        isOpen={showSettingsModal} 
+        onClose={() => setShowSettingsModal(false)} 
+      />
     </div>
   );
 }

@@ -24,6 +24,8 @@ import StockCountSelector, { ASSET_CLASS_LIMITS } from "../components/StockCount
 import { sessionCache, CACHE_KEYS, CACHE_TTL } from "../lib/sessionCache";
 // Save portfolio modal
 import SavePortfolioModal from "../components/SavePortfolioModal";
+// User settings
+import { getUserSettings } from "../lib/userSettings";
 
 // Type definitions for saved portfolios
 interface PortfolioItem {
@@ -448,6 +450,19 @@ export default function DevelopPage() {
         }, 100); // Small delay to ensure DOM is ready
       }
       console.log("[Cache] Restored form state from session cache");
+    } else {
+      // No cached state - apply user's default settings
+      const userSettings = getUserSettings();
+      setRiskTolerance(userSettings.defaultRiskTolerance);
+      
+      // Also set default time horizon in the form
+      setTimeout(() => {
+        const horizonSelect = document.getElementById("horizon") as HTMLSelectElement;
+        if (horizonSelect) {
+          horizonSelect.value = userSettings.defaultTimeHorizon;
+        }
+      }, 100);
+      console.log("[Settings] Applied default settings");
     }
     
     // Mark restore as complete so caching effects can start working
@@ -671,6 +686,7 @@ export default function DevelopPage() {
         let finalReasoning = "";
         
         try {
+          const userSettings = getUserSettings();
           const response = await fetch("/api/stock-reasoning", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -679,6 +695,7 @@ export default function DevelopPage() {
               name: reasoningModalStock.name,
               allocationPercent: reasoningModalStock.allocationPercent,
               assetClass: reasoningModalStock.assetClass,
+              aiStyle: userSettings.aiResponseStyle,
               formData: {
                 age: savedFormData.age,
                 risk: savedFormData.risk,
@@ -869,12 +886,14 @@ export default function DevelopPage() {
     // Mark as loading to prevent duplicate fetches
     hasLoadedAllocationReasoningRef.current = true;
     setAllocationReasoningLoading(true);
+    const userSettings = getUserSettings();
     
     fetch("/api/allocation-reasoning", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         portfolioData: portfolioData,
+        aiStyle: userSettings.aiResponseStyle,
         formData: {
           age: savedFormData.age,
           risk: savedFormData.risk,
@@ -1160,6 +1179,13 @@ export default function DevelopPage() {
   // Debounced auto-save - triggers 5 seconds after last change
   const triggerAutoSave = () => {
     if (!session || !savedFormData || portfolioData.length === 0) return;
+    
+    // Check if auto-save is enabled in user settings
+    const userSettings = getUserSettings();
+    if (!userSettings.autoSaveEnabled) {
+      console.log('[Auto-save] Disabled in settings');
+      return;
+    }
     
     // Clear existing timer
     if (autoSaveTimerRef.current) {

@@ -14,6 +14,7 @@ interface PortfolioItem {
 
 interface AllocationReasoningRequest {
   portfolioData: PortfolioItem[];
+  aiStyle?: 'concise' | 'balanced' | 'detailed';
   formData: {
     age: string;
     risk: number;
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { portfolioData, formData } = body;
+  const { portfolioData, aiStyle = 'balanced', formData } = body;
 
   if (!portfolioData || !formData) {
     return NextResponse.json(
@@ -59,6 +60,29 @@ export async function POST(request: NextRequest) {
       .map(item => `- ${item.name}: ${item.value}%${item.breakdown ? ` (${item.breakdown})` : ''}`)
       .join('\n');
 
+    // Adjust response based on user's AI style preference
+    const styleConfig = {
+      concise: { 
+        maxTokens: 200, 
+        sectionCount: '1-2',
+        bulletCount: '1-2',
+        intro: 'Start with one brief sentence.'
+      },
+      balanced: { 
+        maxTokens: 350, 
+        sectionCount: '2-3',
+        bulletCount: '2-3',
+        intro: 'Start with a brief 1-2 sentence intro connecting to their profile.'
+      },
+      detailed: { 
+        maxTokens: 600, 
+        sectionCount: '3-4',
+        bulletCount: '3-4',
+        intro: 'Start with a 2-3 sentence intro that connects their profile to market conditions.'
+      },
+    };
+    const style = styleConfig[aiStyle] || styleConfig.balanced;
+
     const systemPrompt = `You are a friendly financial advisor explaining portfolio allocation decisions. Use a modern, clean response style.
 
 USER'S PROFILE:
@@ -75,9 +99,9 @@ ${allocationSummary}
 TASK: Explain why this allocation makes sense for this user.
 
 STRICT FORMATTING RULES:
-1. Start with a brief 1-2 sentence intro connecting to their profile
-2. Then use **bold subtitle headers** followed by 2-3 bullet points each
-3. Use exactly 2-3 sections with subtitles like: **Risk Balance**, **Growth Strategy**, **Time Alignment**
+1. ${style.intro}
+2. Then use **bold subtitle headers** followed by ${style.bulletCount} bullet points each
+3. Use exactly ${style.sectionCount} sections with subtitles like: **Risk Balance**, **Growth Strategy**, **Time Alignment**
 4. Each bullet should be one concise sentence
 5. Use "you" and "your" - be conversational
 6. Don't repeat the exact percentages - they can see those
@@ -94,7 +118,7 @@ Given your profile, here's why this allocation works for you.
 • Fixed income provides a cushion against market swings
 • This balance protects while still pursuing gains`;
 
-    console.log(`[Allocation Reasoning] Generating explanation for user profile...`);
+    console.log(`[Allocation Reasoning] Generating explanation for user profile (style: ${aiStyle})...`);
 
     // Call Grok with streaming
     const response = await fetch("https://api.x.ai/v1/chat/completions", {
@@ -110,7 +134,7 @@ Given your profile, here's why this allocation works for you.
           { role: "user", content: "Please explain why you've recommended this allocation for my portfolio." }
         ],
         temperature: 0.7,
-        max_tokens: 300,
+        max_tokens: style.maxTokens,
         stream: true,
       }),
     });

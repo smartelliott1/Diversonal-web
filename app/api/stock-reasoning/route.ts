@@ -12,6 +12,7 @@ interface StockReasoningRequest {
   name: string;
   allocationPercent?: number;
   assetClass?: string;
+  aiStyle?: 'concise' | 'balanced' | 'detailed';
   formData: {
     age: string;
     risk: number;
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { ticker, name, allocationPercent, assetClass, formData } = body;
+  const { ticker, name, allocationPercent, assetClass, aiStyle = 'balanced', formData } = body;
 
   if (!ticker || !name || !formData) {
     return NextResponse.json(
@@ -154,6 +155,14 @@ IMPORTANT: Return ONLY the JSON object, no markdown, no code blocks, no extra te
     console.log(`[Stock Reasoning] Phase 1 complete: ${scores.overallMatch}% overall match`);
 
     // ========== PHASE 2: Stream reasoning (real Grok streaming) ==========
+    // Adjust response based on user's AI style preference
+    const styleConfig = {
+      concise: { maxTokens: 150, instruction: 'Be very brief - 2-3 sentences max. Get straight to the point.' },
+      balanced: { maxTokens: 300, instruction: 'Write a conversational 3-4 sentence explanation.' },
+      detailed: { maxTokens: 500, instruction: 'Provide a comprehensive 5-6 sentence explanation with specific details and market context.' },
+    };
+    const style = styleConfig[aiStyle] || styleConfig.balanced;
+
     const reasoningPrompt = `You are a friendly financial advisor explaining to a client why ${ticker} (${name}) fits their portfolio.
 
 **Client Profile:**
@@ -163,13 +172,13 @@ IMPORTANT: Return ONLY the JSON object, no markdown, no code blocks, no extra te
 - Investment Goal: ${formData.goal}
 - Sector Preferences: ${formData.sectors.join(", ") || "None specified"}
 ${allocationContext}
-Write a conversational 3-4 sentence explanation using "you" and "your". Be friendly and personal. 
+${style.instruction} Use "you" and "your". Be friendly and personal. 
 ${allocationPercent ? `When mentioning this stock's allocation, say it's approximately ${allocationPercent}% of their total portfolio.` : ''}
 ${allocationPercent && allocationPercent < 8 ? `Explain why a ${allocationPercent}% position in ${ticker} provides focused exposure without overconcentration.` : ''}
 
 Start speaking directly - no JSON, no formatting, no prefixes.`;
 
-    console.log(`[Stock Reasoning] Phase 2: Streaming reasoning for ${ticker}...`);
+    console.log(`[Stock Reasoning] Phase 2: Streaming reasoning for ${ticker} (style: ${aiStyle})...`);
 
     const reasoningResponse = await fetch("https://api.x.ai/v1/chat/completions", {
       method: "POST",
@@ -184,7 +193,7 @@ Start speaking directly - no JSON, no formatting, no prefixes.`;
           { role: "user", content: reasoningPrompt }
         ],
         temperature: 0.7,
-        max_tokens: 300,
+        max_tokens: style.maxTokens,
         stream: true,
       }),
     });
