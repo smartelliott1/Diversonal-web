@@ -2099,12 +2099,16 @@ export default function DevelopPage() {
       return;
     }
     
-    if (!stressTestScenario.trim()) {
+    if (!selectedScenarioPreset && !stressTestScenario.trim()) {
       toast.error("Please select or enter a stress test scenario first");
       return;
     }
     
-    handleStressTest(stressTestScenario, tempPortfolioAllocation);
+    const scenarioToRun = selectedScenarioPreset 
+      ? (stressTestScenario.trim() ? `${selectedScenarioPreset.prompt} Additional context: ${stressTestScenario}` : selectedScenarioPreset.prompt)
+      : stressTestScenario;
+    
+    handleStressTest(scenarioToRun, tempPortfolioAllocation);
   };
 
   const InfoIcon = ({ tooltip }: { tooltip: string }) => (
@@ -3805,7 +3809,7 @@ export default function DevelopPage() {
 
                   {/* Analysis Card - Now in Right Column */}
                   <div className="rounded-lg border-2 border-white/20 bg-black p-4">
-                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Analysis</h4>
+                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Claude Sonnet 4.5 Analysis</h4>
                     <p className="text-sm leading-relaxed text-gray-300">
                       {stressTestResult.analysis}
                     </p>
