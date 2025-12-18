@@ -135,6 +135,22 @@ ${scenario}
 5. Calculate monthly portfolio values over a ${monthsToSimulate}-month period showing realistic progression
 6. Determine the overall impact and risk level
 
+**⚠️ CRITICAL - HISTORICAL SCENARIO HANDLING:**
+If the scenario references a historical event (e.g., "COVID-19", "2008 financial crisis", "dot-com crash", "1970s stagflation"), you MUST model the COMPLETE historical trajectory as it actually occurred:
+- COVID-19 (2020): Initial 35% crash in months 1-2, aggressive V-shaped recovery by month 4-6, followed by massive bull run. Crypto specifically gained 500-1000%+ over 18 months. Equities recovered fully and exceeded pre-crash levels.
+- 2008 Financial Crisis: Prolonged decline over 12+ months, slow recovery taking 3-5 years. Real estate devastated. Bonds performed well as safe haven.
+- Dot-com Crash (2000): Tech-heavy decline, took years to recover. Value stocks and bonds outperformed.
+
+Do NOT just model the downside - model the FULL ARC including any subsequent recovery or boom that historically occurred.
+
+**⚠️ RECOVERY PATTERN CONSIDERATION:**
+Even for hypothetical (non-historical) scenarios, consider realistic recovery patterns:
+- Most market crashes are followed by V-shaped or U-shaped recoveries
+- Central bank and government intervention typically accelerates recovery
+- Different asset classes recover at different rates (crypto often leads, bonds stabilize first)
+- Only model sustained decline if the scenario specifically implies ongoing/worsening conditions
+- The "end" value should reflect where the portfolio would realistically be after the FULL scenario plays out, including any recovery phase
+
 **Asset Class Impact Analysis:**
 IMPORTANT: Only analyze the following asset classes that are present in this portfolio: ${portfolioAssetClasses.join(", ")}
 
