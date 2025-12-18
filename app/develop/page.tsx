@@ -4393,7 +4393,7 @@ export default function DevelopPage() {
                     <p className="text-xs font-medium text-[#00FF99] uppercase tracking-widest mb-3">
                       {activeTab} Allocation
                     </p>
-                    <div className="flex items-baseline gap-4 mb-4">
+                    <div className="flex items-baseline justify-between mb-4">
                       {totalCapital > 0 && (
                         <span className="text-3xl font-bold text-white">
                           ${assetClassDollars.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
