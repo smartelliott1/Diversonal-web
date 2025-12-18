@@ -3470,7 +3470,7 @@ export default function DevelopPage() {
             </button>
           ) : (
             /* Expanded state - COMPACT REDESIGN */
-            <div className="space-y-3">
+            <div className={`space-y-3 ${stressTestResult ? 'mb-6 pb-4 border-b border-[#2A2A2A]' : ''}`}>
               {/* Row 1: Title + Duration */}
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-white">Stress Test</h3>
