@@ -393,6 +393,30 @@ export default function DevelopPage() {
     }
   }, [stockPrices]);
 
+  // Load stress test history from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("diversonal-stress-history");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            setStressTestHistory(parsed);
+          }
+        } catch (e) {
+          console.error("Failed to parse stress test history:", e);
+        }
+      }
+    }
+  }, []);
+
+  // Save stress test history to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== "undefined" && stressTestHistory.length > 0) {
+      localStorage.setItem("diversonal-stress-history", JSON.stringify(stressTestHistory));
+    }
+  }, [stressTestHistory]);
+
   // Cache form state for persistence (selectedSectors and riskTolerance)
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1915,9 +1939,9 @@ export default function DevelopPage() {
       
       setStressTestResult(resultWithMeta);
       
-      // Add to history (keep last 5)
+      // Add to history (keep last 10, persisted to localStorage)
       setStressTestHistory(prev => {
-        const newHistory = [resultWithMeta, ...prev].slice(0, 5);
+        const newHistory = [resultWithMeta, ...prev].slice(0, 10);
         return newHistory;
       });
       setActiveHistoryIndex(0);
@@ -3450,57 +3474,78 @@ export default function DevelopPage() {
             </div>
           )}
 
-          {/* Quick Scenarios */}
-          {!stressTestResult && !stressTestLoading && (
-            <div className="mb-8">
-              <p className="text-sm font-medium text-gray-500 mb-4">Select a scenario or describe your own</p>
-              
-              {/* Historical Events */}
-              <div className="mb-4">
-                <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Historical Events</p>
-                <div className="flex flex-wrap gap-3">
-                  {historicalScenarios.filter(s => s.year !== "Scenario").map((event, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setSelectedScenarioPreset({ name: event.name, prompt: event.description });
-                        setStressTestScenario("");
-                      }}
-                      disabled={stressTestLoading}
-                      className={`px-4 py-2 text-sm rounded-full border transition-all duration-200 ${
-                        selectedScenarioPreset?.name === event.name
-                          ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
-                          : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {event.name}
-                    </button>
-                  ))}
-                </div>
+          {/* Quick Scenarios - Always visible */}
+          <div className="mb-6">
+            {/* Historical Events */}
+            <div className="mb-4">
+              <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Historical Events</p>
+              <div className="flex flex-wrap gap-2">
+                {historicalScenarios.filter(s => s.year !== "Scenario").map((event, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setSelectedScenarioPreset({ name: event.name, prompt: event.description });
+                      setStressTestScenario("");
+                    }}
+                    disabled={stressTestLoading}
+                    className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
+                      selectedScenarioPreset?.name === event.name
+                        ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
+                        : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {event.name}
+                  </button>
+                ))}
               </div>
-              
-              {/* Hypothetical */}
-              <div>
-                <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Hypothetical</p>
-                <div className="flex flex-wrap gap-3">
-                  {historicalScenarios.filter(s => s.year === "Scenario").map((event, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setSelectedScenarioPreset({ name: event.name, prompt: event.description });
-                        setStressTestScenario("");
-                      }}
-                      disabled={stressTestLoading}
-                      className={`px-4 py-2 text-sm rounded-full border transition-all duration-200 ${
-                        selectedScenarioPreset?.name === event.name
-                          ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
-                          : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {event.name}
-                    </button>
-                  ))}
-                </div>
+            </div>
+            
+            {/* Hypothetical */}
+            <div>
+              <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Hypothetical</p>
+              <div className="flex flex-wrap gap-2">
+                {historicalScenarios.filter(s => s.year === "Scenario").map((event, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setSelectedScenarioPreset({ name: event.name, prompt: event.description });
+                      setStressTestScenario("");
+                    }}
+                    disabled={stressTestLoading}
+                    className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${
+                      selectedScenarioPreset?.name === event.name
+                        ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
+                        : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {event.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Previous Tests History */}
+          {stressTestHistory.length > 0 && (
+            <div className="mb-6">
+              <p className="text-xs text-gray-600 mb-3 uppercase tracking-wide">Previous Tests</p>
+              <div className="flex flex-wrap gap-2">
+                {stressTestHistory.map((test, index) => (
+                  <button
+                    key={test.timestamp}
+                    onClick={() => loadHistoricalTest(index)}
+                    className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 flex items-center gap-2 ${
+                      index === activeHistoryIndex && stressTestResult
+                        ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
+                        : 'border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
+                    }`}
+                  >
+                    <span>{test.scenarioName?.slice(0, 20)}{test.scenarioName?.length > 20 ? '...' : ''}</span>
+                    <span className={`font-semibold ${test.percentageChange < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      {test.percentageChange > 0 ? '+' : ''}{test.percentageChange?.toFixed(1)}%
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
           )}
@@ -3572,32 +3617,6 @@ export default function DevelopPage() {
           {/* Results Section */}
           {stressTestResult && (
             <>
-              {/* Scenario History Pills */}
-              {stressTestHistory.length > 1 && (
-                <div className="mb-4 overflow-x-auto pb-2">
-                  <div className="flex gap-2">
-                    {stressTestHistory.map((test, index) => (
-                      <button
-                        key={test.timestamp}
-                        onClick={() => loadHistoricalTest(index)}
-                        className={`btn-ripple flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm transition-all duration-300 hover:scale-105 ${
-                          index === activeHistoryIndex
-                            ? 'border border-[#00FF99] bg-[#00FF99]/20 text-[#00FF99]'
-                            : 'border border-white/20 bg-[#1C1F26]/80 text-gray-400 hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span>{test.scenarioName?.slice(0, 25)}{test.scenarioName?.length > 25 ? '...' : ''}</span>
-                          <span className={`font-bold ${test.percentageChange < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                            {test.percentageChange > 0 ? '+' : ''}{test.percentageChange.toFixed(1)}%
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Main Results - 2 Column Layout */}
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
                 {/* LEFT COLUMN - Chart (60%) */}
