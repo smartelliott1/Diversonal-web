@@ -167,7 +167,7 @@ export default function DevelopPage() {
   const [stressTestHistory, setStressTestHistory] = useState<any[]>([]);
   const [activeHistoryIndex, setActiveHistoryIndex] = useState<number>(0);
   const [visibleAssetClasses, setVisibleAssetClasses] = useState<string[]>([]);
-  const [stressTestTimeHorizon, setStressTestTimeHorizon] = useState<number>(18);
+  const [stressTestTimeHorizon, setStressTestTimeHorizon] = useState<number>(12);
   const [scenarioBuilderParams, setScenarioBuilderParams] = useState({
     marketMovement: 0,
     inflation: 2,
@@ -3408,44 +3408,56 @@ export default function DevelopPage() {
 
           {/* Scenario Input Section - 2 Column Layout */}
           <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-9">
-            {/* LEFT COLUMN - Scenarios (55%) */}
-            <div className="lg:col-span-5 space-y-4">
-              {/* Historical Event Templates - 3x3 Grid */}
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Scenarios</p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {historicalScenarios.map((event, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        const scenario = event.description;
-                        setStressTestScenario(scenario);
-                        handleStressTest(scenario);
-                      }}
-                      disabled={stressTestLoading}
-                      className="btn-ripple group relative overflow-hidden rounded-lg border border-white/20 bg-gradient-to-br from-[#1C1F26]/90 to-[#171A1F]/90 p-3 text-left shadow-md backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#9B59B6]/50 hover:bg-[#9B59B6]/10 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <div className="mb-1 text-xs font-bold text-[#9B59B6]">{event.year}</div>
-                      <div className="mb-0.5 text-xs font-semibold text-gray-200 transition-colors duration-300 group-hover:text-white">{event.name}</div>
-                      <div className="text-xs text-gray-500 transition-colors duration-300 group-hover:text-gray-400">{event.description}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Custom Scenario Input */}
+            {/* LEFT COLUMN - Scenario Input (55%) */}
+            <div className="lg:col-span-5 space-y-3">
+              {/* Scenario Input with Dropdown */}
               <div className="group">
                 <label htmlFor="stress-scenario" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400 transition-colors duration-300 group-focus-within:text-[#00FF99]">
-                  Custom Scenario
+                  Scenario
                 </label>
+                
+                {/* Quick Scenarios Dropdown */}
+                <div className="mb-2">
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const selectedScenario = historicalScenarios.find(s => s.name === e.target.value);
+                        if (selectedScenario) {
+                          setStressTestScenario(selectedScenario.description);
+                        }
+                        e.target.value = ""; // Reset dropdown
+                      }
+                    }}
+                    disabled={stressTestLoading}
+                    className="w-full rounded-lg border border-gray-600 bg-[#171A1F]/80 px-3 py-2 text-sm text-gray-400 shadow-sm outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#9B59B6] focus:ring-1 focus:ring-[#9B59B6]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Quick scenarios...</option>
+                    <optgroup label="Historical Events">
+                      {historicalScenarios.filter(s => s.year !== "Scenario").map((event, index) => (
+                        <option key={index} value={event.name}>
+                          {event.year} - {event.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Hypothetical">
+                      {historicalScenarios.filter(s => s.year === "Scenario").map((event, index) => (
+                        <option key={index} value={event.name}>
+                          {event.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
+                </div>
+
+                {/* Custom Scenario Input */}
                 <div className="flex gap-2">
                   <input
                     id="stress-scenario"
                     type="text"
                     value={stressTestScenario}
                     onChange={(e) => setStressTestScenario(e.target.value)}
-                    placeholder="Enter custom scenario..."
-                    className="flex-1 rounded-lg border border-gray-600 bg-[#171A1F]/80 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 shadow-sm outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:ring-1 focus:ring-[#00FF99]/30"
+                    placeholder="Describe a scenario or select from above..."
+                    className="flex-1 rounded-lg border border-gray-600 bg-[#171A1F]/80 px-3 py-2.5 text-sm text-gray-100 placeholder-gray-500 shadow-sm outline-none backdrop-blur-sm transition-all duration-300 hover:border-gray-500 focus:border-[#00FF99] focus:bg-[#171A1F] focus:ring-1 focus:ring-[#00FF99]/30"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !stressTestLoading) {
                         handleStressTest(stressTestScenario);
@@ -3455,7 +3467,7 @@ export default function DevelopPage() {
                   <button
                     onClick={() => handleStressTest(stressTestScenario)}
                     disabled={stressTestLoading || !stressTestScenario.trim()}
-                    className="btn-ripple rounded-lg bg-gradient-to-r from-[#00FF99] to-[#00E689] px-5 py-2 text-sm font-semibold text-[#171A1F] shadow-md shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+                    className="btn-ripple rounded-lg bg-gradient-to-r from-[#00FF99] to-[#00E689] px-5 py-2.5 text-sm font-semibold text-[#171A1F] shadow-md shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {stressTestLoading ? (
                       <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
