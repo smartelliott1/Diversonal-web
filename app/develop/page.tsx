@@ -3820,12 +3820,12 @@ export default function DevelopPage() {
                       return (
                         <div 
                           key={asset} 
-                          className="w-[140px] rounded-lg border border-white/10 bg-black p-3 transition-all duration-300 hover:border-[#00FF99]/30"
+                          className="w-[170px] rounded-lg border border-white/10 bg-black p-4 transition-all duration-300 hover:border-[#00FF99]/30"
                         >
-                          <div className="mb-2 text-center">
-                            <span className="text-xs font-semibold capitalize text-gray-300">{asset}</span>
+                          <div className="mb-3 text-center">
+                            <span className="text-sm font-semibold capitalize text-gray-200">{asset}</span>
                           </div>
-                          <div className="space-y-1 text-[11px]">
+                          <div className="space-y-1.5 text-xs">
                             <div className="flex items-center justify-between">
                               <span className="text-gray-500">High:</span>
                               <span className={`font-semibold ${impactData.high >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -3838,9 +3838,9 @@ export default function DevelopPage() {
                                 {impactData.low > 0 ? '+' : ''}{impactData.low.toFixed(1)}%
                               </span>
                             </div>
-                            <div className="flex items-center justify-between border-t border-white/10 pt-1 mt-1">
+                            <div className="flex items-center justify-between border-t border-white/10 pt-2 mt-2">
                               <span className="font-medium text-gray-400">End:</span>
-                              <span className={`font-bold text-sm ${impactData.end >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              <span className={`font-bold text-base ${impactData.end >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                 {impactData.end > 0 ? '+' : ''}{impactData.end.toFixed(1)}%
                               </span>
                             </div>
