@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getComprehensiveMarketContext } from "@/app/lib/financialData";
 
-// Using Grok 4-1 Fast (non-reasoning) for financial stress testing analysis
-// Fast, cost-effective, and excellent at structured JSON output
+// Using Grok 4-1 Fast Reasoning for financial stress testing analysis
+// Chain-of-thought reasoning enables accurate numerical calculations
 const XAI_API_KEY = process.env.XAI_API_KEY;
 const XAI_BASE_URL = "https://api.x.ai/v1";
-const MODEL = "grok-4-1-fast-non-reasoning";
+const MODEL = "grok-4-1-fast-reasoning";
 
 interface StressTestRequest {
   scenario: string;
