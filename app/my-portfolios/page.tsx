@@ -257,7 +257,7 @@ export default function MyPortfoliosPage() {
       activeResultTab: 'portfolio',
     });
 
-    // Store recommendations
+    // Store recommendations (indefinite cache - stock picks never expire)
     if (portfolio.detailedRecommendations) {
       sessionCache.set(CACHE_KEYS.STOCK_RECOMMENDATIONS, portfolio.detailedRecommendations, CACHE_TTL.RECOMMENDATIONS);
     }
@@ -337,7 +337,8 @@ export default function MyPortfoliosPage() {
     return (
       <div
         key={portfolio.id}
-        className="group bg-[#0A0A0A] border border-[#2A2A2A] rounded-sm overflow-hidden hover:border-[#00FF99]/30 transition-all duration-300"
+        onClick={() => handleLoadPortfolio(portfolio)}
+        className="group bg-[#0A0A0A] border border-[#2A2A2A] rounded-sm overflow-hidden hover:border-[#00FF99]/30 transition-all duration-300 cursor-pointer"
       >
         {/* Card Header */}
         <div className="p-5">
@@ -345,7 +346,7 @@ export default function MyPortfoliosPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1">
                 {renamingId === portfolio.id ? (
-                  <div className="flex items-center gap-2 flex-1">
+                  <div className="flex items-center gap-2 flex-1" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="text"
                       value={newName}
@@ -399,7 +400,7 @@ export default function MyPortfoliosPage() {
             </div>
             
             {/* Quick Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={() => handleLoadPortfolio(portfolio)}
                 className="px-4 py-2 bg-[#00FF99] text-black rounded-sm text-sm font-semibold hover:bg-[#00FF99]/90 transition-colors"
@@ -487,7 +488,7 @@ export default function MyPortfoliosPage() {
 
         {/* Expanded Details */}
         {isExpanded && (
-          <div className="border-t border-[#2A2A2A] p-5 bg-black/50 animate-fade-in">
+          <div className="border-t border-[#2A2A2A] p-5 bg-black/50 animate-fade-in" onClick={(e) => e.stopPropagation()}>
             {/* Goal */}
             <div className="mb-4">
               <h4 className="text-[#808080] text-xs uppercase tracking-wider mb-2">Investment Goal</h4>

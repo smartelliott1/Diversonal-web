@@ -84,13 +84,14 @@ export const CACHE_KEYS = {
 
 // TTL values in minutes
 export const CACHE_TTL = {
-  MARKET_CONTEXT: 2,      // Market data refreshes frequently
-  STOCK_DATA: 5,          // Stock metrics are relatively stable
-  STOCK_PRICES: 1,        // Prices change often
-  RECOMMENDATIONS: 30,    // Keep recommendations for 30 mins
-  FORM_STATE: undefined,  // No expiry - persist until cleared
-  PORTFOLIO_STATE: undefined, // No expiry - persist until cleared
-  MY_PORTFOLIOS: 5,       // Cache portfolio list for 5 mins
-  PORTFOLIO_HISTORY: 5,   // Cache history for 5 mins
+  MARKET_CONTEXT: 2,           // Market data refreshes frequently
+  STOCK_DATA: 10,              // Key metrics/Fear Greed - 10 minutes site-wide
+  STOCK_PRICES: 1,             // Prices - 1 minute, auto-refetch when user is active
+  RECOMMENDATIONS: undefined,  // INDEFINITE - never expire stock picks
+  FORM_STATE: undefined,       // No expiry - persist until cleared
+  PORTFOLIO_STATE: undefined,  // No expiry - persist until cleared
+  MY_PORTFOLIOS: undefined,    // INDEFINITE - portfolio names/list persist until manually invalidated
+  PORTFOLIO_HISTORY: undefined, // INDEFINITE - history persists until manually invalidated
+  ALLOCATION_CHAT: undefined,  // INDEFINITE - never re-fetch allocation reasoning
 } as const;
 

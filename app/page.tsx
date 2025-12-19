@@ -50,168 +50,444 @@ export default function Home() {
             
             {/* Screen Content Container */}
             <div className="relative overflow-hidden rounded-sm bg-black aspect-[16/10]">
-              {/* Feature 0: Portfolio Optimization */}
-              <div className={`feature-screen absolute inset-0 p-8 transition-opacity duration-700 ${currentFeature === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                <div className="h-full flex flex-col">
-                  <div className="mb-6 flex items-center justify-between border-b border-[#2A2A2A] pb-4">
-                    <h3 className="text-2xl font-semibold text-[#E6E6E6]">Portfolio Optimization</h3>
-                    <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-3 py-1.5">
-                      <span className="text-sm font-medium text-[#00FF99]">AI-Powered</span>
+              {/* Feature 0: Portfolio Allocation - EXACT screenshot match */}
+              <div className={`feature-screen absolute inset-0 p-3 transition-opacity duration-700 ${currentFeature === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className="h-full flex flex-col text-[8px]">
+                  {/* Top: Asset Bars + Profile Sidebar */}
+                  <div className="flex gap-3 mb-2">
+                    {/* Asset Class Bars */}
+                    <div className="flex-1 space-y-1">
+                      {/* Equities */}
+                      <div className="flex items-center gap-2 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
+                        <div className="h-2 w-2 rounded-full bg-[#00FF99]"></div>
+                        <div className="w-[35%]">
+                          <span className="text-[9px] font-medium text-white">Equities</span>
+                          <span className="text-[7px] text-gray-500 block">(S&P: 22%, Tech: 8.5%)</span>
+                        </div>
+                        <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full"><div className="h-full bg-[#00FF99] rounded-full" style={{width:'38%'}}></div></div>
+                        <span className="text-[9px] font-bold text-[#00FF99] w-8 text-right">38.2%</span>
+                      </div>
+                      {/* Bonds */}
+                      <div className="flex items-center gap-2 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
+                        <div className="h-2 w-2 rounded-full bg-[#3B82F6]"></div>
+                        <div className="w-[35%]">
+                          <span className="text-[9px] font-medium text-white">Bonds</span>
+                          <span className="text-[7px] text-gray-500 block">(Gov: 16.5%, Corp: 12%)</span>
+                        </div>
+                        <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full"><div className="h-full bg-[#3B82F6] rounded-full" style={{width:'28%'}}></div></div>
+                        <span className="text-[9px] font-bold text-[#00FF99] w-8 text-right">28.5%</span>
+                      </div>
+                      {/* Commodities */}
+                      <div className="flex items-center gap-2 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
+                        <div className="h-2 w-2 rounded-full bg-[#F59E0B]"></div>
+                        <div className="w-[35%]">
+                          <span className="text-[9px] font-medium text-white">Commodities</span>
+                          <span className="text-[7px] text-gray-500 block">(Gold: 6.3%, Silver: 3%)</span>
+                        </div>
+                        <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full"><div className="h-full bg-[#F59E0B] rounded-full" style={{width:'11%'}}></div></div>
+                        <span className="text-[9px] font-bold text-[#00FF99] w-8 text-right">11.3%</span>
+                      </div>
+                      {/* Real Estate */}
+                      <div className="flex items-center gap-2 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1.5">
+                        <div className="h-2 w-2 rounded-full bg-[#8B5CF6]"></div>
+                        <div className="w-[35%]">
+                          <span className="text-[9px] font-medium text-white">Real Estate</span>
+                          <span className="text-[7px] text-gray-500 block">(REITs: 10.2%)</span>
+                        </div>
+                        <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full"><div className="h-full bg-[#8B5CF6] rounded-full" style={{width:'14%'}}></div></div>
+                        <span className="text-[9px] font-bold text-[#00FF99] w-8 text-right">13.7%</span>
+                      </div>
+                      {/* Crypto + Cash row */}
+                      <div className="flex gap-1">
+                        <div className="flex-1 flex items-center gap-1.5 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1">
+                          <div className="h-2 w-2 rounded-full bg-[#06B6D4]"></div>
+                          <span className="text-[8px] text-white">Crypto</span>
+                          <div className="flex-1 h-1 bg-[#2A2A2A] rounded-full"><div className="h-full bg-[#06B6D4] rounded-full" style={{width:'5%'}}></div></div>
+                          <span className="text-[8px] font-bold text-[#00FF99]">4.8%</span>
+                        </div>
+                        <div className="flex-1 flex items-center gap-1.5 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-2 py-1">
+                          <div className="h-2 w-2 rounded-full bg-[#EAB308]"></div>
+                          <span className="text-[8px] text-white">Cash</span>
+                          <div className="flex-1 h-1 bg-[#2A2A2A] rounded-full"><div className="h-full bg-[#EAB308] rounded-full" style={{width:'4%'}}></div></div>
+                          <span className="text-[8px] font-bold text-[#00FF99]">3.5%</span>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Profile Sidebar */}
+                    <div className="w-[100px] rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2">
+                      <span className="text-[8px] font-bold text-white block mb-1">Your Profile</span>
+                      <div className="space-y-0.5 text-[7px]">
+                        <div className="flex justify-between"><span className="text-gray-500">Risk Tolerance</span><span className="text-white">28/100</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Time Horizon</span><span className="text-white">7+ years</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Age</span><span className="text-white">40</span></div>
+                        <div className="pt-1 border-t border-[#2A2A2A]">
+                          <span className="text-gray-500 block">Sectors</span>
+                          <div className="flex flex-wrap gap-0.5 mt-0.5">
+                            <span className="px-1 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[6px] text-gray-400">Energy</span>
+                            <span className="px-1 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[6px] text-gray-400">Tech</span>
+                            <span className="px-1 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[6px] text-gray-400">AI</span>
+                          </div>
+                        </div>
+                        <div className="pt-1 border-t border-[#2A2A2A]">
+                          <span className="text-gray-500 block">Goal</span>
+                          <span className="text-[6px] text-white leading-tight">Grow cash, low risk</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="flex flex-1 items-center gap-8">
-                    {/* Pie Chart */}
-                    <div className="flex-shrink-0">
-                      <div className="relative h-48 w-48">
-                        <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90 transform">
-                          <circle cx="50" cy="50" r="40" fill="none" stroke="#4A4A4A" strokeWidth="20" strokeDasharray="75.4 251.2" />
-                          <circle cx="50" cy="50" r="40" fill="none" stroke="#5A5A5A" strokeWidth="20" strokeDasharray="62.8 251.2" strokeDashoffset="-75.4" />
-                          <circle cx="50" cy="50" r="40" fill="none" stroke="#00FF99" strokeWidth="20" strokeDasharray="50.2 251.2" strokeDashoffset="-138.2" />
-                          <circle cx="50" cy="50" r="40" fill="none" stroke="#808080" strokeWidth="20" strokeDasharray="37.7 251.2" strokeDashoffset="-188.4" />
+                  {/* AI Reasoning Section - Major portion */}
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-[8px] text-gray-300 mb-1.5 leading-relaxed">Given your conservative risk tolerance and goal to grow your $250k with minimal risk over 7+ years, this allocation balances steady growth with strong downside protection.</p>
+                    <div className="space-y-1.5">
+                      <div>
+                        <span className="text-[8px] font-bold text-white">Risk Balance</span>
+                        <p className="text-[7px] text-gray-400 leading-relaxed">• Equities kept moderate to align with your low risk score<br/>• Bonds and cash form solid foundation, cushioning market dips</p>
+                      </div>
+                      <div>
+                        <span className="text-[8px] font-bold text-white">Growth Strategy</span>
+                        <p className="text-[7px] text-gray-400 leading-relaxed">• Tech, energy, and crypto sectors tap into AI, blockchain upside<br/>• Real estate provides inflation-hedged income</p>
+                      </div>
+                    </div>
+                    {/* Question chips */}
+                    <div className="flex gap-1 mt-2">
+                      <span className="px-1.5 py-0.5 rounded-sm border border-[#2A2A2A] text-[6px] text-gray-400">Why so much in equities?</span>
+                      <span className="px-1.5 py-0.5 rounded-sm border border-[#2A2A2A] text-[6px] text-gray-400">How does my age affect this?</span>
+                    </div>
+                    {/* Input */}
+                    <div className="flex gap-1 mt-1.5">
+                      <div className="flex-1 px-2 py-1 rounded-sm bg-[#111] border border-[#222] text-[7px] text-gray-500">Ask a follow-up question...</div>
+                      <button className="px-2 py-1 rounded-sm bg-[#00FF99] text-[7px] text-black font-semibold">Send</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Feature 1: Stock Picks - EXACT screenshot match (vertical list) */}
+              <div className={`feature-screen absolute inset-0 p-2 transition-opacity duration-700 ${currentFeature === 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className="h-full flex flex-col text-[7px]">
+                  {/* Header: Weights | Asset Tabs | Save */}
+                  <div className="flex items-center justify-between mb-1.5">
+                    <button className="px-2 py-1 rounded-sm border border-[#2A2A2A] bg-black text-[8px] text-white flex items-center gap-1">
+                      <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                      Individual Weights
+                    </button>
+                    <div className="flex gap-1">
+                      <button className="px-2 py-0.5 rounded-sm bg-[#00FF99] text-black text-[8px] font-semibold">Equities</button>
+                      <button className="px-2 py-0.5 rounded-sm text-gray-400 text-[8px]">Bonds</button>
+                      <button className="px-2 py-0.5 rounded-sm text-gray-400 text-[8px]">Commodities</button>
+                      <button className="px-2 py-0.5 rounded-sm text-gray-400 text-[8px]">Real Estate</button>
+                      <button className="px-2 py-0.5 rounded-sm text-gray-400 text-[8px]">Crypto</button>
+                      <button className="px-2 py-0.5 rounded-sm text-gray-400 text-[8px]">Cash</button>
+                    </div>
+                    <button className="px-2 py-1 rounded-sm border border-[#00FF99] text-[#00FF99] text-[8px] flex items-center gap-1">
+                      <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                      Save Portfolio
+                    </button>
+                  </div>
+                  
+                  {/* Ticker Stream */}
+                  <div className="flex gap-3 px-1 py-1 mb-1.5 border-y border-[#2A2A2A] overflow-hidden">
+                    <div className="flex items-center gap-1"><span className="text-gray-400">DOW</span><span className="text-white font-semibold">48061</span><span className="text-green-400">+0.37%</span></div>
+                    <div className="flex items-center gap-1"><span className="text-gray-400">NVDA</span><span className="text-white font-semibold">$174.95</span><span className="text-green-400">+2.35%</span></div>
+                    <div className="flex items-center gap-1"><span className="text-gray-400">AAPL</span><span className="text-white font-semibold">$271.72</span><span className="text-red-400">-0.04%</span></div>
+                    <div className="flex items-center gap-1"><span className="text-gray-400">BTC</span><span className="text-white font-semibold">$85,863</span><span className="text-red-400">-0.40%</span></div>
+                    <div className="flex items-center gap-1"><span className="text-gray-400">GOLD</span><span className="text-white font-semibold">$4366</span><span className="text-red-400">-0.17%</span></div>
+                  </div>
+                  
+                  {/* Stock Cards - Vertical List */}
+                  <div className="flex-1 space-y-1.5 overflow-hidden">
+                    {/* XOM Card */}
+                    <div className="rounded-sm border-2 border-white/20 bg-black">
+                      <div className="grid grid-cols-[1fr_0.8fr_1.5fr_1.2fr] gap-2 p-2">
+                        {/* Col 1: Ticker/Price/Buttons */}
+                        <div>
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className="text-[10px] font-bold text-[#00FF99]">XOM</span>
+                            <span className="text-[9px] font-bold text-white">$116.54</span>
+                            <span className="text-[7px] text-red-400">-0.74%</span>
+                          </div>
+                          <span className="text-[7px] text-gray-500 block mb-1">Exxon Mobil Corporation</span>
+                          <div className="flex gap-1">
+                            <button className="px-1.5 py-0.5 rounded-sm border border-[#2A2A2A] text-[6px] text-white flex items-center gap-0.5">📈 View Chart</button>
+                            <button className="px-1.5 py-0.5 rounded-sm border border-[#2A2A2A] text-[6px] text-gray-400">⊙ Ask AI why</button>
+                          </div>
+                        </div>
+                        {/* Col 2: Fear & Greed */}
+                        <div className="flex flex-col items-center justify-center">
+                          <span className="text-[6px] uppercase text-gray-500 mb-0.5">Fear & Greed</span>
+                          <svg viewBox="0 0 100 60" className="w-10 h-6">
+                            <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#2A2A2A" strokeWidth="8" strokeLinecap="round"/>
+                            <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#F59E0B" strokeWidth="8" strokeLinecap="round" strokeDasharray="126" strokeDashoffset="63"/>
+                          </svg>
+                          <span className="text-[9px] font-bold text-yellow-400">50</span>
+                          <span className="text-[6px] text-yellow-400">Neutral</span>
+                        </div>
+                        {/* Col 3: Key Metrics */}
+                        <div>
+                          <span className="text-[6px] uppercase text-gray-500 block mb-0.5">Key Metrics</span>
+                          <div className="grid grid-cols-4 gap-x-2 text-[6px]">
+                            <div><span className="text-gray-500">P/E</span><br/><span className="text-white">13.7</span></div>
+                            <div><span className="text-gray-500">Rev</span><br/><span className="text-green-400">+1.4%</span></div>
+                            <div><span className="text-gray-500">Margin</span><br/><span className="text-white">9.9%</span></div>
+                            <div><span className="text-gray-500">Div</span><br/><span className="text-green-400">3.61%</span></div>
+                            <div><span className="text-gray-500">50D</span><br/><span className="text-white">$116</span></div>
+                            <div><span className="text-gray-500">200D</span><br/><span className="text-white">$111</span></div>
+                            <div><span className="text-gray-500">Cap</span><br/><span className="text-white">$491B</span></div>
+                          </div>
+                        </div>
+                        {/* Col 4: Recent News */}
+                        <div>
+                          <span className="text-[6px] uppercase text-gray-500 block mb-0.5">Recent News</span>
+                          <p className="text-[7px] text-gray-300 leading-tight">Aaron Wealth Advisors LLC Increases Stock Holdings in Exxon Mobil $XOM ↗</p>
+                          <span className="text-[6px] text-gray-500">defenseworldnet • 12/17/2025</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* AAPL Card */}
+                    <div className="rounded-sm border-2 border-white/20 bg-black">
+                      <div className="grid grid-cols-[1fr_0.8fr_1.5fr_1.2fr] gap-2 p-2">
+                        <div>
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className="text-[10px] font-bold text-[#00FF99]">AAPL</span>
+                            <span className="text-[9px] font-bold text-white">$272.19</span>
+                            <span className="text-[7px] text-green-400">+0.13%</span>
+                          </div>
+                          <span className="text-[7px] text-gray-500 block mb-1">Apple Inc.</span>
+                          <div className="flex gap-1">
+                            <button className="px-1.5 py-0.5 rounded-sm border border-[#2A2A2A] text-[6px] text-white flex items-center gap-0.5">📈 View Chart</button>
+                            <button className="px-1.5 py-0.5 rounded-sm border border-[#2A2A2A] text-[6px] text-gray-400">⊙ Ask AI why</button>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-center justify-center">
+                          <span className="text-[6px] uppercase text-gray-500 mb-0.5">Fear & Greed</span>
+                          <svg viewBox="0 0 100 60" className="w-10 h-6">
+                            <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#2A2A2A" strokeWidth="8" strokeLinecap="round"/>
+                            <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#F59E0B" strokeWidth="8" strokeLinecap="round" strokeDasharray="126" strokeDashoffset="55"/>
+                          </svg>
+                          <span className="text-[9px] font-bold text-yellow-400">56</span>
+                          <span className="text-[6px] text-yellow-400">Neutral</span>
+                        </div>
+                        <div>
+                          <span className="text-[6px] uppercase text-gray-500 block mb-0.5">Key Metrics</span>
+                          <div className="grid grid-cols-4 gap-x-2 text-[6px]">
+                            <div><span className="text-gray-500">P/E</span><br/><span className="text-white">34.1</span></div>
+                            <div><span className="text-gray-500">Rev</span><br/><span className="text-green-400">+6.4%</span></div>
+                            <div><span className="text-gray-500">Margin</span><br/><span className="text-white">26.9%</span></div>
+                            <div><span className="text-gray-500">Div</span><br/><span className="text-green-400">0.40%</span></div>
+                            <div><span className="text-gray-500">50D</span><br/><span className="text-white">$269</span></div>
+                            <div><span className="text-gray-500">200D</span><br/><span className="text-white">$230</span></div>
+                            <div><span className="text-gray-500">Cap</span><br/><span className="text-white">$4.0T</span></div>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-[6px] uppercase text-gray-500 block mb-0.5">Recent News</span>
+                          <p className="text-[7px] text-gray-300 leading-tight">Apple becomes a debt collector with its new developer agreement ↗</p>
+                          <span className="text-[6px] text-gray-500">techcrunch • 12/18/2025</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* MSFT Card */}
+                    <div className="rounded-sm border-2 border-white/20 bg-black">
+                      <div className="grid grid-cols-[1fr_0.8fr_1.5fr_1.2fr] gap-2 p-2">
+                        <div>
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className="text-[10px] font-bold text-[#00FF99]">MSFT</span>
+                            <span className="text-[9px] font-bold text-white">$483.98</span>
+                            <span className="text-[7px] text-green-400">+1.65%</span>
+                          </div>
+                          <span className="text-[7px] text-gray-500 block mb-1">Microsoft Corporation</span>
+                          <div className="flex gap-1">
+                            <button className="px-1.5 py-0.5 rounded-sm border border-[#2A2A2A] text-[6px] text-white flex items-center gap-0.5">📈 View Chart</button>
+                            <button className="px-1.5 py-0.5 rounded-sm border border-[#2A2A2A] text-[6px] text-gray-400">⊙ Ask AI why</button>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-center justify-center">
+                          <span className="text-[6px] uppercase text-gray-500 mb-0.5">Fear & Greed</span>
+                          <svg viewBox="0 0 100 60" className="w-10 h-6">
+                            <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#2A2A2A" strokeWidth="8" strokeLinecap="round"/>
+                            <path d="M10 50 A40 40 0 0 1 90 50" fill="none" stroke="#F59E0B" strokeWidth="8" strokeLinecap="round" strokeDasharray="126" strokeDashoffset="59"/>
+                          </svg>
+                          <span className="text-[9px] font-bold text-yellow-400">53</span>
+                          <span className="text-[6px] text-yellow-400">Neutral</span>
+                        </div>
+                        <div>
+                          <span className="text-[6px] uppercase text-gray-500 block mb-0.5">Key Metrics</span>
+                          <div className="grid grid-cols-4 gap-x-2 text-[6px]">
+                            <div><span className="text-gray-500">P/E</span><br/><span className="text-white">36.3</span></div>
+                            <div><span className="text-gray-500">Rev</span><br/><span className="text-green-400">+14.9%</span></div>
+                            <div><span className="text-gray-500">Margin</span><br/><span className="text-white">36.1%</span></div>
+                            <div><span className="text-gray-500">Div</span><br/><span className="text-green-400">0.65%</span></div>
+                            <div><span className="text-gray-500">50D</span><br/><span className="text-white">$502</span></div>
+                            <div><span className="text-gray-500">200D</span><br/><span className="text-white">$473</span></div>
+                            <div><span className="text-gray-500">Cap</span><br/><span className="text-white">$3.6T</span></div>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-[6px] uppercase text-gray-500 block mb-0.5">Recent News</span>
+                          <p className="text-[7px] text-gray-300 leading-tight">Nebius: The Only Hyperscaler Worth Buying Right Now ↗</p>
+                          <span className="text-[6px] text-gray-500">seekingalpha • 12/18/2025</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Feature 2: Stress Testing - EXACT screenshot match */}
+              <div className={`feature-screen absolute inset-0 p-2 transition-opacity duration-700 ${currentFeature === 2 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                <div className="h-full flex flex-col text-[7px]">
+                  {/* Run Another Test Button */}
+                  <button className="w-full py-1 mb-1.5 rounded-sm border border-[#00FF99] text-[#00FF99] text-[8px] font-medium flex items-center justify-center gap-1">
+                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Run Another Test
+                  </button>
+                  
+                  {/* Main Content - 2 Columns */}
+                  <div className="grid grid-cols-5 gap-2 mb-1.5">
+                    {/* LEFT: Timeline Chart */}
+                    <div className="col-span-3 rounded-sm border-2 border-white/20 bg-black p-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[7px] uppercase tracking-wide text-gray-400">Timeline</span>
+                        <span className="px-1.5 py-0.5 rounded-full text-[7px] font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900">Moderate</span>
+                      </div>
+                      <div className="h-16 relative">
+                        <svg viewBox="0 0 300 80" className="w-full h-full" preserveAspectRatio="none">
+                          <defs>
+                            <linearGradient id="chartGrad2" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#00FF99" stopOpacity="0.3"/>
+                              <stop offset="100%" stopColor="#00FF99" stopOpacity="0"/>
+                            </linearGradient>
+                          </defs>
+                          <line x1="0" y1="20" x2="300" y2="20" stroke="#333" strokeWidth="0.5" strokeDasharray="4"/>
+                          <line x1="0" y1="40" x2="300" y2="40" stroke="#333" strokeWidth="0.5" strokeDasharray="4"/>
+                          <line x1="0" y1="60" x2="300" y2="60" stroke="#333" strokeWidth="0.5" strokeDasharray="4"/>
+                          <path d="M0 25 L30 28 L60 30 L90 45 L120 50 L150 42 L180 35 L210 28 L240 22 L270 18 L300 15 L300 80 L0 80 Z" fill="url(#chartGrad2)"/>
+                          <path d="M0 25 L30 28 L60 30 L90 45 L120 50 L150 42 L180 35 L210 28 L240 22 L270 18 L300 15" fill="none" stroke="#00FF99" strokeWidth="2"/>
                         </svg>
+                        <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[6px] text-gray-500">
+                          <span>0</span><span>3</span><span>6</span><span>9</span><span>12mo</span>
+                        </div>
+                        <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-[5px] text-gray-500">
+                          <span>$307k</span><span>$250k</span><span>$199k</span>
+                        </div>
                       </div>
                     </div>
                     
-                    {/* Allocations */}
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-3 w-3 rounded-sm bg-[#4A4A4A]"></div>
-                          <span className="text-sm text-[#B4B4B4]">Equities</span>
+                    {/* RIGHT: Metrics + AI Analysis */}
+                    <div className="col-span-2 space-y-1.5">
+                      {/* Metrics Box */}
+                      <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-1.5">
+                        <span className="text-[6px] uppercase tracking-wide text-gray-500">Metrics</span>
+                        <div className="flex gap-2 mt-0.5">
+                          <div className="rounded-sm border border-[#00FF99]/50 bg-black p-1.5 text-center">
+                            <span className="text-[12px] font-bold text-[#00FF99] block">+11.5%</span>
+                            <span className="text-[5px] text-[#00FF99]">CHANGE</span>
+                          </div>
+                          <div className="text-[6px] space-y-0.5">
+                            <div className="flex justify-between gap-2"><span className="text-gray-500">Initial:</span><span className="text-white">$250.0k</span></div>
+                            <div className="flex justify-between gap-2"><span className="text-gray-500">Low/High:</span><span className="text-white">$221.3k / $278.8k</span></div>
+                            <div className="flex justify-between gap-2"><span className="text-gray-500">Final:</span><span className="text-white font-semibold">$278.8k</span></div>
+                          </div>
                         </div>
-                        <span className="text-lg font-semibold text-[#E6E6E6]">40%</span>
                       </div>
-                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-3 w-3 rounded-sm bg-[#5A5A5A]"></div>
-                          <span className="text-sm text-[#B4B4B4]">Bonds</span>
-                        </div>
-                        <span className="text-lg font-semibold text-[#E6E6E6]">25%</span>
+                      {/* AI Analysis */}
+                      <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-1.5">
+                        <span className="text-[6px] uppercase tracking-wide text-gray-500">Claude Analysis</span>
+                        <p className="text-[6px] text-gray-300 leading-relaxed mt-0.5">The Trump tariff scare (2018-2019) triggered a sharp market correction with equities dropping 15-20%. Markets recovered within 6-9 months as impacts proved less severe.</p>
                       </div>
-                      <div className="flex items-center justify-between rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-3 w-3 rounded-sm bg-[#00FF99]"></div>
-                          <span className="text-sm text-[#00FF99]">Commodities</span>
-                        </div>
-                        <span className="text-lg font-semibold text-[#00FF99]">20%</span>
-                      </div>
-                      <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-3 w-3 rounded-sm bg-[#808080]"></div>
-                          <span className="text-sm text-[#B4B4B4]">Real Estate</span>
-                        </div>
-                        <span className="text-lg font-semibold text-[#E6E6E6]">15%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Feature 1: Stock Picks */}
-              <div className={`feature-screen absolute inset-0 p-8 transition-opacity duration-700 ${currentFeature === 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                <div className="h-full flex flex-col">
-                  <div className="mb-6 flex items-center justify-between border-b border-[#2A2A2A] pb-4">
-                    <h3 className="text-2xl font-semibold text-[#E6E6E6]">Stock Recommendations</h3>
-                    <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-3 py-1.5">
-                      <span className="text-sm font-medium text-[#00FF99]">Live Data</span>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-xl font-bold text-[#E6E6E6]">AAPL</span>
-                        <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
-                      </div>
-                      <p className="mb-3 text-sm text-[#808080]">Apple Inc. • Technology</p>
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-1 text-xs text-[#B4B4B4]">Low Risk</span>
-                        <span className="text-sm font-semibold text-[#00FF99]">+12.5%</span>
-                      </div>
-                    </div>
-                    
-                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-xl font-bold text-[#E6E6E6]">MSFT</span>
-                        <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
-                      </div>
-                      <p className="mb-3 text-sm text-[#808080]">Microsoft Corp. • Technology</p>
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-1 text-xs text-[#B4B4B4]">Low Risk</span>
-                        <span className="text-sm font-semibold text-[#00FF99]">+8.3%</span>
-                      </div>
-                    </div>
-                    
-                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-xl font-bold text-[#E6E6E6]">NVDA</span>
-                        <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
-                      </div>
-                      <p className="mb-3 text-sm text-[#808080]">NVIDIA Corp. • Technology</p>
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-1 text-xs text-[#B4B4B4]">Mod Risk</span>
-                        <span className="text-sm font-semibold text-[#00FF99]">+24.1%</span>
-                      </div>
-                    </div>
-                    
-                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-xl font-bold text-[#E6E6E6]">GOOGL</span>
-                        <span className="rounded-sm bg-[#00FF99]/20 px-2.5 py-1 text-sm font-semibold text-[#00FF99]">Buy</span>
-                      </div>
-                      <p className="mb-3 text-sm text-[#808080]">Alphabet Inc. • Technology</p>
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-1 text-xs text-[#B4B4B4]">Low Risk</span>
-                        <span className="text-sm font-semibold text-[#00FF99]">+15.7%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Feature 2: Stress Testing */}
-              <div className={`feature-screen absolute inset-0 p-8 transition-opacity duration-700 ${currentFeature === 2 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                <div className="h-full flex flex-col">
-                  <div className="mb-6 flex items-center justify-between border-b border-[#2A2A2A] pb-4">
-                    <h3 className="text-2xl font-semibold text-[#E6E6E6]">Stress Testing</h3>
-                    <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-3 py-1.5">
-                      <span className="text-sm font-medium text-[#00FF99]">Scenario Analysis</span>
+                  {/* Recovery Path Buttons */}
+                  <div className="mb-1.5">
+                    <span className="text-[6px] uppercase tracking-wide text-gray-500 block mb-1">Recovery Path</span>
+                    <div className="grid grid-cols-4 gap-1">
+                      <button className="py-1 rounded-sm border border-[#2A2A2A] bg-black text-center"><span className="text-[8px] font-bold text-white block">V</span><span className="text-[5px] text-gray-500">Fast</span></button>
+                      <button className="py-1 rounded-sm border border-[#2A2A2A] bg-black text-center"><span className="text-[8px] font-bold text-white block">U</span><span className="text-[5px] text-gray-500">Gradual</span></button>
+                      <button className="py-1 rounded-sm border border-[#2A2A2A] bg-black text-center"><span className="text-[8px] font-bold text-white block">L</span><span className="text-[5px] text-gray-500">Slow</span></button>
+                      <button className="py-1 rounded-sm border border-[#2A2A2A] bg-[#1A1A1A] text-center"><span className="text-[8px] font-bold text-white block">W</span><span className="text-[5px] text-gray-500">Double</span></button>
                     </div>
                   </div>
                   
-                  <div className="space-y-4">
-                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
-                      <div className="mb-3 flex items-center justify-between">
-                        <span className="text-lg font-semibold text-[#E6E6E6]">Market Crash (-30%)</span>
-                        <span className="text-xl font-bold text-[#D95F5F]">-$8,400</span>
+                  {/* Asset Class Impact Grid */}
+                  <div className="grid grid-cols-6 gap-1 mb-1.5">
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-1 text-center">
+                      <span className="text-[7px] text-white font-medium block">Equities</span>
+                      <div className="text-[6px] space-y-0.5 mt-0.5">
+                        <div className="flex justify-between"><span className="text-gray-500">High:</span><span className="text-green-400">+18.5%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Low:</span><span className="text-red-400">-16.2%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">End:</span><span className="text-green-400 font-semibold">+14.8%</span></div>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
-                        <div className="h-full w-[70%] bg-[#D95F5F]"></div>
-                      </div>
-                      <p className="mt-2 text-sm text-[#808080]">Portfolio resilience: Moderate</p>
                     </div>
-                    
-                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-5">
-                      <div className="mb-3 flex items-center justify-between">
-                        <span className="text-lg font-semibold text-[#E6E6E6]">Rising Interest Rates</span>
-                        <span className="text-xl font-bold text-[#D95F5F]">-$2,100</span>
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-1 text-center">
+                      <span className="text-[7px] text-white font-medium block">Bonds</span>
+                      <div className="text-[6px] space-y-0.5 mt-0.5">
+                        <div className="flex justify-between"><span className="text-gray-500">High:</span><span className="text-green-400">+6.8%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Low:</span><span className="text-red-400">-2.1%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">End:</span><span className="text-green-400 font-semibold">+2.4%</span></div>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
-                        <div className="h-full w-[20%] bg-[#D95F5F]"></div>
-                      </div>
-                      <p className="mt-2 text-sm text-[#808080]">Portfolio resilience: Strong</p>
                     </div>
-                    
-                    <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 p-5">
-                      <div className="mb-3 flex items-center justify-between">
-                        <span className="text-lg font-semibold text-[#00FF99]">Tech Sector Boom</span>
-                        <span className="text-xl font-bold text-[#00FF99]">+$12,800</span>
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-1 text-center">
+                      <span className="text-[7px] text-white font-medium block">Commod.</span>
+                      <div className="text-[6px] space-y-0.5 mt-0.5">
+                        <div className="flex justify-between"><span className="text-gray-500">High:</span><span className="text-green-400">+8.2%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Low:</span><span className="text-red-400">-11.5%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">End:</span><span className="text-green-400 font-semibold">+3.7%</span></div>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
-                        <div className="h-full w-[90%] bg-[#00FF99]"></div>
+                    </div>
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-1 text-center">
+                      <span className="text-[7px] text-white font-medium block">Real Est.</span>
+                      <div className="text-[6px] space-y-0.5 mt-0.5">
+                        <div className="flex justify-between"><span className="text-gray-500">High:</span><span className="text-green-400">+12.3%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Low:</span><span className="text-red-400">-13.8%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">End:</span><span className="text-green-400 font-semibold">+9.1%</span></div>
                       </div>
-                      <p className="mt-2 text-sm text-[#00FF99]">High upside potential</p>
+                    </div>
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-1 text-center">
+                      <span className="text-[7px] text-white font-medium block">Crypto</span>
+                      <div className="text-[6px] space-y-0.5 mt-0.5">
+                        <div className="flex justify-between"><span className="text-gray-500">High:</span><span className="text-green-400">+45.2%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Low:</span><span className="text-red-400">-28.5%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">End:</span><span className="text-green-400 font-semibold">+38.6%</span></div>
+                      </div>
+                    </div>
+                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-1 text-center">
+                      <span className="text-[7px] text-white font-medium block">Cash</span>
+                      <div className="text-[6px] space-y-0.5 mt-0.5">
+                        <div className="flex justify-between"><span className="text-gray-500">High:</span><span className="text-white">0.0%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Low:</span><span className="text-red-400">-2.2%</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">End:</span><span className="text-red-400 font-semibold">-2.2%</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Rebalance Portfolio */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-black p-1.5">
+                    <span className="text-[6px] uppercase tracking-wide text-gray-500 block mb-1">Rebalance Portfolio</span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex-1 flex items-center gap-1">
+                        <span className="text-[6px] text-gray-400 w-10">Equities</span>
+                        <div className="flex-1 h-1 bg-[#2A2A2A] rounded-full"><div className="h-full bg-[#00FF99] rounded-full relative" style={{width:'38%'}}><div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#00FF99] rounded-full border border-black"></div></div></div>
+                        <span className="text-[7px] text-[#00FF99] font-bold w-8">38.2%</span>
+                      </div>
+                      <div className="flex-1 flex items-center gap-1">
+                        <span className="text-[6px] text-gray-400 w-10">Bonds</span>
+                        <div className="flex-1 h-1 bg-[#2A2A2A] rounded-full"><div className="h-full bg-[#00FF99] rounded-full relative" style={{width:'28%'}}><div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#00FF99] rounded-full border border-black"></div></div></div>
+                        <span className="text-[7px] text-[#00FF99] font-bold w-8">28.5%</span>
+                      </div>
+                      <div className="flex-1 flex items-center gap-1">
+                        <span className="text-[6px] text-gray-400 w-10">Commod.</span>
+                        <div className="flex-1 h-1 bg-[#2A2A2A] rounded-full"><div className="h-full bg-[#00FF99] rounded-full relative" style={{width:'11%'}}><div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#00FF99] rounded-full border border-black"></div></div></div>
+                        <span className="text-[7px] text-[#00FF99] font-bold w-8">11.3%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <button className="px-2 py-0.5 rounded-sm border border-[#2A2A2A] text-[6px] text-gray-400">Reset</button>
+                      <span className="px-2 py-0.5 rounded-sm bg-[#1A1A1A] text-[7px] text-white font-medium">Total: 100%</span>
+                      <button className="px-3 py-0.5 rounded-sm bg-[#00FF99] text-[7px] text-black font-semibold">Run Test</button>
                     </div>
                   </div>
                 </div>
@@ -503,48 +779,110 @@ export default function Home() {
                 </li>
               </ul>
             </div>
-            <div className="rounded-sm border border-[#2A2A2A] bg-black p-6">
-              <div className="mb-4 rounded-sm bg-black p-4">
-                <div className="mb-4 flex items-center justify-between border-b border-[#2A2A2A] pb-3">
-                  <h4 className="text-lg font-semibold text-[#E6E6E6]">Your Portfolio</h4>
-                  <div className="flex gap-2">
-                    <div className="h-6 w-6 rounded-sm border border-[#2A2A2A] bg-black"></div>
-                    <div className="h-6 w-6 rounded-sm border border-[#2A2A2A] bg-black"></div>
+            {/* Updated Mock UI - Matches actual feature */}
+            <div className="rounded-sm border border-[#2A2A2A] bg-[#0A0A0A] p-5 hover:border-[#00FF99]/30 transition-all duration-300">
+              <div className="flex gap-4">
+                {/* Asset Class Bars */}
+                <div className="flex-1 space-y-2">
+                  {/* Equities */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2 hover:border-[#00FF99]/30 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 w-[30%]">
+                        <div className="h-2.5 w-2.5 rounded-full bg-[#00FF99]" style={{ boxShadow: '0 0 8px #00FF9960' }}></div>
+                        <span className="text-xs font-medium text-white">Equities</span>
+                      </div>
+                      <div className="flex-1 h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-[#00FF99]" style={{ width: '45%' }}></div>
+                      </div>
+                      <span className="text-xs font-bold text-[#00FF99] w-10 text-right">45%</span>
+                    </div>
+                  </div>
+                  {/* Bonds */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2 hover:border-[#00FF99]/30 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 w-[30%]">
+                        <div className="h-2.5 w-2.5 rounded-full bg-[#3B82F6]" style={{ boxShadow: '0 0 8px #3B82F660' }}></div>
+                        <span className="text-xs font-medium text-white">Bonds</span>
+                      </div>
+                      <div className="flex-1 h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-[#3B82F6]" style={{ width: '20%' }}></div>
+                      </div>
+                      <span className="text-xs font-bold text-[#00FF99] w-10 text-right">20%</span>
+                    </div>
+                  </div>
+                  {/* Crypto */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2 hover:border-[#00FF99]/30 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 w-[30%]">
+                        <div className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" style={{ boxShadow: '0 0 8px #F59E0B60' }}></div>
+                        <span className="text-xs font-medium text-white">Crypto</span>
+                      </div>
+                      <div className="flex-1 h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-[#F59E0B]" style={{ width: '15%' }}></div>
+                      </div>
+                      <span className="text-xs font-bold text-[#00FF99] w-10 text-right">15%</span>
+                    </div>
+                  </div>
+                  {/* Real Estate */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2 hover:border-[#00FF99]/30 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 w-[30%]">
+                        <div className="h-2.5 w-2.5 rounded-full bg-[#8B5CF6]" style={{ boxShadow: '0 0 8px #8B5CF660' }}></div>
+                        <span className="text-xs font-medium text-white">Real Estate</span>
+                      </div>
+                      <div className="flex-1 h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-[#8B5CF6]" style={{ width: '12%' }}></div>
+                      </div>
+                      <span className="text-xs font-bold text-[#00FF99] w-10 text-right">12%</span>
+                    </div>
+                  </div>
+                  {/* Cash */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2 hover:border-[#00FF99]/30 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 w-[30%]">
+                        <div className="h-2.5 w-2.5 rounded-full bg-[#06B6D4]" style={{ boxShadow: '0 0 8px #06B6D460' }}></div>
+                        <span className="text-xs font-medium text-white">Cash</span>
+                      </div>
+                      <div className="flex-1 h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-[#06B6D4]" style={{ width: '8%' }}></div>
+                      </div>
+                      <span className="text-xs font-bold text-[#00FF99] w-10 text-right">8%</span>
+                    </div>
                   </div>
                 </div>
-                {/* Mock pie chart */}
-                <div className="relative mx-auto h-40 w-40">
-                  <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90 transform">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#4A4A4A" strokeWidth="20" strokeDasharray="75.4 251.2" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#5A5A5A" strokeWidth="20" strokeDasharray="62.8 251.2" strokeDashoffset="-75.4" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#6A6A6A" strokeWidth="20" strokeDasharray="37.7 251.2" strokeDashoffset="-138.2" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#00FF99" strokeWidth="20" strokeDasharray="50.2 251.2" strokeDashoffset="-175.9" />
-                  </svg>
-                </div>
-                {/* Mock allocation list */}
-                <div className="mt-6 space-y-2">
-                  <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-2.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-sm bg-[#4A4A4A]"></div>
-                      <span className="text-sm text-[#B4B4B4]">Equities</span>
+                
+                {/* Profile Sidebar */}
+                <div className="w-[140px] flex-shrink-0 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
+                  <h4 className="text-[10px] font-bold text-white mb-2">Your Profile</h4>
+                  <div className="space-y-1.5 text-[10px]">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Risk</span>
+                      <span className="text-white font-medium">65/100</span>
                     </div>
-                    <span className="text-sm font-medium text-[#E6E6E6]">40%</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-2.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-sm bg-[#5A5A5A]"></div>
-                      <span className="text-sm text-[#B4B4B4]">Bonds</span>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Horizon</span>
+                      <span className="text-white font-medium">7+ years</span>
                     </div>
-                    <span className="text-sm font-medium text-[#E6E6E6]">25%</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-sm border border-[#2A2A2A] bg-black p-2.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-sm bg-[#00FF99]"></div>
-                      <span className="text-sm text-[#B4B4B4]">Commodities</span>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Age</span>
+                      <span className="text-white font-medium">32</span>
                     </div>
-                    <span className="text-sm font-medium text-[#00FF99]">15%</span>
+                    <div className="pt-1.5 border-t border-[#2A2A2A]">
+                      <span className="text-gray-500 block mb-1">Sectors</span>
+                      <div className="flex flex-wrap gap-0.5">
+                        <span className="px-1 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[8px] text-gray-400">Tech</span>
+                        <span className="px-1 py-0.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded text-[8px] text-gray-400">AI</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </div>
+              
+              {/* AI Reasoning Preview */}
+              <div className="mt-3 pt-3 border-t border-[#2A2A2A]">
+                <p className="text-[10px] text-gray-400 leading-relaxed">
+                  <span className="text-[#00FF99]">AI:</span> Your aggressive risk tolerance and long time horizon support a growth-oriented allocation with 45% equities...
+                </p>
               </div>
             </div>
           </div>
@@ -564,35 +902,85 @@ export default function Home() {
       <section id="stock-picks-section" className="flex min-h-screen items-center bg-black pt-[100px] pb-20">
         <div className="mx-auto w-full max-w-7xl px-6">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
-            <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-black p-6">
-              <div className="rounded-sm bg-black p-4">
-                <div className="mb-4 flex items-center justify-between border-b border-[#2A2A2A] pb-3">
-                  <h4 className="text-base font-semibold text-[#E6E6E6]">Detailed Recommendations</h4>
-                  <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2.5 py-1 text-xs font-medium text-[#00FF99]">Live Data</div>
+            {/* Updated Mock UI - Matches actual feature with Fear & Greed */}
+            <div className="order-2 lg:order-1 rounded-sm border border-[#2A2A2A] bg-[#0A0A0A] p-5 hover:border-[#00FF99]/30 transition-all duration-300">
+              {/* Asset Class Tabs */}
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button className="px-3 py-1.5 rounded-sm bg-[#00FF99]/20 text-[#00FF99] text-xs font-semibold border border-[#00FF99]/30">Equities</button>
+                  <button className="px-3 py-1.5 rounded-sm bg-[#1A1A1A] text-gray-400 text-xs font-medium border border-[#2A2A2A]">Crypto</button>
+                  <button className="px-3 py-1.5 rounded-sm bg-[#1A1A1A] text-gray-400 text-xs font-medium border border-[#2A2A2A]">Bonds</button>
                 </div>
-                {/* Mock stock recommendations */}
-                <div className="space-y-3">
-                  <div className="rounded-sm border border-[#2A2A2A] bg-black p-3">
-                    <div className="mb-2 flex items-center justify-between">
+                <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2 py-1 text-[10px] font-medium text-[#00FF99]">Live Data</div>
+              </div>
+              
+              {/* Stock Cards with Fear & Greed */}
+              <div className="space-y-3">
+                {/* NVDA Card */}
+                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 hover:border-[#00FF99]/30 transition-all">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-base font-semibold text-[#E6E6E6]">AAPL</span>
-                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-0.5 text-xs font-medium text-[#B4B4B4]">Low Risk</span>
+                        <span className="text-sm font-bold text-white">NVDA</span>
+                        <span className="text-xs font-semibold text-[#00FF99]">$142.50</span>
                       </div>
-                      <span className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 px-2 py-0.5 text-xs font-medium text-[#00FF99]">Large</span>
+                      <p className="text-[10px] text-gray-500">NVIDIA Corporation</p>
                     </div>
-                    <p className="text-xs text-[#808080]">Apple Inc.</p>
-                    <p className="mt-2 text-sm text-[#B4B4B4]">Strong fundamentals with consistent growth...</p>
+                    <div className="flex gap-1">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30">Large</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/30">Mod</span>
+                    </div>
                   </div>
-                  <div className="rounded-sm border border-[#2A2A2A] bg-black p-3">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-semibold text-[#E6E6E6]">MSFT</span>
-                        <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-0.5 text-xs font-medium text-[#B4B4B4]">Low Risk</span>
-                      </div>
-                      <span className="rounded-sm border border-[#808080] bg-[#242424] px-2 py-0.5 text-xs font-medium text-[#B4B4B4]">Medium</span>
+                  <div className="flex items-center gap-4">
+                    {/* Fear & Greed Gauge */}
+                    <div className="flex flex-col items-center">
+                      <svg viewBox="0 0 36 20" className="w-14 h-8">
+                        <path d="M4 18 A14 14 0 0 1 32 18" fill="none" stroke="#2A2A2A" strokeWidth="4" strokeLinecap="round"/>
+                        <path d="M4 18 A14 14 0 0 1 32 18" fill="none" stroke="#34D399" strokeWidth="4" strokeLinecap="round" strokeDasharray="44" strokeDashoffset="8"/>
+                      </svg>
+                      <span className="text-xs font-bold text-emerald-400">72</span>
+                      <span className="text-[9px] text-emerald-400">Greed</span>
                     </div>
-                    <p className="text-xs text-[#808080]">Microsoft Corporation</p>
-                    <p className="mt-2 text-sm text-[#B4B4B4]">Cloud computing dominance and AI integration...</p>
+                    {/* Key Metrics */}
+                    <div className="flex-1 grid grid-cols-4 gap-2 text-[10px]">
+                      <div><span className="text-gray-500">P/E</span> <span className="text-white font-medium block">58.2</span></div>
+                      <div><span className="text-gray-500">Rev</span> <span className="text-green-400 font-medium block">+122%</span></div>
+                      <div><span className="text-gray-500">Margin</span> <span className="text-white font-medium block">55.8%</span></div>
+                      <div><span className="text-gray-500">Cap</span> <span className="text-white font-medium block">3.5T</span></div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* AAPL Card */}
+                <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3 hover:border-[#00FF99]/30 transition-all">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-white">AAPL</span>
+                        <span className="text-xs font-semibold text-[#00FF99]">$198.30</span>
+                      </div>
+                      <p className="text-[10px] text-gray-500">Apple Inc.</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-[#00FF99]/20 text-[#00FF99] border border-[#00FF99]/30">Large</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#3B82F6]/20 text-[#3B82F6] border border-[#3B82F6]/30">Low</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center">
+                      <svg viewBox="0 0 36 20" className="w-14 h-8">
+                        <path d="M4 18 A14 14 0 0 1 32 18" fill="none" stroke="#2A2A2A" strokeWidth="4" strokeLinecap="round"/>
+                        <path d="M4 18 A14 14 0 0 1 32 18" fill="none" stroke="#F59E0B" strokeWidth="4" strokeLinecap="round" strokeDasharray="44" strokeDashoffset="20"/>
+                      </svg>
+                      <span className="text-xs font-bold text-yellow-400">54</span>
+                      <span className="text-[9px] text-yellow-400">Neutral</span>
+                    </div>
+                    <div className="flex-1 grid grid-cols-4 gap-2 text-[10px]">
+                      <div><span className="text-gray-500">P/E</span> <span className="text-white font-medium block">31.4</span></div>
+                      <div><span className="text-gray-500">Rev</span> <span className="text-green-400 font-medium block">+4.9%</span></div>
+                      <div><span className="text-gray-500">Margin</span> <span className="text-white font-medium block">26.3%</span></div>
+                      <div><span className="text-gray-500">Cap</span> <span className="text-white font-medium block">3.0T</span></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -676,43 +1064,82 @@ export default function Home() {
                 </li>
               </ul>
             </div>
-            <div className="rounded-sm border border-[#2A2A2A] bg-black p-6">
-              <div className="rounded-sm bg-black p-4">
-                <div className="mb-4">
-                  <h4 className="mb-2 text-base font-semibold text-[#E6E6E6]">Stress Test Results</h4>
-                  <div className="rounded-sm border border-[#2A2A2A] bg-black p-2.5">
-                    <p className="text-xs text-[#808080]">Scenario: S&P 500 drops 10% in 2026</p>
-                  </div>
+            {/* Updated Mock UI - Matches actual feature */}
+            <div className="rounded-sm border border-[#2A2A2A] bg-[#0A0A0A] p-5 hover:border-[#00FF99]/30 transition-all duration-300">
+              <div className="flex gap-4">
+                {/* Scenario Presets */}
+                <div className="w-[160px] flex-shrink-0 space-y-2">
+                  <p className="text-[9px] uppercase tracking-wide text-gray-500 mb-1.5">Presets</p>
+                  <button className="w-full text-left px-2.5 py-1.5 rounded-sm border border-[#00FF99] bg-[#00FF99]/10 text-[10px] text-[#00FF99] font-medium">
+                    🔻 2008 Crisis
+                  </button>
+                  <button className="w-full text-left px-2.5 py-1.5 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] text-[10px] text-gray-400">
+                    📈 Tech Bubble
+                  </button>
+                  <button className="w-full text-left px-2.5 py-1.5 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] text-[10px] text-gray-400">
+                    🦠 COVID Crash
+                  </button>
+                  <button className="w-full text-left px-2.5 py-1.5 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] text-[10px] text-gray-400">
+                    💹 Bull Rally
+                  </button>
+                  <input 
+                    type="text" 
+                    placeholder="Custom..."
+                    className="w-full px-2.5 py-1.5 rounded-sm border border-[#2A2A2A] bg-black text-[10px] text-gray-400 placeholder-gray-600 mt-1"
+                    readOnly
+                  />
                 </div>
-                {/* Mock chart */}
-                <div className="mb-4 h-32 rounded-sm border border-[#2A2A2A] bg-black p-3">
-                  <svg viewBox="0 0 200 80" className="h-full w-full">
-                    <polyline
-                      points="0,40 40,35 80,30 120,45 160,55 200,50"
-                      fill="none"
-                      stroke="#4A4A4A"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </div>
-                {/* Mock results */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between rounded-sm border border-[#D95F5F]/50 bg-[#D95F5F]/10 p-3">
-                    <span className="text-sm text-[#B4B4B4]">Expected Change</span>
-                    <span className="text-lg font-semibold text-[#D95F5F]">-8.3%</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-2 text-center">
-                      <p className="text-xs text-[#808080]">Equities</p>
-                      <p className="text-sm font-medium text-[#D95F5F]">-12%</p>
+                
+                {/* Results Panel */}
+                <div className="flex-1 space-y-3">
+                  {/* Impact Summary */}
+                  <div className="rounded-sm border border-[#D95F5F]/50 bg-[#D95F5F]/10 p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-semibold text-white">2008 Financial Crisis</span>
+                      <span className="text-base font-bold text-[#D95F5F]">-38.5%</span>
                     </div>
-                    <div className="rounded-sm border border-[#2A2A2A] bg-black p-2 text-center">
-                      <p className="text-xs text-[#808080]">Bonds</p>
-                      <p className="text-sm font-medium text-[#00FF99]">+2%</p>
+                    <p className="text-[9px] text-gray-400">Estimated drawdown: -$38,500 on $100K</p>
+                  </div>
+                  
+                  {/* Asset Class Impact */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-3">
+                    <p className="text-[9px] uppercase tracking-wide text-gray-500 mb-2">Impact by Asset</p>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-gray-400 w-14">Equities</span>
+                        <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
+                          <div className="h-full bg-[#D95F5F] rounded-full" style={{ width: '55%' }}></div>
+                        </div>
+                        <span className="text-[10px] font-semibold text-[#D95F5F] w-10 text-right">-55%</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-gray-400 w-14">Crypto</span>
+                        <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
+                          <div className="h-full bg-[#D95F5F] rounded-full" style={{ width: '70%' }}></div>
+                        </div>
+                        <span className="text-[10px] font-semibold text-[#D95F5F] w-10 text-right">-70%</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-gray-400 w-14">Bonds</span>
+                        <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
+                          <div className="h-full bg-[#00FF99] rounded-full" style={{ width: '15%' }}></div>
+                        </div>
+                        <span className="text-[10px] font-semibold text-[#00FF99] w-10 text-right">+15%</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="rounded-sm border border-[#808080] bg-[#242424] px-4 py-2 text-center text-xs font-medium text-[#B4B4B4]">
-                    Moderate Risk
+                  
+                  {/* Recovery Timeline */}
+                  <div className="rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] uppercase tracking-wide text-gray-500">Recovery</span>
+                      <span className="text-[10px] font-semibold text-[#F59E0B]">~3.5 years</span>
+                    </div>
+                    <div className="mt-1.5 flex gap-0.5">
+                      {[1,2,3,4,5,6,7,8].map((i) => (
+                        <div key={i} className={`flex-1 h-1.5 rounded-full ${i <= 5 ? 'bg-[#D95F5F]' : i <= 7 ? 'bg-[#F59E0B]' : 'bg-[#00FF99]'}`}></div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -360,7 +360,7 @@ export default function DevelopPage() {
       console.log("[Cache] Restored stock modal cache from session cache");
     }
 
-    // Restore allocation chat history
+    // Restore allocation chat history (indefinite cache - never re-fetch Grok)
     const cachedAllocationChat = sessionCache.get<{
       chatHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
       reasoningText: string;
@@ -373,7 +373,7 @@ export default function DevelopPage() {
         setAllocationReasoningText(cachedAllocationChat.reasoningText);
         hasLoadedAllocationReasoningRef.current = true; // Mark as loaded to prevent re-fetch
       }
-      sessionCache.remove(CACHE_KEYS.ALLOCATION_CHAT); // Clear after reading
+      // NOTE: Don't remove from cache - allocation reasoning should persist indefinitely
       console.log("[Cache] Restored allocation chat from session cache");
     }
   }, []);
@@ -393,6 +393,62 @@ export default function DevelopPage() {
       sessionCache.set(CACHE_KEYS.STOCK_PRICES, stockPrices, CACHE_TTL.STOCK_PRICES);
     }
   }, [stockPrices]);
+
+  // Smart price auto-refresh - refetch if user is active and cache expired (1 minute interval)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!showResult || !detailedRecommendations) return;
+
+    const PRICE_REFRESH_INTERVAL = 60 * 1000; // 1 minute
+    
+    const checkAndRefreshPrices = async () => {
+      // Only refresh if page is visible and user has been active
+      if (document.hidden) return;
+      
+      // Check if prices cache expired
+      const cachedPrices = sessionCache.get(CACHE_KEYS.STOCK_PRICES);
+      if (cachedPrices) return; // Still valid, don't refresh
+      
+      // Cache expired - refresh prices only (not all data)
+      const tickers: string[] = [];
+      Object.keys(detailedRecommendations).forEach(assetClass => {
+        const assetData = detailedRecommendations[assetClass];
+        if (typeof assetData !== 'string' && assetData?.recommendations) {
+          assetData.recommendations.forEach((rec: any) => {
+            if (rec.ticker && assetClass !== 'Cash') {
+              tickers.push(rec.ticker);
+            }
+          });
+        }
+      });
+
+      if (tickers.length === 0) return;
+
+      console.log("[Auto-refresh] Refreshing prices for active user...");
+      try {
+        setStockPricesLoading(true);
+        const response = await fetch("/api/stock-prices", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tickers }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setStockPrices(data.prices || {});
+          console.log("[Auto-refresh] Prices updated for", Object.keys(data.prices || {}).length, "tickers");
+        }
+      } catch (error) {
+        console.error("[Auto-refresh] Error:", error);
+      } finally {
+        setStockPricesLoading(false);
+      }
+    };
+
+    // Check every minute
+    const interval = setInterval(checkAndRefreshPrices, PRICE_REFRESH_INTERVAL);
+    
+    return () => clearInterval(interval);
+  }, [showResult, detailedRecommendations]);
 
   // Load stress test history from localStorage on mount
   useEffect(() => {
@@ -961,6 +1017,20 @@ export default function DevelopPage() {
       allocationChatContainerRef.current.scrollTop = allocationChatContainerRef.current.scrollHeight;
     }
   }, [allocationChatHistory, allocationReasoningText]);
+
+  // Cache allocation reasoning and chat history for session persistence (indefinite)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!hasRestoredFromCacheRef.current) return;
+    // Only cache if we have actual data
+    if (allocationReasoningText || allocationChatHistory.length > 0) {
+      sessionCache.set(CACHE_KEYS.ALLOCATION_CHAT, {
+        chatHistory: allocationChatHistory,
+        reasoningText: allocationReasoningText,
+      }, CACHE_TTL.ALLOCATION_CHAT); // undefined = indefinite
+      console.log("[Cache] Saved allocation chat to session cache");
+    }
+  }, [allocationReasoningText, allocationChatHistory]);
   
   // Handle sending allocation chat message
   const handleSendAllocationChatMessage = async (directMessage?: string) => {
@@ -1605,9 +1675,9 @@ export default function DevelopPage() {
                 await Promise.allSettled([pricesPromise, ...dataPromises]);
                 console.log('[Stage 3] All asset data loaded');
 
-                // Cache the loaded data for session persistence
+                // Cache the loaded data for session persistence (indefinite - stock picks never expire)
                 sessionCache.set(CACHE_KEYS.STOCK_RECOMMENDATIONS, data, CACHE_TTL.RECOMMENDATIONS);
-                console.log('[Cache] Saved recommendations to session cache');
+                console.log('[Cache] Saved recommendations to session cache (indefinite)');
               }
             }
           } catch (parseError) {
