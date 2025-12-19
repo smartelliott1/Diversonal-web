@@ -3830,7 +3830,7 @@ export default function DevelopPage() {
                       return (
                         <div 
                           key={asset} 
-                          className="flex-1 min-w-[160px] max-w-[200px] rounded-sm border border-white/10 bg-black p-4 transition-all duration-300 hover:border-[#00FF99]/30"
+                          className="flex-1 min-w-[180px] rounded-sm border border-white/10 bg-black p-4 transition-all duration-300 hover:border-[#00FF99]/30"
                         >
                           <div className="mb-3 text-center">
                             <span className="text-sm font-semibold capitalize text-gray-200">{asset}</span>
@@ -3864,9 +3864,9 @@ export default function DevelopPage() {
               {/* Live Portfolio Rebalancing - Full Width */}
               <div className="mt-4 rounded-sm border-2 border-white/20 bg-black p-4">
                 <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Rebalance Portfolio</h4>
-                <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+                <div className="mb-4 flex flex-wrap justify-center gap-6">
                   {tempPortfolioAllocation.map((item, index) => (
-                    <div key={item.name}>
+                    <div key={item.name} className="w-[160px]">
                       <div className="mb-1 flex items-center justify-between text-xs">
                         <span className="font-medium text-gray-500">{item.name}</span>
                         <div className="flex items-center gap-0.5">
