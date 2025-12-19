@@ -1222,8 +1222,8 @@ export default function DevelopPage() {
     }
 
     try {
+      // Base save data - doesn't include name to avoid overwriting user's custom names
       const saveData = {
-        name: `${formDataToSave.goal?.slice(0, 30) || 'My'} Portfolio`,
         age: formDataToSave.age,
         risk: formDataToSave.risk,
         horizon: formDataToSave.horizon,
@@ -1241,7 +1241,7 @@ export default function DevelopPage() {
       };
 
       if (currentPortfolioId) {
-        // Update existing portfolio
+        // Update existing portfolio - DO NOT include name to preserve user's custom name
         const response = await fetch('/api/portfolios', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -1253,11 +1253,14 @@ export default function DevelopPage() {
           console.log('[Auto-save] Portfolio updated');
         }
       } else {
-        // Create new portfolio
+        // Create new portfolio - generate name from goal
         const response = await fetch('/api/portfolios', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(saveData),
+          body: JSON.stringify({
+            ...saveData,
+            name: `${formDataToSave.goal?.slice(0, 30) || 'My'} Portfolio`,
+          }),
         });
 
         if (response.ok) {
