@@ -3866,7 +3866,7 @@ export default function DevelopPage() {
                 <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Rebalance Portfolio</h4>
                 <div className="mb-4 flex flex-wrap justify-center gap-6">
                   {tempPortfolioAllocation.map((item, index) => (
-                    <div key={item.name} className="w-[160px]">
+                    <div key={item.name} className="flex-1 min-w-[140px] max-w-[220px]">
                       <div className="mb-1 flex items-center justify-between text-xs">
                         <span className="font-medium text-gray-500">{item.name}</span>
                         <div className="flex items-center gap-0.5">
