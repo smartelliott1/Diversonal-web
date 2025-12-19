@@ -3594,7 +3594,6 @@ export default function DevelopPage() {
                     value={stressTestScenario}
                     onChange={(e) => {
                       setStressTestScenario(e.target.value);
-                      if (e.target.value) setSelectedScenarioPreset(null);
                     }}
                     placeholder={selectedScenarioPreset ? "Add context (optional)..." : "Or describe a custom scenario..."}
                     className="flex-1 bg-transparent text-base text-white placeholder-gray-500 focus:outline-none min-w-0"
