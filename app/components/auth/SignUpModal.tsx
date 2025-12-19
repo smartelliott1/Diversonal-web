@@ -104,7 +104,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-md mx-4 bg-black border border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+      <div className="relative w-full max-w-md mx-4 bg-black border border-[#2A2A2A] rounded-sm shadow-2xl overflow-hidden animate-fade-in">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -126,7 +126,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 mb-6 bg-white text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 mb-6 bg-white text-gray-800 rounded-sm font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -147,7 +147,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
           {/* Registration Form */}
           <form onSubmit={handleSubmit}>
             {error && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-sm text-red-400 text-sm">
                 {error}
               </div>
             )}
@@ -159,7 +159,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl text-white placeholder-[#808080] focus:outline-none focus:border-[#00FF99] transition-colors"
+                  className="w-full px-4 py-3 bg-[#0F0F0F] border border-[#2A2A2A] rounded-sm text-white placeholder-[#808080] focus:outline-none focus:border-[#00FF99] transition-colors"
                   placeholder="Your name"
                 />
               </div>
@@ -170,7 +170,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl text-white placeholder-[#808080] focus:outline-none focus:border-[#00FF99] transition-colors"
+                  className="w-full px-4 py-3 bg-[#0F0F0F] border border-[#2A2A2A] rounded-sm text-white placeholder-[#808080] focus:outline-none focus:border-[#00FF99] transition-colors"
                   placeholder="you@example.com"
                   required
                 />
@@ -182,7 +182,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl text-white placeholder-[#808080] focus:outline-none focus:border-[#00FF99] transition-colors"
+                  className="w-full px-4 py-3 bg-[#0F0F0F] border border-[#2A2A2A] rounded-sm text-white placeholder-[#808080] focus:outline-none focus:border-[#00FF99] transition-colors"
                   placeholder="••••••••"
                   required
                 />
@@ -199,7 +199,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl text-white placeholder-[#808080] focus:outline-none focus:border-[#00FF99] transition-colors"
+                  className="w-full px-4 py-3 bg-[#0F0F0F] border border-[#2A2A2A] rounded-sm text-white placeholder-[#808080] focus:outline-none focus:border-[#00FF99] transition-colors"
                   placeholder="••••••••"
                   required
                 />
@@ -212,7 +212,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-6 px-4 py-3 bg-[#00FF99] text-black rounded-xl font-semibold hover:bg-[#00FF99]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-6 px-4 py-3 bg-[#00FF99] text-black rounded-sm font-semibold hover:bg-[#00FF99]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Creating account..." : "Create Account"}
             </button>

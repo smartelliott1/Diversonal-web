@@ -2196,7 +2196,7 @@ export default function DevelopPage() {
               value={riskTolerance}
               onChange={(e) => setRiskTolerance(parseInt(e.target.value))}
               required
-              className="w-full h-2 bg-[#2A2A2A] rounded-lg appearance-none cursor-pointer slider-thumb"
+              className="w-full h-2 bg-[#2A2A2A] rounded-sm appearance-none cursor-pointer slider-thumb"
               style={{
                 background: `linear-gradient(to right, #00FF99 0%, #00FF99 ${riskTolerance}%, #2A2A2A ${riskTolerance}%, #2A2A2A 100%)`
               }}
@@ -2266,7 +2266,7 @@ export default function DevelopPage() {
                     target.style.height = target.scrollHeight + 'px';
                   }}
                   onChange={(e) => setGoalLength(e.target.value.length)}
-                  className="w-full rounded-xl border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5 text-center text-lg text-[#E6E6E6] placeholder-[#808080] placeholder:text-center outline-none transition-all duration-200 hover:border-[#3A3A3A] focus:border-[#00FF99] focus:bg-[#0F0F0F] resize-none"
+                  className="w-full rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-3 py-2.5 text-center text-lg text-[#E6E6E6] placeholder-[#808080] placeholder:text-center outline-none transition-all duration-200 hover:border-[#3A3A3A] focus:border-[#00FF99] focus:bg-[#0F0F0F] resize-none"
                 />
                 <div className="mt-2 flex items-center justify-between">
                   <span className={`text-xs transition-colors duration-200 ${goalLength >= 50 ? 'text-[#00FF99] font-medium' : 'text-[#808080]'}`}>
@@ -2533,7 +2533,7 @@ export default function DevelopPage() {
               {currentPortfolioData.map((item, index) => (
                 <div 
                   key={index}
-                  className="group rounded-lg border border-[#2A2A2A] bg-[#0F0F0F] px-4 py-3 transition-all duration-300 hover:border-[#00FF99]/30"
+                  className="group rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] px-4 py-3 transition-all duration-300 hover:border-[#00FF99]/30"
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
                   <div className="flex items-center gap-3">
@@ -2571,7 +2571,7 @@ export default function DevelopPage() {
 
             {/* Profile Sidebar - 1/3 width */}
             {savedFormData && (
-              <div className="w-[280px] flex-shrink-0 rounded-lg border border-[#2A2A2A] bg-[#0F0F0F] p-4">
+              <div className="w-[280px] flex-shrink-0 rounded-sm border border-[#2A2A2A] bg-[#0F0F0F] p-4">
                 <h3 className="text-sm font-bold text-white mb-3">Your Profile</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -2664,7 +2664,7 @@ export default function DevelopPage() {
                 >
                   {msg.role === 'user' ? (
                     <div className="flex justify-end">
-                      <p className="text-base text-[#00FF99]/90 bg-[#00FF99]/10 rounded-xl px-4 py-2.5 max-w-[85%]">
+                      <p className="text-base text-[#00FF99]/90 bg-[#00FF99]/10 rounded-sm px-4 py-2.5 max-w-[85%]">
                         {msg.content}
                       </p>
                     </div>
@@ -2742,13 +2742,13 @@ export default function DevelopPage() {
                     onChange={(e) => setAllocationChatInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendAllocationChatMessage()}
                     placeholder="Ask a follow-up question..."
-                    className="flex-1 px-5 py-3.5 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] text-base text-white placeholder-gray-500 focus:outline-none focus:border-[#00FF99]/30 transition-colors"
+                    className="flex-1 px-5 py-3.5 rounded-sm bg-[#1A1A1A] border border-[#2A2A2A] text-base text-white placeholder-gray-500 focus:outline-none focus:border-[#00FF99]/30 transition-colors"
                     disabled={allocationChatLoading}
                   />
                   <button
                     onClick={() => handleSendAllocationChatMessage()}
                     disabled={!allocationChatInput.trim() || allocationChatLoading}
-                    className="px-6 py-3.5 rounded-xl bg-[#00FF99] text-black text-base font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-6 py-3.5 rounded-sm bg-[#00FF99] text-black text-base font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {allocationChatLoading ? (
                       <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -2784,7 +2784,7 @@ export default function DevelopPage() {
               <button
                 onClick={handleGetDetailedRecommendations}
                 disabled={detailPanelLoading}
-                className="group relative inline-flex items-center gap-3 rounded-lg border-2 border-[#00FF99] bg-black px-8 py-4 text-xl font-semibold text-[#00FF99] transition-all duration-300 hover:bg-[#00FF99]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                className="group relative inline-flex items-center gap-3 rounded-sm border-2 border-[#00FF99] bg-black px-8 py-4 text-xl font-semibold text-[#00FF99] transition-all duration-300 hover:bg-[#00FF99]/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {detailPanelLoading && (
                   <div className="absolute bottom-0 left-0 h-1 w-full bg-[#171A1F]/20">
@@ -2809,7 +2809,7 @@ export default function DevelopPage() {
           {/* Streaming Text Display - shown during generation with shimmer effect on text */}
           {detailPanelLoading && streamingText && (
             <div className="mb-6 animate-fade-in">
-              <div ref={streamingTextRef} className="max-h-[200px] overflow-y-auto rounded-lg bg-black p-4 border-2 border-white/30">
+              <div ref={streamingTextRef} className="max-h-[200px] overflow-y-auto rounded-sm bg-black p-4 border-2 border-white/30">
                 <pre className="shimmer-text whitespace-pre-wrap font-mono text-xs leading-relaxed">
                   {streamingText}
                   <span className="streaming-cursor"></span>
@@ -2826,7 +2826,7 @@ export default function DevelopPage() {
                 <div className="flex items-center gap-3 w-[200px]">
                   <button
                     onClick={() => setWeightsModalOpen(true)}
-                    className="flex items-center gap-2 rounded-xl border-2 border-white/30 bg-black px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/50 hover:scale-105"
+                    className="flex items-center gap-2 rounded-sm border-2 border-white/30 bg-black px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/50 hover:scale-105"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -2837,12 +2837,12 @@ export default function DevelopPage() {
                 
                 {/* Center: Asset class tabs */}
                 <div className="overflow-x-auto pb-0">
-                  <div className="inline-flex gap-3 rounded-xl border-2 border-white/30 bg-black p-2 shadow-md">
+                  <div className="inline-flex gap-3 rounded-sm border-2 border-white/30 bg-black p-2 shadow-md">
                     {(detailPanelLoading ? parsedAssetClasses : currentPortfolioData.map(item => item.name)).map((assetClass) => (
                       <button
                         key={assetClass}
                         onClick={() => setActiveTab(assetClass)}
-                        className={`flex-shrink-0 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-300 ${
+                        className={`flex-shrink-0 rounded-sm px-6 py-3 text-sm font-semibold transition-all duration-300 ${
                           activeTab === assetClass
                             ? 'bg-[#00FF99] text-black shadow-lg shadow-[#00FF99]/30 scale-105'
                             : 'text-white hover:bg-white/10 hover:text-white hover:scale-102'
@@ -2858,7 +2858,7 @@ export default function DevelopPage() {
                 <div className="flex items-center gap-3 w-[200px] justify-end">
                   <button
                     onClick={() => setShowSaveModal(true)}
-                    className="flex items-center gap-2 rounded-xl border-2 border-[#00FF99]/50 bg-black px-4 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99]/10 hover:border-[#00FF99] hover:scale-105"
+                    className="flex items-center gap-2 rounded-sm border-2 border-[#00FF99]/50 bg-black px-4 py-3 text-sm font-semibold text-[#00FF99] transition-all hover:bg-[#00FF99]/10 hover:border-[#00FF99] hover:scale-105"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -2900,7 +2900,7 @@ export default function DevelopPage() {
                   <div key={assetClass} className="space-y-6">
                     {/* Loading indicator for partial data */}
                     {detailPanelLoading && (
-                      <div className="rounded-lg border border-[#00FF99]/30 bg-[#00FF99]/10 p-4 mb-6">
+                      <div className="rounded-sm border border-[#00FF99]/30 bg-[#00FF99]/10 p-4 mb-6">
                         <p className="flex items-center gap-2 text-sm text-[#00FF99]">
                           <svg className="h-5 w-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -2997,7 +2997,7 @@ export default function DevelopPage() {
                         ) : (
                           <div className="space-y-6">
                             {data.recommendations.map((rec: StockRecommendation, index: number) => (
-                              <div key={index} className="rounded-lg border-2 border-white/20 bg-black">
+                              <div key={index} className="rounded-sm border-2 border-white/20 bg-black">
                                 <div className="grid grid-cols-1 lg:grid-cols-[1.45fr_2.5fr_0.75fr]">
                                   {/* Column 1: Ticker Details */}
                                   <div className="p-4 flex flex-col justify-between">
@@ -3036,7 +3036,7 @@ export default function DevelopPage() {
                                             setChartModalExchange(stockPrices[rec.ticker]?.exchange || null);
                                             setChartModalOpen(true);
                                           }}
-                                          className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 border-[#3A3A3A] bg-black text-base font-semibold text-white hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
+                                          className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-sm border-2 border-[#3A3A3A] bg-black text-base font-semibold text-white hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
                                         >
                                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
@@ -3057,7 +3057,7 @@ export default function DevelopPage() {
                                         });
                                         setReasoningModalOpen(true);
                                       }}
-                                      className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-[#2A2A2A] bg-black text-sm text-white hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
+                                      className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-sm border border-[#2A2A2A] bg-black text-sm text-white hover:border-[#00FF99]/50 hover:bg-[#00FF99]/10 hover:text-[#00FF99] transition-all"
                                     >
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -3396,7 +3396,7 @@ export default function DevelopPage() {
                           <div className="mt-6 pt-6 border-t border-[#2A2A2A]">
                             {/* Shimmer streaming text during regeneration */}
                             {assetClassStreamingText[assetClass] && (
-                              <div className="mb-4 shimmer-stream-container ai-thinking-glow p-3 rounded-lg">
+                              <div className="mb-4 shimmer-stream-container ai-thinking-glow p-3 rounded-sm">
                                 <pre className="shimmer-stream text-xs font-mono text-[#B4B4B4] whitespace-pre-wrap max-h-[100px] overflow-y-auto">
                                   {assetClassStreamingText[assetClass]}
                                   <span className="streaming-cursor"></span>
@@ -3409,7 +3409,7 @@ export default function DevelopPage() {
                                 setRegeneratingAllocation(portfolioItem.value);
                                 setStockCountSelectorOpen(true);
                               }}
-                              className="w-full rounded-lg border border-[#00FF99] bg-black px-5 py-3 text-sm font-medium text-[#00FF99] hover:bg-[#00FF99]/10 transition-all flex items-center justify-center gap-2"
+                              className="w-full rounded-sm border border-[#00FF99] bg-black px-5 py-3 text-sm font-medium text-[#00FF99] hover:bg-[#00FF99]/10 transition-all flex items-center justify-center gap-2"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -3446,14 +3446,14 @@ export default function DevelopPage() {
 
           {/* Stress Test Tab */}
           {activeResultTab === 'stressTest' && (
-        <section className="animate-fade-in mx-auto max-w-[1800px] rounded-lg border border-[#2A2A2A] bg-black p-4 sm:p-6">
+        <section className="animate-fade-in mx-auto max-w-[1800px] rounded-sm border border-[#2A2A2A] bg-black p-4 sm:p-6">
           
           {/* Collapsible Scenario Input Section */}
           {stressTestResult && isScenarioSectionCollapsed ? (
             /* Collapsed state - compact button */
             <button
               onClick={() => setIsScenarioSectionCollapsed(false)}
-              className="mb-4 w-full rounded-lg border border-[#00FF99] bg-black px-4 py-2.5 text-sm font-medium text-[#00FF99] hover:bg-[#00FF99]/10 transition-all flex items-center justify-center gap-2"
+              className="mb-4 w-full rounded-sm border border-[#00FF99] bg-black px-4 py-2.5 text-sm font-medium text-[#00FF99] hover:bg-[#00FF99]/10 transition-all flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -3483,7 +3483,7 @@ export default function DevelopPage() {
                           setStressTestScenario("");
                         }}
                         disabled={stressTestLoading}
-                        className={`px-3 py-1.5 text-sm rounded-lg border transition-all ${
+                        className={`px-3 py-1.5 text-sm rounded-sm border transition-all ${
                           selectedScenarioPreset?.name === event.name
                             ? 'border-[#00FF99] bg-[#00FF99]/10 text-[#00FF99]'
                             : 'border-[#333] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99]'
@@ -3507,7 +3507,7 @@ export default function DevelopPage() {
                           setStressTestScenario("");
                         }}
                         disabled={stressTestLoading}
-                        className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+                        className={`px-3 py-1.5 text-sm rounded-sm transition-all ${
                           selectedScenarioPreset?.name === event.name
                             ? 'bg-[#00FF99] text-black'
                             : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#00FF99]/20 hover:text-[#00FF99]'
@@ -3540,7 +3540,7 @@ export default function DevelopPage() {
                       <button
                         key={test.timestamp}
                         onClick={() => loadHistoricalTest(index)}
-                        className={`px-3 py-1.5 text-sm rounded-lg border transition-all flex items-center gap-2 ${
+                        className={`px-3 py-1.5 text-sm rounded-sm border transition-all flex items-center gap-2 ${
                           index === activeHistoryIndex && stressTestResult
                             ? 'border-[#00FF99]/50 bg-[#00FF99]/10'
                             : 'border-[#222] bg-[#111] hover:border-[#333]'
@@ -3560,12 +3560,12 @@ export default function DevelopPage() {
               <div className="flex gap-3 items-center">
                 {/* Duration Selector */}
                 <span className="text-xs uppercase tracking-wide text-gray-500 flex-shrink-0">Timeframe</span>
-                <div className="flex items-center gap-1 rounded-lg border border-[#2A2A2A] bg-[#111] p-1 flex-shrink-0">
+                <div className="flex items-center gap-1 rounded-sm border border-[#2A2A2A] bg-[#111] p-1 flex-shrink-0">
                   {[6, 12, 18, 24].map((months) => (
                     <button
                       key={months}
                       onClick={() => setStressTestTimeHorizon(months)}
-                      className={`px-2.5 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      className={`px-2.5 py-1.5 rounded-sm text-sm font-medium transition-all ${
                         stressTestTimeHorizon === months
                           ? 'bg-[#00FF99] text-black'
                           : 'text-gray-500 hover:text-white'
@@ -3577,9 +3577,9 @@ export default function DevelopPage() {
                 </div>
 
                 {/* Input Box */}
-                <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#111] border border-[#222] focus-within:border-[#00FF99]/30 transition-colors">
+                <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-sm bg-[#111] border border-[#222] focus-within:border-[#00FF99]/30 transition-colors">
                   {selectedScenarioPreset && (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#00FF99]/15 text-sm font-medium text-[#00FF99] whitespace-nowrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-[#00FF99]/15 text-sm font-medium text-[#00FF99] whitespace-nowrap">
                       {selectedScenarioPreset.name}
                       <button onClick={() => setSelectedScenarioPreset(null)} className="hover:text-white">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3617,7 +3617,7 @@ export default function DevelopPage() {
                     handleStressTest(scenarioToRun);
                   }}
                   disabled={stressTestLoading || (!selectedScenarioPreset && !stressTestScenario.trim())}
-                  className="px-5 py-2.5 rounded-lg bg-[#00FF99] text-black text-sm font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-5 py-2.5 rounded-sm bg-[#00FF99] text-black text-sm font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {stressTestLoading ? (
                     <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -3635,7 +3635,7 @@ export default function DevelopPage() {
           {/* Streaming Analysis Display - shown during loading */}
           {stressTestLoading && (
             <div className="my-6 animate-fade-in">
-              <div className="rounded-xl border-2 border-white/20 bg-black p-6">
+              <div className="rounded-sm border-2 border-white/20 bg-black p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-2 h-2 bg-[#00FF99] rounded-full animate-pulse"></div>
                   <span className="text-sm font-medium text-gray-400">Analyzing scenario...</span>
@@ -3658,7 +3658,7 @@ export default function DevelopPage() {
                 <div className="lg:col-span-3 space-y-4">
                   {/* Portfolio Value Chart */}
                   {stressTestResult.portfolioValue && stressTestResult.portfolioValue.length > 0 && (
-                    <div className="rounded-lg border-2 border-white/20 bg-black p-4">
+                    <div className="rounded-sm border-2 border-white/20 bg-black p-4">
                       <div className="mb-3 flex items-center justify-between">
                         <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-400">Timeline</h4>
                         <div className={`rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
@@ -3699,7 +3699,7 @@ export default function DevelopPage() {
                                 if (active && payload && payload.length) {
                                   const data = payload[0].payload;
                                   return (
-                                    <div className="rounded-lg border border-[#00FF99]/30 bg-[#171A1F]/95 p-3 shadow-xl backdrop-blur-sm">
+                                    <div className="rounded-sm border border-[#00FF99]/30 bg-[#171A1F]/95 p-3 shadow-xl backdrop-blur-sm">
                                       <p className="mb-2 text-xs font-semibold text-[#00FF99]">Month {data.month}</p>
                                       <p className="mb-1 text-sm font-bold text-gray-100">${data.value.toLocaleString()}</p>
                                       <p className={`text-xs font-medium ${parseFloat(data.percentChange) < 0 ? 'text-red-400' : 'text-green-400'}`}>
@@ -3773,11 +3773,11 @@ export default function DevelopPage() {
                 {/* RIGHT COLUMN - Metrics & Analysis (40%) */}
                 <div className="lg:col-span-2 space-y-4">
                   {/* Key Metrics Card - Horizontal Layout */}
-                  <div className="rounded-lg border-2 border-white/20 bg-black p-4">
+                  <div className="rounded-sm border-2 border-white/20 bg-black p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Metrics</h4>
                     <div className="flex items-center gap-10">
                       {/* Left: Percentage Change - Wider */}
-                      <div className={`flex-shrink-0 rounded-lg border px-10 py-3 text-center ${
+                      <div className={`flex-shrink-0 rounded-sm border px-10 py-3 text-center ${
                         stressTestResult.percentageChange < 0 
                           ? 'border-red-500/50 bg-red-500/10' 
                           : 'border-green-500/50 bg-green-500/10'
@@ -3808,7 +3808,7 @@ export default function DevelopPage() {
                   </div>
 
                   {/* Analysis Card - Now in Right Column */}
-                  <div className="rounded-lg border-2 border-white/20 bg-black p-4">
+                  <div className="rounded-sm border-2 border-white/20 bg-black p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Claude Sonnet 4.5 Analysis</h4>
                     <p className="text-sm leading-relaxed text-gray-300">
                       {stressTestResult.analysis}
@@ -3818,7 +3818,7 @@ export default function DevelopPage() {
               </div>
 
               {/* Asset Impact - Full Width Below, Centered Grid */}
-              <div className="mt-4 rounded-lg border-2 border-white/20 bg-black p-4">
+              <div className="mt-4 rounded-sm border-2 border-white/20 bg-black p-4">
                 <div className="flex flex-wrap justify-center gap-6">
                   {stressTestResult.impact && Object.entries(stressTestResult.impact)
                     .map(([asset, impact]: [string, any]) => {
@@ -3830,7 +3830,7 @@ export default function DevelopPage() {
                       return (
                         <div 
                           key={asset} 
-                          className="flex-1 min-w-[160px] max-w-[200px] rounded-lg border border-white/10 bg-black p-4 transition-all duration-300 hover:border-[#00FF99]/30"
+                          className="flex-1 min-w-[160px] max-w-[200px] rounded-sm border border-white/10 bg-black p-4 transition-all duration-300 hover:border-[#00FF99]/30"
                         >
                           <div className="mb-3 text-center">
                             <span className="text-sm font-semibold capitalize text-gray-200">{asset}</span>
@@ -3862,7 +3862,7 @@ export default function DevelopPage() {
               </div>
 
               {/* Live Portfolio Rebalancing - Full Width */}
-              <div className="mt-4 rounded-lg border-2 border-white/20 bg-black p-4">
+              <div className="mt-4 rounded-sm border-2 border-white/20 bg-black p-4">
                 <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Rebalance Portfolio</h4>
                 <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
                   {tempPortfolioAllocation.map((item, index) => (
@@ -3905,11 +3905,11 @@ export default function DevelopPage() {
                         setTempPortfolioAllocation(JSON.parse(JSON.stringify(currentPortfolioData)));
                       }
                     }}
-                    className="rounded-lg border border-white/20 bg-transparent px-4 py-2 text-xs font-medium text-gray-400 hover:text-white hover:border-white/40 transition-all"
+                    className="rounded-sm border border-white/20 bg-transparent px-4 py-2 text-xs font-medium text-gray-400 hover:text-white hover:border-white/40 transition-all"
                   >
                     Reset
                   </button>
-                  <div className="rounded-lg border border-white/20 bg-[#1C1F26]/50 px-4 py-2 text-center">
+                  <div className="rounded-sm border border-white/20 bg-[#1C1F26]/50 px-4 py-2 text-center">
                     <span className={`text-sm font-bold ${Math.abs(getTotalAllocation() - 100) < 0.1 ? 'text-[#00FF99]' : 'text-red-400'}`}>
                       Total: {getTotalAllocation().toFixed(0)}%
                     </span>
@@ -3918,7 +3918,7 @@ export default function DevelopPage() {
                   <button
                     onClick={testRebalancedPortfolio}
                     disabled={stressTestLoading || Math.abs(getTotalAllocation() - 100) > 0.1}
-                    className="rounded-lg bg-[#00FF99] px-6 py-2 text-sm font-semibold text-black hover:bg-[#00E689] transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-sm bg-[#00FF99] px-6 py-2 text-sm font-semibold text-black hover:bg-[#00E689] transition-all disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Run Test
                   </button>
@@ -3940,7 +3940,7 @@ export default function DevelopPage() {
                 <h2 className="text-gradient text-2xl font-bold">Saved Portfolios</h2>
                 <button
                   onClick={() => setShowSavedPortfolios(false)}
-                  className="rounded-lg p-2 text-gray-400 transition-all duration-300 hover:rotate-90 hover:bg-white/10 hover:text-[#00FF99]"
+                  className="rounded-sm p-2 text-gray-400 transition-all duration-300 hover:rotate-90 hover:bg-white/10 hover:text-[#00FF99]"
                 >
                   <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3951,7 +3951,7 @@ export default function DevelopPage() {
                 {savedPortfolios.map((portfolio) => (
                   <div
                     key={portfolio.id}
-                    className="group rounded-xl border border-gray-700 bg-[#1C1F26] p-5 transition-all hover:border-[#00FF99]/50"
+                    className="group rounded-sm border border-gray-700 bg-[#1C1F26] p-5 transition-all hover:border-[#00FF99]/50"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -3961,13 +3961,13 @@ export default function DevelopPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleLoadPortfolio(portfolio)}
-                          className="btn-ripple rounded-lg bg-[#00FF99] px-4 py-2 text-sm font-semibold text-[#171A1F] transition-all hover:scale-105"
+                          className="btn-ripple rounded-sm bg-[#00FF99] px-4 py-2 text-sm font-semibold text-[#171A1F] transition-all hover:scale-105"
                         >
                           Load
                         </button>
                         <button
                           onClick={() => handleDeletePortfolio(portfolio.id)}
-                          className="btn-ripple rounded-lg border border-red-500 px-4 py-2 text-sm font-semibold text-red-500 transition-all hover:bg-red-500 hover:text-white"
+                          className="btn-ripple rounded-sm border border-red-500 px-4 py-2 text-sm font-semibold text-red-500 transition-all hover:bg-red-500 hover:text-white"
                         >
                           Delete
                         </button>
@@ -3991,7 +3991,7 @@ export default function DevelopPage() {
               value={saveName}
               onChange={(e) => setSaveName(e.target.value)}
               placeholder="Enter portfolio name..."
-              className="mb-6 w-full rounded-xl border border-gray-600 bg-[#171A1F]/80 px-5 py-4 text-base text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
+              className="mb-6 w-full rounded-sm border border-gray-600 bg-[#171A1F]/80 px-5 py-4 text-base text-gray-100 placeholder-gray-500 shadow-lg outline-none backdrop-blur-sm transition-all duration-300 focus:border-[#00FF99] focus:bg-[#171A1F] focus:shadow-xl focus:shadow-[#00FF99]/20 focus:ring-2 focus:ring-[#00FF99]/40"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSavePortfolio();
@@ -4001,7 +4001,7 @@ export default function DevelopPage() {
             <div className="flex gap-3">
               <button
                 onClick={handleSavePortfolio}
-                className="btn-ripple flex-1 rounded-xl bg-gradient-to-r from-[#00FF99] to-[#00E689] px-5 py-4 font-bold text-[#171A1F] shadow-xl shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00FF99]/40"
+                className="btn-ripple flex-1 rounded-sm bg-gradient-to-r from-[#00FF99] to-[#00E689] px-5 py-4 font-bold text-[#171A1F] shadow-xl shadow-[#00FF99]/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00FF99]/40"
               >
                 Save
               </button>
@@ -4010,7 +4010,7 @@ export default function DevelopPage() {
                   setShowSaveDialog(false);
                   setSaveName("");
                 }}
-                className="btn-ripple flex-1 rounded-xl border-2 border-gray-500 bg-gradient-to-br from-gray-700/50 to-gray-800/50 px-5 py-4 font-bold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:text-white hover:shadow-xl"
+                className="btn-ripple flex-1 rounded-sm border-2 border-gray-500 bg-gradient-to-br from-gray-700/50 to-gray-800/50 px-5 py-4 font-bold text-gray-300 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-gray-400 hover:text-white hover:shadow-xl"
               >
                 Cancel
               </button>
@@ -4122,7 +4122,7 @@ export default function DevelopPage() {
       {/* Reasoning Modal */}
       {reasoningModalOpen && reasoningModalStock && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="relative w-full max-w-2xl bg-black border border-[#2A2A2A] rounded-lg shadow-2xl">
+          <div className="relative w-full max-w-2xl bg-black border border-[#2A2A2A] rounded-sm shadow-2xl">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
               <div className="flex items-center gap-3">
@@ -4298,7 +4298,7 @@ export default function DevelopPage() {
                       >
                         {msg.role === 'user' ? (
                           <div className="flex justify-end">
-                            <p className="text-sm text-[#00FF99]/80 bg-[#00FF99]/10 rounded-lg px-3 py-2 max-w-[85%]">
+                            <p className="text-sm text-[#00FF99]/80 bg-[#00FF99]/10 rounded-sm px-3 py-2 max-w-[85%]">
                               {msg.content}
                             </p>
                           </div>
@@ -4349,13 +4349,13 @@ export default function DevelopPage() {
                         onChange={(e) => setChatInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendChatMessage()}
                         placeholder="Ask a follow-up question..."
-                        className="flex-1 px-3 py-2 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A] text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00FF99]/30 transition-colors"
+                        className="flex-1 px-3 py-2 rounded-sm bg-[#1A1A1A] border border-[#2A2A2A] text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00FF99]/30 transition-colors"
                         disabled={chatLoading}
                       />
                       <button
                         onClick={() => handleSendChatMessage()}
                         disabled={!chatInput.trim() || chatLoading}
-                        className="px-4 py-2 rounded-lg bg-[#00FF99] text-black text-sm font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="px-4 py-2 rounded-sm bg-[#00FF99] text-black text-sm font-semibold hover:bg-[#00E689] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         {chatLoading ? (
                           <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -4382,11 +4382,11 @@ export default function DevelopPage() {
       {/* Weights Modal */}
       {weightsModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="relative w-full max-w-2xl bg-black border border-[#2A2A2A] rounded-lg shadow-2xl max-h-[85vh] overflow-hidden">
+          <div className="relative w-full max-w-2xl bg-black border border-[#2A2A2A] rounded-sm shadow-2xl max-h-[85vh] overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#00FF99]/10">
+                <div className="p-2 rounded-sm bg-[#00FF99]/10">
                   <svg className="w-5 h-5 text-[#00FF99]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
@@ -4478,7 +4478,7 @@ export default function DevelopPage() {
                     }
                     
                     return (
-                    <div key={weight.ticker} className="p-4 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A]">
+                    <div key={weight.ticker} className="p-4 rounded-sm bg-[#1A1A1A] border border-[#2A2A2A]">
                       {/* Ticker Header */}
                       <div className="flex items-center justify-between mb-3">
                         <div>
@@ -4496,7 +4496,7 @@ export default function DevelopPage() {
 
                       {/* Dollar Allocation & Position Size */}
                       {totalCapital > 0 && (
-                        <div className="mb-4 p-3 rounded-lg bg-[#0A0A0A] border border-[#2A2A2A]">
+                        <div className="mb-4 p-3 rounded-sm bg-[#0A0A0A] border border-[#2A2A2A]">
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="text-xs text-gray-500 block mb-0.5">Your Allocation</span>

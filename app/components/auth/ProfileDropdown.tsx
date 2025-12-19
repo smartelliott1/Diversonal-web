@@ -37,7 +37,7 @@ export default function ProfileDropdown({ onMyPortfoliosClick }: ProfileDropdown
       {/* Profile Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-[#2A2A2A] transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-sm hover:bg-[#2A2A2A] transition-colors"
       >
         {session.user.image ? (
           <img
@@ -65,7 +65,7 @@ export default function ProfileDropdown({ onMyPortfoliosClick }: ProfileDropdown
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-black border border-[#2A2A2A] rounded-xl shadow-2xl overflow-hidden animate-fade-in z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-black border border-[#2A2A2A] rounded-sm shadow-2xl overflow-hidden animate-fade-in z-50">
           {/* User Info */}
           <div className="px-4 py-3 border-b border-[#2A2A2A]">
             <div className="flex items-center gap-3">

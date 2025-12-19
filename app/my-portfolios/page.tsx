@@ -337,7 +337,7 @@ export default function MyPortfoliosPage() {
     return (
       <div
         key={portfolio.id}
-        className="group bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl overflow-hidden hover:border-[#00FF99]/30 transition-all duration-300"
+        className="group bg-[#0A0A0A] border border-[#2A2A2A] rounded-sm overflow-hidden hover:border-[#00FF99]/30 transition-all duration-300"
       >
         {/* Card Header */}
         <div className="p-5">
@@ -358,11 +358,11 @@ export default function MyPortfoliosPage() {
                         }
                       }}
                       autoFocus
-                      className="flex-1 px-3 py-1.5 bg-[#1A1A1A] border border-[#00FF99]/50 rounded-lg text-white text-lg font-semibold focus:outline-none focus:border-[#00FF99]"
+                      className="flex-1 px-3 py-1.5 bg-[#1A1A1A] border border-[#00FF99]/50 rounded-sm text-white text-lg font-semibold focus:outline-none focus:border-[#00FF99]"
                     />
                     <button
                       onClick={() => handleRename(portfolio.id)}
-                      className="p-1.5 text-[#00FF99] hover:bg-[#00FF99]/10 rounded-lg transition-colors"
+                      className="p-1.5 text-[#00FF99] hover:bg-[#00FF99]/10 rounded-sm transition-colors"
                       title="Save"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -374,7 +374,7 @@ export default function MyPortfoliosPage() {
                         setRenamingId(null);
                         setNewName("");
                       }}
-                      className="p-1.5 text-[#808080] hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                      className="p-1.5 text-[#808080] hover:text-white hover:bg-white/10 rounded-sm transition-colors"
                       title="Cancel"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -402,7 +402,7 @@ export default function MyPortfoliosPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleLoadPortfolio(portfolio)}
-                className="px-4 py-2 bg-[#00FF99] text-black rounded-lg text-sm font-semibold hover:bg-[#00FF99]/90 transition-colors"
+                className="px-4 py-2 bg-[#00FF99] text-black rounded-sm text-sm font-semibold hover:bg-[#00FF99]/90 transition-colors"
               >
                 Load
               </button>
@@ -464,19 +464,19 @@ export default function MyPortfoliosPage() {
 
           {/* Quick Stats */}
           <div className="flex flex-wrap gap-2">
-            <span className="px-3 py-1.5 bg-[#1A1A1A] rounded-lg text-xs text-[#B4B4B4] flex items-center gap-1.5">
+            <span className="px-3 py-1.5 bg-[#1A1A1A] rounded-sm text-xs text-[#B4B4B4] flex items-center gap-1.5">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {formatCapital(portfolio.capital)}
             </span>
-            <span className="px-3 py-1.5 bg-[#1A1A1A] rounded-lg text-xs text-[#B4B4B4] flex items-center gap-1.5">
+            <span className="px-3 py-1.5 bg-[#1A1A1A] rounded-sm text-xs text-[#B4B4B4] flex items-center gap-1.5">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {portfolio.horizon}
             </span>
-            <span className="px-3 py-1.5 bg-[#1A1A1A] rounded-lg text-xs text-[#B4B4B4] flex items-center gap-1.5">
+            <span className="px-3 py-1.5 bg-[#1A1A1A] rounded-sm text-xs text-[#B4B4B4] flex items-center gap-1.5">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -511,7 +511,7 @@ export default function MyPortfoliosPage() {
               <h4 className="text-[#808080] text-xs uppercase tracking-wider mb-2">Allocation</h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {portfolio.portfolioData.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2 p-2 bg-[#1A1A1A] rounded-lg">
+                  <div key={idx} className="flex items-center gap-2 p-2 bg-[#1A1A1A] rounded-sm">
                     <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
                     <span className="text-xs text-[#B4B4B4] flex-1 truncate">{item.name}</span>
                     <span className="text-xs text-[#00FF99] font-medium">{item.value}%</span>
@@ -550,7 +550,7 @@ export default function MyPortfoliosPage() {
               </p>
               <button
                 onClick={() => setShowSignInModal(true)}
-                className="px-8 py-3 bg-[#00FF99] text-black rounded-lg font-semibold hover:bg-[#00FF99]/90 transition-colors"
+                className="px-8 py-3 bg-[#00FF99] text-black rounded-sm font-semibold hover:bg-[#00FF99]/90 transition-colors"
               >
                 Sign In
               </button>
@@ -593,7 +593,7 @@ export default function MyPortfoliosPage() {
           <div className="flex gap-3 mb-8">
             <button
               onClick={() => setActiveTab('developed')}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all border-2 ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-sm text-sm font-semibold transition-all border-2 ${
                 activeTab === 'developed'
                   ? 'bg-[#00FF99] text-black border-[#00FF99]'
                   : 'bg-[#1A1A1A] text-[#B4B4B4] border-[#2A2A2A] hover:border-[#00FF99]/50 hover:text-white'
@@ -610,7 +610,7 @@ export default function MyPortfoliosPage() {
             </button>
             <button
               onClick={() => setActiveTab('optimized')}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all border-2 ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-sm text-sm font-semibold transition-all border-2 ${
                 activeTab === 'optimized'
                   ? 'bg-[#00FF99] text-black border-[#00FF99]'
                   : 'bg-[#1A1A1A] text-[#B4B4B4] border-[#2A2A2A] hover:border-[#00FF99]/50 hover:text-white'
@@ -630,7 +630,7 @@ export default function MyPortfoliosPage() {
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all border-2 ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-sm text-sm font-semibold transition-all border-2 ${
                 activeTab === 'history'
                   ? 'bg-[#00FF99] text-black border-[#00FF99]'
                   : 'bg-[#1A1A1A] text-[#B4B4B4] border-[#2A2A2A] hover:border-[#00FF99]/50 hover:text-white'
@@ -700,7 +700,7 @@ export default function MyPortfoliosPage() {
                   </p>
                   <button
                     onClick={() => router.push('/develop')}
-                    className="px-6 py-3 bg-[#00FF99] text-black rounded-lg font-semibold hover:bg-[#00FF99]/90 transition-colors inline-flex items-center gap-2"
+                    className="px-6 py-3 bg-[#00FF99] text-black rounded-sm font-semibold hover:bg-[#00FF99]/90 transition-colors inline-flex items-center gap-2"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -754,7 +754,7 @@ export default function MyPortfoliosPage() {
                     .map((portfolio) => (
                       <div
                         key={portfolio.id}
-                        className="flex items-center gap-4 p-4 bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl hover:border-[#3A3A3A] transition-colors"
+                        className="flex items-center gap-4 p-4 bg-[#0A0A0A] border border-[#2A2A2A] rounded-sm hover:border-[#3A3A3A] transition-colors"
                       >
                         {/* Icon */}
                         <div className="w-10 h-10 rounded-full bg-[#00FF99]/10 flex items-center justify-center flex-shrink-0">
@@ -779,7 +779,7 @@ export default function MyPortfoliosPage() {
                         {/* Action */}
                         <button
                           onClick={() => handleLoadPortfolio(portfolio)}
-                          className="px-3 py-1.5 text-sm text-[#00FF99] hover:bg-[#00FF99]/10 rounded-lg transition-colors flex-shrink-0"
+                          className="px-3 py-1.5 text-sm text-[#00FF99] hover:bg-[#00FF99]/10 rounded-sm transition-colors flex-shrink-0"
                         >
                           View
                         </button>

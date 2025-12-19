@@ -443,7 +443,7 @@ export default function SavePortfolioModal({
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-lg mx-4 bg-[#0A0A0A] border border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+      <div className="relative w-full max-w-lg mx-4 bg-[#0A0A0A] border border-[#2A2A2A] rounded-sm shadow-2xl overflow-hidden animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#2A2A2A]">
           <h2 className="text-xl font-semibold text-white">Save Portfolio</h2>
@@ -460,10 +460,10 @@ export default function SavePortfolioModal({
         {/* Content */}
         <div className="p-6">
           {/* Option Tabs */}
-          <div className="flex gap-2 p-1 bg-[#1A1A1A] rounded-xl mb-6">
+          <div className="flex gap-2 p-1 bg-[#1A1A1A] rounded-sm mb-6">
             <button
               onClick={() => setActiveOption('save')}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-sm text-sm font-medium transition-all ${
                 activeOption === 'save'
                   ? 'bg-[#00FF99] text-black'
                   : 'text-[#808080] hover:text-white'
@@ -476,7 +476,7 @@ export default function SavePortfolioModal({
             </button>
             <button
               onClick={() => setActiveOption('pdf')}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-sm text-sm font-medium transition-all ${
                 activeOption === 'pdf'
                   ? 'bg-[#00FF99] text-black'
                   : 'text-[#808080] hover:text-white'
@@ -513,7 +513,7 @@ export default function SavePortfolioModal({
                       value={saveName}
                       onChange={(e) => setSaveName(e.target.value)}
                       placeholder="e.g., My Growth Portfolio"
-                      className="w-full px-4 py-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-white placeholder-[#666] focus:border-[#00FF99] focus:outline-none transition-colors"
+                      className="w-full px-4 py-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-sm text-white placeholder-[#666] focus:border-[#00FF99] focus:outline-none transition-colors"
                       autoFocus
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !saving) handleSaveToAccount();
@@ -522,7 +522,7 @@ export default function SavePortfolioModal({
                   </div>
                   
                   {/* Portfolio Preview */}
-                  <div className="p-4 bg-[#1A1A1A] rounded-xl">
+                  <div className="p-4 bg-[#1A1A1A] rounded-sm">
                     <p className="text-xs text-[#808080] uppercase tracking-wider mb-3">Preview</p>
                     <div className="flex gap-1 h-3 rounded-full overflow-hidden bg-[#0A0A0A]">
                       {portfolioData.map((item, idx) => (
@@ -548,7 +548,7 @@ export default function SavePortfolioModal({
                   <button
                     onClick={handleSaveToAccount}
                     disabled={saving || !saveName.trim()}
-                    className="w-full py-3 bg-[#00FF99] text-black rounded-xl font-semibold hover:bg-[#00FF99]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-[#00FF99] text-black rounded-sm font-semibold hover:bg-[#00FF99]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {saving ? (
                       <>
@@ -581,11 +581,11 @@ export default function SavePortfolioModal({
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
                   placeholder="diversonal_portfolio"
-                  className="w-full px-4 py-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-white placeholder-[#666] focus:border-[#00FF99] focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-sm text-white placeholder-[#666] focus:border-[#00FF99] focus:outline-none transition-colors"
                 />
               </div>
 
-              <div className="p-4 bg-[#1A1A1A] rounded-xl">
+              <div className="p-4 bg-[#1A1A1A] rounded-sm">
                 <p className="text-xs text-[#808080] uppercase tracking-wider mb-2">Export includes</p>
                 <ul className="space-y-2 text-sm text-[#B4B4B4]">
                   <li className="flex items-center gap-2">
@@ -612,7 +612,7 @@ export default function SavePortfolioModal({
               <button
                 onClick={handleExportPDF}
                 disabled={exporting}
-                className="w-full py-3 bg-[#00FF99] text-black rounded-xl font-semibold hover:bg-[#00FF99]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#00FF99] text-black rounded-sm font-semibold hover:bg-[#00FF99]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {exporting ? (
                   <>

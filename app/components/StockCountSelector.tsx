@@ -85,12 +85,12 @@ export default function StockCountSelector({
       />
       
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-sm bg-black rounded-lg border border-[#2A2A2A] shadow-2xl shadow-black/50 overflow-hidden">
+      <div className="relative z-10 w-full max-w-sm bg-black rounded-sm border border-[#2A2A2A] shadow-2xl shadow-black/50 overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#2A2A2A]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#00FF99]/10 border border-[#00FF99]/20">
+              <div className="flex items-center justify-center w-10 h-10 rounded-sm bg-[#00FF99]/10 border border-[#00FF99]/20">
                 <svg className="w-5 h-5 text-[#00FF99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -103,7 +103,7 @@ export default function StockCountSelector({
             
             <button
               onClick={onClose}
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-[#808080] hover:text-white hover:bg-[#2A2A2A] transition-all"
+              className="flex items-center justify-center w-8 h-8 rounded-sm text-[#808080] hover:text-white hover:bg-[#2A2A2A] transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -119,7 +119,7 @@ export default function StockCountSelector({
             <button
               onClick={() => setCount(c => Math.max(limits.min, c - 1))}
               disabled={count <= limits.min}
-              className="flex items-center justify-center w-12 h-12 rounded-lg border border-[#2A2A2A] bg-[#242424] text-[#B4B4B4] hover:border-[#3A3A3A] hover:bg-[#2A2A2A] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center justify-center w-12 h-12 rounded-sm border border-[#2A2A2A] bg-[#242424] text-[#B4B4B4] hover:border-[#3A3A3A] hover:bg-[#2A2A2A] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -136,14 +136,14 @@ export default function StockCountSelector({
                 const val = parseInt(e.target.value) || limits.min;
                 setCount(Math.min(limits.max, Math.max(limits.min, val)));
               }}
-              className="w-20 h-16 text-center text-3xl font-bold text-[#00FF99] bg-[#0F0F0F] border border-[#2A2A2A] rounded-lg focus:border-[#00FF99] focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-20 h-16 text-center text-3xl font-bold text-[#00FF99] bg-[#0F0F0F] border border-[#2A2A2A] rounded-sm focus:border-[#00FF99] focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
             
             {/* Increment */}
             <button
               onClick={() => setCount(c => Math.min(limits.max, c + 1))}
               disabled={count >= limits.max}
-              className="flex items-center justify-center w-12 h-12 rounded-lg border border-[#2A2A2A] bg-[#242424] text-[#B4B4B4] hover:border-[#3A3A3A] hover:bg-[#2A2A2A] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center justify-center w-12 h-12 rounded-sm border border-[#2A2A2A] bg-[#242424] text-[#B4B4B4] hover:border-[#3A3A3A] hover:bg-[#2A2A2A] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -160,13 +160,13 @@ export default function StockCountSelector({
         <div className="px-6 pb-6 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-lg border border-[#2A2A2A] bg-transparent text-sm font-medium text-[#808080] hover:text-white hover:border-[#3A3A3A] transition-all"
+            className="flex-1 py-2.5 rounded-sm border border-[#2A2A2A] bg-transparent text-sm font-medium text-[#808080] hover:text-white hover:border-[#3A3A3A] transition-all"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-1 py-2.5 rounded-lg bg-[#00FF99] text-sm font-semibold text-[#0F0F0F] hover:bg-[#00E689] transition-all"
+            className="flex-1 py-2.5 rounded-sm bg-[#00FF99] text-sm font-semibold text-[#0F0F0F] hover:bg-[#00E689] transition-all"
           >
             Regenerate
           </button>

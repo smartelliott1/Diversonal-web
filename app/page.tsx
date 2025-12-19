@@ -44,9 +44,9 @@ export default function Home() {
           </div>
           
           {/* Monitor Bezel */}
-          <div className="relative rounded-lg border-8 border-black bg-black shadow-2xl" style={{ transform: 'translateZ(10px)' }}>
+          <div className="relative rounded-sm border-8 border-black bg-black shadow-2xl" style={{ transform: 'translateZ(10px)' }}>
             {/* Screen Glow Effect */}
-            <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-[#00FF99]/20 via-[#00FF99]/10 to-[#00FF99]/20 opacity-50 blur-xl"></div>
+            <div className="absolute -inset-1 rounded-sm bg-gradient-to-r from-[#00FF99]/20 via-[#00FF99]/10 to-[#00FF99]/20 opacity-50 blur-xl"></div>
             
             {/* Screen Content Container */}
             <div className="relative overflow-hidden rounded-sm bg-black aspect-[16/10]">

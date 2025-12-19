@@ -51,11 +51,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="relative w-full max-w-lg bg-black border border-[#2A2A2A] rounded-lg shadow-2xl max-h-[85vh] overflow-hidden">
+      <div className="relative w-full max-w-lg bg-black border border-[#2A2A2A] rounded-sm shadow-2xl max-h-[85vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[#00FF99]/10">
+            <div className="p-2 rounded-sm bg-[#00FF99]/10">
               <svg className="w-5 h-5 text-[#00FF99]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -96,7 +96,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <button
                       key={style}
                       onClick={() => handleChange('aiResponseStyle', style)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`px-3 py-2 rounded-sm text-sm font-medium transition-all ${
                         settings.aiResponseStyle === style
                           ? 'bg-[#00FF99] text-black'
                           : 'bg-[#1A1A1A] text-gray-400 hover:bg-[#2A2A2A] hover:text-white border border-[#2A2A2A]'
@@ -137,7 +137,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   max="100"
                   value={settings.defaultRiskTolerance}
                   onChange={(e) => handleChange('defaultRiskTolerance', parseInt(e.target.value))}
-                  className="w-full h-2 bg-[#2A2A2A] rounded-lg appearance-none cursor-pointer accent-[#00FF99]"
+                  className="w-full h-2 bg-[#2A2A2A] rounded-sm appearance-none cursor-pointer accent-[#00FF99]"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
                   <span>Conservative</span>
@@ -151,7 +151,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <select
                   value={settings.defaultTimeHorizon}
                   onChange={(e) => handleChange('defaultTimeHorizon', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A] text-white text-sm focus:outline-none focus:border-[#00FF99]/50"
+                  className="w-full px-3 py-2 rounded-sm bg-[#1A1A1A] border border-[#2A2A2A] text-white text-sm focus:outline-none focus:border-[#00FF99]/50"
                 >
                   <option value="1-3 years">1-3 years</option>
                   <option value="3-5 years">3-5 years</option>
@@ -195,18 +195,18 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               {/* Clear Data Button */}
               <div className="pt-2">
                 {showClearConfirm ? (
-                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30">
+                  <div className="p-3 rounded-sm bg-red-500/10 border border-red-500/30">
                     <p className="text-sm text-red-400 mb-3">This will clear all cached data including recommendations and form state. Are you sure?</p>
                     <div className="flex gap-2">
                       <button
                         onClick={handleClearData}
-                        className="px-3 py-1.5 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
+                        className="px-3 py-1.5 rounded-sm bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
                       >
                         Yes, Clear All
                       </button>
                       <button
                         onClick={() => setShowClearConfirm(false)}
-                        className="px-3 py-1.5 rounded-lg bg-[#2A2A2A] text-gray-400 text-sm font-medium hover:bg-[#3A3A3A] transition-colors"
+                        className="px-3 py-1.5 rounded-sm bg-[#2A2A2A] text-gray-400 text-sm font-medium hover:bg-[#3A3A3A] transition-colors"
                       >
                         Cancel
                       </button>
@@ -215,7 +215,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 ) : (
                   <button
                     onClick={() => setShowClearConfirm(true)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A] text-gray-400 text-sm hover:border-red-500/50 hover:text-red-400 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm bg-[#1A1A1A] border border-[#2A2A2A] text-gray-400 text-sm hover:border-red-500/50 hover:text-red-400 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -232,14 +232,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <div className="flex items-center justify-end gap-3 p-4 border-t border-[#2A2A2A]">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-colors"
+            className="px-4 py-2 rounded-sm text-sm font-medium text-gray-400 hover:text-white transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={!hasChanges}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-sm text-sm font-medium transition-colors ${
               hasChanges
                 ? 'bg-[#00FF99] text-black hover:bg-[#00E689]'
                 : 'bg-[#2A2A2A] text-gray-500 cursor-not-allowed'
