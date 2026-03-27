@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { callGrokStreaming } from "@/app/lib/grokClient";
 import { 
   getComprehensiveMarketContext,
@@ -35,6 +36,10 @@ interface DetailedRecommendationsRequest {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   let body: DetailedRecommendationsRequest;
   try {
     body = await request.json();

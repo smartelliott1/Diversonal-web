@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 // Stock Prices API - Fetches real-time prices for specific tickers
 // Used to display live prices in recommendation UI
@@ -36,6 +37,10 @@ async function fetchFMP(endpoint: string): Promise<any> {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await request.json();
     const { tickers } = body;

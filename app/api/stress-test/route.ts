@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import Anthropic from "@anthropic-ai/sdk";
 import { getComprehensiveMarketContext } from "@/app/lib/financialData";
 
@@ -39,6 +40,10 @@ interface StressTestResult {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   let body: StressTestRequest;
   try {
     body = await request.json();
@@ -72,16 +77,11 @@ export async function POST(request: NextRequest) {
 
     // If no API key, use fallback algorithm
     if (!ANTHROPIC_API_KEY) {
-      console.warn("ANTHROPIC_API_KEY not set, using fallback algorithm");
-      console.log("Environment check - NODE_ENV:", process.env.NODE_ENV);
       return NextResponse.json({
         ...generateFallbackStressTest(scenario, portfolio, initialCapital, portfolioAssetClasses, monthsToSimulate),
         reasoning: "Generated using Diversonal's proprietary stress testing algorithm",
       });
     }
-
-    console.log("ANTHROPIC_API_KEY found, attempting to call Claude API");
-    console.log("API Key length:", ANTHROPIC_API_KEY?.length || 0);
 
     const anthropic = new Anthropic({
       apiKey: ANTHROPIC_API_KEY,

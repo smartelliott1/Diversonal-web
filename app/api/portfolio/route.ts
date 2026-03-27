@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { 
   getComprehensiveMarketContext,
   getEconomicCalendar,
@@ -28,6 +29,10 @@ interface PortfolioAllocation {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body: PortfolioRequest = await request.json();
     const { age, riskTolerance, timeHorizon, capital, goal, sectors } = body;
@@ -42,16 +47,12 @@ export async function POST(request: NextRequest) {
 
     // If no API key, use a sophisticated fallback algorithm
     if (!OPENAI_API_KEY) {
-      console.warn("OPENAI_API_KEY not set, using fallback algorithm");
-      console.log("Environment check - NODE_ENV:", process.env.NODE_ENV);
-      console.log("API Key exists:", !!OPENAI_API_KEY);
       return NextResponse.json({
         portfolio: generateFallbackPortfolio(age, riskTolerance, timeHorizon, capital, goal, sectors),
         reasoning: "Generated using Diversonal's proprietary algorithm",
       });
     }
 
-    console.log("OPENAI_API_KEY found, attempting to call OpenAI API");
 
     // Fetch live market data and intelligence for context
     let marketContext = "";

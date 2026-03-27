@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 // Stock Chat API - Continue conversation about a specific stock
 // Streams responses from Grok with full portfolio context
@@ -37,6 +38,10 @@ interface StockChatRequest {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   let body: StockChatRequest;
   try {
     body = await request.json();

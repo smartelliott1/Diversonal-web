@@ -176,6 +176,7 @@ export interface StockKeyMetrics {
 export interface IncomeStatement {
   symbol: string;
   date: string;
+  period?: string; // 'Q1', 'Q2', 'Q3', 'Q4' for quarterly, 'FY' for annual
   revenue: number;
   grossProfit: number;
   grossProfitRatio: number;
@@ -813,10 +814,11 @@ export async function getStockKeyMetrics(ticker: string): Promise<StockKeyMetric
   }
   
   try {
-    const data = await fetchFMP(`/stable/key-metrics?symbol=${ticker}`);
+    // Use quarterly data for most current metrics
+    const data = await fetchFMP(`/api/v3/key-metrics/${ticker}?period=quarter&limit=1`);
     if (!data || data.length === 0) return null;
     
-    const raw = data[0]; // Most recent
+    const raw = data[0]; // Most recent quarter
     const metrics: StockKeyMetrics = {
       symbol: raw.symbol,
       revenuePerShare: raw.revenuePerShare || 0,
@@ -881,21 +883,23 @@ export async function getStockKeyMetrics(ticker: string): Promise<StockKeyMetric
 }
 
 export async function getStockIncomeStatement(ticker: string): Promise<IncomeStatement[] | null> {
-  const cacheKey = `stock-income-${ticker}`;
+  const cacheKey = `stock-income-quarterly-${ticker}`;
   const cached = getCached<IncomeStatement[]>(cacheKey);
   if (cached) {
-    console.log(`[FMP] Using cached income statements for ${ticker}`);
+    console.log(`[FMP] Using cached quarterly income statements for ${ticker}`);
     return cached;
   }
   
   try {
-    const data = await fetchFMP(`/stable/income-statement?symbol=${ticker}&limit=2`);
+    // Fetch 5 quarters for TTM calculations and YoY comparisons
+    const data = await fetchFMP(`/api/v3/income-statement/${ticker}?period=quarter&limit=5`);
     if (!data || data.length === 0) return null;
     
-    // Return array of up to 2 most recent statements
-    const statements: IncomeStatement[] = data.slice(0, 2).map((raw: any) => ({
+    // Return array of quarterly statements
+    const statements: IncomeStatement[] = data.map((raw: any) => ({
       symbol: raw.symbol,
       date: raw.date,
+      period: raw.period || 'Q', // Quarter indicator
       revenue: raw.revenue || 0,
       grossProfit: raw.grossProfit || 0,
       grossProfitRatio: raw.grossProfitRatio || 0,
@@ -904,7 +908,7 @@ export async function getStockIncomeStatement(ticker: string): Promise<IncomeSta
       netIncome: raw.netIncome || 0,
       netIncomeRatio: raw.netIncomeRatio || 0,
       eps: raw.eps || 0,
-      epsdiluted: raw.epsDiluted || 0,
+      epsdiluted: raw.epsdiluted || raw.epsDiluted || 0,
       weightedAverageShsOut: raw.weightedAverageShsOut || 0,
       weightedAverageShsOutDil: raw.weightedAverageShsOutDil || 0,
     }));
@@ -912,7 +916,7 @@ export async function getStockIncomeStatement(ticker: string): Promise<IncomeSta
     setCache(cacheKey, statements, 1440); // Cache 24 hours
     return statements;
   } catch (error: any) {
-    console.error(`[FMP] Error fetching income statements for ${ticker}:`, error?.message);
+    console.error(`[FMP] Error fetching quarterly income statements for ${ticker}:`, error?.message);
     return null;
   }
 }

@@ -166,7 +166,7 @@ export default function Navigation({ onMyPortfoliosClick }: NavigationProps) {
                   : 'text-[#B4B4B4] hover:text-white'
               }`}
             >
-              TradingView
+              Agent Opti
             </Link>
           </div>
         </div>

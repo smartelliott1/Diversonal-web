@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { callGrok } from "@/app/lib/grokClient";
 import { 
   getStockNews,
@@ -110,6 +111,10 @@ interface StockDataResponse {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body: StockDataRequest = await request.json();
     const { ticker } = body;

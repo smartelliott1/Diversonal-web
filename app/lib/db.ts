@@ -22,8 +22,8 @@ export const sql: NeonQueryFunction<false, false> = ((
   return getSql()(strings, ...values);
 }) as NeonQueryFunction<false, false>;
 
-// Helper to generate cuid-like IDs
+// Helper to generate secure unique IDs
 export function generateId(): string {
-  return 'c' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+  return crypto.randomUUID().replace(/-/g, '');
 }
 

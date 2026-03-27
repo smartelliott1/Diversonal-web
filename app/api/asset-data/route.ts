@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { callGrok } from "@/app/lib/grokClient";
 import { 
   getStockNews,
@@ -128,6 +129,10 @@ interface AssetDataResponse {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body: AssetDataRequest = await request.json();
     const { ticker, assetClass } = body;
@@ -189,34 +194,34 @@ async function handleEquityAsset(ticker: string, assetClass: string): Promise<Ne
   // Get quote data for SMAs and market cap
   const quote = quoteData && quoteData.length > 0 ? quoteData[0] : null;
   
-  // Calculate revenue growth from income statements
+  // Calculate YoY revenue growth from quarterly income statements
+  // Fetch 5 quarters: latest Q vs same Q last year
   let revenueGrowth: number | null = null;
   let growthPeriod: string | null = null;
   
   try {
-    const incomeData = await fetchFMP(`/stable/income-statement?symbol=${ticker}&limit=2`);
-    if (incomeData && incomeData.length >= 2) {
+    const incomeData = await fetchFMP(`/api/v3/income-statement/${ticker}?period=quarter&limit=5`);
+    if (incomeData && incomeData.length >= 5) {
+      // Compare latest quarter to same quarter last year (4 quarters ago)
+      const latestQ = incomeData[0];
+      const sameQLastYear = incomeData[4];
+      
+      if (latestQ && sameQLastYear && sameQLastYear.revenue && sameQLastYear.revenue !== 0) {
+        revenueGrowth = ((latestQ.revenue - sameQLastYear.revenue) / Math.abs(sameQLastYear.revenue)) * 100;
+        growthPeriod = 'YoY';
+      }
+    } else if (incomeData && incomeData.length >= 2) {
+      // Fallback: QoQ comparison if not enough quarters
       const latest = incomeData[0];
       const previous = incomeData[1];
       
       if (latest && previous && previous.revenue && previous.revenue !== 0) {
         revenueGrowth = ((latest.revenue - previous.revenue) / Math.abs(previous.revenue)) * 100;
-        
-        const latestDate = new Date(latest.date);
-        const previousDate = new Date(previous.date);
-        const monthsDiff = Math.round((latestDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
-        
-        if (monthsDiff >= 10 && monthsDiff <= 14) {
-          growthPeriod = 'YoY';
-        } else if (monthsDiff >= 2 && monthsDiff <= 4) {
-          growthPeriod = 'QoQ';
-        } else if (monthsDiff > 0) {
-          growthPeriod = `${monthsDiff}M`;
-        }
+        growthPeriod = 'QoQ';
       }
     }
   } catch (e) {
-    console.error(`[Asset Data] Error fetching income statements for ${ticker}:`, e);
+    console.error(`[Asset Data] Error fetching quarterly income statements for ${ticker}:`, e);
   }
   
   // Build metrics

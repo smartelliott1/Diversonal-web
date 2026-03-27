@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 // Allocation Reasoning API - Explains why the AI chose these allocations
 // Streams responses from Grok with portfolio and user profile context
@@ -26,6 +27,10 @@ interface AllocationReasoningRequest {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   let body: AllocationReasoningRequest;
   try {
     body = await request.json();

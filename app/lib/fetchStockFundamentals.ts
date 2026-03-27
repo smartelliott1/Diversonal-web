@@ -10,7 +10,7 @@ export interface StockFundamentals {
   ratios: any;
   keyMetrics: any;
   incomeStatement: any;
-  incomeStatementHistory: any[]; // Last 2 years for growth calculations
+  incomeStatementHistory: any[]; // Last 5 quarters for TTM and YoY calculations
   analystEstimates: any | null;
   lastUpdated: string;
   error?: string;
@@ -79,20 +79,20 @@ export async function fetchStockFundamentals(
       return data[0] || null;
     });
 
-    // Fetch key metrics (required)
+    // Fetch key metrics (required) - use quarterly for most current data
     result.keyMetrics = await rateLimiter.executeWithRateLimit(async () => {
-      const data = await fetchFMP('/stable/key-metrics', ticker);
+      const data = await fetchFMP('/api/v3/key-metrics', ticker, 'period=quarter&limit=1');
       return data[0] || null;
     });
 
-    // Fetch income statement (required) - get last 2 years for growth calculation
+    // Fetch quarterly income statements - get last 5 quarters for TTM and YoY comparisons
     const incomeStatements = await rateLimiter.executeWithRateLimit(async () => {
-      const data = await fetchFMP('/stable/income-statement', ticker);
+      const data = await fetchFMP('/api/v3/income-statement', ticker, 'period=quarter&limit=5');
       return data || [];
     });
     
     result.incomeStatement = incomeStatements[0] || null;
-    result.incomeStatementHistory = incomeStatements.slice(0, 2); // Store last 2 years
+    result.incomeStatementHistory = incomeStatements.slice(0, 5); // Store last 5 quarters for TTM & YoY
 
     // Fetch analyst estimates (optional)
     try {

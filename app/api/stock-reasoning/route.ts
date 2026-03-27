@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 // On-demand stock reasoning API
 // Two-phase approach:
@@ -24,6 +25,10 @@ interface StockReasoningRequest {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   let body: StockReasoningRequest;
   try {
     body = await request.json();
