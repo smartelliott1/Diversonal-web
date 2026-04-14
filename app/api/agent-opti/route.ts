@@ -115,14 +115,14 @@ export async function POST(request: NextRequest) {
     // Build conversation history for API call
     let conversationHistory: Message[] = [];
     
-    if (clientMessages && clientMessages.length > 0) {
-      // Use client-provided messages for context
+    if (Array.isArray(clientMessages)) {
+      // Use client-provided messages — empty array means clean context (e.g. after ticker switch)
       conversationHistory = clientMessages.map((m: { role: string; content: string }) => ({
         role: m.role as "user" | "assistant",
         content: m.content
       }));
     } else {
-      // Fetch from database
+      // No messages provided — fetch from database
       const dbMessages = await sql`
         SELECT role, content FROM "ChatMessage"
         WHERE "chatId" = ${currentChatId}
