@@ -144,7 +144,7 @@ export default function Navigation({ onMyPortfoliosClick }: NavigationProps) {
                   : 'text-[#B4B4B4] hover:text-white'
               }`}
             >
-              Develop a Portfolio
+              Develop
             </Link>
             <span className="text-[#3A3A3A]">|</span>
             <Link 
@@ -155,7 +155,7 @@ export default function Navigation({ onMyPortfoliosClick }: NavigationProps) {
                   : 'text-[#B4B4B4] hover:text-white'
               }`}
             >
-              Optimize my Portfolio
+              Optimize
             </Link>
             <span className="text-[#3A3A3A]">|</span>
             <Link 

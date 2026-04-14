@@ -106,14 +106,12 @@ export async function GET(request: NextRequest) {
       rsiData,
       adxData,
       williamsData,
-      // Fundamental data (price targets + growth)
+      // Fundamental data (price targets)
       priceTargetData,
-      quarterlyGrowthData,
-      annualGrowthData,
     ] = await Promise.all([
       fetchFMP(`/stable/quote?symbol=${fmpSymbol}`),
       (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/stable/profile?symbol=${symbol}`),
-      (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/api/v3/income-statement/${symbol}?period=quarter&limit=4`),
+      (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/api/v3/income-statement/${symbol}?period=quarter&limit=8`),
       (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/api/v3/ratios-ttm/${symbol}`),
       getMarketData(),
       getCryptoData(),
@@ -133,10 +131,8 @@ export async function GET(request: NextRequest) {
       fetchFMP(`/stable/technical-indicators/rsi?symbol=${fmpSymbol}&periodLength=14&timeframe=1day`),
       fetchFMP(`/stable/technical-indicators/adx?symbol=${fmpSymbol}&periodLength=14&timeframe=1day`),
       fetchFMP(`/stable/technical-indicators/williams?symbol=${fmpSymbol}&periodLength=14&timeframe=1day`),
-      // Fundamental data (price targets + growth) - stocks only
+      // Fundamental data (price targets) - stocks only
       (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/stable/price-target-consensus?symbol=${symbol}`),
-      (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/stable/financial-growth?symbol=${symbol}&period=quarter&limit=1`),
-      (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/stable/financial-growth?symbol=${symbol}&period=annual&limit=1`),
     ]);
 
     // Extract quote
@@ -188,6 +184,20 @@ export async function GET(request: NextRequest) {
       ? currentPrice / ttmEPS
       : null;
 
+    // Compute YoY revenue + EPS growth from income statement (more reliable than FMP pre-computed growth endpoint)
+    let revenueGrowthYoY: number | null = null;
+    let epsGrowthYoY: number | null = null;
+    if (incomeData && Array.isArray(incomeData) && incomeData.length >= 5) {
+      const q0 = incomeData[0]; // most recent quarter
+      const q4 = incomeData[4]; // same quarter last year
+      if (q0?.revenue && q4?.revenue && q4.revenue !== 0) {
+        revenueGrowthYoY = (q0.revenue - q4.revenue) / q4.revenue;
+      }
+      if (typeof q0?.epsdiluted === 'number' && typeof q4?.epsdiluted === 'number' && q4.epsdiluted !== 0) {
+        epsGrowthYoY = (q0.epsdiluted - q4.epsdiluted) / q4.epsdiluted;
+      }
+    }
+
     // Extract price targets (filtered to what matters)
     const priceTarget = priceTargetData?.[0] ? {
       consensus: priceTargetData[0].targetConsensus,
@@ -196,16 +206,13 @@ export async function GET(request: NextRequest) {
       median: priceTargetData[0].targetMedian,
     } : null;
 
-    // Extract growth data (filtered to just revenue + EPS)
+    // Growth computed from raw income statement (true YoY, avoids FMP pre-computed endpoint inaccuracies)
     const growth = {
-      quarterly: quarterlyGrowthData?.[0] ? {
-        revenue: quarterlyGrowthData[0].revenueGrowth,
-        eps: quarterlyGrowthData[0].epsdilutedGrowth,
+      quarterly: (revenueGrowthYoY !== null || epsGrowthYoY !== null) ? {
+        revenue: revenueGrowthYoY,
+        eps: epsGrowthYoY,
       } : null,
-      annual: annualGrowthData?.[0] ? {
-        revenue: annualGrowthData[0].revenueGrowth,
-        eps: annualGrowthData[0].epsdilutedGrowth,
-      } : null,
+      annual: null,
     };
 
     // Build ticker context for Agent Opti

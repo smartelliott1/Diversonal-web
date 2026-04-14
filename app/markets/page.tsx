@@ -446,10 +446,9 @@ export default function MarketsPage() {
     setEditingChatId(null);
   };
 
-  // Send message with streaming
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  // Core send logic — accepts message text directly so suggestion buttons can auto-submit
+  const sendMessage = async (userMessage: string) => {
+    if (!userMessage.trim() || isLoading) return;
 
     if (!session?.user) {
       setMessages([{
@@ -459,10 +458,13 @@ export default function MarketsPage() {
       return;
     }
 
-    const userMessage = input.trim();
     setInput("");
 
-    const priorMessages = messages.filter(m => m.role !== "divider");
+    // Only send messages after the most recent ticker-change divider so Grok doesn't reference the old ticker
+    const lastDividerIdx = messages.findLastIndex((m: Message) => m.role === "divider");
+    const priorMessages = messages
+      .slice(lastDividerIdx + 1)
+      .filter((m: Message) => m.role !== "divider");
     setMessages([...messages, { role: "user" as const, content: userMessage }, { role: "assistant" as const, content: "" }]);
     setIsLoading(true);
 
@@ -528,11 +530,17 @@ export default function MarketsPage() {
     }
   };
 
+  // Form submit wrapper
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(input);
+  };
+
   // Handle key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e);
+      sendMessage(input);
     }
   };
 
@@ -846,7 +854,7 @@ export default function MarketsPage() {
                     ]).map((suggestion) => (
                       <button
                         key={suggestion}
-                        onClick={() => setInput(suggestion)}
+                        onClick={() => sendMessage(suggestion)}
                         className="px-3 py-1.5 rounded-sm bg-[#1A1A1A] border border-[#2A2A2A] text-xs text-[#808080] hover:border-[#00FF99]/50 hover:text-[#00FF99] transition-colors"
                       >
                         {suggestion}
@@ -914,10 +922,7 @@ export default function MarketsPage() {
                 }[optiMode]).map((question, idx) => (
                   <button
                     key={idx}
-                    onClick={() => {
-                      setInput(question);
-                      inputRef.current?.focus();
-                    }}
+                    onClick={() => sendMessage(question)}
                     className="px-3 py-1.5 text-xs rounded-full border border-[#3A3A3A] text-gray-400 hover:border-[#00FF99]/50 hover:text-[#00FF99] transition-colors"
                   >
                     {question}
