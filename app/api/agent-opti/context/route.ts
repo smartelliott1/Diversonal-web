@@ -111,8 +111,8 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       fetchFMP(`/stable/quote?symbol=${fmpSymbol}`),
       (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/stable/profile?symbol=${symbol}`),
-      (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/api/v3/income-statement/${symbol}?period=quarter&limit=8`),
-      (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/api/v3/ratios-ttm/${symbol}`),
+      (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/stable/income-statement?symbol=${symbol}&period=quarter&limit=8`),
+      (isCryptoAsset || isCommodityAsset) ? null : fetchFMP(`/stable/ratios-ttm?symbol=${symbol}`),
       getMarketData(),
       getCryptoData(),
       getCommodityData(),
@@ -185,6 +185,7 @@ export async function GET(request: NextRequest) {
       : null;
 
     // Compute YoY revenue + EPS growth from income statement (more reliable than FMP pre-computed growth endpoint)
+    console.log(`[Agent Opti Context] incomeData for ${symbol}: count=${Array.isArray(incomeData) ? incomeData.length : 'null'}, q0 revenue=${incomeData?.[0]?.revenue}, q4 revenue=${incomeData?.[4]?.revenue}`);
     let revenueGrowthYoY: number | null = null;
     let epsGrowthYoY: number | null = null;
     if (incomeData && Array.isArray(incomeData) && incomeData.length >= 5) {
