@@ -19,7 +19,7 @@ const PRODUCTS = [
     number: "02",
     name: "Optimize",
     description: "De-risk, leverage, and tax-optimize an existing portfolio using brokerage-grade analysis.",
-    status: "Coming Soon" as const,
+    status: "Live" as const,
     href: "/optimize",
   },
   {
