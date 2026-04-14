@@ -307,6 +307,38 @@ function fmtPct(val: number | null | undefined): string {
   return pct >= 0 ? `+${pct.toFixed(1)}%` : `${pct.toFixed(1)}%`;
 }
 
+// Helper: determine if US market is currently open (ET hours)
+function getMarketStatus(): string {
+  const now = new Date();
+  // Convert to ET (UTC-5 standard, UTC-4 daylight)
+  const etOffset = isDST(now) ? -4 : -5;
+  const etMs = now.getTime() + (now.getTimezoneOffset() + etOffset * 60) * 60000;
+  const et = new Date(etMs);
+  const day = et.getDay(); // 0=Sun, 6=Sat
+  const hours = et.getHours();
+  const minutes = et.getMinutes();
+  const timeInMinutes = hours * 60 + minutes;
+  const marketOpen = 9 * 60 + 30;  // 9:30am
+  const marketClose = 16 * 60;      // 4:00pm
+  const isWeekday = day >= 1 && day <= 5;
+  const isOpen = isWeekday && timeInMinutes >= marketOpen && timeInMinutes < marketClose;
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dateStr = `${days[et.getDay()]} ${months[et.getMonth()]} ${et.getDate()}, ${et.getFullYear()}`;
+  const h = et.getHours() % 12 || 12;
+  const m = et.getMinutes().toString().padStart(2, '0');
+  const ampm = et.getHours() < 12 ? 'AM' : 'PM';
+  const timeStr = `${h}:${m} ${ampm} ET`;
+  const status = isOpen ? 'OPEN' : 'CLOSED — prices reflect last close';
+  return `${dateStr}, ${timeStr} — Market: ${status}`;
+}
+
+function isDST(date: Date): boolean {
+  const jan = new Date(date.getFullYear(), 0, 1).getTimezoneOffset();
+  const jul = new Date(date.getFullYear(), 6, 1).getTimezoneOffset();
+  return date.getTimezoneOffset() < Math.max(jan, jul);
+}
+
 // Helper: base price info shared by all modes
 function formatBaseInfo(ticker: any, market: any): string {
   const change = ticker.changePercent || 0;
@@ -327,7 +359,9 @@ function formatBaseInfo(ticker: any, market: any): string {
     volumeContext = `, ${volDesc} (${volRatio.toFixed(1)}x avg)`;
   }
 
-  return `${ticker.symbol} (${ticker.name}) at $${ticker.price?.toFixed(2)} (${changeStr} today${volumeContext})${rangeContext}
+  return `${getMarketStatus()}
+
+${ticker.symbol} (${ticker.name}) at $${ticker.price?.toFixed(2)} (${changeStr} today${volumeContext})${rangeContext}
 Market: S&P ${sp500Chg}, VIX ${market.vix?.toFixed(1)}, Fear/Greed ${market.fearGreed?.value} (${market.fearGreed?.label || ''})`;
 }
 

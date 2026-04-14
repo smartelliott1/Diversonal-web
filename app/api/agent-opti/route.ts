@@ -5,7 +5,7 @@ import { sql, generateId } from "@/app/lib/db";
 
 const XAI_API_KEY = process.env.XAI_API_KEY;
 const XAI_BASE_URL = "https://api.x.ai/v1";
-const MODEL = "grok-4-1-fast-non-reasoning";
+const MODEL = "grok-3";
 
 interface Message {
   role: "user" | "assistant" | "system";
@@ -18,6 +18,7 @@ const CORE_RULES = `You speak like a sharp analyst on a trading desk - conversat
 CRITICAL RULES:
 - USE specific numbers from the data to ground your analysis. "RSI at 72 is getting stretched" is better than "momentum looks high".
 - INTERPRET what the numbers mean, don't just list them. One number with context beats five numbers in a row.
+- If a specific data point is not present in the market data provided, say you don't have that data. Never invent numbers or reference events not in this context.
 - NO formatting: no asterisks, bold, headers, bullets, or markdown.
 - 3-5 sentences. Sound like you're talking to a colleague on a trade, not writing a report.
 - Be direct about the setup. What's actually happening and what does it mean for the trade?`;
@@ -164,7 +165,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         model: MODEL,
         messages: apiMessages,
-        temperature: 0.7,
+        temperature: 0.4,
         max_tokens: 2048,
         stream: true,
       }),

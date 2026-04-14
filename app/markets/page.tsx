@@ -5,7 +5,7 @@ import Navigation from "../components/layout/Navigation";
 
 interface Message {
   id?: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "divider";
   content: string;
   createdAt?: string;
 }
@@ -382,6 +382,18 @@ export default function MarketsPage() {
     fetchMessages();
   }, [activeChat, session?.user]);
 
+  // Insert a divider when the ticker changes mid-conversation
+  const prevTickerRef = useRef(currentTicker);
+  useEffect(() => {
+    if (prevTickerRef.current !== currentTicker && messages.length > 0) {
+      setMessages(prev => [...prev, {
+        role: "divider" as const,
+        content: `now analyzing ${currentTicker}`,
+      }]);
+    }
+    prevTickerRef.current = currentTicker;
+  }, [currentTicker]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Create new chat
   const handleNewChat = async () => {
     setActiveChat(null);
@@ -450,8 +462,8 @@ export default function MarketsPage() {
     const userMessage = input.trim();
     setInput("");
 
-    const priorMessages = [...messages];
-    setMessages([...priorMessages, { role: "user" as const, content: userMessage }, { role: "assistant" as const, content: "" }]);
+    const priorMessages = messages.filter(m => m.role !== "divider");
+    setMessages([...messages, { role: "user" as const, content: userMessage }, { role: "assistant" as const, content: "" }]);
     setIsLoading(true);
 
     try {
@@ -748,11 +760,12 @@ export default function MarketsPage() {
             {/* Header */}
             <div className="px-4 py-3 border-b border-[#2A2A2A]">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                {/* Left: sidebar toggle + title + ticker */}
+                <div className="flex items-center gap-3 min-w-0">
                   {session?.user && (
                     <button
                       onClick={() => setShowSidebar(!showSidebar)}
-                      className="p-1.5 hover:bg-[#1A1A1A] rounded-sm transition-colors"
+                      className="p-1.5 hover:bg-[#1A1A1A] rounded-sm transition-colors shrink-0"
                       title={showSidebar ? "Hide chat history" : "Show chat history"}
                     >
                       <svg className="w-5 h-5 text-[#808080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -760,40 +773,50 @@ export default function MarketsPage() {
                       </svg>
                     </button>
                   )}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-sm font-semibold text-white">Agent Opti</h2>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-sm font-semibold text-white shrink-0">Agent Opti</h2>
                       {marketContext?.ticker && (
-                        <span className="text-xs text-[#00FF99]">
-                          {marketContext.ticker.symbol} · ${marketContext.ticker.price?.toLocaleString()}
+                        <span className="flex items-center gap-1.5 text-xs shrink-0">
+                          <span className="text-[#808080]">{marketContext.ticker.symbol}</span>
+                          <span className={marketContext.ticker.changePercent >= 0 ? 'text-[#00FF99]' : 'text-[#FF4444]'}>
+                            {marketContext.ticker.changePercent >= 0 ? '+' : ''}{marketContext.ticker.changePercent?.toFixed(2)}%
+                          </span>
                         </span>
                       )}
                     </div>
                     <p className="text-[10px] text-[#505050] mt-0.5">AI trading analyst</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {/* Mode dropdown */}
-                  <select
-                    value={optiMode}
-                    onChange={(e) => setOptiMode(e.target.value as OptiMode)}
-                    className="px-2 py-1.5 text-[11px] bg-[#1A1A1A] border border-[#2A2A2A] rounded-sm text-white cursor-pointer focus:outline-none focus:border-[#00FF99]/50"
+
+                {/* Right: mode pills + clear button */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* Mode pills */}
+                  <div className="flex items-center bg-[#111111] border border-[#2A2A2A] rounded-sm p-0.5">
+                    {(['technical', 'hybrid', 'fundamental'] as OptiMode[]).map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => setOptiMode(m)}
+                        className={`px-2.5 py-1 text-[10px] rounded-sm capitalize transition-colors ${
+                          optiMode === m
+                            ? 'bg-[#00FF99]/15 text-[#00FF99] border border-[#00FF99]/30'
+                            : 'text-[#505050] hover:text-[#808080]'
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Clear chat */}
+                  <button
+                    onClick={handleNewChat}
+                    className="p-1.5 hover:bg-[#1A1A1A] rounded-sm transition-colors"
+                    title="Clear chat"
                   >
-                    <option value="hybrid">Hybrid</option>
-                    <option value="technical">Technical</option>
-                    <option value="fundamental">Fundamental</option>
-                  </select>
-                  {session?.user && (
-                    <button
-                      onClick={handleNewChat}
-                      className="p-1.5 hover:bg-[#1A1A1A] rounded-sm transition-colors"
-                      title="New chat"
-                    >
-                      <svg className="w-4 h-4 text-[#808080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                    </button>
-                  )}
+                    <svg className="w-4 h-4 text-[#505050] hover:text-[#808080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
@@ -845,7 +868,13 @@ export default function MarketsPage() {
                       className="animate-fade-in"
                       style={{ animationDelay: `${idx * 50}ms` }}
                     >
-                      {msg.role === 'user' ? (
+                      {msg.role === 'divider' ? (
+                        <div className="flex items-center gap-3 py-1">
+                          <div className="flex-1 h-px bg-[#1E1E1E]" />
+                          <span className="text-[10px] text-[#404040] whitespace-nowrap">{msg.content}</span>
+                          <div className="flex-1 h-px bg-[#1E1E1E]" />
+                        </div>
+                      ) : msg.role === 'user' ? (
                         <div className="flex justify-end">
                           <p className="text-sm text-[#00FF99]/90 bg-[#00FF99]/10 rounded-sm px-4 py-2.5 max-w-[85%]">
                             {msg.content}
@@ -875,10 +904,14 @@ export default function MarketsPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Suggested Questions */}
-            {messages.length > 0 && messages.length <= 2 && !isLoading && (
+            {/* Suggested follow-ups — mode-aware */}
+            {messages.filter(m => m.role !== 'divider').length > 0 && messages.filter(m => m.role !== 'divider').length <= 2 && !isLoading && (
               <div className="px-6 pb-2 flex flex-wrap gap-2">
-                {["Tell me more", "Risks?", "Alternatives?"].map((question, idx) => (
+                {({
+                  technical: ["Best entry point?", "Key support levels?", "How strong is the trend?"],
+                  fundamental: ["Is it overvalued?", "Growth outlook?", "How do analysts see it?"],
+                  hybrid: ["Bull or bear?", "What would change your view?", "Compare to the sector?"],
+                }[optiMode]).map((question, idx) => (
                   <button
                     key={idx}
                     onClick={() => {
