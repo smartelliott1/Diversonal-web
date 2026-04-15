@@ -17,29 +17,38 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get("filter") || "all";
+    const type = searchParams.get("type");
 
     let portfolios;
-    
-    if (filter === "saved") {
-      // Only manually saved portfolios (for Developed Portfolios tab)
+
+    if (type === "optimize") {
+      // Only optimize portfolios (goal = '__optimize__')
       portfolios = await sql`
-        SELECT id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors, 
+        SELECT id, name, "createdAt", "updatedAt", capital, "portfolioData"
+        FROM "Portfolio"
+        WHERE "userId" = ${session.user.id} AND goal = '__optimize__'
+        ORDER BY "updatedAt" DESC
+      `;
+    } else if (filter === "saved") {
+      // Only manually saved develop portfolios (for Developed Portfolios tab)
+      portfolios = await sql`
+        SELECT id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors,
                "portfolioData", "detailedRecommendations", "isManuallySaved",
                "stockModalCache", "allocationChatHistory", "allocationReasoning",
                "stockData", "marketContext", "activeTab"
         FROM "Portfolio"
-        WHERE "userId" = ${session.user.id} AND "isManuallySaved" = true
+        WHERE "userId" = ${session.user.id} AND "isManuallySaved" = true AND (goal IS NULL OR goal != '__optimize__')
         ORDER BY "updatedAt" DESC
       `;
     } else {
-      // All portfolios (for History tab or default)
+      // All develop portfolios — exclude optimize portfolios
       portfolios = await sql`
-        SELECT id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors, 
+        SELECT id, name, "createdAt", "updatedAt", age, risk, horizon, capital, goal, sectors,
                "portfolioData", "detailedRecommendations", "isManuallySaved",
                "stockModalCache", "allocationChatHistory", "allocationReasoning",
                "stockData", "marketContext", "activeTab"
         FROM "Portfolio"
-        WHERE "userId" = ${session.user.id}
+        WHERE "userId" = ${session.user.id} AND (goal IS NULL OR goal != '__optimize__')
         ORDER BY "updatedAt" DESC
       `;
     }

@@ -17,6 +17,14 @@ interface AnalysisMessage {
   content: string;
 }
 
+interface SavedOptimizePortfolio {
+  id: string;
+  name: string;
+  capital: string;
+  updatedAt: string;
+  portfolioData: { holdings: Holding[]; mode: OptimizeMode };
+}
+
 const MODE_CONFIG: Record<OptimizeMode, { label: string; description: string }> = {
   derisk: {
     label: "Derisk",
@@ -83,6 +91,14 @@ export default function OptimizePage() {
   const [analysisMessages, setAnalysisMessages] = useState<AnalysisMessage[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  const [currentPortfolioId, setCurrentPortfolioId] = useState<string | null>(null);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedPortfolios, setSavedPortfolios] = useState<SavedOptimizePortfolio[]>([]);
+  const [isLoadingPortfolios, setIsLoadingPortfolios] = useState(false);
+
   const tickerWrapperRef = useRef<HTMLDivElement>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
@@ -124,6 +140,58 @@ export default function OptimizePage() {
 
   const removeHolding = (id: string) => {
     setHoldings((prev) => prev.filter((h) => h.id !== id));
+  };
+
+  const handleSave = async () => {
+    if (!saveName.trim() || !session?.user) return;
+    setIsSaving(true);
+    try {
+      if (currentPortfolioId) {
+        await fetch("/api/portfolios", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: currentPortfolioId, portfolioData: { holdings, mode } }),
+        });
+      } else {
+        const res = await fetch("/api/portfolios", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: saveName.trim(),
+            goal: "__optimize__",
+            age: "", risk: 0, horizon: "", capital: totalValue.toString(), sectors: [],
+            portfolioData: { holdings, mode },
+            isManuallySaved: true,
+          }),
+        });
+        const data = await res.json();
+        if (data.portfolio?.id) setCurrentPortfolioId(data.portfolio.id);
+      }
+      setShowSaveModal(false);
+      setSaveName("");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const openLoadModal = async () => {
+    setShowLoadModal(true);
+    setIsLoadingPortfolios(true);
+    try {
+      const res = await fetch("/api/portfolios?type=optimize");
+      const data = await res.json();
+      setSavedPortfolios(data.portfolios || []);
+    } finally {
+      setIsLoadingPortfolios(false);
+    }
+  };
+
+  const loadPortfolio = (p: SavedOptimizePortfolio) => {
+    setHoldings(p.portfolioData.holdings.map(h => ({ ...h, id: crypto.randomUUID() })));
+    setMode(p.portfolioData.mode);
+    setCurrentPortfolioId(p.id);
+    setAnalysisMessages([]);
+    setShowLoadModal(false);
   };
 
   const handleAnalyze = async () => {
@@ -194,9 +262,31 @@ export default function OptimizePage() {
         <div className="w-[320px] min-w-[320px] border-r border-[#2A2A2A] flex flex-col bg-black">
           <div className="px-4 py-3 border-b border-[#2A2A2A] flex items-center justify-between">
             <span className="text-sm font-semibold text-[#E6E6E6]">Your Portfolio</span>
-            {totalValue > 0 && (
-              <span className="text-sm font-mono text-[#00FF99]">${totalValue.toLocaleString()}</span>
-            )}
+            <div className="flex items-center gap-2">
+              {totalValue > 0 && (
+                <span className="text-sm font-mono text-[#00FF99]">${totalValue.toLocaleString()}</span>
+              )}
+              {session?.user && (
+                <>
+                  <button onClick={openLoadModal} title="Load portfolio"
+                    className="text-[#505050] hover:text-[#E6E6E6] transition-colors p-1">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                  </button>
+                  {holdings.length > 0 && (
+                    <button onClick={() => setShowSaveModal(true)} title="Save portfolio"
+                      className="text-[#505050] hover:text-[#00FF99] transition-colors p-1">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                      </svg>
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           {/* Holdings List */}
@@ -452,6 +542,74 @@ export default function OptimizePage() {
           </div>
         </div>
       </main>
+
+      {/* Save Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-sm w-80 p-5">
+            <h3 className="text-sm font-semibold text-[#E6E6E6] mb-4">Save Portfolio</h3>
+            <input
+              autoFocus
+              value={saveName}
+              onChange={e => setSaveName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSave()}
+              placeholder="Portfolio name..."
+              className="w-full bg-black border border-[#2A2A2A] rounded-sm px-3 py-2 text-sm text-[#E6E6E6] placeholder-[#505050] outline-none focus:border-[#00FF99] transition-colors mb-3"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleSave}
+                disabled={!saveName.trim() || isSaving}
+                className="flex-1 py-2 rounded-sm bg-[#00FF99] text-black text-xs font-semibold hover:bg-[#00E689] transition-colors disabled:opacity-40"
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+              <button
+                onClick={() => { setShowSaveModal(false); setSaveName(""); }}
+                className="px-4 py-2 rounded-sm border border-[#2A2A2A] text-xs text-[#606060] hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Load Modal */}
+      {showLoadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-sm w-96 max-h-[70vh] flex flex-col">
+            <div className="px-5 py-4 border-b border-[#2A2A2A] flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-[#E6E6E6]">Saved Portfolios</h3>
+              <button onClick={() => setShowLoadModal(false)} className="text-[#505050] hover:text-white text-lg leading-none">×</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+              {isLoadingPortfolios ? (
+                <p className="text-xs text-[#505050] text-center py-8">Loading...</p>
+              ) : savedPortfolios.length === 0 ? (
+                <p className="text-xs text-[#505050] text-center py-8">No saved portfolios yet.</p>
+              ) : (
+                savedPortfolios.map(p => (
+                  <div key={p.id} className="flex items-center justify-between bg-black border border-[#2A2A2A] rounded-sm px-3 py-2.5 hover:border-[#3A3A3A] transition-colors">
+                    <div>
+                      <div className="text-sm text-[#E6E6E6]">{p.name}</div>
+                      <div className="text-[10px] text-[#505050] mt-0.5">
+                        ${Number(p.capital).toLocaleString()} · {p.portfolioData.holdings.length} position{p.portfolioData.holdings.length !== 1 ? "s" : ""} · {p.portfolioData.mode}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => loadPortfolio(p)}
+                      className="text-xs text-[#00FF99] hover:text-white transition-colors ml-3 shrink-0"
+                    >
+                      Load
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
